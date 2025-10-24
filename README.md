@@ -1,74 +1,72 @@
-🧠 Rise – Mental Health & Wellness App
+# Mentaura – A Mental Wellness & Habit Tracker 🌿
 
-Rise is a mobile application designed to help users improve their mental health through personalized emotional tracking, self-awareness tools, and community-based support. The app blends AI-powered insights, mood tracking, and mindfulness practices to empower individuals to better understand and manage their emotions every day.
+## 📱 Overview
+**Mentaura** is a mobile application designed to help users maintain a balanced lifestyle by combining mental health tracking, habit building, and productivity tools.  
+The app promotes emotional well-being through mood tracking, mindfulness exercises, and rewarding healthy routines — encouraging balance between productivity and peace of mind.
 
-🌟 Features
-🩵 Emotional Companion (AI Chat)
+---
 
-Users can chat with an AI-powered assistant that helps identify emotions, suggest coping strategies, and offer mindfulness exercises.
+## 🎯 Problem Statement
+Many people struggle to maintain good mental health and balance due to stress, poor habits, and excessive screen time.  
+Most productivity apps focus only on efficiency, while mental health apps lack engaging, goal-oriented features.  
+**Mentaura** bridges this gap by merging wellness tracking, habit-building, and interactive mood-boosting activities to create a healthier, more sustainable daily routine.
 
-Detects emotional patterns in writing and provides gentle insights or prompts.
+---
 
-🎨 Mood Tracking & Visualization
+## 👥 Target Users
+- Individuals seeking to improve their emotional well-being  
+- People wanting to build and maintain healthy daily habits  
+- Users aiming to reduce screen time and improve focus  
+- Anyone looking to balance productivity with mental wellness  
 
-Log daily moods using emojis, colors, or short reflections.
+---
 
-Visualize emotional trends with interactive charts and color maps.
+## ⚙️ Main Functionalities
 
-Recognize triggers and progress over time.
+- **Mood Check-In:** Daily emotional tracking with visual mood charts.  
+- **Mental Health Assessment:** Quick initial screening to identify stress or mood levels.  
+- **Habit Tracker:** To-do list with wellness-based habits such as hydration, sleep, and exercise.  
+- **Reward System:** Points and achievements for completing tasks or reducing screen time.  
+- **Mindful Breaks:** Guided breathing, stretching, and relaxation prompts to encourage mental balance.  
+- **Mood-Boosting Activities:** Mini-games and mindfulness exercises designed to uplift mood and improve focus.  
+- **Daily Journal:** Space for users to reflect on their daily emotions and experiences.  
+- **Progress Insights:** Weekly summaries that display mood and habit trends for self-awareness and improvement.  
 
-✍️ Reflective Journaling
+---
 
-Private, encrypted journaling feature with optional AI reflections.
+## 🧩 Key Features
+- Combines **mental wellness** and **habit tracking** in a single app.  
+- Encourages mindfulness through **mini-games and breathing exercises**.  
+- Uses **gamified rewards** to motivate consistency and reduce screen time.  
+- Provides **visual insights** to help users understand emotional patterns and progress.  
 
-Weekly summaries highlighting recurring thoughts, stressors, and gratitude moments.
+---
 
-🧩 Cognitive Reframing (CBT Tools)
+## 🛠️ Tech Stack (to be updated as development progresses)
+- **Frontend:** Flutter / React Native  
+- **Backend:** Firebase / Node.js  
+- **Database:** Firestore / SQLite  
+- **Authentication:** Firebase Auth  
+- **Design Tools:** Figma, Canva  
 
-Helps users challenge negative thoughts using evidence-based Cognitive Behavioral Therapy techniques.
+---
 
-Includes “thought challenge” prompts to shift perspectives positively.
+## 🧠 Vision
+Mentaura’s goal is to empower individuals to develop a balanced relationship with productivity, technology, and self-care.  
+By encouraging healthy habits and emotional awareness, the app aims to make mental wellness an accessible and enjoyable part of everyday life.
 
-🤝 Peer Support Circles
+---
 
-Optional anonymous community groups for shared experiences (anxiety, stress, self-growth).
+## 🚀 Future Enhancements
+- AI-based mood predictions and recommendations  
+- Personalized wellness challenges  
+- Integration with smartwatch or fitness data  
+- Cloud synchronization for multi-device access  
 
-Safe space for encouragement and non-judgmental communication.
+---
 
-🌿 Mindful Productivity
+## 👩‍💻 Contributors
+- **Team Leader:** Ala Bensabra 
+- **Team Members:** Guettaf Temam Selsabila, Lina Sekfali, Noussayba Om Salama Chouimet  
 
-Combines to-do lists with mindful check-ins.
 
-Encourages healthy work-life balance and emotional awareness through break reminders.
-
-🛠️ Tech Stack
-
-Frontend: Flutter / React Native
-
-Backend: Node.js + Express
-
-Database: Firebase / MongoDB
-
-AI Engine: OpenAI API / TensorFlow Lite (for emotion detection)
-
-Authentication: Firebase Auth / OAuth2
-
-Analytics: Firebase Analytics
-
-🔐 Privacy & Security
-
-All user data is end-to-end encrypted.
-
-No sensitive data shared with third parties.
-
-Users retain full control over their data and can delete it anytime.
-
-Team Members:
-
-Ala Bensabra 
-
-Lina Sekfali
-
-Selsabila Guettaf Temam
-
-Noussayba Om Salama Chouimet
