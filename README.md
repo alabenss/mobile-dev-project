@@ -1,4 +1,4 @@
-# Mentaura – A Mental Wellness & Habit Tracker 🌿
+# Rise – A Mental Wellness & Habit Tracker 🌿
 
 ## 📱 Overview
 **Mentaura** is a mobile application designed to help users maintain a balanced lifestyle by combining mental health tracking, habit building, and productivity tools.  
