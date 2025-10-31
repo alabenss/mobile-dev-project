@@ -20,7 +20,7 @@ class _BottomNavWrapperState extends State<BottomNavWrapper> {
 
   final List<Widget> _pages = const [
     HomeScreen(),
-    Habits(),
+    HabitsScreen(),
     Placeholder(),
     Activities(),
     Placeholder(),
