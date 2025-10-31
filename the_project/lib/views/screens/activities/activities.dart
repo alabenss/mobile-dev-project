@@ -168,7 +168,6 @@ class _UniformGrid extends StatelessWidget {
   final List<Widget> children;
   final double itemHeight;
   const _UniformGrid({
-    super.key,
     required this.children,
     this.itemHeight = 200,
   });
