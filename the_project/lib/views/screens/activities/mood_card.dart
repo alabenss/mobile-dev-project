@@ -32,16 +32,17 @@ class MoodCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
+          // 🟢 Updated: Removed white background + border
+          SizedBox(
             width: 64,
             height: 64,
-            decoration: BoxDecoration(
-              color: Colors.white,
+            child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: border, width: 1.4),
+              child: Image.asset(
+                data.asset,
+                fit: BoxFit.contain,
+              ),
             ),
-            clipBehavior: Clip.antiAlias,
-            child: Image.asset(data.asset, fit: BoxFit.contain),
           ),
           const SizedBox(height: 12),
           Text(

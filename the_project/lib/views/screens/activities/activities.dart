@@ -5,6 +5,9 @@ import 'games/bubble_popper_game.dart';
 import 'games/breathing_page.dart';
 import 'games/painting_page.dart';
 import 'games/coloring_page.dart';
+import 'games/puzzle_game.dart';
+import 'games/grow_plant.dart';
+import '../../widgets/app_background.dart';
 
 class Activities extends StatelessWidget {
   const Activities({super.key});
@@ -13,7 +16,7 @@ class Activities extends StatelessWidget {
   static const Color kBlack = Color(0xFF000000);
   static const Color kBeige = Color(0xFFFFEBC3);
   static const Color kWhite = Color(0xFFFFFFFF);
-  static const Color kPurple = Color(0xFFBD69C7);
+  static const Color kPurple = Color.fromARGB(255, 204, 156, 201);
   static const Color kLight = Color(0xFFF5F5F5);
 
   @override
@@ -57,8 +60,8 @@ class Activities extends StatelessWidget {
       'Breathing': (_) => const BreathPage(),
       'Painting': (_) => const PaintingPage(),
       'Coloring': (_) => const ColoringPage(),
-      // 'Puzzle': (_) => const PuzzleGame(),
-      // 'Grow the plant': (_) => const PlantGame(),
+      'Puzzle': (_) => const PuzzleGame(),
+      'Grow the plant': (_) => const GrowPlantPage(),
     };
 
     return Container(
@@ -66,7 +69,7 @@ class Activities extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment(0, -1.0),
           end: Alignment(0, 0.9),
-          colors: [Color(0xFFB85CCD), Color(0xFFE6A4D7), Color(0xFFFFEBC3)],
+          colors: [Color.fromARGB(255, 247, 145, 201), Color(0xFFE6A4D7), Color(0xFFFFEBC3)],
         ),
       ),
       child: SafeArea(
@@ -77,11 +80,7 @@ class Activities extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(16, 6, 16, 8),
               child: Row(
                 children: [
-                  const CircleAvatar(
-                    radius: 20,
-                    backgroundColor: kBeige,
-                    backgroundImage: AssetImage('assets/icons/profile.png'),
-                  ),
+                  
                   const SizedBox(width: 12),
                   const Expanded(
                     child: Text(

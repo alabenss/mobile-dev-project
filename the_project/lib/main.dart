@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'views/widgets/bottom_nav_wrapper.dart';
+import 'views/screens/habits.dart';          // <-- your file
+import 'views/screens/journaling.dart';  // <-- your file
+import 'views/screens/homescreen/home_screen.dart';
+import 'views/themes/style_simple/theme.dart'; 
 
 void main() {
   runApp(const MyApp());
