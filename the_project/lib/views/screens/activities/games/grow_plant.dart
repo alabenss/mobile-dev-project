@@ -91,7 +91,7 @@ class GrowPlantPage extends StatelessWidget {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const Habits()),
+                        MaterialPageRoute(builder: (_) => const HabitsScreen()),
                       );
                     },
                     style: OutlinedButton.styleFrom(

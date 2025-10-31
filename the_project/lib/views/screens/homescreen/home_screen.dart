@@ -41,10 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 16),
 
           // Quote card
-          _ImageQuoteCard(
-            imagePath: AppImages.quotes,
-            quote: AppConfig.quote,
-          ),
+          _ImageQuoteCard(imagePath: AppImages.quotes, quote: AppConfig.quote),
           const SizedBox(height: 18),
 
           // Mood
@@ -118,7 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const Habits()),
+                  MaterialPageRoute(builder: (_) => const HabitsScreen()),
                 );
               },
               child: const Text(
@@ -338,7 +335,11 @@ class _WaterCard extends StatelessWidget {
           children: [
             const Text('water intake:', style: AppText.sectionTitle),
             const SizedBox(height: 6),
-            Image.asset('assets/images/water_intake.png', width: 32, height: 32),
+            Image.asset(
+              'assets/images/water_intake.png',
+              width: 32,
+              height: 32,
+            ),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -355,15 +356,24 @@ class _WaterCard extends StatelessWidget {
                         for (int i = 0; i < goal; i++) onRemove();
                       }
                     },
- // this will trigger reset logic in parent
+                    // this will trigger reset logic in parent
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: AppColors.accentBlue, width: 1.2),
+                      side: const BorderSide(
+                        color: AppColors.accentBlue,
+                        width: 1.2,
+                      ),
                       foregroundColor: AppColors.accentBlue,
                       textStyle: const TextStyle(
-                          fontSize: 11, fontWeight: FontWeight.w700),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
                     ),
                     child: const Text('Reset'),
                   )
@@ -390,7 +400,6 @@ class _WaterCard extends StatelessWidget {
     );
   }
 }
-
 
 class _TinyRoundBtn extends StatelessWidget {
   final IconData icon;
@@ -481,14 +490,21 @@ class _DetoxCard extends StatelessWidget {
                           onPressed: onReset,
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(
-                                color: AppColors.accentGreen, width: 1.2),
+                              color: AppColors.accentGreen,
+                              width: 1.2,
+                            ),
                             foregroundColor: AppColors.accentGreen,
                             textStyle: const TextStyle(
-                                fontSize: 11, fontWeight: FontWeight.w700),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                            ),
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 6),
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
                           ),
                           child: const Text('Reset'),
                         ),
@@ -498,12 +514,17 @@ class _DetoxCard extends StatelessWidget {
                           backgroundColor: AppColors.accentGreen,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 6),
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                           elevation: 0,
                           textStyle: const TextStyle(
-                              fontSize: 11, fontWeight: FontWeight.w700),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                         child: const Text('Lock 30m'),
                       ),
@@ -557,9 +578,13 @@ class _HabitTile extends StatelessWidget {
             Icon(icon, color: AppColors.accentPink),
             const SizedBox(width: 10),
             Expanded(
-              child: Text(title,
-                  style: const TextStyle(
-                      fontSize: 14, color: AppColors.textPrimary)),
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: AppColors.textPrimary,
+                ),
+              ),
             ),
             Icon(
               checked ? Icons.check_circle : Icons.radio_button_unchecked,
@@ -628,7 +653,9 @@ class _ExploreCard extends StatelessWidget {
                 if (cta.isNotEmpty)
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 6),
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(14),
