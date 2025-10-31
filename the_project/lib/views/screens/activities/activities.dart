@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'mood_card.dart';
-import '../../widgets/bottom_nav_bar.dart';
 import 'games/bubble_popper_game.dart';
 import 'games/breathing_page.dart';
 import 'games/painting_page.dart';
 import 'games/coloring_page.dart';
 
-class BoostYourMoodScreen extends StatelessWidget {
-  const BoostYourMoodScreen({super.key});
+class Activities extends StatelessWidget {
+  const Activities({super.key});
 
   // Palette
   static const Color kBlack = Color(0xFF000000);
@@ -52,7 +51,7 @@ class BoostYourMoodScreen extends StatelessWidget {
       ),
     ];
 
-    // Map card title -> page builder (add more as you implement games)
+    // Map card title -> page builder
     final Map<String, WidgetBuilder> routes = {
       'Bubble Popper': (_) => const BubblePopperGame(),
       'Breathing': (_) => const BreathPage(),
@@ -62,89 +61,74 @@ class BoostYourMoodScreen extends StatelessWidget {
       // 'Grow the plant': (_) => const PlantGame(),
     };
 
-    return Scaffold(
-      backgroundColor: kWhite,
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment(0, -1.0),
-            end: Alignment(0, 0.9),
-            colors: [Color(0xFFB85CCD), Color(0xFFE6A4D7), Color(0xFFFFEBC3)],
-          ),
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment(0, -1.0),
+          end: Alignment(0, 0.9),
+          colors: [Color(0xFFB85CCD), Color(0xFFE6A4D7), Color(0xFFFFEBC3)],
         ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // Header
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 6, 16, 8),
-                child: Row(
-                  children: [
-                    const CircleAvatar(
-                      radius: 20,
-                      backgroundColor: kBeige,
-                      backgroundImage: AssetImage('assets/icons/profile.png'),
-                    ),
-                    const SizedBox(width: 12),
-                    const Expanded(
-                      child: Text(
-                        'Boost Your Mood',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 28,
-                          height: 1.1,
-                          fontWeight: FontWeight.w700,
-                          color: kBlack,
-                        ),
+      ),
+      child: SafeArea(
+        child: Column(
+          children: [
+            // ---------------- HEADER ----------------
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 6, 16, 8),
+              child: Row(
+                children: [
+                  const CircleAvatar(
+                    radius: 20,
+                    backgroundColor: kBeige,
+                    backgroundImage: AssetImage('assets/icons/profile.png'),
+                  ),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Text(
+                      'Boost Your Mood',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 28,
+                        height: 1.1,
+                        fontWeight: FontWeight.w700,
+                        color: kBlack,
                       ),
                     ),
-                    const SizedBox(width: 40),
+                  ),
+                  const SizedBox(width: 40),
+                ],
+              ),
+            ),
+
+            // ---------------- GRID ----------------
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                child: _UniformGrid(
+                  itemHeight: 208,
+                  children: [
+                    for (final c in cards)
+                      InkWell(
+                        borderRadius: BorderRadius.circular(22),
+                        onTap: () {
+                          final builder = routes[c.title];
+                          if (builder != null) {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(builder: builder),
+                            );
+                          }
+                        },
+                        child: MoodCard(
+                          data: c,
+                          bg: kBeige,
+                          border: kBlack,
+                        ),
+                      ),
                   ],
                 ),
               ),
-
-              // Grid
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                  child: _UniformGrid(
-                    itemHeight: 208,
-                    children: [
-                      for (final c in cards)
-                        InkWell(
-                          borderRadius: BorderRadius.circular(22),
-                          onTap: () {
-                            final builder = routes[c.title];
-                            if (builder != null) {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(builder: builder),
-                              );
-                            }
-                          },
-                          child: MoodCard(data: c, bg: kBeige, border: kBlack),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-
-              // Bottom navigation
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                child: BottomPillNav(
-                  index: 3, // Activities is the center button
-                  onTap: (int idx) {
-                    if (idx == 3) return; // already here
-                    Navigator.of(context).maybePop();
-                  },
-                  backgroundColor: kWhite,
-                  fabColor: kPurple,
-                  activeColor: kBlack,
-                  inactiveColor: kBlack.withOpacity(.6),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -168,7 +152,6 @@ class _UniformGrid extends StatelessWidget {
   final List<Widget> children;
   final double itemHeight;
   const _UniformGrid({
-    super.key,
     required this.children,
     this.itemHeight = 200,
   });
@@ -182,11 +165,13 @@ class _UniformGrid extends StatelessWidget {
       spacing: 16,
       runSpacing: 16,
       children: children
-          .map((child) => SizedBox(
-                width: itemWidth,
-                height: itemHeight,
-                child: child,
-              ))
+          .map(
+            (child) => SizedBox(
+              width: itemWidth,
+              height: itemHeight,
+              child: child,
+            ),
+          )
           .toList(),
     );
   }

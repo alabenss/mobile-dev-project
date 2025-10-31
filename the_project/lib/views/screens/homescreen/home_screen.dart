@@ -3,10 +3,6 @@ import '../../../commons/config.dart';
 import '../../../commons/constants.dart';
 import '../../themes/style_simple/colors.dart';
 import '../../themes/style_simple/styles.dart';
-import '../../widgets/custom_appbar.dart';
-import '../../widgets/bottom_nav_bar.dart';
-
-// Article pages
 import '../articles/plant_article.dart';
 import '../articles/sport_article.dart';
 
@@ -17,187 +13,169 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _navIndex = 0;
   int _moodIndex = 1;
-
   int _waterCount = 4;
   final int _waterGoal = 8;
-
   double _detoxProgress = 0.35;
   bool _habitWalk = true;
   bool _habitRead = false;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.bgTop, AppColors.bgMid, AppColors.bgBottom],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      ),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: const CustomAppBar(),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _ImageQuoteCard(
+            imagePath: AppImages.quotes,
+            quote: AppConfig.quote,
+          ),
+          const SizedBox(height: 18),
+
+          _SectionCard(
+            title: 'How are you feeling today ?',
+            trailing: const Text(
+              'journal',
+              style: TextStyle(
+                fontSize: 12,
+                color: AppColors.accentGreen,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: _MoodPicker(
+                selected: _moodIndex,
+                onChanged: (i) => setState(() => _moodIndex = i),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          Row(
             children: [
-              const _ImageQuoteCard(
-                imagePath: AppImages.quotes,
-                quote: AppConfig.quote,
-              ),
-              const SizedBox(height: 18),
-
-              _SectionCard(
-                title: 'How are you feeling today ?',
-                trailing: const Text(
-                  'journal',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.accentGreen,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  child: _MoodPicker(
-                    selected: _moodIndex,
-                    onChanged: (i) => setState(() => _moodIndex = i),
-                  ),
+              Expanded(
+                child: _WaterCard(
+                  count: _waterCount,
+                  goal: _waterGoal,
+                  onAdd: () {
+                    if (_waterCount < _waterGoal) {
+                      setState(() => _waterCount++);
+                    }
+                  },
+                  onRemove: () {
+                    if (_waterCount > 0) {
+                      setState(() => _waterCount--);
+                    }
+                  },
                 ),
               ),
-              const SizedBox(height: 12),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: _WaterCard(
-                      count: _waterCount,
-                      goal: _waterGoal,
-                      onAdd: () {
-                        if (_waterCount < _waterGoal) {
-                          setState(() => _waterCount++);
-                        }
-                      },
-                      onRemove: () {
-                        if (_waterCount > 0) {
-                          setState(() => _waterCount--);
-                        }
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _DetoxCard(
-                      progress: _detoxProgress,
-                      onLockPhone: () {
-                        setState(() {
-                          _detoxProgress += 0.1;
-                          if (_detoxProgress > 1) _detoxProgress = 1;
-                        });
-                      },
-                      onReset: () {
-                        setState(() => _detoxProgress = 0);
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-
-              _SectionCard(
-                title: 'Daily habits:',
-                trailing: const Text(
-                  'view all',
-                  style: TextStyle(
-                    color: AppColors.accentGreen,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12,
-                  ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _DetoxCard(
+                  progress: _detoxProgress,
+                  onLockPhone: () {
+                    setState(() {
+                      _detoxProgress += 0.1;
+                      if (_detoxProgress > 1) _detoxProgress = 1;
+                    });
+                  },
+                  onReset: () {
+                    setState(() => _detoxProgress = 0);
+                  },
                 ),
-                child: Column(
-                  children: [
-                    _HabitTile(
-                      icon: Icons.directions_walk,
-                      title: 'Morning walk',
-                      checked: _habitWalk,
-                      onToggle: () => setState(() => _habitWalk = !_habitWalk),
-                    ),
-                    const SizedBox(height: 8),
-                    _HabitTile(
-                      icon: Icons.menu_book_outlined,
-                      title: 'Read 1 chapter',
-                      checked: _habitRead,
-                      onToggle: () => setState(() => _habitRead = !_habitRead),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 18),
-
-              const Text(
-                'Explore',
-                style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 20,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => PlantArticlePage()),
-                        );
-                      },
-                      child: const _ExploreCard(
-                        color: Color(0xFFCDEFE3),
-                        title: 'The calming effect of plants',
-                        cta: 'Read Now',
-                        assetImage: AppImages.plantIcon,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => SportArticlePage()),
-                        );
-                      },
-                      child: const _ExploreCard(
-                        color: Color(0xFFD7E6FF),
-                        title: 'Boost your\nmood with\nsports',
-                        cta: '',
-                        assetImage: AppImages.boostMoodIcon,
-                      ),
-                    ),
-                  ),
-                ],
               ),
             ],
           ),
-        ),
-        bottomNavigationBar: BottomPillNav(
-          index: _navIndex,
-          onTap: (i) => setState(() => _navIndex = i),
-        ),
+          const SizedBox(height: 12),
+
+          _SectionCard(
+            title: 'Daily habits:',
+            trailing: const Text(
+              'view all',
+              style: TextStyle(
+                color: AppColors.accentGreen,
+                fontWeight: FontWeight.w600,
+                fontSize: 12,
+              ),
+            ),
+            child: Column(
+              children: [
+                _HabitTile(
+                  icon: Icons.directions_walk,
+                  title: 'Morning walk',
+                  checked: _habitWalk,
+                  onToggle: () => setState(() => _habitWalk = !_habitWalk),
+                ),
+                const SizedBox(height: 8),
+                _HabitTile(
+                  icon: Icons.menu_book_outlined,
+                  title: 'Read 1 chapter',
+                  checked: _habitRead,
+                  onToggle: () => setState(() => _habitRead = !_habitRead),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 18),
+
+          const Text(
+            'Explore',
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 20,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          Row(
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const PlantArticlePage()),
+                    );
+                  },
+                  child: _ExploreCard(
+                    color: const Color(0xFFCDEFE3),
+                    title: 'The calming effect of plants',
+                    cta: 'Read Now',
+                    assetImage: AppImages.plantIcon,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const SportArticlePage()),
+                    );
+                  },
+                  child: _ExploreCard(
+                    color: const Color(0xFFD7E6FF),
+                    title: 'Boost your\nmood with\nsports',
+                    cta: '',
+                    assetImage: AppImages.boostMoodIcon,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
 }
 
-// ------- COMPONENTS -------
+/// ---------- COMPONENTS BELOW ----------
 
 class _ImageQuoteCard extends StatelessWidget {
   final String imagePath;
@@ -290,7 +268,9 @@ class _MoodPicker extends StatelessWidget {
             decoration: BoxDecoration(
               color: const Color(0xFFFFF2F4),
               borderRadius: BorderRadius.circular(8),
-              border: isSelected ? Border.all(color: Colors.black87, width: 1.2) : null,
+              border: isSelected
+                  ? Border.all(color: Colors.black87, width: 1.2)
+                  : null,
             ),
             child: Text(_faces[i], style: const TextStyle(fontSize: 24)),
           ),
@@ -300,14 +280,11 @@ class _MoodPicker extends StatelessWidget {
   }
 }
 
-// --------- INTERACTIVE CARDS ----------
-
 class _WaterCard extends StatelessWidget {
   final int count;
   final int goal;
   final VoidCallback onAdd;
   final VoidCallback onRemove;
-
   const _WaterCard({
     required this.count,
     required this.goal,
@@ -326,11 +303,8 @@ class _WaterCard extends StatelessWidget {
           children: [
             const Text('water intake:', style: AppText.sectionTitle),
             const SizedBox(height: 6),
-
-            // replaced icon with image
             Image.asset('assets/images/water_intake.png', width: 32, height: 32),
             const SizedBox(height: 8),
-
             Row(
               children: [
                 Text('$count/$goal', style: AppText.chipBold),
@@ -343,7 +317,6 @@ class _WaterCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-
             ClipRRect(
               borderRadius: BorderRadius.circular(6),
               child: LinearProgressIndicator(
@@ -364,7 +337,6 @@ class _TinyRoundBtn extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
   const _TinyRoundBtn({required this.icon, required this.onTap});
-
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -387,7 +359,6 @@ class _DetoxCard extends StatelessWidget {
   final double progress;
   final VoidCallback onLockPhone;
   final VoidCallback onReset;
-
   const _DetoxCard({
     required this.progress,
     required this.onLockPhone,
@@ -398,7 +369,6 @@ class _DetoxCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final double p = progress.clamp(0, 1);
     final bool showReset = p >= 1.0;
-
     return Card(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
@@ -407,18 +377,13 @@ class _DetoxCard extends StatelessWidget {
           children: [
             const Text('Digital detox:', style: AppText.sectionTitle),
             const SizedBox(height: 6),
-
-            // replaced icon with image
             Image.asset('assets/images/phone_lock.png', width: 28, height: 28),
             const SizedBox(height: 8),
-
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Expanded(
                   child: RichText(
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                     text: TextSpan(
                       children: [
                         TextSpan(
@@ -438,51 +403,39 @@ class _DetoxCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (showReset)
-                        OutlinedButton(
-                          onPressed: onReset,
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            minimumSize: const Size(0, 0),
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            side: const BorderSide(color: AppColors.accentGreen, width: 1.2),
-                            foregroundColor: AppColors.accentGreen,
-                            textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            elevation: 0,
-                          ),
-                          child: const Text('Reset'),
-                        ),
-                      if (showReset) const SizedBox(width: 6),
-                      ElevatedButton(
-                        onPressed: onLockPhone,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.accentGreen,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                          minimumSize: const Size(0, 0),
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
-                          elevation: 0,
-                          textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
-                        ),
-                        child: const Text('Lock 30m'),
-                      ),
-                    ],
+                if (showReset)
+                  OutlinedButton(
+                    onPressed: onReset,
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(
+                          color: AppColors.accentGreen, width: 1.2),
+                      foregroundColor: AppColors.accentGreen,
+                      textStyle: const TextStyle(
+                          fontSize: 11, fontWeight: FontWeight.w700),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: const Text('Reset'),
                   ),
+                if (showReset) const SizedBox(width: 6),
+                ElevatedButton(
+                  onPressed: onLockPhone,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.accentGreen,
+                    foregroundColor: Colors.white,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    elevation: 0,
+                    textStyle: const TextStyle(
+                        fontSize: 11, fontWeight: FontWeight.w700),
+                  ),
+                  child: const Text('Lock 30m'),
                 ),
               ],
             ),
             const SizedBox(height: 8),
-
             ClipRRect(
               borderRadius: BorderRadius.circular(6),
               child: LinearProgressIndicator(
@@ -498,8 +451,6 @@ class _DetoxCard extends StatelessWidget {
     );
   }
 }
-
-// --------- Remaining ----------
 
 class _HabitTile extends StatelessWidget {
   final IconData icon;
@@ -528,14 +479,14 @@ class _HabitTile extends StatelessWidget {
             Icon(icon, color: AppColors.accentPink),
             const SizedBox(width: 10),
             Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(fontSize: 14, color: AppColors.textPrimary),
-              ),
+              child: Text(title,
+                  style: const TextStyle(
+                      fontSize: 14, color: AppColors.textPrimary)),
             ),
             Icon(
               checked ? Icons.check_circle : Icons.radio_button_unchecked,
-              color: checked ? AppColors.accentGreen : AppColors.navInactive,
+              color:
+                  checked ? AppColors.accentGreen : AppColors.navInactive,
             ),
           ],
         ),
@@ -549,7 +500,6 @@ class _ExploreCard extends StatelessWidget {
   final String title;
   final String cta;
   final String? assetImage;
-
   const _ExploreCard({
     required this.color,
     required this.title,
@@ -572,12 +522,8 @@ class _ExploreCard extends StatelessWidget {
             Positioned(
               right: 8,
               bottom: 6,
-              child: Image.asset(
-                assetImage!,
-                width: 90,
-                height: 90,
-                fit: BoxFit.contain,
-              ),
+              child: Image.asset(assetImage!,
+                  width: 90, height: 90, fit: BoxFit.contain),
             ),
           Padding(
             padding: const EdgeInsets.all(12),
@@ -600,7 +546,8 @@ class _ExploreCard extends StatelessWidget {
                 ),
                 if (cta.isNotEmpty)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(14),
