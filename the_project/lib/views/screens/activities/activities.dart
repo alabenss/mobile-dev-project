@@ -5,6 +5,7 @@ import '../../widgets/bottom_nav_bar.dart';
 import 'games/bubble_popper_game.dart';
 import 'games/breathing_page.dart';
 import 'games/painting_page.dart';
+import 'games/coloring_page.dart';
 
 class BoostYourMoodScreen extends StatelessWidget {
   const BoostYourMoodScreen({super.key});
@@ -56,9 +57,9 @@ class BoostYourMoodScreen extends StatelessWidget {
       'Bubble Popper': (_) => const BubblePopperGame(),
       'Breathing': (_) => const BreathPage(),
       'Painting': (_) => const PaintingPage(),
+      'Coloring': (_) => const ColoringPage(),
       // 'Puzzle': (_) => const PuzzleGame(),
       // 'Grow the plant': (_) => const PlantGame(),
-      // 'Coloring': (_) => const ColoringGame(),
     };
 
     return Scaffold(
