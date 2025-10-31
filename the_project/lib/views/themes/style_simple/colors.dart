@@ -1,7 +1,8 @@
+// lib/views/themes/style_simple/colors.dart
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Background gradient (top → bottom) like the screenshot
+  // 🌅 Unified background gradient for ALL screens
   static const Color bgTop = Color(0xFFFFB4C6);
   static const Color bgMid = Color(0xFFFFC8B9);
   static const Color bgBottom = Color(0xFFF6E2C9);

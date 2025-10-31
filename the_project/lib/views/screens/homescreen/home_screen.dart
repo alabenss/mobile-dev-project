@@ -6,6 +6,10 @@ import '../../themes/style_simple/styles.dart';
 import '../../widgets/custom_appbar.dart';
 import '../../widgets/bottom_nav_bar.dart';
 
+// Article pages
+import '../articles/plant_article.dart';
+import '../articles/sport_article.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
   @override
@@ -13,13 +17,19 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _navIndex = 0;        // Home tab by default
-  int _moodIndex = 1;       // default selected mood (0..5). 1 matches your screenshot
+  int _navIndex = 0;
+  int _moodIndex = 1;
+
+  int _waterCount = 4;
+  final int _waterGoal = 8;
+
+  double _detoxProgress = 0.35;
+  bool _habitWalk = true;
+  bool _habitRead = false;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      // Whole-page gradient background
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [AppColors.bgTop, AppColors.bgMid, AppColors.bgBottom],
@@ -35,14 +45,12 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Quote image card
               const _ImageQuoteCard(
-                imagePath: AppImages.quotes, // make sure pubspec.yaml has assets/images/
+                imagePath: AppImages.quotes,
                 quote: AppConfig.quote,
               ),
               const SizedBox(height: 18),
 
-              // Mood row (updated)
               _SectionCard(
                 title: 'How are you feeling today ?',
                 trailing: const Text(
@@ -63,39 +71,46 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 12),
 
-              // Water + Detox
-              const Row(
+              Row(
                 children: [
                   Expanded(
-                    child: _MetricCard(
-                      title: 'water intake:',
-                      icon: Icons.local_drink_outlined,
-                      value: '4/8',
-                      subtitle: 'glasses',
-                      progress: 0.5,
-                      progressColor: AppColors.accentBlue,
+                    child: _WaterCard(
+                      count: _waterCount,
+                      goal: _waterGoal,
+                      onAdd: () {
+                        if (_waterCount < _waterGoal) {
+                          setState(() => _waterCount++);
+                        }
+                      },
+                      onRemove: () {
+                        if (_waterCount > 0) {
+                          setState(() => _waterCount--);
+                        }
+                      },
                     ),
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Expanded(
-                    child: _MetricCard(
-                      title: 'Digital detox:',
-                      icon: Icons.no_cell,
-                      value: '2h24m',
-                      subtitle: 'left',
-                      progress: 0.35,
-                      progressColor: AppColors.accentGreen,
-                      showBan: true,
+                    child: _DetoxCard(
+                      progress: _detoxProgress,
+                      onLockPhone: () {
+                        setState(() {
+                          _detoxProgress += 0.1;
+                          if (_detoxProgress > 1) _detoxProgress = 1;
+                        });
+                      },
+                      onReset: () {
+                        setState(() => _detoxProgress = 0);
+                      },
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 12),
 
-              // Habits
-              const _SectionCard(
+              _SectionCard(
                 title: 'Daily habits:',
-                trailing: Text(
+                trailing: const Text(
                   'view all',
                   style: TextStyle(
                     color: AppColors.accentGreen,
@@ -108,20 +123,21 @@ class _HomeScreenState extends State<HomeScreen> {
                     _HabitTile(
                       icon: Icons.directions_walk,
                       title: 'Morning walk',
-                      checked: true,
+                      checked: _habitWalk,
+                      onToggle: () => setState(() => _habitWalk = !_habitWalk),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     _HabitTile(
                       icon: Icons.menu_book_outlined,
                       title: 'Read 1 chapter',
-                      checked: false,
+                      checked: _habitRead,
+                      onToggle: () => setState(() => _habitRead = !_habitRead),
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 18),
 
-              // Explore
               const Text(
                 'Explore',
                 style: TextStyle(
@@ -131,23 +147,40 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 12),
-              const Row(
+
+              Row(
                 children: [
                   Expanded(
-                    child: _ExploreCard(
-                      color: Color(0xFFCDEFE3),
-                      title: 'The calming effect of plants',
-                      cta: 'Read Now',
-                      assetImage: AppImages.plantIcon,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => PlantArticlePage()),
+                        );
+                      },
+                      child: const _ExploreCard(
+                        color: Color(0xFFCDEFE3),
+                        title: 'The calming effect of plants',
+                        cta: 'Read Now',
+                        assetImage: AppImages.plantIcon,
+                      ),
                     ),
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Expanded(
-                    child: _ExploreCard(
-                      color: Color(0xFFD7E6FF),
-                      title: 'Boost your\nmood with\nsports',
-                      cta: '',
-                      assetImage: AppImages.boostMoodIcon,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => SportArticlePage()),
+                        );
+                      },
+                      child: const _ExploreCard(
+                        color: Color(0xFFD7E6FF),
+                        title: 'Boost your\nmood with\nsports',
+                        cta: '',
+                        assetImage: AppImages.boostMoodIcon,
+                      ),
                     ),
                   ),
                 ],
@@ -234,17 +267,12 @@ class _SectionCard extends StatelessWidget {
   }
 }
 
-/// Mood picker with 6 moods and square outline for the selected one.
-/// Uses emoji faces on top of a sun icon look.
-/// If you have PNGs, swap the Icon/Emoji with Image.asset('assets/mood/0.png') etc.
 class _MoodPicker extends StatelessWidget {
-  final int selected;              // 0..5
+  final int selected;
   final ValueChanged<int> onChanged;
-
   const _MoodPicker({required this.selected, required this.onChanged});
 
-static const _faces = <String>['🌞','🌤️','🌥️','🌦️','🌧️','🌩️'];
-
+  static const _faces = <String>['🌞', '🌤️', '🌥️', '🌦️', '🌧️', '🌩️'];
 
   @override
   Widget build(BuildContext context) {
@@ -262,21 +290,9 @@ static const _faces = <String>['🌞','🌤️','🌥️','🌦️','🌧️','�
             decoration: BoxDecoration(
               color: const Color(0xFFFFF2F4),
               borderRadius: BorderRadius.circular(8),
-              border: isSelected
-                  ? Border.all(color: Colors.black87, width: 1.2)
-                  : null,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.06),
-                  blurRadius: 4,
-                  offset: const Offset(0, 1),
-                )
-              ],
+              border: isSelected ? Border.all(color: Colors.black87, width: 1.2) : null,
             ),
-            child: Text(
-              _faces[i],
-              style: const TextStyle(fontSize: 24),
-            ),
+            child: Text(_faces[i], style: const TextStyle(fontSize: 24)),
           ),
         );
       }),
@@ -284,61 +300,56 @@ static const _faces = <String>['🌞','🌤️','🌥️','🌦️','🌧️','�
   }
 }
 
-class _MetricCard extends StatelessWidget {
-  final String title;
-  final IconData icon;
-  final String value;
-  final String subtitle;
-  final double progress;
-  final Color progressColor;
-  final bool showBan;
+// --------- INTERACTIVE CARDS ----------
 
-  const _MetricCard({
-    required this.title,
-    required this.icon,
-    required this.value,
-    required this.subtitle,
-    required this.progress,
-    required this.progressColor,
-    this.showBan = false,
+class _WaterCard extends StatelessWidget {
+  final int count;
+  final int goal;
+  final VoidCallback onAdd;
+  final VoidCallback onRemove;
+
+  const _WaterCard({
+    required this.count,
+    required this.goal,
+    required this.onAdd,
+    required this.onRemove,
   });
 
   @override
   Widget build(BuildContext context) {
+    final double progress = (count / goal).clamp(0, 1);
     return Card(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 12, 12, 14),
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: AppText.sectionTitle),
+            const Text('water intake:', style: AppText.sectionTitle),
+            const SizedBox(height: 6),
+
+            // replaced icon with image
+            Image.asset('assets/images/water_intake.png', width: 32, height: 32),
             const SizedBox(height: 8),
+
             Row(
               children: [
-                Icon(icon, color: progressColor),
-                if (showBan)
-                  const Padding(
-                    padding: EdgeInsets.only(left: 6),
-                    child: Icon(Icons.not_interested, size: 18, color: Colors.red),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(value, style: AppText.chipBold),
+                Text('$count/$goal', style: AppText.chipBold),
                 const SizedBox(width: 6),
-                Text(subtitle, style: AppText.smallMuted),
+                const Text('glasses', style: AppText.smallMuted),
+                const Spacer(),
+                _TinyRoundBtn(icon: Icons.remove, onTap: onRemove),
+                const SizedBox(width: 6),
+                _TinyRoundBtn(icon: Icons.add, onTap: onAdd),
               ],
             ),
             const SizedBox(height: 8),
+
             ClipRRect(
               borderRadius: BorderRadius.circular(6),
               child: LinearProgressIndicator(
                 value: progress,
                 minHeight: 6,
-                color: progressColor,
+                color: AppColors.accentBlue,
                 backgroundColor: Colors.black.withOpacity(.06),
               ),
             ),
@@ -349,35 +360,185 @@ class _MetricCard extends StatelessWidget {
   }
 }
 
+class _TinyRoundBtn extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+  const _TinyRoundBtn({required this.icon, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 32,
+      height: 32,
+      child: Material(
+        color: Colors.black.withOpacity(.06),
+        shape: const CircleBorder(),
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: onTap,
+          child: Icon(icon, size: 18, color: AppColors.textPrimary),
+        ),
+      ),
+    );
+  }
+}
+
+class _DetoxCard extends StatelessWidget {
+  final double progress;
+  final VoidCallback onLockPhone;
+  final VoidCallback onReset;
+
+  const _DetoxCard({
+    required this.progress,
+    required this.onLockPhone,
+    required this.onReset,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final double p = progress.clamp(0, 1);
+    final bool showReset = p >= 1.0;
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Digital detox:', style: AppText.sectionTitle),
+            const SizedBox(height: 6),
+
+            // replaced icon with image
+            Image.asset('assets/images/phone_lock.png', width: 28, height: 28),
+            const SizedBox(height: 8),
+
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: RichText(
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: '${(p * 100).round()}%',
+                          style: AppText.chipBold,
+                        ),
+                        const TextSpan(
+                          text: '  complete',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (showReset)
+                        OutlinedButton(
+                          onPressed: onReset,
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            minimumSize: const Size(0, 0),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            side: const BorderSide(color: AppColors.accentGreen, width: 1.2),
+                            foregroundColor: AppColors.accentGreen,
+                            textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: const Text('Reset'),
+                        ),
+                      if (showReset) const SizedBox(width: 6),
+                      ElevatedButton(
+                        onPressed: onLockPhone,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.accentGreen,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          minimumSize: const Size(0, 0),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                          elevation: 0,
+                          textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+                        ),
+                        child: const Text('Lock 30m'),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: LinearProgressIndicator(
+                value: p,
+                minHeight: 6,
+                color: AppColors.accentGreen,
+                backgroundColor: Colors.black.withOpacity(.06),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// --------- Remaining ----------
+
 class _HabitTile extends StatelessWidget {
   final IconData icon;
   final String title;
   final bool checked;
-  const _HabitTile({required this.icon, required this.title, required this.checked});
+  final VoidCallback onToggle;
+  const _HabitTile({
+    required this.icon,
+    required this.title,
+    required this.checked,
+    required this.onToggle,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.black.withOpacity(.03),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-      child: Row(
-        children: [
-          Icon(icon, color: AppColors.accentPink),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              title,
-              style: const TextStyle(fontSize: 14, color: AppColors.textPrimary),
+    return GestureDetector(
+      onTap: onToggle,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(.03),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        child: Row(
+          children: [
+            Icon(icon, color: AppColors.accentPink),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(fontSize: 14, color: AppColors.textPrimary),
+              ),
             ),
-          ),
-          Icon(
-            checked ? Icons.check_circle : Icons.radio_button_unchecked,
-            color: checked ? AppColors.accentGreen : AppColors.navInactive,
-          ),
-        ],
+            Icon(
+              checked ? Icons.check_circle : Icons.radio_button_unchecked,
+              color: checked ? AppColors.accentGreen : AppColors.navInactive,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -387,7 +548,7 @@ class _ExploreCard extends StatelessWidget {
   final Color color;
   final String title;
   final String cta;
-  final String? assetImage; // NEW: optional bottom-right art
+  final String? assetImage;
 
   const _ExploreCard({
     required this.color,
@@ -404,32 +565,28 @@ class _ExploreCard extends StatelessWidget {
         color: color,
         borderRadius: BorderRadius.circular(18),
       ),
-      clipBehavior: Clip.antiAlias, // keep rounded corners on the image
+      clipBehavior: Clip.antiAlias,
       child: Stack(
         children: [
-          // Bottom-right illustration
           if (assetImage != null)
             Positioned(
               right: 8,
               bottom: 6,
               child: Image.asset(
                 assetImage!,
-                width: 90, // tweak to taste
+                width: 90,
                 height: 90,
                 fit: BoxFit.contain,
               ),
             ),
-
-          // Text + CTA
           Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // keep text away from the image area
                 Expanded(
                   child: SizedBox(
-                    width: 150, // prevents text overlapping the image
+                    width: 150,
                     child: Text(
                       title,
                       style: const TextStyle(
@@ -443,8 +600,7 @@ class _ExploreCard extends StatelessWidget {
                 ),
                 if (cta.isNotEmpty)
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(14),
@@ -473,4 +629,3 @@ class _ExploreCard extends StatelessWidget {
     );
   }
 }
-

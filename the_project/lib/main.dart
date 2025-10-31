@@ -1,21 +1,17 @@
+// main.dart
 import 'package:flutter/material.dart';
 import 'views/themes/style_simple/theme.dart';
-import 'views/screens/homescreen/home_screen.dart';
+import 'views/screens/activities/activities.dart';
 
-void main() {
-  runApp(const WellnessApp());
-}
+void main() => runApp(const MyApp());
 
-class WellnessApp extends StatelessWidget {
-  const WellnessApp({super.key});
-
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Wellness',
-      theme: buildAppTheme(),
-      home: const HomeScreen(),
+      home: BoostYourMoodScreen(), // 👈 start here to preview
     );
   }
 }
