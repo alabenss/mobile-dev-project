@@ -8,7 +8,7 @@ import '../../widgets/journal/journal_entry_template.dart';
 import 'write_journal_screen.dart';
 
 class JournalingScreen extends StatefulWidget {
-  const JournalingScreen({Key? key}) : super(key: key);
+  const JournalingScreen({super.key});
 
   @override
   State<JournalingScreen> createState() => _JournalingScreenState();

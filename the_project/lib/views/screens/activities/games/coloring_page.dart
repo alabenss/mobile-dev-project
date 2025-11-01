@@ -2,8 +2,6 @@ import 'dart:math' as Math;
 import 'package:flutter/material.dart';
 import '../../../widgets/activity_shell.dart';
 import '../../../themes/style_simple/colors.dart';
-import '../../../widgets/app_background.dart';
-import 'dart:math' as Math;
 
 class ColoringPage extends StatefulWidget {
   const ColoringPage({super.key});

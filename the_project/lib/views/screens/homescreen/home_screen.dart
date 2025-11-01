@@ -352,7 +352,9 @@ class _WaterCard extends StatelessWidget {
                 if (isGoalReached)
                   OutlinedButton(
                     onPressed: () {
-                      for (int i = 0; i < goal; i++) onRemove();
+                      for (int i = 0; i < goal; i++) {
+                        onRemove();
+                      }
                                         },
                     // this will trigger reset logic in parent
                     style: OutlinedButton.styleFrom(

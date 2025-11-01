@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'views/widgets/bottom_nav_wrapper.dart';
-import 'views/screens/habits.dart';          // <-- your file
-import 'views/screens/journaling/journaling_screen.dart';  // <-- your file
-import 'views/screens/homescreen/home_screen.dart';
-import 'views/themes/style_simple/theme.dart'; 
-import 'views/screens/stats_screen/stats_screen.dart'; 
+import 'views/screens/profile.dart'; // 👈 import your new profile screen
 
 void main() {
   runApp(const MyApp());
@@ -15,9 +11,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: BottomNavWrapper(), // ✅
+      home: const BottomNavWrapper(),
+
+      // 👇 Register your routes here
+      routes: {
+        '/profile': (context) => const ProfileScreen(),
+      },
     );
   }
 }

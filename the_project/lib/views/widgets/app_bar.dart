@@ -17,19 +17,18 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.85),
-        borderRadius: const BorderRadius.vertical(
-          bottom: Radius.circular(20),
-        ),
+        color: Colors.white.withOpacity(0.9),
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 8,
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
             offset: const Offset(0, 3),
           ),
         ],
       ),
       child: SafeArea(
+        bottom: false,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -53,7 +52,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                     style: GoogleFonts.poppins(
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black.withOpacity(0.9),
+                      color: Colors.black87,
                     ),
                   ),
                 ),
@@ -67,7 +66,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: Colors.black.withOpacity(0.7),
+                color: Colors.black54,
               ),
             ),
           ],

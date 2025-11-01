@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../themes/style_simple/colors.dart';
 
 class BottomPillNav extends StatelessWidget {
   final int index;
@@ -18,7 +19,7 @@ class BottomPillNav extends StatelessWidget {
     this.backgroundColor = Colors.white,
     this.activeColor = Colors.white,
     this.inactiveColor = const Color(0xFF9D9D9D),
-    this.circleColor = const Color(0xFF9B57F0),
+    this.circleColor = AppColors.accentPink,
     this.icons = const <String>[
       'assets/icons/home.png',
       'assets/icons/habits.png',

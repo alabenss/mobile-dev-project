@@ -6,7 +6,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:the_project/views/widgets/app_background.dart';
 import '../../themes/style_simple/colors.dart';
 class StatsScreen extends StatefulWidget {
-  const StatsScreen({Key? key}) : super(key: key);
+  const StatsScreen({super.key});
 
   @override
   State<StatsScreen> createState() => _StatsScreenState();
@@ -487,7 +487,9 @@ class _StatsScreenState extends State<StatsScreen> with TickerProviderStateMixin
     final totalSlots = selectedRange == StatsRange.today ? 1 : (selectedRange == StatsRange.weekly ? 7 : (selectedRange == StatsRange.monthly ? 12 : 12));
     final rnd = Random(journalingCount + labels.length);
     final filledIndices = <int>{};
-    for (var i=0; i<min(totalSlots, journalingCount); i++) filledIndices.add(rnd.nextInt(totalSlots));
+    for (var i=0; i<min(totalSlots, journalingCount); i++) {
+      filledIndices.add(rnd.nextInt(totalSlots));
+    }
     for (var i=0; i<totalSlots; i++) {
       final filled = filledIndices.contains(i);
       list.add(Column(
