@@ -8,7 +8,9 @@ import '../articles/sport_article.dart';
 import '../habits.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+
+  final VoidCallback? onViewAllHabits;
+  const HomeScreen({super.key, this.onViewAllHabits});
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -112,12 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
             title: 'Daily habits:',
             // tap to open habits list
             trailing: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const HabitsScreen()),
-                );
-              },
+              onTap: widget.onViewAllHabits, // ✅ use callback
               child: const Text(
                 'view all',
                 style: TextStyle(

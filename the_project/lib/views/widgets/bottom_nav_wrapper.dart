@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'bottom_nav_bar.dart'; // ✅ import your old file
+import 'bottom_nav_bar.dart';
 import '../screens/homescreen/home_screen.dart';
 import '../screens/journaling/journaling_screen.dart';
 import '../screens/habits.dart';
@@ -18,20 +18,27 @@ class BottomNavWrapper extends StatefulWidget {
 class _BottomNavWrapperState extends State<BottomNavWrapper> {
   int _navIndex = 0;
 
-  final List<Widget> _pages = const [
-    HomeScreen(),
-    HabitsScreen(),
-    JournalingScreen(),
-    Activities(),
-    StatsScreen(),
-  ];
-
   void _onTap(int index) {
     setState(() => _navIndex = index);
   }
 
+  /// ✅ public method to allow child widgets to switch tabs
+  void switchToHabitsTab() {
+    setState(() => _navIndex = 1);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final List<Widget> _pages = [
+      HomeScreen(
+        onViewAllHabits: switchToHabitsTab, // pass callback to HomeScreen
+      ),
+      const HabitsScreen(),
+      const JournalingScreen(),
+      const Activities(),
+      const StatsScreen(),
+    ];
+
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -45,7 +52,6 @@ class _BottomNavWrapperState extends State<BottomNavWrapper> {
         appBar: const CustomAppBar(),
         body: _pages[_navIndex],
         bottomNavigationBar: BottomPillNav(
-          // ✅ using your old file
           index: _navIndex,
           onTap: _onTap,
         ),
