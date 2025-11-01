@@ -443,22 +443,29 @@ class _WriteJournalPageState extends State<WriteJournalPage> {
   }
 
   void _save() {
-    // create a JournalEntryModel with the filled data and return it
-    final title = _titleCtrl.text.trim();
-    final body = _bodyCtrl.text.trim();
+  // create a JournalEntryModel with the filled data and return it
+  final title = _titleCtrl.text.trim();
+  final body = _bodyCtrl.text.trim();
 
-    final preview = (title.isNotEmpty) ? '$title - ${body.split('
-').firstWhere((e) => e.isNotEmpty, orElse: () => '')}' : (body.split('
-').firstWhere((e) => e.isNotEmpty, orElse: () => ''));
+  // Get the first non-empty line of the body (split by newline)
+  final firstLine = body.split('\n').firstWhere(
+    (e) => e.isNotEmpty,
+    orElse: () => '',
+  );
 
-    final entry = JournalEntryModel(
-      dateLabel: _dateLabel,
-      moodImage: _selectedMood,
-      textPreview: preview.isEmpty ? 'No content' : preview,
-    );
+  final preview = (title.isNotEmpty)
+      ? '$title - $firstLine'
+      : firstLine;
 
-    Navigator.of(context).pop(entry);
-  }
+  final entry = JournalEntryModel(
+    dateLabel: _dateLabel,
+    moodImage: _selectedMood,
+    textPreview: preview.isEmpty ? 'No content' : preview,
+  );
+
+  Navigator.of(context).pop(entry);
+}
+
 }
 
 // -------------------- Detail Page (view only) ------------------------------
