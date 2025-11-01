@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import '../../widgets/app_background.dart';
 
 class JournalingScreen extends StatefulWidget {
-  const JournalingScreen({Key? key}) : super(key: key);
+  const JournalingScreen({super.key});
 
   @override
   State<JournalingScreen> createState() => _JournalingScreenState();
@@ -108,7 +108,7 @@ class _JournalingScreenState extends State<JournalingScreen> {
                                 builder: (_) => JournalDetailPage(entry: e))),
                           ),
                         ))
-                    .toList(),
+                    ,
               ],
             ),
           ),
@@ -246,12 +246,12 @@ class JournalEntryTemplate extends StatelessWidget {
   final VoidCallback? onTap;
 
   const JournalEntryTemplate({
-    Key? key,
+    super.key,
     required this.date,
     required this.moodImage,
     required this.textPreview,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -305,7 +305,7 @@ class JournalEntryTemplate extends StatelessWidget {
 // ------------------------- Write Journal Page ------------------------------
 class WriteJournalPage extends StatefulWidget {
   final String? initialDateLabel;
-  const WriteJournalPage({this.initialDateLabel, Key? key}) : super(key: key);
+  const WriteJournalPage({this.initialDateLabel, super.key});
 
   const WriteJournalPage.prototype({Key? key}) : this(initialDateLabel: null, key: key);
 
@@ -324,7 +324,7 @@ class _WriteJournalPageState extends State<WriteJournalPage> {
     'assets/images/happy.png',
     'assets/images/tired.png',
   ];
-  String _selectedMood = 'assets/images/sunrise.png';
+  final String _selectedMood = 'assets/images/sunrise.png';
 
   @override
   void initState() {
@@ -471,7 +471,7 @@ class _WriteJournalPageState extends State<WriteJournalPage> {
 // -------------------- Detail Page (view only) ------------------------------
 class JournalDetailPage extends StatelessWidget {
   final JournalEntryModel entry;
-  const JournalDetailPage({required this.entry, Key? key}) : super(key: key);
+  const JournalDetailPage({required this.entry, super.key});
 
   @override
   Widget build(BuildContext context) {
