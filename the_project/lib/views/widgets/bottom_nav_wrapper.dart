@@ -5,6 +5,7 @@ import '../screens/journaling/journaling_screen.dart';
 import '../screens/habits.dart';
 import '../screens/activities/activities.dart';
 import '../themes/style_simple/colors.dart';
+import '../screens/stats_screen/stats_screen.dart';
 import 'app_bar.dart';
 
 class BottomNavWrapper extends StatefulWidget {
@@ -22,7 +23,7 @@ class _BottomNavWrapperState extends State<BottomNavWrapper> {
     HabitsScreen(),
     JournalingScreen(),
     Activities(),
-    Placeholder(),
+    StatsScreen(),
   ];
 
   void _onTap(int index) {
@@ -43,7 +44,8 @@ class _BottomNavWrapperState extends State<BottomNavWrapper> {
         backgroundColor: Colors.transparent,
         appBar: const CustomAppBar(),
         body: _pages[_navIndex],
-        bottomNavigationBar: BottomPillNav( // ✅ using your old file
+        bottomNavigationBar: BottomPillNav(
+          // ✅ using your old file
           index: _navIndex,
           onTap: _onTap,
         ),
