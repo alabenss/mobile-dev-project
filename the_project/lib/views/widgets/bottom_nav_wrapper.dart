@@ -4,7 +4,6 @@ import '../screens/homescreen/home_screen.dart';
 import '../screens/journaling/journaling_screen.dart';
 import '../screens/habits.dart';
 import '../screens/activities/activities.dart';
-import '../screens/habits.dart';
 import '../themes/style_simple/colors.dart';
 import '../widgets/custom_appbar.dart';
 

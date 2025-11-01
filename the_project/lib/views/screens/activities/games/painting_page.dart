@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 import '../../../widgets/activity_shell.dart'; // uses your unified background
 import '../../../themes/style_simple/colors.dart';
-import '../../../widgets/app_background.dart';
 
 class PaintingPage extends StatefulWidget {
   const PaintingPage({super.key});

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';
 import '../../../widgets/activity_shell.dart';
-import '../../../widgets/app_background.dart';
 
 class BubblePopperGame extends StatefulWidget {
   const BubblePopperGame({super.key});

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../themes/style_simple/colors.dart';
 import 'app_background.dart';
 
 /// Reusable wrapper for Activities pages.
