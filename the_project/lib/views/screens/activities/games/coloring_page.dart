@@ -666,10 +666,11 @@ class _ColoringCanvasState extends State<_ColoringCanvas> {
       final a = (i * Math.pi / n);
       final rr = i.isEven ? R : r;
       final p = Offset(c.dx + rr * Math.cos(a), c.dy + rr * Math.sin(a));
-      if (i == 0)
+      if (i == 0) {
         path.moveTo(p.dx, p.dy);
-      else
+      } else {
         path.lineTo(p.dx, p.dy);
+      }
     }
     path.close();
     return path;

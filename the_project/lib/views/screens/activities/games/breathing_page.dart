@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../../../themes/style_simple/colors.dart';
-import '../../../widgets/article_appbar.dart';
 import '../../../widgets/app_background.dart';
 
 /// A soothing breathing exercise screen:

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'mood_card.dart';
 import 'games/bubble_popper_game.dart';
 import 'games/breathing_page.dart';
@@ -7,7 +6,6 @@ import 'games/painting_page.dart';
 import 'games/coloring_page.dart';
 import 'games/puzzle_game.dart';
 import 'games/grow_plant.dart';
-import '../../widgets/app_background.dart';
 
 class Activities extends StatelessWidget {
   const Activities({super.key});
