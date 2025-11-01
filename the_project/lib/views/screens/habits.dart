@@ -72,7 +72,7 @@ class _HabitsScreenState extends State<HabitsScreen>
         onPressed: () async {
           final newHabit = await showDialog<Habit>(
             context: context,
-            builder: (_) => const AddHabitDialog(),
+            builder: (_) =>  AddHabitDialog(existingHabits: _habits),
           );
           if (newHabit != null) _addHabit(newHabit);
         },
@@ -85,14 +85,14 @@ class _HabitsScreenState extends State<HabitsScreen>
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Container(
-        height: 46,
+        height: 40,
         decoration: BoxDecoration(
           gradient: const LinearGradient(
-            colors: [Color(0xFFFFE57F), Color(0xFFFF80AB)],
+            colors: [Color.fromARGB(255, 255, 234, 148), Color.fromARGB(255, 254, 148, 184)],
             begin: Alignment.centerLeft,
             end: Alignment.centerRight,
           ),
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(20),
           boxShadow: const [
             BoxShadow(
               color: Color(0x22000000),
@@ -102,10 +102,13 @@ class _HabitsScreenState extends State<HabitsScreen>
           ],
         ),
         child: TabBar(
+          indicatorSize: TabBarIndicatorSize.tab,
+
+
           controller: _tabController,
           indicator: BoxDecoration(
             color: Colors.white.withOpacity(0.3),
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(20),
           ),
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white.withOpacity(0.8),
