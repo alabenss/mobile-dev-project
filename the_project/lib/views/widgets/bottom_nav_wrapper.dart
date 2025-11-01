@@ -4,7 +4,7 @@ import '../screens/homescreen/home_screen.dart';
 import '../screens/habits.dart';
 import '../screens/activities/activities.dart';
 import '../themes/style_simple/colors.dart';
-import '../widgets/custom_appbar.dart';
+import 'app_bar.dart';
 
 class BottomNavWrapper extends StatefulWidget {
   const BottomNavWrapper({super.key});
