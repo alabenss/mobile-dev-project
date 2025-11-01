@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'bottom_nav_bar.dart'; // ✅ import your old file
 import '../screens/homescreen/home_screen.dart';
-import '../screens/journaling.dart';
+import '../screens/journaling/journaling_screen.dart';
 import '../screens/habits.dart';
 import '../screens/activities/activities.dart';
 import '../screens/habits.dart';
@@ -21,7 +21,7 @@ class _BottomNavWrapperState extends State<BottomNavWrapper> {
   final List<Widget> _pages = const [
     HomeScreen(),
     HabitsScreen(),
-    Placeholder(),
+    JournalingScreen(),
     Activities(),
     Placeholder(),
   ];
