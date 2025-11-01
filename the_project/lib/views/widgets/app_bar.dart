@@ -1,89 +1,76 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import '../themes/style_simple/colors.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? title;
-  final VoidCallback? onProfileTap;
 
-  const CustomAppBar({
-    super.key,
-    this.title,
-    this.onProfileTap,
-  });
+  const CustomAppBar({super.key, this.title});
 
   @override
-  Size get preferredSize => const Size.fromHeight(80);
+  Size get preferredSize => const Size.fromHeight(70);
 
   @override
   Widget build(BuildContext context) {
-    final String date = DateFormat('EEE, MMM d').format(DateTime.now());
+    final currentDate = DateFormat('EEE, MMM d').format(DateTime.now());
 
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.accentPink, AppColors.accentOrange],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.vertical(
-          bottom: Radius.circular(24),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.85),
+        borderRadius: const BorderRadius.vertical(
+          bottom: Radius.circular(20),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black26,
-            blurRadius: 6,
-            offset: Offset(0, 3),
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
       child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // 👤 Profile button (tap to go to Profile screen)
-              GestureDetector(
-                onTap: onProfileTap ??
-                    () {
-                      Navigator.pushNamed(context, '/profile');
-                    },
-                child: const CircleAvatar(
-                  radius: 22,
-                  backgroundImage: AssetImage('assets/icons/profile.png'),
-                  backgroundColor: Colors.white24,
-                ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // 👤 Profile Picture (navigates to profile screen)
+            GestureDetector(
+              onTap: () {
+                Navigator.pushNamed(context, '/profile');
+              },
+              child: const CircleAvatar(
+                radius: 22,
+                backgroundImage: AssetImage('assets/icons/profile.png'),
               ),
+            ),
 
-              // 🏷️ Optional title (centered if provided)
-              if (title != null)
-                Expanded(
+            // 📛 Optional title (centered)
+            if (title != null)
+              Expanded(
+                child: Center(
                   child: Text(
                     title!,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.5,
+                    style: GoogleFonts.poppins(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black.withOpacity(0.9),
                     ),
                   ),
-                )
-              else
-                const Spacer(),
-
-              // 📅 Current date
-              Text(
-                date,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
                 ),
+              )
+            else
+              const Spacer(),
+
+            // 📅 Date (right side)
+            Text(
+              currentDate,
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Colors.black.withOpacity(0.7),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

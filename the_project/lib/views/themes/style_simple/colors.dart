@@ -28,4 +28,12 @@ class AppColors {
   static const Color warning = accentOrange;
   static const Color info = accentBlue;
   static const Color error = accentPink;
+  static const Color softLavender = Color(0xFFD5A8E0);
+  static const Color peach = Color(0xFFF1B5D2);
+  static const Color mint = Color(0xFFA9E2B3);
+  static const Color yellow = Color(0xFFF9E49E);
+  static const Color sky = Color(0xFF99D2F0);
+  static const Color coral = Color(0xFFF8A0B2);
+  static const Color backgroundColor = Color(0xFFF0EAF0);
+
 }
