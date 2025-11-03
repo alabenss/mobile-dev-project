@@ -18,7 +18,7 @@ class HabitCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
       ),
       child: ListTile(
-        leading: Icon(habit.icon, color: AppColors.accentPink),
+        leading: Icon(habit.icon, color: AppColors.icon),
         title: Text(
           habit.title,
           style: const TextStyle(

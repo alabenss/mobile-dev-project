@@ -46,7 +46,7 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
                   value: habit,
                   child: Row(
                     children: [
-                      Icon(_habitOptions[habit], color: AppColors.accentPink),
+                      Icon(_habitOptions[habit], color: AppColors.icon),
                       const SizedBox(width: 10),
                       Text(habit),
                     ],
@@ -92,14 +92,14 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
                   },
                   child: Text(
                     _time != null ? _time!.format(context) : 'Select time',
-                    style: const TextStyle(color: AppColors.accentPink),
+                    style: const TextStyle(color: AppColors.icon),
                   ),
                 ),
               ],
             ),
             SwitchListTile(
               title: const Text('Set Reminder'),
-              activeThumbColor: AppColors.accentPink,
+              activeThumbColor: AppColors.icon,
               value: _reminder,
               onChanged: (v) => setState(() => _reminder = v),
             ),
@@ -108,12 +108,14 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
       ),
       actions: [
         TextButton(
-          child: const Text('Cancel'),
+          child: const Text('Cancel',
+          style: TextStyle(color: AppColors.textPrimary),
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.accentPink,
+            backgroundColor: AppColors.icon,
           ),
           onPressed: () {
             String title = isCustom
@@ -151,9 +153,13 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
               ),
             );
           },
-          child: const Text('Add'),
+          child: const Text('Add',
+          style: TextStyle(color: Colors.white),
+
+          ),
         ),
       ],
+      backgroundColor: AppColors.card,
     );
   }
 }

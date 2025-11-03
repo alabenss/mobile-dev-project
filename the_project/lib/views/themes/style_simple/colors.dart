@@ -6,7 +6,7 @@ class AppColors {
   static const Color bgMid = Color(0xFFFFC8B9);
   static const Color bgBottom = Color(0xFFF6E2C9);
 
-  static const Color card = Colors.white;
+  static const Color card = Color.fromARGB(255, 254, 251, 235);
   static const Color textPrimary = Color(0xFF2B2B2B);
   static const Color textSecondary = Color(0xFF6B6B6B);
   static const Color icon = Color.fromARGB(255, 236, 144, 181);
