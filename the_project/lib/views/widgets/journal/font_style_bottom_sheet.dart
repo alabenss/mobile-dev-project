@@ -124,7 +124,7 @@ class _FontStyleBottomSheetState extends State<FontStyleBottomSheet> {
                             vertical: 8,
                           ),
                           decoration: BoxDecoration(
-                            color: isSelected ? AppColors.accentBlue : AppColors.textSecondary.withOpacity(0.2),
+                            color: isSelected ? AppColors.icon : AppColors.textSecondary.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
@@ -249,8 +249,8 @@ class _FontStyleBottomSheetState extends State<FontStyleBottomSheet> {
                     Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.accentBlue,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: AppColors.icon,
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(25),
                     ),
@@ -258,6 +258,7 @@ class _FontStyleBottomSheetState extends State<FontStyleBottomSheet> {
                   child: const Text(
                     'Apply',
                     style: TextStyle(
+                      
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: AppColors.card,
