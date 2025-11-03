@@ -11,6 +11,7 @@ class AppColors {
   static const Color textPrimary = Color(0xFF2B2B2B);
   static const Color textSecondary = Color(0xFF6B6B6B);
   static const Color icon = Color(0xFFFF6E9A);
+  static const Color textlight = Colors.white;
 
   // 🌈 Accent colors
   static const Color accentPink = Color(0xFFFF6E9A);

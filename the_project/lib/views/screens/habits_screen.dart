@@ -76,7 +76,7 @@ class _HabitsScreenState extends State<HabitsScreen>
           );
           if (newHabit != null) _addHabit(newHabit);
         },
-        child: const Icon(Icons.add, color: Colors.white, size: 28),
+        child: const Icon(Icons.add, color: AppColors.textlight, size: 28),
       ),
     );
   }
@@ -107,11 +107,11 @@ class _HabitsScreenState extends State<HabitsScreen>
 
           controller: _tabController,
           indicator: BoxDecoration(
-            color: Colors.white.withOpacity(0.3),
+            color: AppColors.textlight.withOpacity(0.3),
             borderRadius: BorderRadius.circular(20),
           ),
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white.withOpacity(0.8),
+          labelColor: AppColors.textlight,
+          unselectedLabelColor: AppColors.textlight.withOpacity(0.8),
           labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
           tabs: const [
             Tab(text: 'Daily'),
