@@ -1,0 +1,119 @@
+
+import 'package:flutter/material.dart';
+
+class BackgroundPickerBottomSheet extends StatelessWidget {
+  final Function(String backgroundPath) onBackgroundSelected;
+
+  const BackgroundPickerBottomSheet({
+    super.key,
+    required this.onBackgroundSelected,
+  });
+
+  // Liste des backgrounds rectangulaires verticaux
+  static const List<String> _backgrounds = [
+    'assets/images/background/bg1.png',
+    'assets/images/background/bg2.png',
+    'assets/images/background/bg3.png',
+    'assets/images/background/bg4.png',
+    'assets/images/background/bg5.png',
+    'assets/images/background/bg6.png',
+    'assets/images/background/bg7.png',
+    'assets/images/background/bg8.png',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.7,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Column(
+        children: [
+          // Header
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Select Background',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+          ),
+
+          // Option "No Background"
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: GestureDetector(
+              onTap: () {
+                onBackgroundSelected('');
+                Navigator.pop(context);
+              },
+              child: Container(
+                height: 60,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey[300]!),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Center(
+                  child: Text(
+                    'No Background',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Grille de backgrounds rectangulaires verticaux (2 colonnes)
+          Expanded(
+            child: GridView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: 0.6, // Ratio rectangulaire vertical (hauteur > largeur)
+              ),
+              itemCount: _backgrounds.length,
+              itemBuilder: (context, index) {
+                return GestureDetector(
+                  onTap: () {
+                    onBackgroundSelected(_backgrounds[index]);
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey[300]!, width: 2),
+                      image: DecorationImage(
+                        image: AssetImage(_backgrounds[index]),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

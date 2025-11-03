@@ -6,11 +6,11 @@ class MonthYearSelector extends StatelessWidget {
   final Function(int month, int year) onChanged;
 
   const MonthYearSelector({
-    Key? key,
+    super.key,
     required this.selectedMonth,
     required this.selectedYear,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
