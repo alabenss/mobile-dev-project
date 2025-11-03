@@ -74,7 +74,6 @@ class JournalBodyFields extends StatelessWidget {
 
         const SizedBox(height: 16),
 
-        // Images attachées
         if (attachedImagePaths.isNotEmpty) ...[
           const SizedBox(height: 16),
           Wrap(

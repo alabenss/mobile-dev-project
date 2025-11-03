@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'bottom_nav_bar.dart';
-import '../screens/homescreen/home_screen.dart';
-import '../screens/journaling/journaling_screen.dart';
-import '../screens/habits_screen.dart';
-import '../screens/activities/activities.dart';
-import '../themes/style_simple/colors.dart';
-import '../screens/stats_screen/stats_screen.dart';
+import '../../screens/homescreen/home_screen.dart';
+import '../../screens/journaling/journaling_screen.dart';
+import '../../screens/habits/habits_screen.dart';
+import '../../screens/activities/activities.dart';
+import '../../themes/style_simple/colors.dart';
+import '../../screens/statistics/stats_screen.dart';
 import 'app_bar.dart';
 
 class BottomNavWrapper extends StatefulWidget {
@@ -22,7 +22,7 @@ class _BottomNavWrapperState extends State<BottomNavWrapper> {
     setState(() => _navIndex = index);
   }
 
-  /// ✅ public method to allow child widgets to switch tabs
+  // public method to allow child widgets to switch tabs
   void switchToHabitsTab() {
     setState(() => _navIndex = 1);
   }

@@ -43,7 +43,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
             ),
 
-            // 📛 Optional title (centered)
+
             if (title != null)
               Expanded(
                 child: Center(
@@ -60,7 +60,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             else
               const Spacer(),
 
-            // 📅 Date (right side)
             Text(
               currentDate,
               style: GoogleFonts.poppins(

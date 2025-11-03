@@ -31,7 +31,7 @@ class JournalTopBar extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 6),
               
               decoration: BoxDecoration(
-                color: AppColors.accentBlue,
+                color: AppColors.icon,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: const Text(

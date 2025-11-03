@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:the_project/views/widgets/app_background.dart';
+import 'package:the_project/views/themes/style_simple/app_background.dart';
 import '../../themes/style_simple/colors.dart';
 class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});

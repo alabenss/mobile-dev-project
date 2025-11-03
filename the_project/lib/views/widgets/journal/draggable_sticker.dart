@@ -5,7 +5,7 @@ class DraggableSticker extends StatefulWidget {
   final String stickerPath;
   final VoidCallback onDelete;
   final Offset initialPosition;
-  final ValueChanged<Offset>? onPositionChanged; // NEW: reports position to parent
+  final ValueChanged<Offset>? onPositionChanged; 
 
   const DraggableSticker({
     Key? key,

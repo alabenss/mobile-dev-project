@@ -1,6 +1,6 @@
 import 'dart:math' as Math;
 import 'package:flutter/material.dart';
-import '../../../widgets/activity_shell.dart';
+import '../../../widgets/activities/activity_shell.dart';
 import '../../../themes/style_simple/colors.dart';
 
 class ColoringPage extends StatefulWidget {

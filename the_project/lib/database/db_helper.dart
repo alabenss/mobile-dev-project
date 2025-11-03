@@ -4,7 +4,6 @@ import 'package:path/path.dart';
 class DBHelper {
   static Database? _database;
 
-  // Get a single database instance
   static Future<Database> get database async {
     if (_database != null) return _database!;
     _database = await _initDB('rise_app.db');
@@ -25,7 +24,7 @@ class DBHelper {
 
   // Create all the tables
   static Future<void> _onCreate(Database db, int version) async {
-    // 🧍 Users table
+    // Users table
     await db.execute('''
       CREATE TABLE users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,7 +34,7 @@ class DBHelper {
       );
     ''');
 
-    // ✅ Habits table (includes createdDate and lastUpdated)
+    // Habits table (includes createdDate and lastUpdated)
     await db.execute('''
       CREATE TABLE habits (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -51,7 +50,7 @@ class DBHelper {
       );
     ''');
 
-    // 📔 Journals table
+    // Journals table
     await db.execute('''
       CREATE TABLE journals (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -65,7 +64,7 @@ class DBHelper {
       );
     ''');
 
-    // 🎯 Activities table
+    // Activities table
     await db.execute('''
       CREATE TABLE activities (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -75,7 +74,7 @@ class DBHelper {
       );
     ''');
 
-    // 💰 Transactions table (for tracking earned and spent points)
+    // Transactions table (for tracking earned and spent points)
     await db.execute('''
       CREATE TABLE transactions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -89,7 +88,7 @@ class DBHelper {
     ''');
   }
 
-  // Optional: clear all tables (use carefully in development)
+  // clear all tables 
   static Future<void> clearAll() async {
     final db = await database;
     await db.delete('transactions');

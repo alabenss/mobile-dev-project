@@ -1,8 +1,8 @@
 // lib/views/screens/activities/grow_plant.dart
 import 'package:flutter/material.dart';
 import '../../../themes/style_simple/colors.dart';
-import '../../../widgets/activity_shell.dart';
-import '../../habits_screen.dart'; // ✅ Add this import for navigation
+import '../../../widgets/activities/activity_shell.dart';
+import '../../habits/habits_screen.dart'; // ✅ Add this import for navigation
 
 class GrowPlantPage extends StatelessWidget {
   const GrowPlantPage({super.key});

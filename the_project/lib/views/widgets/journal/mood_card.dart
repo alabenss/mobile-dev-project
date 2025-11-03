@@ -22,7 +22,7 @@ class MoodCard extends StatefulWidget {
 }
 
 class _MoodCardState extends State<MoodCard> {
-  // 10 moods avec leurs images et labels
+  
   final List<Map<String, String>> _moods = [
     {'image': 'assets/images/happy.png', 'label': 'Happy'},
     {'image': 'assets/images/good.png', 'label': 'Good'},
@@ -87,7 +87,7 @@ class _MoodCardState extends State<MoodCard> {
           icon: const Icon(Icons.edit, color: AppColors.textSecondary),
           onPressed: () {
             // Allow user to change mood
-            widget.onMoodSelected?.call('', ''); // Reset to show selector
+            widget.onMoodSelected?.call('', ''); 
           },
         ),
       ],

@@ -1,6 +1,5 @@
-// lib/views/widgets/app_background.dart
 import 'package:flutter/material.dart';
-import '../themes/style_simple/colors.dart';
+import 'colors.dart';
 
 class AppBackground extends StatelessWidget {
   final Widget child;

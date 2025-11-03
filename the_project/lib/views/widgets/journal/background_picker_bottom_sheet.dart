@@ -9,7 +9,6 @@ class BackgroundPickerBottomSheet extends StatelessWidget {
     required this.onBackgroundSelected,
   });
 
-  // Liste des backgrounds rectangulaires verticaux
   static const List<String> _backgrounds = [
     'assets/images/background/bg1.jpg',
     'assets/images/background/bg2.jpg',
@@ -81,7 +80,6 @@ class BackgroundPickerBottomSheet extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          // Grille de backgrounds rectangulaires verticaux (2 colonnes)
           Expanded(
             child: GridView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -89,7 +87,7 @@ class BackgroundPickerBottomSheet extends StatelessWidget {
                 crossAxisCount: 2,
                 mainAxisSpacing: 12,
                 crossAxisSpacing: 12,
-                childAspectRatio: 0.6, // Ratio rectangulaire vertical (hauteur > largeur)
+                childAspectRatio: 0.6, 
               ),
               itemCount: _backgrounds.length,
               itemBuilder: (context, index) {

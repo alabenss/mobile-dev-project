@@ -122,7 +122,7 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
                     : _customNameCtrl.text.trim())
                 : _selectedHabit;
 
-            // ✅ Check for duplicates
+            // Check for duplicates
             bool alreadyExists = widget.existingHabits
                 .any((habit) => habit.title.toLowerCase() == title.toLowerCase());
 

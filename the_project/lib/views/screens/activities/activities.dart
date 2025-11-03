@@ -1,21 +1,16 @@
 import 'package:flutter/material.dart';
-import 'mood_card.dart';
+import '../../widgets/activities/activity_card.dart';
 import 'games/bubble_popper_game.dart';
 import 'games/breathing_page.dart';
 import 'games/painting_page.dart';
 import 'games/coloring_page.dart';
 import 'games/puzzle_game.dart';
 import 'games/grow_plant.dart';
+import '../../themes/style_simple/colors.dart';
 
 class Activities extends StatelessWidget {
   const Activities({super.key});
-
-  // Palette (kept in case MoodCard uses these)
-  static const Color kBlack = Color(0xFF000000);
-  static const Color kBeige = Color(0xFFFFEBC3);
-  static const Color kWhite = Color(0xFFFFFFFF);
-  static const Color kPurple = Color.fromARGB(255, 204, 156, 201);
-  static const Color kLight = Color(0xFFF5F5F5);
+ 
 
   @override
   Widget build(BuildContext context) {
@@ -79,8 +74,8 @@ class Activities extends StatelessWidget {
               },
               child: MoodCard(
                 data: c,
-                bg: kBeige,
-                border: kBlack,
+                bg: AppColors.card,
+                border: AppColors.textPrimary,
               ),
             ),
         ],

@@ -7,14 +7,14 @@ class JournalEntryModel {
   final String fullText;
   final bool isEmpty;
   
-  // Propriétés pour le style
+  
   final String? backgroundImage;
   final String? fontFamily;
   final String? textColor;
   final double? fontSize;
   final List<String>? attachedImages;
   
-  // Stickers avec leurs positions
+  
   final List<StickerData>? stickers;
 
   JournalEntryModel({
@@ -46,7 +46,7 @@ class JournalEntryModel {
         stickers = null;
 }
 
-// Classe pour stocker les stickers avec positions
+
 class StickerData {
   final String path;
   final double x;

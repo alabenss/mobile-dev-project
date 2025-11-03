@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../../../themes/style_simple/colors.dart';
-import '../../../widgets/app_background.dart';
+import '../../../themes/style_simple/app_background.dart';
 
 /// A soothing breathing exercise screen:
 /// - 1 minute session (00:00 -> 01:00)

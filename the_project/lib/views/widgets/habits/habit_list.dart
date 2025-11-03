@@ -96,7 +96,7 @@ class _HabitListState extends State<HabitList> {
               },
               child: Opacity(
                 opacity: faded ? 0.6 : 1,
-                child: HabitCard(habit: h), // No trailing buttons
+                child: HabitCard(habit: h), 
               ),
             )),
       ],

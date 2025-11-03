@@ -83,7 +83,6 @@ class _FontStyleBottomSheetState extends State<FontStyleBottomSheet> {
             ),
           ),
 
-          // A small grabber – also hints there is scrollable content
           Container(
             width: 40,
             height: 4,
@@ -212,14 +211,13 @@ class _FontStyleBottomSheetState extends State<FontStyleBottomSheet> {
                     ],
                   ),
 
-                  // Add some bottom padding so it's clear content can scroll
+                  
                   const SizedBox(height: 16),
                 ],
               ),
             ),
           ),
 
-          // Visual divider/shadow to hint there is a footer button
           Container(
             height: 8,
             decoration: BoxDecoration(
@@ -234,7 +232,6 @@ class _FontStyleBottomSheetState extends State<FontStyleBottomSheet> {
             ),
           ),
 
-          // Footer: Apply button – outside scroll, always visible
           SafeArea(
             top: false,
             child: Padding(

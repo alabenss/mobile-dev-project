@@ -44,7 +44,7 @@ class JournalBottomToolbar extends StatelessWidget {
             tooltip: 'Text Style',
           ),
          IconButton(
-             onPressed: () {}, // <-- empty callback = does nothing
+             onPressed: () {}, 
              icon: const Icon(Icons.mic),
               tooltip: 'Voice note',
             ),

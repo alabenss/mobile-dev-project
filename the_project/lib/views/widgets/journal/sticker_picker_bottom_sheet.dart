@@ -10,7 +10,7 @@ class StickerPickerBottomSheet extends StatelessWidget {
     required this.onStickerSelected,
   }) : super(key: key);
 
-  // Liste des stickers disponibles
+  // list of stickers
   static const List<String> _stickers = [
     'assets/images/stickers/sticker1.png',
     'assets/images/stickers/sticker2.png',

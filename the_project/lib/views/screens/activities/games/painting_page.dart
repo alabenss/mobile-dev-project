@@ -1,7 +1,7 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
-import '../../../widgets/activity_shell.dart'; // uses your unified background
+import '../../../widgets/activities/activity_shell.dart'; // uses your unified background
 import '../../../themes/style_simple/colors.dart';
 
 class PaintingPage extends StatefulWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:the_project/views/themes/style_simple/colors.dart';
-import '../../widgets/app_background.dart';
+import '../../themes/style_simple/app_background.dart';
 import '../../widgets/journal/journal_entry_model.dart';
 import '../../widgets/journal/mood_card.dart';
 import '../../widgets/journal/month_year_selector.dart';

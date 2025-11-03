@@ -1,30 +1,26 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // 🌅 Unified background gradient for ALL screens
+
   static const Color bgTop = Color(0xFFFFB4C6);
   static const Color bgMid = Color(0xFFFFC8B9);
   static const Color bgBottom = Color(0xFFF6E2C9);
 
-  // 🎨 General colors
   static const Color card = Colors.white;
   static const Color textPrimary = Color(0xFF2B2B2B);
   static const Color textSecondary = Color(0xFF6B6B6B);
   static const Color icon = Color(0xFFFF6E9A);
   static const Color textlight = Colors.white;
 
-  // 🌈 Accent colors
   static const Color accentPink = Color(0xFFFF6E9A);
   static const Color accentGreen = Color(0xFF2DBE7B);
   static const Color accentBlue = Color(0xFF4BA3FF);
   static const Color accentOrange = Color(0xFFFFB74D);
-  static const Color accentPurple = Color(0xFFBD69C7); // 💜 added for activities/habits theme
+  static const Color accentPurple = Color(0xFFBD69C7); 
 
-  // 🧭 Navigation
   static const Color navInactive = Color(0xFF9D9D9D);
   static const Color navActive = accentPurple;
 
-  // 🎯 Utility aliases for quick access
   static const Color primary = accentPurple;
   static const Color success = accentGreen;
   static const Color warning = accentOrange;
@@ -37,5 +33,11 @@ class AppColors {
   static const Color sky = Color(0xFF99D2F0);
   static const Color coral = Color(0xFFF8A0B2);
   static const Color backgroundColor = Color(0xFFF0EAF0);
+
+  static const Color kBlack = Color(0xFF000000);
+  static const Color kBeige = Color(0xFFFFEBC3);
+  static const Color kWhite = Color(0xFFFFFFFF);
+  static const Color kPurple = Color.fromARGB(255, 204, 156, 201);
+  static const Color kLight = Color(0xFFF5F5F5);
 
 }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../themes/style_simple/colors.dart';
-import '../widgets/habits/habit_model.dart';
-import '../widgets/habits/habit_list.dart';
-import '../widgets/habits/add_habit_dialog.dart';
+import '../../themes/style_simple/colors.dart';
+import '../../widgets/habits/habit_model.dart';
+import '../../widgets/habits/habit_list.dart';
+import '../../widgets/habits/add_habit_dialog.dart';
 
 class HabitsScreen extends StatefulWidget {
   const HabitsScreen({super.key});

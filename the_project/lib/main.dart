@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'views/widgets/bottom_nav_wrapper.dart';
-import 'views/screens/profile.dart'; // 👈 import your new profile screen
+import 'views/widgets/common/bottom_nav_wrapper.dart';
+import 'views/screens/settings/profile.dart'; 
 
 void main() {
   runApp(const MyApp());
@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: const BottomNavWrapper(),
 
-      // 👇 Register your routes here
+      
       routes: {
         '/profile': (context) => const ProfileScreen(),
       },

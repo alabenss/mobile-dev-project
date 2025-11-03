@@ -1,4 +1,4 @@
-// lib/views/themes/style_simple/theme.dart
+
 import 'package:flutter/material.dart';
 import 'colors.dart';
 
@@ -26,9 +26,8 @@ ThemeData buildAppTheme() {
       elevation: 8,
     ),
 
-    // keep non-const to avoid const-nesting headaches
+
     cardTheme: CardThemeData(
-      // 0xEB = 92% alpha (replaces .withOpacity(.92))
       color: const Color(0xEBFFFFFF),
       margin: EdgeInsets.zero,
       elevation: 0,

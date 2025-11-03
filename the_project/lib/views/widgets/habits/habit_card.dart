@@ -33,7 +33,6 @@ class HabitCard extends StatelessWidget {
             fontSize: 13,
           ),
         ),
-        // Remove trailing entirely
         trailing: null,
       ),
     );
