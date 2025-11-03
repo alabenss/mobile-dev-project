@@ -1,8 +1,8 @@
-// lib/views/screens/activities/grow_plant.dart
+
 import 'package:flutter/material.dart';
 import '../../../themes/style_simple/colors.dart';
 import '../../../widgets/activity_shell.dart';
-import '../../habits_screen.dart'; // ✅ Add this import for navigation
+import '../../habits_screen.dart'; 
 
 class GrowPlantPage extends StatelessWidget {
   const GrowPlantPage({super.key});
@@ -159,8 +159,6 @@ class GrowPlantPage extends StatelessWidget {
     );
   }
 }
-
-/* =====================  PARTS  ===================== */
 
 class _SoftCard extends StatelessWidget {
   final Widget child;

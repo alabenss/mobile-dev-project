@@ -130,8 +130,6 @@ class _BubblePopperGameState extends State<BubblePopperGame> {
   }
 }
 
-/// The board computes bubble size from available width **and** height,
-/// ensuring the whole grid fits with no need to scroll.
 class _Board extends StatelessWidget {
   const _Board({
     required this.rows,

@@ -1,11 +1,9 @@
  import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 import 'package:the_project/views/themes/style_simple/colors.dart';
 import '../../widgets/journal/journal_entry_model.dart';
 import '../../widgets/journal/sticker_picker_bottom_sheet.dart';
 import '../../widgets/journal/background_picker_bottom_sheet.dart';
-import '../../widgets/journal/draggable_sticker.dart';
 import '../../widgets/app_background.dart';
 import '../../widgets/journal/font_style_bottom_sheet.dart';
 

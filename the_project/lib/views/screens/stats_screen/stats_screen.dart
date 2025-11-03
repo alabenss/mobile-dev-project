@@ -16,10 +16,6 @@ enum StatsRange { today, weekly, monthly, yearly }
 
 class _StatsScreenState extends State<StatsScreen> with TickerProviderStateMixin {
   StatsRange selectedRange = StatsRange.weekly;
-
-  // theme colors
-
-  // Data model for the four sections (kept simple for demo)
   late List<double> waterData; // glasses per period unit
   late List<double> moodData; // 0..1 per period unit
   late int journalingCount; // number of entries in the period
