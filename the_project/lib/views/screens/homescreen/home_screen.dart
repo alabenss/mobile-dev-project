@@ -280,7 +280,6 @@ class _SectionCard extends StatelessWidget {
 }
 
 // 🧊 NOTE: _MoodPicker class was removed — we now use MoodCard everywhere.
-
 class _WaterCard extends StatelessWidget {
   final int count;
   final int goal;
@@ -300,7 +299,7 @@ class _WaterCard extends StatelessWidget {
 
     return Card(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 150), // ✅ no overflow; at least 150
+        constraints: const BoxConstraints(minHeight: 150),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
           child: Column(
@@ -320,32 +319,39 @@ class _WaterCard extends StatelessWidget {
                   const SizedBox(width: 6),
                   const Text('glasses', style: AppText.smallMuted),
                   const Spacer(),
+
+                  // ✅ Reset button now same size & style as Digital Detox
                   if (isGoalReached)
-                    OutlinedButton(
-                      onPressed: () {
-                        for (int i = 0; i < goal; i++) {
-                          onRemove();
-                        }
-                      },
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(
-                          color: AppColors.accentBlue,
-                          width: 1.2,
+                    SizedBox(
+                      height: 30,
+                      child: OutlinedButton(
+                        onPressed: () {
+                          for (int i = 0; i < goal; i++) {
+                            onRemove();
+                          }
+                        },
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(
+                            color: AppColors.accentBlue,
+                            width: 1.2,
+                          ),
+                          foregroundColor: AppColors.accentBlue,
+                          textStyle: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          minimumSize: const Size(58, 30),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
-                        foregroundColor: AppColors.accentBlue,
-                        textStyle: const TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
-                        ),
+                        child: const Text('Reset'),
                       ),
-                      child: const Text('Reset'),
                     )
                   else ...[
                     _TinyRoundBtn(icon: Icons.remove, onTap: onRemove),
@@ -354,7 +360,7 @@ class _WaterCard extends StatelessWidget {
                   ],
                 ],
               ),
-              const Spacer(), // push progress bar to bottom within min-height
+              const Spacer(),
               ClipRRect(
                 borderRadius: BorderRadius.circular(6),
                 child: LinearProgressIndicator(
@@ -371,6 +377,7 @@ class _WaterCard extends StatelessWidget {
     );
   }
 }
+
 
 class _TinyRoundBtn extends StatelessWidget {
   final IconData icon;
@@ -394,7 +401,6 @@ class _TinyRoundBtn extends StatelessWidget {
   }
 }
 // ...everything else unchanged above
-
 class _DetoxCard extends StatelessWidget {
   final double progress;
   final VoidCallback onLockPhone;
@@ -423,98 +429,89 @@ class _DetoxCard extends StatelessWidget {
               Image.asset('assets/images/phone_lock.png', width: 28, height: 28),
               const SizedBox(height: 8),
 
-              // === Percentage + Actions ===
+              // Percentage + Actions (matches water card behavior)
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // ✅ If complete, show only Reset centered
-                  if (!isComplete)
-                    Expanded(
-                      child: RichText(
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: '${(p * 100).round()}%',
-                              style: AppText.chipBold,
-                            ),
-                            const TextSpan(
-                              text: '  complete',
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: AppColors.textPrimary,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    )
-                  else
-                    const Expanded(
-                      child: SizedBox(), // keep spacing alignment
-                    ),
-
-                  const SizedBox(width: 8),
-
-                  // === Buttons ===
-                  if (isComplete)
-                    // ✅ Only Reset when 100%
-                    OutlinedButton(
-                      onPressed: onReset,
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(
-                          color: AppColors.accentBlue,
-                          width: 1.2,
-                        ),
-                        foregroundColor: AppColors.accentBlue,
-                        textStyle: const TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
-                        ),
-                        minimumSize: const Size(0, 28),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                      child: const Text('Reset'),
-                    )
-                  else
-                    Flexible(
-                      child: Wrap(
-                        alignment: WrapAlignment.end,
-                        spacing: 6,
-                        runSpacing: 6,
+                  // Left: percentage text (always visible)
+                  Expanded(
+                    child: RichText(
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      text: TextSpan(
                         children: [
-                          ElevatedButton(
-                            onPressed: onLockPhone,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.accentGreen,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 6,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              elevation: 0,
-                              textStyle: const TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                              ),
-                              minimumSize: const Size(0, 28),
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          TextSpan(
+                            text: '${(p * 100).round()}%',
+                            style: AppText.chipBold,
+                          ),
+                          const TextSpan(
+                            text: '  complete',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.w400,
                             ),
-                            child: const Text('Lock 30m'),
                           ),
                         ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+
+                  // Right: action button
+                  if (isComplete)
+                    // ✅ Reset button styled exactly like water intake
+                    SizedBox(
+                      height: 30,
+                      child: OutlinedButton(
+                        onPressed: onReset,
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(
+                            color: AppColors.accentBlue,
+                            width: 1.2,
+                          ),
+                          foregroundColor: AppColors.accentBlue,
+                          textStyle: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          minimumSize: const Size(58, 30),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: const Text('Reset'),
+                      ),
+                    )
+                  else
+                    SizedBox(
+                      height: 30,
+                      child: ElevatedButton(
+                        onPressed: onLockPhone,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.accentGreen,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 0,
+                          textStyle: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          minimumSize: const Size(58, 30),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: const Text('Lock 30m'),
                       ),
                     ),
                 ],
