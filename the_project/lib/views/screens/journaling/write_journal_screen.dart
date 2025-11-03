@@ -8,6 +8,12 @@ import '../../widgets/journal/draggable_sticker.dart';
 import '../../widgets/app_background.dart';
 import '../../widgets/journal/font_style_bottom_sheet.dart';
 
+// NEW imports for splitted widgets:
+import '../../widgets/journal/journal_top_bar.dart';
+import '../../widgets/journal/journal_body_fields.dart';
+import '../../widgets/journal/journal_attachments.dart';
+import '../../widgets/journal/journal_bottom_toolbar.dart';
+
 class WriteJournalScreen extends StatefulWidget {
   final String? initialDateLabel;
   final int? initialMonth;
@@ -149,210 +155,60 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
             SafeArea(
               child: Column(
                 children: [
-                  // Top bar
-                  Container(
-                    color: Colors.white.withOpacity(0.9),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-                    child: Row(
-                      children: [
-                        IconButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          icon: const Icon(Icons.arrow_back),
-                        ),
-                        const Spacer(),
-                        TextButton(
-                          onPressed: _save,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.shade400,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: const Text(
-                              'Save',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        CircleAvatar(
-                          radius: 18,
-                          backgroundColor: Colors.white.withOpacity(0.6),
-                          child:
-                              Image.asset(_selectedMood, width: 26, height: 26),
-                        ),
-                      ],
-                    ),
+                  // Top bar (split)
+                  JournalTopBar(
+                    onBack: () => Navigator.of(context).pop(),
+                    onSave: _save,
+                    selectedMood: _selectedMood,
                   ),
 
-                  // Scrollable content
+                  // Scrollable content (body + attachments)
                   Expanded(
                     child: SingleChildScrollView(
                       padding: const EdgeInsets.all(18.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            _dateLabel,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
-                              color: _textColor,
-                              fontFamily: _fontFamily,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-
-                          // Title
-                          TextField(
-                            controller: _titleCtrl,
-                            decoration: const InputDecoration(
-                              hintText: 'Title',
-                              border: InputBorder.none,
-                            ),
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: _fontFamily,
-                              color: _textColor,
-                            ),
-                          ),
-
-                          // Body
-                          TextField(
-                            controller: _bodyCtrl,
-                            keyboardType: TextInputType.multiline,
-                            maxLines: null,
-                            minLines: 5,
-                            decoration: const InputDecoration(
-                              hintText: 'Write more here...',
-                              border: InputBorder.none,
-                            ),
-                            style: TextStyle(
-                              fontFamily: _fontFamily,
-                              color: _textColor,
-                              fontSize: _fontSize,
-                            ),
+                          // Body fields (date, title, body)
+                          JournalBodyFields(
+                            dateLabel: _dateLabel,
+                            titleController: _titleCtrl,
+                            bodyController: _bodyCtrl,
+                            fontFamily: _fontFamily,
+                            textColor: _textColor,
+                            fontSize: _fontSize,
+                            attachedImagePaths: _attachedImagePaths,
+                            onRemoveAttachedImage: (index) {
+                              setState(() {
+                                _attachedImagePaths.removeAt(index);
+                              });
+                            },
                           ),
 
                           const SizedBox(height: 16),
 
-                          // Stickers
-                          if (_stickerPaths.isNotEmpty)
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: _stickerPaths.asMap().entries.map((e) {
-                                return Stack(
-                                  children: [
-                                    Image.asset(e.value,
-                                        width: 60, height: 60),
-                                    Positioned(
-                                      top: 0,
-                                      right: 0,
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            _stickerPaths.removeAt(e.key);
-                                          });
-                                        },
-                                        child: Container(
-                                          padding: const EdgeInsets.all(2),
-                                          decoration: const BoxDecoration(
-                                            color: Colors.red,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: const Icon(Icons.close,
-                                              color: Colors.white, size: 14),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              }).toList(),
-                            ),
+                          // Stickers area (split)
+                          JournalAttachments(
+                            stickerPaths: _stickerPaths,
+                            onRemoveSticker: (index) {
+                              setState(() {
+                                _stickerPaths.removeAt(index);
+                              });
+                            },
+                          ),
 
-                          // Images
-                          if (_attachedImagePaths.isNotEmpty) ...[
-                            const SizedBox(height: 16),
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              children:
-                                  _attachedImagePaths.asMap().entries.map((e) {
-                                return Stack(
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(8),
-                                      child: Image.file(
-                                        File(e.value),
-                                        width: 120,
-                                        height: 120,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                    Positioned(
-                                      top: 4,
-                                      right: 4,
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            _attachedImagePaths.removeAt(e.key);
-                                          });
-                                        },
-                                        child: Container(
-                                          padding: const EdgeInsets.all(4),
-                                          decoration: const BoxDecoration(
-                                            color: Colors.red,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: const Icon(Icons.close,
-                                              color: Colors.white, size: 16),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              }).toList(),
-                            ),
-                          ],
+                          const SizedBox(height: 16),
                         ],
                       ),
                     ),
                   ),
 
-                  // Bottom toolbar
-                  Container(
-                    color: Colors.white.withOpacity(0.95),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        IconButton(
-                          onPressed: _showBackgroundPicker,
-                          icon: const Icon(Icons.wallpaper),
-                          tooltip: 'Background',
-                        ),
-                        IconButton(
-                          onPressed: _pickImage,
-                          icon: const Icon(Icons.photo),
-                          tooltip: 'Add Image',
-                        ),
-                        IconButton(
-                          onPressed: _showStickerPicker,
-                          icon: const Icon(Icons.sticky_note_2_outlined),
-                          tooltip: 'Stickers',
-                        ),
-                        IconButton(
-                          onPressed: _showFontStylePicker,
-                          icon: const Icon(Icons.text_fields),
-                          tooltip: 'Text Style',
-                        ),
-                      ],
-                    ),
+                  // Bottom toolbar (split)
+                  JournalBottomToolbar(
+                    onBackground: _showBackgroundPicker,
+                    onPickImage: _pickImage,
+                    onStickers: _showStickerPicker,
+                    onTextStyle: _showFontStylePicker,
                   ),
                 ],
               ),
@@ -454,7 +310,6 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
     Navigator.of(context).pop(entry);
   }
 }
-
 
 
 
