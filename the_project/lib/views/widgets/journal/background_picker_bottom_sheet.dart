@@ -11,14 +11,14 @@ class BackgroundPickerBottomSheet extends StatelessWidget {
 
   // Liste des backgrounds rectangulaires verticaux
   static const List<String> _backgrounds = [
-    'assets/images/background/bg1.png',
-    'assets/images/background/bg2.png',
-    'assets/images/background/bg3.png',
-    'assets/images/background/bg4.png',
-    'assets/images/background/bg5.png',
-    'assets/images/background/bg6.png',
-    'assets/images/background/bg7.png',
-    'assets/images/background/bg8.png',
+    'assets/images/background/bg1.jpg',
+    'assets/images/background/bg2.jpg',
+    'assets/images/background/bg3.jpg',
+    'assets/images/background/bg4.jpg',
+    'assets/images/background/bg5.jpg',
+    'assets/images/background/bg6.jpg',
+    'assets/images/background/bg7.jpg',
+    'assets/images/background/bg8.jpg',
   ];
 
   @override
