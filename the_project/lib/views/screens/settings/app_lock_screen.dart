@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../themes/style_simple/colors.dart';
+import '../../themes/style_simple/colors.dart';
 
 class AppLockScreen extends StatefulWidget {
   const AppLockScreen({super.key});

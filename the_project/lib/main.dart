@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'views/widgets/common/bottom_nav_wrapper.dart';
 import 'views/screens/settings/profile.dart'; // 👈 import your new profile screen
-import 'views/screens/app_lock_screen.dart';
+import 'views/screens/settings/app_lock_screen.dart';
 void main() {
   runApp(const MyApp());
 }
