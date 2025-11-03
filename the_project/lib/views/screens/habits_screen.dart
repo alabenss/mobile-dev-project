@@ -66,7 +66,7 @@ class _HabitsScreenState extends State<HabitsScreen>
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: AppColors.accentPink,
+        backgroundColor: AppColors.icon,
         shape: const CircleBorder(),
         elevation: 6,
         onPressed: () async {

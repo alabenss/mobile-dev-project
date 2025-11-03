@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_project/views/themes/style_simple/colors.dart';
 import '../../widgets/app_background.dart';
 import '../../widgets/journal/journal_entry_model.dart';
 import '../../widgets/journal/mood_card.dart';
@@ -67,9 +68,10 @@ class _JournalingScreenState extends State<JournalingScreen> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       floatingActionButton: FloatingActionButton(
+        shape: const CircleBorder(),
         onPressed: () => _openWritePage(),
-        backgroundColor: Colors.purpleAccent,
-        child: const Icon(Icons.add, color: Colors.white),
+        backgroundColor: AppColors.icon,
+        child: const Icon(Icons.add, color: Colors.white,size: 28),
       ),
       body: AppBackground(
         child: Padding(
