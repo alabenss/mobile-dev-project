@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'views/widgets/bottom_nav_wrapper.dart';
 import 'views/screens/profile.dart'; // 👈 import your new profile screen
-
+import 'views/screens/app_lock_screen.dart';
 void main() {
   runApp(const MyApp());
 }
@@ -18,6 +18,7 @@ class MyApp extends StatelessWidget {
       // 👇 Register your routes here
       routes: {
         '/profile': (context) => const ProfileScreen(),
+        '/app-lock': (context) => const AppLockScreen(), 
       },
     );
   }
