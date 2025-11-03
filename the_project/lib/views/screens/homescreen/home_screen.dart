@@ -10,7 +10,9 @@ import '../habits.dart';
 import '../../widgets/journal/mood_card.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+
+  final VoidCallback? onViewAllHabits;
+  const HomeScreen({super.key, this.onViewAllHabits});
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -137,12 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _SectionCard(
             title: 'Daily habits:',
             trailing: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const HabitsScreen()),
-                );
-              },
+              onTap: widget.onViewAllHabits, // ✅ use callback
               child: const Text(
                 'view all',
                 style: TextStyle(

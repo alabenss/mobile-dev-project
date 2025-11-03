@@ -1,6 +1,12 @@
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import '../../widgets/app_background.dart';
 import '../../widgets/journal/journal_entry_model.dart';
+import '../../widgets/journal/sticker_picker_bottom_sheet.dart';
+import '../../widgets/journal/background_picker_bottom_sheet.dart';
+import '../../widgets/journal/font_style_bottom_sheet.dart';
 
 class WriteJournalScreen extends StatefulWidget {
   final String? initialDateLabel;
@@ -12,15 +18,13 @@ class WriteJournalScreen extends StatefulWidget {
     this.initialDateLabel,
     this.initialMonth,
     this.initialYear,
-    Key? key,
-  })  : existingEntry = null,
-        super(key: key);
+    super.key,
+  })  : existingEntry = null;
 
-  const WriteJournalScreen.edit({required this.existingEntry, Key? key})
+  const WriteJournalScreen.edit({required this.existingEntry, super.key})
       : initialDateLabel = null,
         initialMonth = null,
-        initialYear = null,
-        super(key: key);
+        initialYear = null;
 
   @override
   State<WriteJournalScreen> createState() => _WriteJournalScreenState();
@@ -39,6 +43,17 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
   ];
   String _selectedMood = 'assets/images/good.png';
 
+  // Style properties
+  String _backgroundImage = '';
+  String _fontFamily = 'Roboto';
+  Color _textColor = Colors.black;
+  double _fontSize = 16.0;
+  
+  // Image attachments et stickers
+  final List<String> _attachedImagePaths = [];
+  final List<String> _stickerPaths = [];
+  final ImagePicker _imagePicker = ImagePicker();
+
   @override
   void initState() {
     super.initState();
@@ -49,6 +64,19 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
       _titleCtrl.text = widget.existingEntry!.title;
       _bodyCtrl.text = widget.existingEntry!.fullText;
       _selectedMood = widget.existingEntry!.moodImage;
+      
+      // Charger les styles sauvegardés
+      _backgroundImage = widget.existingEntry!.backgroundImage ?? '';
+      _fontFamily = widget.existingEntry!.fontFamily ?? 'Roboto';
+      _fontSize = widget.existingEntry!.fontSize ?? 16.0;
+      
+      if (widget.existingEntry!.textColor != null) {
+        _textColor = _colorFromHex(widget.existingEntry!.textColor!);
+      }
+      
+      if (widget.existingEntry!.attachedImages != null) {
+        _attachedImagePaths.addAll(widget.existingEntry!.attachedImages!);
+      }
     } else {
       final now = DateTime.now();
       _selectedDate = widget.initialMonth != null && widget.initialYear != null
@@ -56,6 +84,17 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
           : now;
       _dateLabel = widget.initialDateLabel ?? _formatDate(_selectedDate);
     }
+  }
+
+  Color _colorFromHex(String hexString) {
+    final buffer = StringBuffer();
+    if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
+    buffer.write(hexString.replaceFirst('#', ''));
+    return Color(int.parse(buffer.toString(), radix: 16));
+  }
+
+  String _colorToHex(Color color) {
+    return '#${color.value.toRadixString(16).substring(2).toUpperCase()}';
   }
 
   String _formatDate(DateTime d) =>
@@ -75,132 +114,307 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: AppBackground(
-        child: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12),
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(Icons.arrow_back),
-                    ),
-                    const Spacer(),
-                    TextButton(
-                      onPressed: _save,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade400,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: const Text(
-                          'Save',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    CircleAvatar(
-                      radius: 18,
-                      backgroundColor: Colors.white.withOpacity(0.6),
-                      child: Image.asset(_selectedMood, width: 26, height: 26),
-                    )
-                  ],
-                ),
+      body: Stack(
+        children: [
+          // Background image si sélectionné
+          if (_backgroundImage.isNotEmpty)
+            Positioned.fill(
+              child: Image.asset(
+                _backgroundImage,
+                fit: BoxFit.cover,
               ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            ),
+          
+          // Overlay semi-transparent pour lisibilité
+          if (_backgroundImage.isNotEmpty)
+            Positioned.fill(
+              child: Container(
+                color: Colors.white.withOpacity(0.3),
+              ),
+            ),
+          
+          SafeArea(
+            child: Column(
+              children: [
+                // Top bar
+                Container(
+                  color: Colors.white.withOpacity(0.9),
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12),
+                  child: Row(
                     children: [
-                      Text(
-                        _dateLabel,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
+                      IconButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        icon: const Icon(Icons.arrow_back),
+                      ),
+                      const Spacer(),
+                      TextButton(
+                        onPressed: _save,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.blue.shade400,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Text(
+                            'Save',
+                            style: TextStyle(color: Colors.white),
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      TextField(
-                        controller: _titleCtrl,
-                        decoration: const InputDecoration(
-                          hintText: 'Title',
-                          border: InputBorder.none,
+                      const SizedBox(width: 10),
+                      CircleAvatar(
+                        radius: 18,
+                        backgroundColor: Colors.white.withOpacity(0.6),
+                        child: Image.asset(_selectedMood, width: 26, height: 26),
+                      )
+                    ],
+                  ),
+                ),
+                
+                // Content area avec scroll
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(18.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Date
+                        Text(
+                          _dateLabel,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            color: _textColor,
+                            fontFamily: _fontFamily,
+                          ),
                         ),
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                        const SizedBox(height: 12),
+                        
+                        // Title
+                        TextField(
+                          controller: _titleCtrl,
+                          decoration: const InputDecoration(
+                            hintText: 'Title',
+                            border: InputBorder.none,
+                          ),
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: _fontFamily,
+                            color: _textColor,
+                          ),
                         ),
-                      ),
-                      Expanded(
-                        child: TextField(
+                        
+                        // Body
+                        TextField(
                           controller: _bodyCtrl,
                           keyboardType: TextInputType.multiline,
                           maxLines: null,
+                          minLines: 5,
                           decoration: const InputDecoration(
                             hintText: 'Write more here...',
                             border: InputBorder.none,
                           ),
+                          style: TextStyle(
+                            fontFamily: _fontFamily,
+                            color: _textColor,
+                            fontSize: _fontSize,
+                          ),
                         ),
+                        
+                        const SizedBox(height: 16),
+                        
+                        // Stickers ajoutés
+                        if (_stickerPaths.isNotEmpty)
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: _stickerPaths.asMap().entries.map((entry) {
+                              return Stack(
+                                children: [
+                                  Image.asset(
+                                    entry.value,
+                                    width: 60,
+                                    height: 60,
+                                  ),
+                                  Positioned(
+                                    top: 0,
+                                    right: 0,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _stickerPaths.removeAt(entry.key);
+                                        });
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.all(2),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.red,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(
+                                          Icons.close,
+                                          color: Colors.white,
+                                          size: 14,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }).toList(),
+                          ),
+                        
+                        // Images attachées
+                        if (_attachedImagePaths.isNotEmpty) ...[
+                          const SizedBox(height: 16),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: _attachedImagePaths.asMap().entries.map((entry) {
+                              return Stack(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Image.file(
+                                      File(entry.value),
+                                      width: 120,
+                                      height: 120,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  Positioned(
+                                    top: 4,
+                                    right: 4,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _attachedImagePaths.removeAt(entry.key);
+                                        });
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.all(4),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.red,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(
+                                          Icons.close,
+                                          color: Colors.white,
+                                          size: 16,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+                
+                // Bottom toolbar
+                Container(
+                  color: Colors.white.withOpacity(0.95),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      IconButton(
+                        onPressed: _showBackgroundPicker,
+                        icon: const Icon(Icons.wallpaper),
+                        tooltip: 'Background',
+                      ),
+                      IconButton(
+                        onPressed: _pickImage,
+                        icon: const Icon(Icons.photo),
+                        tooltip: 'Add Image',
+                      ),
+                      IconButton(
+                        onPressed: _showStickerPicker,
+                        icon: const Icon(Icons.sticky_note_2_outlined),
+                        tooltip: 'Stickers',
+                      ),
+                      IconButton(
+                        onPressed: _showFontStylePicker,
+                        icon: const Icon(Icons.text_fields),
+                        tooltip: 'Text Style',
                       ),
                     ],
                   ),
-                ),
-              ),
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.9),
-                  borderRadius: BorderRadius.circular(28),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    IconButton(
-                      onPressed: () => _onIconPressed('background'),
-                      icon: Image.asset(
-                          'assets/icons/background.png',
-                            width: 24,  // adjust size if needed
-                             height: 24,
-                             ),
-                    ),
-                        
-                    IconButton(
-                      onPressed: () => _onIconPressed('image'),
-                      icon: const Icon(Icons.photo),
-                    ),
-                        
-                    IconButton(
-                      onPressed: () => _onIconPressed('emoji'),
-                      icon: const Icon(Icons.emoji_emotions_outlined),
-                        
-                    ),
-                        
-                    IconButton(
-                      onPressed: () => _onIconPressed('fonts'),
-                      icon: const Icon(Icons.text_fields),
-                    ),
-                     
-                    
-                  ],
-                ),
-              )
-            ],
+                )
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
 
-  void _onIconPressed(String action) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Icon: $action clicked')),
+  void _showStickerPicker() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => StickerPickerBottomSheet(
+        onStickerSelected: (stickerPath) {
+          setState(() {
+            _stickerPaths.add(stickerPath);
+          });
+        },
+      ),
     );
+  }
+
+  void _showBackgroundPicker() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => BackgroundPickerBottomSheet(
+        onBackgroundSelected: (bgPath) {
+          setState(() {
+            _backgroundImage = bgPath;
+          });
+        },
+      ),
+    );
+  }
+
+  void _showFontStylePicker() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => FontStyleBottomSheet(
+        currentFontFamily: _fontFamily,
+        currentColor: _textColor,
+        currentFontSize: _fontSize,
+        onStyleChanged: (font, color, size) {
+          setState(() {
+            _fontFamily = font;
+            _textColor = color;
+            _fontSize = size;
+          });
+        },
+      ),
+    );
+  }
+
+  Future<void> _pickImage() async {
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+      );
+      
+      if (image != null) {
+        setState(() {
+          _attachedImagePaths.add(image.path);
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error picking image: $e')),
+      );
+    }
   }
 
   void _save() {
@@ -220,8 +434,15 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
       moodImage: _selectedMood,
       title: title,
       fullText: body,
+      backgroundImage: _backgroundImage.isEmpty ? null : _backgroundImage,
+      fontFamily: _fontFamily,
+      textColor: _colorToHex(_textColor),
+      fontSize: _fontSize,
+      attachedImages: _attachedImagePaths.isEmpty ? null : _attachedImagePaths,
     );
 
     Navigator.of(context).pop(entry);
   }
 }
+
+

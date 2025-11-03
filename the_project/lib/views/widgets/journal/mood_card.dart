@@ -104,14 +104,14 @@ class _MoodCardState extends State<MoodCard> {
         ),
         const SizedBox(height: 12),
         SizedBox(
-          height: 80,
+          height: 70,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: _moods.length,
             itemBuilder: (context, index) {
               final mood = _moods[index];
               return Padding(
-                padding: const EdgeInsets.only(right: 12.0),
+                padding: const EdgeInsets.only(right: 16.0),
                 child: GestureDetector(
                   onTap: () {
                     widget.onMoodSelected?.call(
@@ -122,28 +122,11 @@ class _MoodCardState extends State<MoodCard> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Container(
-                        width: 60,
-                        height: 60,
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: Colors.grey.withOpacity(0.3),
-                            width: 2,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 4,
-                            ),
-                          ],
-                        ),
-                        child: Image.asset(
-                          mood['image']!,
-                          fit: BoxFit.contain,
-                        ),
+                      Image.asset(
+                        mood['image']!,
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.contain,
                       ),
                       const SizedBox(height: 4),
                       Text(

@@ -96,14 +96,7 @@ class _HabitListState extends State<HabitList> {
               },
               child: Opacity(
                 opacity: faded ? 0.6 : 1,
-                child: HabitCard(
-                  habit: h,
-                  onReset: () => setState(() {
-                    completed.remove(h);
-                    skipped.remove(h);
-                  }),
-                  onToggleDone: (val) {},
-                ),
+                child: HabitCard(habit: h), // No trailing buttons
               ),
             )),
       ],
@@ -114,8 +107,7 @@ class _HabitListState extends State<HabitList> {
       {bool alignRight = false}) {
     return Container(
       color: color,
-      alignment:
-          alignRight ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: alignRight ? Alignment.centerRight : Alignment.centerLeft,
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         mainAxisSize: MainAxisSize.min,
