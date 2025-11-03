@@ -10,7 +10,7 @@ import 'games/grow_plant.dart';
 class Activities extends StatelessWidget {
   const Activities({super.key});
 
-  // Palette
+  // Palette (kept in case MoodCard uses these)
   static const Color kBlack = Color(0xFF000000);
   static const Color kBeige = Color(0xFFFFEBC3);
   static const Color kWhite = Color(0xFFFFFFFF);
@@ -62,71 +62,28 @@ class Activities extends StatelessWidget {
       'Grow the plant': (_) => const GrowPlantPage(),
     };
 
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment(0, -1.0),
-          end: Alignment(0, 0.9),
-          colors: [Color.fromARGB(255, 247, 145, 201), Color(0xFFE6A4D7), Color(0xFFFFEBC3)],
-        ),
-      ),
-      child: SafeArea(
-        child: Column(
-          children: [
-            // ---------------- HEADER ----------------
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 6, 16, 8),
-              child: Row(
-                children: [
-                  
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Text(
-                      'Boost Your Mood',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 28,
-                        height: 1.1,
-                        fontWeight: FontWeight.w700,
-                        color: kBlack,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 40),
-                ],
+    // ✅ No local background/gradient here; matches HomeScreen (inherits Scaffold background)
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+      child: _UniformGrid(
+        itemHeight: 208,
+        children: [
+          for (final c in cards)
+            InkWell(
+              borderRadius: BorderRadius.circular(22),
+              onTap: () {
+                final builder = routes[c.title];
+                if (builder != null) {
+                  Navigator.of(context).push(MaterialPageRoute(builder: builder));
+                }
+              },
+              child: MoodCard(
+                data: c,
+                bg: kBeige,
+                border: kBlack,
               ),
             ),
-
-            // ---------------- GRID ----------------
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                child: _UniformGrid(
-                  itemHeight: 208,
-                  children: [
-                    for (final c in cards)
-                      InkWell(
-                        borderRadius: BorderRadius.circular(22),
-                        onTap: () {
-                          final builder = routes[c.title];
-                          if (builder != null) {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(builder: builder),
-                            );
-                          }
-                        },
-                        child: MoodCard(
-                          data: c,
-                          bg: kBeige,
-                          border: kBlack,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+        ],
       ),
     );
   }
