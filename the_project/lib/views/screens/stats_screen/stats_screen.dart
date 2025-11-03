@@ -86,7 +86,7 @@ class _StatsScreenState extends State<StatsScreen> with TickerProviderStateMixin
       };
       labels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     }
-    // Trigger UI update
+    
     setState(() {});
   }
 
