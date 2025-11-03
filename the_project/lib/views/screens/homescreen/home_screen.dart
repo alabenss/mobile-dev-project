@@ -38,7 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // 👋 Greeting section
           const SizedBox(height: 30),
           const Text(
-            "Good morning, Sara",
+            "Good morning, ala",
             style: TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.w700,
