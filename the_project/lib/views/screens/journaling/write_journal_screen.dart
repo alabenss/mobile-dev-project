@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import '../../widgets/app_background.dart';
 import '../../widgets/journal/journal_entry_model.dart';
 import '../../widgets/journal/sticker_picker_bottom_sheet.dart';
 import '../../widgets/journal/background_picker_bottom_sheet.dart';
