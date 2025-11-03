@@ -67,7 +67,7 @@ class ExploreCard extends StatelessWidget {
                     child: Text(
                       cta,
                       style: const TextStyle(
-                        color: AppColors.accentPink,
+                        color: AppColors.textPrimary,
                         fontWeight: FontWeight.w700,
                         fontSize: 12,
                       ),

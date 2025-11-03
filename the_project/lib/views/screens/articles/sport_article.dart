@@ -110,14 +110,13 @@ class SportArticlePage extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.accentPink,
+                    backgroundColor: AppColors.icon,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     elevation: 0,
                   ),
                   onPressed: () {
-                    // TODO: navigate to Activities page when it’s ready
                   },
                   icon: const Icon(Icons.play_arrow_rounded),
                   label: const Text('Start an activity'),

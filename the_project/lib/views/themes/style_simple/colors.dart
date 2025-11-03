@@ -9,7 +9,7 @@ class AppColors {
   static const Color card = Colors.white;
   static const Color textPrimary = Color(0xFF2B2B2B);
   static const Color textSecondary = Color(0xFF6B6B6B);
-  static const Color icon = Color.fromARGB(255, 255, 176, 207);
+  static const Color icon = Color.fromARGB(255, 236, 144, 181);
   static const Color textlight = Colors.white;
 
   static const Color accentPink = Color(0xFFFF6E9A);
