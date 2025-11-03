@@ -6,6 +6,8 @@ import '../../themes/style_simple/styles.dart';
 import '../articles/plant_article.dart';
 import '../articles/sport_article.dart';
 import '../habits.dart';
+// ✅ reuse the exact same component used in Journal
+import '../../widgets/journal/mood_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,12 +16,17 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _moodIndex = 1;
+  // 💧 existing state
   int _waterCount = 4;
   final int _waterGoal = 8;
   double _detoxProgress = 0.35;
   bool _habitWalk = true;
   bool _habitRead = false;
+
+  // 🙂 mood state now mirrors MoodCard’s API (keeps both screens consistent)
+  String? _selectedMoodImage;
+  String? _selectedMoodLabel;
+  DateTime? _selectedMoodTime;
 
   @override
   Widget build(BuildContext context) {
@@ -44,29 +51,48 @@ class _HomeScreenState extends State<HomeScreen> {
           _ImageQuoteCard(imagePath: AppImages.quotes, quote: AppConfig.quote),
           const SizedBox(height: 18),
 
-          // Mood
-          _SectionCard(
-            title: 'How are you feeling today ?',
-            // tap to open journaling
-            trailing: GestureDetector(
-              onTap: () => Navigator.pushNamed(context, '/journaling'),
-              child: const Text(
-                'journal',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: AppColors.accentGreen,
-                  fontWeight: FontWeight.w600,
+          // ===================== MOOD (shared with Journal) =====================
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('How are you feeling today ?', style: AppText.sectionTitle),
+              GestureDetector(
+                onTap: () => Navigator.pushNamed(context, '/journaling'),
+                child: const Text(
+                  'journal',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.accentGreen,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              child: _MoodPicker(
-                selected: _moodIndex,
-                onChanged: (i) => setState(() => _moodIndex = i),
-              ),
-            ),
+            ],
           ),
+          const SizedBox(height: 10),
+          // Use the same MoodCard component for identical UI/behavior
+          MoodCard(
+            selectedMood: _selectedMoodImage,
+            selectedMoodLabel: _selectedMoodLabel,
+            selectedTime: _selectedMoodTime,
+            onMoodSelected: (moodImage, moodLabel) {
+              setState(() {
+                // MoodCard uses ('','') as "reset to selector" from its edit button
+                final isReset = moodImage.isEmpty && moodLabel.isEmpty;
+                if (isReset) {
+                  _selectedMoodImage = null;
+                  _selectedMoodLabel = null;
+                  _selectedMoodTime = null;
+                } else {
+                  _selectedMoodImage = moodImage;
+                  _selectedMoodLabel = moodLabel;
+                  _selectedMoodTime = DateTime.now();
+                }
+              });
+            },
+          ),
+          // =====================================================================
+
           const SizedBox(height: 12),
 
           // Water + Detox
@@ -110,7 +136,6 @@ class _HomeScreenState extends State<HomeScreen> {
           // Habits
           _SectionCard(
             title: 'Daily habits:',
-            // tap to open habits list
             trailing: GestureDetector(
               onTap: () {
                 Navigator.push(
@@ -275,83 +300,7 @@ class _SectionCard extends StatelessWidget {
   }
 }
 
-class _MoodPicker extends StatelessWidget {
-  final int selected;
-  final ValueChanged<int> onChanged;
-  const _MoodPicker({required this.selected, required this.onChanged});
-
-  static const _moods = [
-    {'image': 'assets/images/happy.png', 'label': 'Happy'},
-    {'image': 'assets/images/good.png', 'label': 'Good'},
-    {'image': 'assets/images/excited.png', 'label': 'Excited'},
-    {'image': 'assets/images/calm.png', 'label': 'Calm'},
-    {'image': 'assets/images/sad.png', 'label': 'Sad'},
-    {'image': 'assets/images/tired.png', 'label': 'Tired'},
-    {'image': 'assets/images/anxious.png', 'label': 'Anxious'},
-    {'image': 'assets/images/angry.png', 'label': 'Angry'},
-    {'image': 'assets/images/confused.png', 'label': 'Confused'},
-    {'image': 'assets/images/grateful.png', 'label': 'Grateful'},
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    // Constrain height so a horizontal ListView can render inside Column
-    return SizedBox(
-      height: 90,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 2),
-        itemCount: _moods.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 10),
-        itemBuilder: (context, i) {
-          final mood = _moods[i];
-          final bool isSelected = selected == i;
-
-          return GestureDetector(
-            onTap: () => onChanged(i),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 160),
-              width: 72,
-              height: 82,
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF2F4),
-                borderRadius: BorderRadius.circular(12),
-                border: isSelected
-                    ? Border.all(color: Colors.black87, width: 1.2)
-                    : null,
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    mood['image']!,
-                    width: 36,
-                    height: 36,
-                    fit: BoxFit.contain,
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    mood['label']!,
-                    textAlign: TextAlign.center,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
+// 🧊 NOTE: _MoodPicker class was removed — we now use MoodCard everywhere.
 
 class _WaterCard extends StatelessWidget {
   final int count;
@@ -390,16 +339,13 @@ class _WaterCard extends StatelessWidget {
                 const SizedBox(width: 6),
                 const Text('glasses', style: AppText.smallMuted),
                 const Spacer(),
-
-                // When goal reached, show reset button instead of +/- controls
                 if (isGoalReached)
                   OutlinedButton(
                     onPressed: () {
                       for (int i = 0; i < goal; i++) {
                         onRemove();
                       }
-                                        },
-                    // this will trigger reset logic in parent
+                    },
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(
                         color: AppColors.accentBlue,
@@ -491,12 +437,9 @@ class _DetoxCard extends StatelessWidget {
             const SizedBox(height: 6),
             Image.asset('assets/images/phone_lock.png', width: 28, height: 28),
             const SizedBox(height: 8),
-
-            // percentage + actions (overflow-safe)
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Left: percentage text that can ellipsize
                 Expanded(
                   child: RichText(
                     maxLines: 1,
@@ -520,8 +463,6 @@ class _DetoxCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-
-                // Right: buttons that wrap when tight (prevents overflow at 100%)
                 Flexible(
                   child: Wrap(
                     alignment: WrapAlignment.end,
@@ -576,7 +517,6 @@ class _DetoxCard extends StatelessWidget {
                 ),
               ],
             ),
-
             const SizedBox(height: 8),
             ClipRRect(
               borderRadius: BorderRadius.circular(6),
