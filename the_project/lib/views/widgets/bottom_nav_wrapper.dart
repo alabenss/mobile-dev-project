@@ -29,7 +29,7 @@ class _BottomNavWrapperState extends State<BottomNavWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> _pages = [
+    final List<Widget> pages = [
       HomeScreen(
         onViewAllHabits: switchToHabitsTab, // pass callback to HomeScreen
       ),
@@ -50,7 +50,7 @@ class _BottomNavWrapperState extends State<BottomNavWrapper> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: const CustomAppBar(),
-        body: _pages[_navIndex],
+        body: pages[_navIndex],
         bottomNavigationBar: BottomPillNav(
           index: _navIndex,
           onTap: _onTap,

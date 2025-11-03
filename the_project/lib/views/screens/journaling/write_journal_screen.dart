@@ -12,15 +12,13 @@ class WriteJournalScreen extends StatefulWidget {
     this.initialDateLabel,
     this.initialMonth,
     this.initialYear,
-    Key? key,
-  })  : existingEntry = null,
-        super(key: key);
+    super.key,
+  })  : existingEntry = null;
 
-  const WriteJournalScreen.edit({required this.existingEntry, Key? key})
+  const WriteJournalScreen.edit({required this.existingEntry, super.key})
       : initialDateLabel = null,
         initialMonth = null,
-        initialYear = null,
-        super(key: key);
+        initialYear = null;
 
   @override
   State<WriteJournalScreen> createState() => _WriteJournalScreenState();

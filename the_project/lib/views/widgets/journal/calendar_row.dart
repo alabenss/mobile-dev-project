@@ -8,13 +8,13 @@ class CalendarRow extends StatelessWidget {
   final Function(String dateLabel) onDateTap;
 
   const CalendarRow({
-    Key? key,
+    super.key,
     required this.month,
     required this.year,
     this.selectedDateLabel,
     required this.entriesByDate,
     required this.onDateTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
