@@ -175,7 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   },
                   child: _ExploreCard(
-                    color: const Color(0xFFCDEFE3),
+                    color: AppColors.card,
                     title: 'The calming effect of plants',
                     cta: 'Read Now',
                     assetImage: AppImages.plantIcon,
@@ -194,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   },
                   child: _ExploreCard(
-                    color: const Color(0xFFD7E6FF),
+                    color: AppColors.card,
                     title: 'Boost your\nmood with\nsports',
                     cta: '',
                     assetImage: AppImages.boostMoodIcon,
