@@ -5,9 +5,10 @@ import '../../themes/style_simple/colors.dart';
 import '../../themes/style_simple/styles.dart';
 import '../articles/plant_article.dart';
 import '../articles/sport_article.dart';
+// ✅ reuse the exact same component used in Journal
+import '../../widgets/journal/mood_card.dart';
 
 class HomeScreen extends StatefulWidget {
-
   final VoidCallback? onViewAllHabits;
   const HomeScreen({super.key, this.onViewAllHabits});
   @override
@@ -15,12 +16,17 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _moodIndex = 1;
+  // 💧 existing state
   int _waterCount = 4;
   final int _waterGoal = 8;
   double _detoxProgress = 0.35;
   bool _habitWalk = true;
   bool _habitRead = false;
+
+  // 🙂 mood state now mirrors MoodCard’s API (keeps both screens consistent)
+  String? _selectedMoodImage;
+  String? _selectedMoodLabel;
+  DateTime? _selectedMoodTime;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // 👋 Greeting section
           const SizedBox(height: 30),
           const Text(
-            "Good morning, Sara",
+            "Good morning, ala",
             style: TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.w700,
@@ -45,75 +51,77 @@ class _HomeScreenState extends State<HomeScreen> {
           _ImageQuoteCard(imagePath: AppImages.quotes, quote: AppConfig.quote),
           const SizedBox(height: 18),
 
-          // Mood
-          _SectionCard(
-            title: 'How are you feeling today ?',
-            // tap to open journaling
-            trailing: GestureDetector(
-              onTap: () => Navigator.pushNamed(context, '/journaling'),
-              child: const Text(
-                'journal',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: AppColors.accentGreen,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              child: _MoodPicker(
-                selected: _moodIndex,
-                onChanged: (i) => setState(() => _moodIndex = i),
-              ),
-            ),
+          // ===================== MOOD (shared with Journal) =====================
+          const SizedBox(height: 10),
+          MoodCard(
+            selectedMood: _selectedMoodImage,
+            selectedMoodLabel: _selectedMoodLabel,
+            selectedTime: _selectedMoodTime,
+            onMoodSelected: (moodImage, moodLabel) {
+              setState(() {
+                final isReset = moodImage.isEmpty && moodLabel.isEmpty;
+                if (isReset) {
+                  _selectedMoodImage = null;
+                  _selectedMoodLabel = null;
+                  _selectedMoodTime = null;
+                } else {
+                  _selectedMoodImage = moodImage;
+                  _selectedMoodLabel = moodLabel;
+                  _selectedMoodTime = DateTime.now();
+                }
+              });
+            },
           ),
+          // =====================================================================
+
           const SizedBox(height: 12),
 
-          // Water + Detox
-          Row(
-            children: [
-              Expanded(
-                child: _WaterCard(
-                  count: _waterCount,
-                  goal: _waterGoal,
-                  onAdd: () {
-                    if (_waterCount < _waterGoal) {
-                      setState(() => _waterCount++);
-                    }
-                  },
-                  onRemove: () {
-                    if (_waterCount > 0) {
-                      setState(() => _waterCount--);
-                    }
-                  },
+          // Water + Detox — equal height without overflow
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: _WaterCard(
+                    count: _waterCount,
+                    goal: _waterGoal,
+                    onAdd: () {
+                      if (_waterCount < _waterGoal) {
+                        setState(() => _waterCount++);
+                      }
+                    },
+                    onRemove: () {
+                      if (_waterCount > 0) {
+                        setState(() => _waterCount--);
+                      }
+                    },
+                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _DetoxCard(
-                  progress: _detoxProgress,
-                  onLockPhone: () {
-                    setState(() {
-                      _detoxProgress += 0.1;
-                      if (_detoxProgress > 1) _detoxProgress = 1;
-                    });
-                  },
-                  onReset: () {
-                    setState(() => _detoxProgress = 0);
-                  },
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _DetoxCard(
+                    progress: _detoxProgress,
+                    onLockPhone: () {
+                      setState(() {
+                        _detoxProgress += 0.1;
+                        if (_detoxProgress > 1) _detoxProgress = 1;
+                      });
+                    },
+                    onReset: () {
+                      setState(() => _detoxProgress = 0);
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           const SizedBox(height: 12),
 
           // Habits
           _SectionCard(
             title: 'Daily habits:',
-            // tap to open habits list
             trailing: GestureDetector(
-              onTap: widget.onViewAllHabits, // ✅ use callback
+              onTap: widget.onViewAllHabits,
               child: const Text(
                 'view all',
                 style: TextStyle(
@@ -167,7 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   },
                   child: _ExploreCard(
-                    color: const Color(0xFFCDEFE3),
+                    color: AppColors.card,
                     title: 'The calming effect of plants',
                     cta: 'Read Now',
                     assetImage: AppImages.plantIcon,
@@ -186,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   },
                   child: _ExploreCard(
-                    color: const Color(0xFFD7E6FF),
+                    color: AppColors.card,
                     title: 'Boost your\nmood with\nsports',
                     cta: '',
                     assetImage: AppImages.boostMoodIcon,
@@ -271,84 +279,7 @@ class _SectionCard extends StatelessWidget {
   }
 }
 
-class _MoodPicker extends StatelessWidget {
-  final int selected;
-  final ValueChanged<int> onChanged;
-  const _MoodPicker({required this.selected, required this.onChanged});
-
-  static const _moods = [
-    {'image': 'assets/images/happy.png', 'label': 'Happy'},
-    {'image': 'assets/images/good.png', 'label': 'Good'},
-    {'image': 'assets/images/excited.png', 'label': 'Excited'},
-    {'image': 'assets/images/calm.png', 'label': 'Calm'},
-    {'image': 'assets/images/sad.png', 'label': 'Sad'},
-    {'image': 'assets/images/tired.png', 'label': 'Tired'},
-    {'image': 'assets/images/anxious.png', 'label': 'Anxious'},
-    {'image': 'assets/images/angry.png', 'label': 'Angry'},
-    {'image': 'assets/images/confused.png', 'label': 'Confused'},
-    {'image': 'assets/images/grateful.png', 'label': 'Grateful'},
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    // Constrain height so a horizontal ListView can render inside Column
-    return SizedBox(
-      height: 90,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 2),
-        itemCount: _moods.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 10),
-        itemBuilder: (context, i) {
-          final mood = _moods[i];
-          final bool isSelected = selected == i;
-
-          return GestureDetector(
-            onTap: () => onChanged(i),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 160),
-              width: 72,
-              height: 82,
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF2F4),
-                borderRadius: BorderRadius.circular(12),
-                border: isSelected
-                    ? Border.all(color: Colors.black87, width: 1.2)
-                    : null,
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    mood['image']!,
-                    width: 36,
-                    height: 36,
-                    fit: BoxFit.contain,
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    mood['label']!,
-                    textAlign: TextAlign.center,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-
+// 🧊 NOTE: _MoodPicker class was removed — we now use MoodCard everywhere.
 class _WaterCard extends StatelessWidget {
   final int count;
   final int goal;
@@ -367,78 +298,86 @@ class _WaterCard extends StatelessWidget {
     final bool isGoalReached = count >= goal;
 
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('water intake:', style: AppText.sectionTitle),
-            const SizedBox(height: 6),
-            Image.asset(
-              'assets/images/water_intake.png',
-              width: 32,
-              height: 32,
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Text('$count/$goal', style: AppText.chipBold),
-                const SizedBox(width: 6),
-                const Text('glasses', style: AppText.smallMuted),
-                const Spacer(),
-
-                // When goal reached, show reset button instead of +/- controls
-                if (isGoalReached)
-                  OutlinedButton(
-                    onPressed: () {
-                      for (int i = 0; i < goal; i++) {
-                        onRemove();
-                      }
-                                        },
-                    // this will trigger reset logic in parent
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(
-                        color: AppColors.accentBlue,
-                        width: 1.2,
-                      ),
-                      foregroundColor: AppColors.accentBlue,
-                      textStyle: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 6,
-                      ),
-                    ),
-                    child: const Text('Reset'),
-                  )
-                else ...[
-                  _TinyRoundBtn(icon: Icons.remove, onTap: onRemove),
-                  const SizedBox(width: 6),
-                  _TinyRoundBtn(icon: Icons.add, onTap: onAdd),
-                ],
-              ],
-            ),
-            const SizedBox(height: 8),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(6),
-              child: LinearProgressIndicator(
-                value: progress,
-                minHeight: 6,
-                color: AppColors.accentBlue,
-                backgroundColor: Colors.black.withOpacity(.06),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 150),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('water intake:', style: AppText.sectionTitle),
+              const SizedBox(height: 6),
+              Image.asset(
+                'assets/images/water_intake.png',
+                width: 32,
+                height: 32,
               ),
-            ),
-          ],
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Text('$count/$goal', style: AppText.chipBold),
+                  const SizedBox(width: 6),
+                  const Text('glasses', style: AppText.smallMuted),
+                  const Spacer(),
+
+                  // ✅ Reset button now same size & style as Digital Detox
+                  if (isGoalReached)
+                    SizedBox(
+                      height: 30,
+                      child: OutlinedButton(
+                        onPressed: () {
+                          for (int i = 0; i < goal; i++) {
+                            onRemove();
+                          }
+                        },
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(
+                            color: AppColors.accentBlue,
+                            width: 1.2,
+                          ),
+                          foregroundColor: AppColors.accentBlue,
+                          textStyle: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          minimumSize: const Size(58, 30),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: const Text('Reset'),
+                      ),
+                    )
+                  else ...[
+                    _TinyRoundBtn(icon: Icons.remove, onTap: onRemove),
+                    const SizedBox(width: 6),
+                    _TinyRoundBtn(icon: Icons.add, onTap: onAdd),
+                  ],
+                ],
+              ),
+              const Spacer(),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: LinearProgressIndicator(
+                  value: progress,
+                  minHeight: 6,
+                  color: AppColors.accentBlue,
+                  backgroundColor: Colors.black.withOpacity(.06),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
+
 
 class _TinyRoundBtn extends StatelessWidget {
   final IconData icon;
@@ -461,7 +400,7 @@ class _TinyRoundBtn extends StatelessWidget {
     );
   }
 }
-
+// ...everything else unchanged above
 class _DetoxCard extends StatelessWidget {
   final double progress;
   final VoidCallback onLockPhone;
@@ -475,79 +414,84 @@ class _DetoxCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double p = progress.clamp(0, 1);
-    final bool showReset = p >= 1.0;
+    final bool isComplete = p >= 1.0;
 
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Digital detox:', style: AppText.sectionTitle),
-            const SizedBox(height: 6),
-            Image.asset('assets/images/phone_lock.png', width: 28, height: 28),
-            const SizedBox(height: 8),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 150),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Digital detox:', style: AppText.sectionTitle),
+              const SizedBox(height: 6),
+              Image.asset('assets/images/phone_lock.png', width: 28, height: 28),
+              const SizedBox(height: 8),
 
-            // percentage + actions (overflow-safe)
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Left: percentage text that can ellipsize
-                Expanded(
-                  child: RichText(
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: '${(p * 100).round()}%',
-                          style: AppText.chipBold,
-                        ),
-                        const TextSpan(
-                          text: '  complete',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.w400,
+              // Percentage + Actions (matches water card behavior)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Left: percentage text (always visible)
+                  Expanded(
+                    child: RichText(
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: '${(p * 100).round()}%',
+                            style: AppText.chipBold,
                           ),
-                        ),
-                      ],
+                          const TextSpan(
+                            text: '  complete',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
+                  const SizedBox(width: 8),
 
-                // Right: buttons that wrap when tight (prevents overflow at 100%)
-                Flexible(
-                  child: Wrap(
-                    alignment: WrapAlignment.end,
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: [
-                      if (showReset)
-                        OutlinedButton(
-                          onPressed: onReset,
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(
-                              color: AppColors.accentGreen,
-                              width: 1.2,
-                            ),
-                            foregroundColor: AppColors.accentGreen,
-                            textStyle: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 6,
-                            ),
+                  // Right: action button
+                  if (isComplete)
+                    // ✅ Reset button styled exactly like water intake
+                    SizedBox(
+                      height: 30,
+                      child: OutlinedButton(
+                        onPressed: onReset,
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(
+                            color: AppColors.accentBlue,
+                            width: 1.2,
                           ),
-                          child: const Text('Reset'),
+                          foregroundColor: AppColors.accentBlue,
+                          textStyle: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          minimumSize: const Size(58, 30),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
-                      ElevatedButton(
+                        child: const Text('Reset'),
+                      ),
+                    )
+                  else
+                    SizedBox(
+                      height: 30,
+                      child: ElevatedButton(
                         onPressed: onLockPhone,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.accentGreen,
@@ -564,31 +508,33 @@ class _DetoxCard extends StatelessWidget {
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                           ),
+                          minimumSize: const Size(58, 30),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
                         child: const Text('Lock 30m'),
                       ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 8),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(6),
-              child: LinearProgressIndicator(
-                value: p,
-                minHeight: 6,
-                color: AppColors.accentGreen,
-                backgroundColor: Colors.black.withOpacity(.06),
+                    ),
+                ],
               ),
-            ),
-          ],
+
+              const Spacer(),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: LinearProgressIndicator(
+                  value: p,
+                  minHeight: 6,
+                  color: AppColors.accentGreen,
+                  backgroundColor: Colors.black.withOpacity(.06),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
+
 
 class _HabitTile extends StatelessWidget {
   final IconData icon;
