@@ -26,7 +26,7 @@ class HabitTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         child: Row(
           children: [
-            Icon(icon, color: AppColors.accentPink),
+            Icon(icon, color: AppColors.icon),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
