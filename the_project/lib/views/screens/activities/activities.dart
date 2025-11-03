@@ -1,21 +1,16 @@
 import 'package:flutter/material.dart';
-import 'mood_card.dart';
+import '../../widgets/activities/activity_card.dart';
 import 'games/bubble_popper_game.dart';
 import 'games/breathing_page.dart';
 import 'games/painting_page.dart';
 import 'games/coloring_page.dart';
 import 'games/puzzle_game.dart';
 import 'games/grow_plant.dart';
+import '../../themes/style_simple/colors.dart';
 
 class Activities extends StatelessWidget {
   const Activities({super.key});
-
-  // Palette
-  static const Color kBlack = Color(0xFF000000);
-  static const Color kBeige = Color(0xFFFFEBC3);
-  static const Color kWhite = Color(0xFFFFFFFF);
-  static const Color kPurple = Color.fromARGB(255, 204, 156, 201);
-  static const Color kLight = Color(0xFFF5F5F5);
+ 
 
   @override
   Widget build(BuildContext context) {
@@ -61,78 +56,31 @@ class Activities extends StatelessWidget {
       'Puzzle': (_) => const PuzzleGame(),
       'Grow the plant': (_) => const GrowPlantPage(),
     };
-
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment(0, -1.0),
-          end: Alignment(0, 0.9),
-          colors: [Color.fromARGB(255, 247, 145, 201), Color(0xFFE6A4D7), Color(0xFFFFEBC3)],
-        ),
-      ),
-      child: SafeArea(
-        child: Column(
-          children: [
-            // ---------------- HEADER ----------------
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 6, 16, 8),
-              child: Row(
-                children: [
-                  
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Text(
-                      'Boost Your Mood',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 28,
-                        height: 1.1,
-                        fontWeight: FontWeight.w700,
-                        color: kBlack,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 40),
-                ],
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+      child: _UniformGrid(
+        itemHeight: 208,
+        children: [
+          for (final c in cards)
+            InkWell(
+              borderRadius: BorderRadius.circular(22),
+              onTap: () {
+                final builder = routes[c.title];
+                if (builder != null) {
+                  Navigator.of(context).push(MaterialPageRoute(builder: builder));
+                }
+              },
+              child: MoodCard(
+                data: c,
+                bg: AppColors.card,
+                border: AppColors.textPrimary,
               ),
             ),
-
-            // ---------------- GRID ----------------
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                child: _UniformGrid(
-                  itemHeight: 208,
-                  children: [
-                    for (final c in cards)
-                      InkWell(
-                        borderRadius: BorderRadius.circular(22),
-                        onTap: () {
-                          final builder = routes[c.title];
-                          if (builder != null) {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(builder: builder),
-                            );
-                          }
-                        },
-                        child: MoodCard(
-                          data: c,
-                          bg: kBeige,
-                          border: kBlack,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+        ],
       ),
     );
   }
 }
-
-// -------------------- DATA + GRID --------------------
 
 class _MoodCardData {
   final String title;

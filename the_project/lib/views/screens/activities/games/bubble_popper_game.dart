@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';
-import '../../../widgets/activity_shell.dart';
+import '../../../widgets/activities/activity_shell.dart';
 
 class BubblePopperGame extends StatefulWidget {
   const BubblePopperGame({super.key});
@@ -130,8 +130,6 @@ class _BubblePopperGameState extends State<BubblePopperGame> {
   }
 }
 
-/// The board computes bubble size from available width **and** height,
-/// ensuring the whole grid fits with no need to scroll.
 class _Board extends StatelessWidget {
   const _Board({
     required this.rows,

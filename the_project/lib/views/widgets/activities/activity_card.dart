@@ -32,7 +32,6 @@ class MoodCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // 🟢 Updated: Removed white background + border
           SizedBox(
             width: 64,
             height: 64,

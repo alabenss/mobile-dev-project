@@ -1,4 +1,6 @@
+  
 import 'package:flutter/material.dart';
+import '../../themes/style_simple/colors.dart';
 
 class CalendarRow extends StatelessWidget {
   final int month;
@@ -8,13 +10,13 @@ class CalendarRow extends StatelessWidget {
   final Function(String dateLabel) onDateTap;
 
   const CalendarRow({
-    Key? key,
+    super.key,
     required this.month,
     required this.year,
     this.selectedDateLabel,
     required this.entriesByDate,
     required this.onDateTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -46,11 +48,11 @@ class CalendarRow extends StatelessWidget {
                   width: 70,
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? Colors.blue.withOpacity(0.2)
-                        : Colors.white.withOpacity(0.8),
+                        ? AppColors.accentBlue.withOpacity(0.2)
+                        : AppColors.card.withOpacity(0.8),
                     borderRadius: BorderRadius.circular(12),
                     border: isSelected
-                        ? Border.all(color: Colors.blue, width: 2)
+                        ? Border.all(color: AppColors.accentBlue, width: 2)
                         : null,
                     boxShadow: [
                       BoxShadow(
@@ -66,7 +68,7 @@ class CalendarRow extends StatelessWidget {
                         _getWeekdayShort(date.weekday),
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: isFuture ? Colors.grey[400] : Colors.grey,
+                          color: isFuture ? AppColors.textSecondary.withOpacity(0.6) : AppColors.textSecondary,
                           fontSize: 12,
                         ),
                       ),
@@ -76,7 +78,7 @@ class CalendarRow extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: isFuture ? Colors.grey[400] : Colors.black,
+                          color: isFuture ? AppColors.textSecondary.withOpacity(0.6) : AppColors.textPrimary,
                         ),
                       ),
                       if (hasEntries && !isFuture) ...[
@@ -87,13 +89,13 @@ class CalendarRow extends StatelessWidget {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.green,
+                            color: AppColors.accentGreen,
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
                             entryCount.toString(),
                             style: const TextStyle(
-                              color: Colors.white,
+                              color: AppColors.card,
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
                             ),

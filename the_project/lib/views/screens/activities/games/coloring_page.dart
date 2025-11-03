@@ -1,6 +1,6 @@
 import 'dart:math' as Math;
 import 'package:flutter/material.dart';
-import '../../../widgets/activity_shell.dart';
+import '../../../widgets/activities/activity_shell.dart';
 import '../../../themes/style_simple/colors.dart';
 
 class ColoringPage extends StatefulWidget {
@@ -205,8 +205,6 @@ class _ColoringPageState extends State<ColoringPage> {
   }
 }
 
-/// ---------- UI Bits ----------
-
 class _TemplateChip extends StatelessWidget {
   final String label;
   final String emoji;
@@ -350,8 +348,6 @@ class _Tool extends StatelessWidget {
   }
 }
 
-/// ---------- Model ----------
-
 class _FillAction {
   final int template;
   final int regionIndex;
@@ -359,8 +355,6 @@ class _FillAction {
   final Color next;
   _FillAction(this.template, this.regionIndex, this.previous, this.next);
 }
-
-/// ---------- Canvas ----------
 
 class _Region {
   Path Function(Size) pathBuilder;
@@ -457,8 +451,6 @@ class _ColoringCanvasState extends State<_ColoringCanvas> {
         return _tplMandala();
     }
   }
-
-  // ---------- Templates ----------
 
   List<_Region> _tplSpace() {
     return [
@@ -641,8 +633,6 @@ class _ColoringCanvasState extends State<_ColoringCanvas> {
         }, const Color(0xFFB2DFDB)),
     ];
   }
-
-  // ---------- Shapes helpers ----------
 
   _Region _r(Path Function(Size) b, Color c) => _Region(b, c);
 
@@ -1084,8 +1074,6 @@ class _LabeledSlider extends StatelessWidget {
     );
   }
 }
-
-/// ---------- Names / BG helpers ----------
 
 const _templateNames = [
   'Space',

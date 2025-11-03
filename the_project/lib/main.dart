@@ -12,10 +12,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      
       debugShowCheckedModeBanner: false,
       home: const BottomNavWrapper(),
 
-      // 👇 Register your routes here
+      
       routes: {
         '/profile': (context) => const ProfileScreen(),
         '/app-lock': (context) => const AppLockScreen(), 

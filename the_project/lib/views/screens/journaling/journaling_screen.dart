@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../widgets/app_background.dart';
+import 'package:the_project/views/themes/style_simple/colors.dart';
+import '../../themes/style_simple/app_background.dart';
 import '../../widgets/journal/journal_entry_model.dart';
 import '../../widgets/journal/mood_card.dart';
 import '../../widgets/journal/month_year_selector.dart';
@@ -67,9 +68,10 @@ class _JournalingScreenState extends State<JournalingScreen> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       floatingActionButton: FloatingActionButton(
+        shape: const CircleBorder(),
         onPressed: () => _openWritePage(),
-        backgroundColor: Colors.purpleAccent,
-        child: const Icon(Icons.add, color: Colors.white),
+        backgroundColor: AppColors.icon,
+        child: const Icon(Icons.add, color: AppColors.card, size: 28),
       ),
       body: AppBackground(
         child: Padding(
@@ -136,7 +138,7 @@ class _JournalingScreenState extends State<JournalingScreen> {
                         child: Text(
                           'Select a day to view journals',
                           style: TextStyle(
-                            color: Colors.grey[600],
+                            color: AppColors.textSecondary,
                             fontSize: 16,
                           ),
                         ),
@@ -146,7 +148,7 @@ class _JournalingScreenState extends State<JournalingScreen> {
                             child: Text(
                               'No journals for this day',
                               style: TextStyle(
-                                color: Colors.grey[600],
+                                color: AppColors.textSecondary,
                                 fontSize: 16,
                               ),
                             ),
@@ -204,7 +206,7 @@ class _JournalingScreenState extends State<JournalingScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Cannot create journal for future dates'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.error,
           ),
         );
         return;

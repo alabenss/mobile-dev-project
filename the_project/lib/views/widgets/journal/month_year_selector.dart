@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../themes/style_simple/colors.dart';
 
 class MonthYearSelector extends StatelessWidget {
   final int selectedMonth;
@@ -6,18 +7,18 @@ class MonthYearSelector extends StatelessWidget {
   final Function(int month, int year) onChanged;
 
   const MonthYearSelector({
-    Key? key,
+    super.key,
     required this.selectedMonth,
     required this.selectedYear,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.8),
+        color: AppColors.card.withOpacity(0.8),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(

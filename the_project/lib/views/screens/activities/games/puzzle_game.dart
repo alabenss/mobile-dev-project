@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import '../../../widgets/activity_shell.dart';
+import '../../../widgets/activities/activity_shell.dart';
 
 class PuzzleGame extends StatefulWidget {
   const PuzzleGame({super.key});

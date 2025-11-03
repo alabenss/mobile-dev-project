@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../commons/constants.dart';
 import '../../themes/style_simple/colors.dart';
-import '../../widgets/article_appbar.dart';
+import '../../widgets/home/article_appbar.dart';
 
 class SportArticlePage extends StatelessWidget {
   const SportArticlePage({super.key});

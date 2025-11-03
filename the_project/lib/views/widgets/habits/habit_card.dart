@@ -4,20 +4,16 @@ import 'habit_model.dart';
 
 class HabitCard extends StatelessWidget {
   final Habit habit;
-  final VoidCallback onReset;
-  final ValueChanged<bool?> onToggleDone;
 
   const HabitCard({
     super.key,
     required this.habit,
-    required this.onReset,
-    required this.onToggleDone,
   });
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Colors.white.withOpacity(0.85),
+      color: AppColors.card.withOpacity(0.85),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
       ),
@@ -37,21 +33,7 @@ class HabitCard extends StatelessWidget {
             fontSize: 13,
           ),
         ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: Icon(Icons.skip_next, color: Colors.grey.shade600),
-              tooltip: "Reset progress",
-              onPressed: onReset,
-            ),
-            Checkbox(
-              activeColor: AppColors.accentPink,
-              value: habit.done,
-              onChanged: onToggleDone,
-            ),
-          ],
-        ),
+        trailing: null,
       ),
     );
   }

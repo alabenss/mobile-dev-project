@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../themes/style_simple/colors.dart';
+import '../../themes/style_simple/colors.dart';
 
 class BottomPillNav extends StatelessWidget {
   final int index;
@@ -19,7 +19,7 @@ class BottomPillNav extends StatelessWidget {
     this.backgroundColor = Colors.white,
     this.activeColor = Colors.white,
     this.inactiveColor = const Color(0xFF9D9D9D),
-    this.circleColor = AppColors.accentPink,
+    this.circleColor = AppColors.icon,
     this.icons = const <String>[
       'assets/icons/home.png',
       'assets/icons/habits.png',
@@ -36,7 +36,6 @@ class BottomPillNav extends StatelessWidget {
   }) {
     final bool isActive = index == itemIndex;
 
-    // 🔮 If selected → wrap in a raised purple circle
     if (isActive) {
       return Transform.translate(
         offset: const Offset(0, -18),
@@ -65,7 +64,6 @@ class BottomPillNav extends StatelessWidget {
       );
     }
 
-    // 🩶 Otherwise → flat icon
     return Opacity(
       opacity: 0.6,
       child: Image.asset(

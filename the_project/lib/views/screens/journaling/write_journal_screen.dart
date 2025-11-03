@@ -1,6 +1,18 @@
-import 'package:flutter/material.dart';
-import '../../widgets/app_background.dart';
+ import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:the_project/views/themes/style_simple/colors.dart';
 import '../../widgets/journal/journal_entry_model.dart';
+import '../../widgets/journal/sticker_picker_bottom_sheet.dart';
+import '../../widgets/journal/background_picker_bottom_sheet.dart';
+import '../../widgets/journal/draggable_sticker.dart';
+import '../../themes/style_simple/app_background.dart';
+import '../../widgets/journal/font_style_bottom_sheet.dart';
+
+// NEW imports for splitted widgets:
+import '../../widgets/journal/journal_top_bar.dart';
+import '../../widgets/journal/journal_body_fields.dart';
+import '../../widgets/journal/journal_attachments.dart';
+import '../../widgets/journal/journal_bottom_toolbar.dart';
 
 class WriteJournalScreen extends StatefulWidget {
   final String? initialDateLabel;
@@ -12,15 +24,13 @@ class WriteJournalScreen extends StatefulWidget {
     this.initialDateLabel,
     this.initialMonth,
     this.initialYear,
-    Key? key,
-  })  : existingEntry = null,
-        super(key: key);
+    super.key,
+  }) : existingEntry = null;
 
-  const WriteJournalScreen.edit({required this.existingEntry, Key? key})
+  const WriteJournalScreen.edit({required this.existingEntry, super.key})
       : initialDateLabel = null,
         initialMonth = null,
-        initialYear = null,
-        super(key: key);
+        initialYear = null;
 
   @override
   State<WriteJournalScreen> createState() => _WriteJournalScreenState();
@@ -39,6 +49,16 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
   ];
   String _selectedMood = 'assets/images/good.png';
 
+  // Style properties
+  String _backgroundImage = '';
+  String _fontFamily = 'Roboto';
+  Color _textColor = AppColors.textPrimary;
+  double _fontSize = 16.0;
+
+  final List<String> _attachedImagePaths = [];
+  final List<String> _stickerPaths = [];
+  final ImagePicker _imagePicker = ImagePicker();
+
   @override
   void initState() {
     super.initState();
@@ -49,6 +69,18 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
       _titleCtrl.text = widget.existingEntry!.title;
       _bodyCtrl.text = widget.existingEntry!.fullText;
       _selectedMood = widget.existingEntry!.moodImage;
+
+      _backgroundImage = widget.existingEntry!.backgroundImage ?? '';
+      _fontFamily = widget.existingEntry!.fontFamily ?? 'Roboto';
+      _fontSize = widget.existingEntry!.fontSize ?? 16.0;
+
+      if (widget.existingEntry!.textColor != null) {
+        _textColor = _colorFromHex(widget.existingEntry!.textColor!);
+      }
+
+      if (widget.existingEntry!.attachedImages != null) {
+        _attachedImagePaths.addAll(widget.existingEntry!.attachedImages!);
+      }
     } else {
       final now = DateTime.now();
       _selectedDate = widget.initialMonth != null && widget.initialYear != null
@@ -58,17 +90,43 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
     }
   }
 
+  Color _colorFromHex(String hexString) {
+    final buffer = StringBuffer();
+    if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
+    buffer.write(hexString.replaceFirst('#', ''));
+    return Color(int.parse(buffer.toString(), radix: 16));
+  }
+
+  String _colorToHex(Color color) {
+    return '#${color.value.toRadixString(16).substring(2).toUpperCase()}';
+  }
+
   String _formatDate(DateTime d) =>
       '${_weekdayName(d.weekday)}, ${_monthName(d.month)} ${d.day}';
-  
+
   String _weekdayName(int w) => [
-        'Monday', 'Tuesday', 'Wednesday', 'Thursday',
-        'Friday', 'Saturday', 'Sunday'
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+        'Sunday'
       ][w - 1];
-  
+
   String _monthName(int m) => [
-        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec'
       ][m - 1];
 
   @override
@@ -76,131 +134,151 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: AppBackground(
-        child: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12),
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: const Icon(Icons.arrow_back),
-                    ),
-                    const Spacer(),
-                    TextButton(
-                      onPressed: _save,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade400,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: const Text(
-                          'Save',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    CircleAvatar(
-                      radius: 18,
-                      backgroundColor: Colors.white.withOpacity(0.6),
-                      child: Image.asset(_selectedMood, width: 26, height: 26),
-                    )
-                  ],
+        child: Stack(
+          children: [
+            // Background image if selected
+            if (_backgroundImage.isNotEmpty)
+              Positioned.fill(
+                child: Image.asset(
+                  _backgroundImage,
+                  fit: BoxFit.cover,
                 ),
               ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _dateLabel,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      TextField(
-                        controller: _titleCtrl,
-                        decoration: const InputDecoration(
-                          hintText: 'Title',
-                          border: InputBorder.none,
-                        ),
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Expanded(
-                        child: TextField(
-                          controller: _bodyCtrl,
-                          keyboardType: TextInputType.multiline,
-                          maxLines: null,
-                          decoration: const InputDecoration(
-                            hintText: 'Write more here...',
-                            border: InputBorder.none,
-                          ),
-                        ),
-                      ),
-                    ],
+
+            // Semi-transparent overlay for readability
+            Positioned.fill(
+              child: Container(
+                color: AppColors.card.withOpacity(0.3),
+              ),
+            ),
+
+            SafeArea(
+              child: Column(
+                children: [
+                  // Top bar (split)
+                  JournalTopBar(
+                    onBack: () => Navigator.of(context).pop(),
+                    onSave: _save,
+                    selectedMood: _selectedMood,
                   ),
-                ),
+
+                  // Scrollable content (body + attachments)
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(18.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Body fields (date, title, body)
+                          JournalBodyFields(
+                            dateLabel: _dateLabel,
+                            titleController: _titleCtrl,
+                            bodyController: _bodyCtrl,
+                            fontFamily: _fontFamily,
+                            textColor: _textColor,
+                            fontSize: _fontSize,
+                            attachedImagePaths: _attachedImagePaths,
+                            onRemoveAttachedImage: (index) {
+                              setState(() {
+                                _attachedImagePaths.removeAt(index);
+                              });
+                            },
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          // Stickers area (split)
+                          JournalAttachments(
+                            stickerPaths: _stickerPaths,
+                            onRemoveSticker: (index) {
+                              setState(() {
+                                _stickerPaths.removeAt(index);
+                              });
+                            },
+                          ),
+
+                          const SizedBox(height: 16),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // Bottom toolbar (split)
+                  JournalBottomToolbar(
+                    onBackground: _showBackgroundPicker,
+                    onPickImage: _pickImage,
+                    onStickers: _showStickerPicker,
+                    onTextStyle: _showFontStylePicker,
+                  ),
+                ],
               ),
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.9),
-                  borderRadius: BorderRadius.circular(28),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    IconButton(
-                      onPressed: () => _onIconPressed('background'),
-                      icon: Image.asset(
-                          'assets/icons/background.png',
-                            width: 24,  // adjust size if needed
-                             height: 24,
-                             ),
-                    ),
-                        
-                    IconButton(
-                      onPressed: () => _onIconPressed('image'),
-                      icon: const Icon(Icons.photo),
-                    ),
-                        
-                    IconButton(
-                      onPressed: () => _onIconPressed('emoji'),
-                      icon: const Icon(Icons.emoji_emotions_outlined),
-                        
-                    ),
-                        
-                    IconButton(
-                      onPressed: () => _onIconPressed('fonts'),
-                      icon: const Icon(Icons.text_fields),
-                    ),
-                     
-                    
-                  ],
-                ),
-              )
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  void _onIconPressed(String action) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Icon: $action clicked')),
+  void _showStickerPicker() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => StickerPickerBottomSheet(
+        onStickerSelected: (path) {
+          setState(() {
+            _stickerPaths.add(path);
+          });
+        },
+      ),
     );
+  }
+
+  void _showBackgroundPicker() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => BackgroundPickerBottomSheet(
+        onBackgroundSelected: (bgPath) {
+          setState(() {
+            _backgroundImage = bgPath;
+          });
+        },
+      ),
+    );
+  }
+
+  void _showFontStylePicker() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => FontStyleBottomSheet(
+        currentFontFamily: _fontFamily,
+        currentColor: _textColor,
+        currentFontSize: _fontSize,
+        onStyleChanged: (font, color, size) {
+          setState(() {
+            _fontFamily = font;
+            _textColor = color;
+            _fontSize = size;
+          });
+        },
+      ),
+    );
+  }
+
+  Future<void> _pickImage() async {
+    try {
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+      );
+      if (image != null) {
+        setState(() {
+          _attachedImagePaths.add(image.path);
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error picking image: $e')),
+      );
+    }
   }
 
   void _save() {
@@ -220,8 +298,19 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
       moodImage: _selectedMood,
       title: title,
       fullText: body,
+      backgroundImage:
+          _backgroundImage.isEmpty ? null : _backgroundImage,
+      fontFamily: _fontFamily,
+      textColor: _colorToHex(_textColor),
+      fontSize: _fontSize,
+      attachedImages:
+          _attachedImagePaths.isEmpty ? null : _attachedImagePaths,
     );
 
     Navigator.of(context).pop(entry);
   }
 }
+
+
+
+
