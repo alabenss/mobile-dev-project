@@ -118,7 +118,7 @@ class _StatsScreenState extends State<StatsScreen> with TickerProviderStateMixin
                       style: GoogleFonts.poppins(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
-                        color: Colors.black87,
+                        color: AppColors.textPrimary,
                       )),
                   
                 ],
@@ -266,7 +266,7 @@ class _StatsScreenState extends State<StatsScreen> with TickerProviderStateMixin
                       children: [
                         Container(
                           height: 12,
-                          decoration: BoxDecoration(color: Colors.white.withOpacity(0.7), borderRadius: BorderRadius.circular(12)),
+                          decoration: BoxDecoration(color: AppColors.card.withOpacity(0.7), borderRadius: BorderRadius.circular(12)),
                         ),
                         LayoutBuilder(builder: (context, cons) {
                           final maxWidth = cons.maxWidth;
@@ -396,10 +396,10 @@ class _StatsScreenState extends State<StatsScreen> with TickerProviderStateMixin
           isCurved: true,
           preventCurveOverShooting: true,
           dotData: FlDotData(show: false),
-          color: Colors.purpleAccent,
+          color: AppColors.accentPurple,
           belowBarData: BarAreaData(show: true, gradient: LinearGradient(colors: [
-            Colors.purple.withOpacity(0.08),
-            Colors.purple.withOpacity(0.0),
+            AppColors.accentPurple.withOpacity(0.08),
+            AppColors.accentPurple.withOpacity(0.0),
           ])),
           barWidth: 3,
         )
@@ -412,9 +412,9 @@ class _StatsScreenState extends State<StatsScreen> with TickerProviderStateMixin
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [Colors.white.withOpacity(0.98), Colors.white.withOpacity(0.92)]),
+        gradient: LinearGradient(colors: [AppColors.card.withOpacity(0.98), AppColors.card.withOpacity(0.92)]),
         borderRadius: BorderRadius.circular(18),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 8, offset: const Offset(0,6))],
+        boxShadow: [BoxShadow(color: AppColors.textPrimary.withOpacity(0.06), blurRadius: 8, offset: const Offset(0,6))],
       ),
       padding: padding ?? const EdgeInsets.all(12),
       child: child,
@@ -430,7 +430,7 @@ class _StatsScreenState extends State<StatsScreen> with TickerProviderStateMixin
     };
     return Container(
       padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(color: Colors.white.withOpacity(0.35), borderRadius: BorderRadius.circular(30)),
+      decoration: BoxDecoration(color: AppColors.card.withOpacity(0.35), borderRadius: BorderRadius.circular(30)),
       child: Row(
         children: tabs.entries.map((entry) {
           final isSelected = entry.key == selectedRange;
@@ -442,11 +442,11 @@ class _StatsScreenState extends State<StatsScreen> with TickerProviderStateMixin
                 margin: const EdgeInsets.symmetric(horizontal: 6),
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 decoration: BoxDecoration(
-                  color: isSelected ? Colors.white : Colors.transparent,
+                  color: isSelected ? AppColors.card : AppColors.transparent,
                   borderRadius: BorderRadius.circular(22),
-                  boxShadow: isSelected ? [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 6, offset: const Offset(0,3))] : null,
+                  boxShadow: isSelected ? [BoxShadow(color: AppColors.textPrimary.withOpacity(0.08), blurRadius: 6, offset: const Offset(0,3))] : null,
                 ),
-                child: Center(child: Text(entry.value, style: GoogleFonts.poppins(fontSize: 12, fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500, color: Colors.black87))),
+                child: Center(child: Text(entry.value, style: GoogleFonts.poppins(fontSize: 12, fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500, color: AppColors.textPrimary))),
               ),
             ),
           );
@@ -499,9 +499,9 @@ class _StatsScreenState extends State<StatsScreen> with TickerProviderStateMixin
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: filled ? AppColors.peach.withOpacity(0.95) : Colors.white,
+              color: filled ? AppColors.peach.withOpacity(0.95) : AppColors.card,
               borderRadius: BorderRadius.circular(12),
-              boxShadow: filled ? [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 6, offset: const Offset(0,4))] : null,
+              boxShadow: filled ? [BoxShadow(color: AppColors.textPrimary.withOpacity(0.06), blurRadius: 6, offset: const Offset(0,4))] : null,
             ),
             child: Center(child: Text(filled ? '${rnd.nextInt(3)+1}' : '', style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700))),
           ),
