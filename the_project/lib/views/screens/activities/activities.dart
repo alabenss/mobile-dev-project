@@ -56,8 +56,6 @@ class Activities extends StatelessWidget {
       'Puzzle': (_) => const PuzzleGame(),
       'Grow the plant': (_) => const GrowPlantPage(),
     };
-
-    // ✅ No local background/gradient here; matches HomeScreen (inherits Scaffold background)
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
       child: _UniformGrid(
@@ -83,8 +81,6 @@ class Activities extends StatelessWidget {
     );
   }
 }
-
-// -------------------- DATA + GRID --------------------
 
 class _MoodCardData {
   final String title;

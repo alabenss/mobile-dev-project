@@ -1,17 +1,9 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
-
 import '../../../themes/style_simple/colors.dart';
 import '../../../themes/style_simple/app_background.dart';
 
-/// A soothing breathing exercise screen:
-/// - 1 minute session (00:00 -> 01:00)
-/// - Start/Stop
-/// - Expanding/contracting flower (lotus) synced to breath cycle
-///
-/// Drop-in screen: push it with
-/// Navigator.push(context, MaterialPageRoute(builder: (_) => const BreathPage()));
 class BreathPage extends StatefulWidget {
   const BreathPage({super.key});
 
@@ -168,7 +160,7 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
                                   alignment: Alignment.center,
                                   child: Transform.scale(
                                     scale: _scale.value,
-                                    child: const _LotusFlower(), // change to _TulipFlower() for alternative look
+                                    child: const _LotusFlower(), 
                                   ),
                                 );
                               },
@@ -212,9 +204,6 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
   }
 }
 
-/// ---------- FLOWER WIDGETS (no assets needed) ----------
-
-/// Gentle lotus drawn with overlapping rounded petals.
 class _LotusFlower extends StatelessWidget {
   const _LotusFlower();
 
@@ -272,7 +261,6 @@ class _LotusPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-/// Alternative minimalist tulip (swap in the AnimatedBuilder if you want another look).
 class _TulipFlower extends StatelessWidget {
   const _TulipFlower();
 

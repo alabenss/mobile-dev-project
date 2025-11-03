@@ -1,6 +1,5 @@
  import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 import 'package:the_project/views/themes/style_simple/colors.dart';
 import '../../widgets/journal/journal_entry_model.dart';
 import '../../widgets/journal/sticker_picker_bottom_sheet.dart';

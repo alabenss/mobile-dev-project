@@ -1,7 +1,7 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
-import '../../../widgets/activities/activity_shell.dart'; // uses your unified background
+import '../../../widgets/activities/activity_shell.dart'; 
 import '../../../themes/style_simple/colors.dart';
 
 class PaintingPage extends StatefulWidget {
@@ -15,8 +15,8 @@ class _PaintingPageState extends State<PaintingPage> {
   final GlobalKey _repaintKey = GlobalKey();
 
   // Current tool state
-  Color _color = const Color(0xFFF7D254); // nice warm yellow (like screenshot)
-  double _width = 6;                      // default brush width
+  Color _color = const Color(0xFFF7D254); 
+  double _width = 6;
   bool _eraser = false;
 
   // Stacks for undo/redo
@@ -179,10 +179,6 @@ class _PaintingPageState extends State<PaintingPage> {
     );
   }
 }
-
-/// -------------------------------------
-/// Models & Painter
-/// -------------------------------------
 
 class _Point {
   final Offset offset;

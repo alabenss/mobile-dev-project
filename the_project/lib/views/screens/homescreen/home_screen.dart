@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../../commons/config.dart';
 import '../../../commons/constants.dart';
 import '../../themes/style_simple/colors.dart';
-import '../../themes/style_simple/styles.dart';
 import '../articles/plant_article.dart';
 import '../articles/sport_article.dart';
 import '../../widgets/journal/mood_card.dart';
