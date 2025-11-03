@@ -35,7 +35,7 @@ class _HabitListState extends State<HabitList> {
             borderRadius: BorderRadius.circular(12),
             child: LinearProgressIndicator(
               value: progress,
-              color: AppColors.accentPink,
+              color: AppColors.icon,
               backgroundColor: Colors.white.withOpacity(0.3),
               minHeight: 8,
             ),

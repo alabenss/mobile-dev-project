@@ -13,7 +13,7 @@ class HabitCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Colors.white.withOpacity(0.85),
+      color: AppColors.card.withOpacity(0.85),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
       ),

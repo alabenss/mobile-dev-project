@@ -19,7 +19,7 @@ class BottomPillNav extends StatelessWidget {
     this.backgroundColor = Colors.white,
     this.activeColor = Colors.white,
     this.inactiveColor = const Color(0xFF9D9D9D),
-    this.circleColor = AppColors.accentPink,
+    this.circleColor = AppColors.icon,
     this.icons = const <String>[
       'assets/icons/home.png',
       'assets/icons/habits.png',
