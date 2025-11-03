@@ -17,7 +17,7 @@ class AppColors {
   static const Color accentBlue = Color(0xFF4BA3FF);
   static const Color accentOrange = Color(0xFFFFB74D);
   static const Color accentPurple = Color(0xFFBD69C7); 
-
+  static const Color transparent= Color.fromARGB(0, 255, 255, 255);
   static const Color navInactive = Color(0xFF9D9D9D);
   static const Color navActive = accentPurple;
 
