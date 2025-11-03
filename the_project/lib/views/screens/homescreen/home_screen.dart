@@ -5,7 +5,6 @@ import '../../themes/style_simple/colors.dart';
 import '../../themes/style_simple/styles.dart';
 import '../articles/plant_article.dart';
 import '../articles/sport_article.dart';
-import '../habits.dart';
 
 class HomeScreen extends StatefulWidget {
 
