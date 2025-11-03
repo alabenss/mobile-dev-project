@@ -68,7 +68,8 @@ class _JournalingScreenState extends State<JournalingScreen> {
       backgroundColor: Colors.transparent,
       floatingActionButton: FloatingActionButton(
         onPressed: () => _openWritePage(),
-        backgroundColor: Colors.purpleAccent,
+        backgroundColor: Colors.pinkAccent,
+        shape: const CircleBorder(),
         child: const Icon(Icons.add, color: Colors.white),
       ),
       body: AppBackground(

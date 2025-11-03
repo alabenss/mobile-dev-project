@@ -1,11 +1,11 @@
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import '../../widgets/app_background.dart';
 import '../../widgets/journal/journal_entry_model.dart';
 import '../../widgets/journal/sticker_picker_bottom_sheet.dart';
 import '../../widgets/journal/background_picker_bottom_sheet.dart';
+import '../../widgets/journal/draggable_sticker.dart';
+import '../../widgets/app_background.dart';
 import '../../widgets/journal/font_style_bottom_sheet.dart';
 
 class WriteJournalScreen extends StatefulWidget {
@@ -19,7 +19,7 @@ class WriteJournalScreen extends StatefulWidget {
     this.initialMonth,
     this.initialYear,
     super.key,
-  })  : existingEntry = null;
+  }) : existingEntry = null;
 
   const WriteJournalScreen.edit({required this.existingEntry, super.key})
       : initialDateLabel = null,
@@ -48,8 +48,7 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
   String _fontFamily = 'Roboto';
   Color _textColor = Colors.black;
   double _fontSize = 16.0;
-  
-  // Image attachments et stickers
+
   final List<String> _attachedImagePaths = [];
   final List<String> _stickerPaths = [];
   final ImagePicker _imagePicker = ImagePicker();
@@ -64,16 +63,15 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
       _titleCtrl.text = widget.existingEntry!.title;
       _bodyCtrl.text = widget.existingEntry!.fullText;
       _selectedMood = widget.existingEntry!.moodImage;
-      
-      // Charger les styles sauvegardés
+
       _backgroundImage = widget.existingEntry!.backgroundImage ?? '';
       _fontFamily = widget.existingEntry!.fontFamily ?? 'Roboto';
       _fontSize = widget.existingEntry!.fontSize ?? 16.0;
-      
+
       if (widget.existingEntry!.textColor != null) {
         _textColor = _colorFromHex(widget.existingEntry!.textColor!);
       }
-      
+
       if (widget.existingEntry!.attachedImages != null) {
         _attachedImagePaths.addAll(widget.existingEntry!.attachedImages!);
       }
@@ -99,257 +97,268 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
 
   String _formatDate(DateTime d) =>
       '${_weekdayName(d.weekday)}, ${_monthName(d.month)} ${d.day}';
-  
+
   String _weekdayName(int w) => [
-        'Monday', 'Tuesday', 'Wednesday', 'Thursday',
-        'Friday', 'Saturday', 'Sunday'
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+        'Sunday'
       ][w - 1];
-  
+
   String _monthName(int m) => [
-        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec'
       ][m - 1];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: Stack(
-        children: [
-          // Background image si sélectionné
-          if (_backgroundImage.isNotEmpty)
-            Positioned.fill(
-              child: Image.asset(
-                _backgroundImage,
-                fit: BoxFit.cover,
+      body: AppBackground(
+        child: Stack(
+          children: [
+            // Background image if selected
+            if (_backgroundImage.isNotEmpty)
+              Positioned.fill(
+                child: Image.asset(
+                  _backgroundImage,
+                  fit: BoxFit.cover,
+                ),
               ),
-            ),
-          
-          // Overlay semi-transparent pour lisibilité
-          if (_backgroundImage.isNotEmpty)
+
+            // Semi-transparent overlay for readability
             Positioned.fill(
               child: Container(
                 color: Colors.white.withOpacity(0.3),
               ),
             ),
-          
-          SafeArea(
-            child: Column(
-              children: [
-                // Top bar
-                Container(
-                  color: Colors.white.withOpacity(0.9),
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        icon: const Icon(Icons.arrow_back),
-                      ),
-                      const Spacer(),
-                      TextButton(
-                        onPressed: _save,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.shade400,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: const Text(
-                            'Save',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      CircleAvatar(
-                        radius: 18,
-                        backgroundColor: Colors.white.withOpacity(0.6),
-                        child: Image.asset(_selectedMood, width: 26, height: 26),
-                      )
-                    ],
-                  ),
-                ),
-                
-                // Content area avec scroll
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(18.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+
+            SafeArea(
+              child: Column(
+                children: [
+                  // Top bar
+                  Container(
+                    color: Colors.white.withOpacity(0.9),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                    child: Row(
                       children: [
-                        // Date
-                        Text(
-                          _dateLabel,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                            color: _textColor,
-                            fontFamily: _fontFamily,
+                        IconButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          icon: const Icon(Icons.arrow_back),
+                        ),
+                        const Spacer(),
+                        TextButton(
+                          onPressed: _save,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.shade400,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: const Text(
+                              'Save',
+                              style: TextStyle(color: Colors.white),
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 12),
-                        
-                        // Title
-                        TextField(
-                          controller: _titleCtrl,
-                          decoration: const InputDecoration(
-                            hintText: 'Title',
-                            border: InputBorder.none,
-                          ),
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: _fontFamily,
-                            color: _textColor,
-                          ),
+                        const SizedBox(width: 10),
+                        CircleAvatar(
+                          radius: 18,
+                          backgroundColor: Colors.white.withOpacity(0.6),
+                          child:
+                              Image.asset(_selectedMood, width: 26, height: 26),
                         ),
-                        
-                        // Body
-                        TextField(
-                          controller: _bodyCtrl,
-                          keyboardType: TextInputType.multiline,
-                          maxLines: null,
-                          minLines: 5,
-                          decoration: const InputDecoration(
-                            hintText: 'Write more here...',
-                            border: InputBorder.none,
-                          ),
-                          style: TextStyle(
-                            fontFamily: _fontFamily,
-                            color: _textColor,
-                            fontSize: _fontSize,
-                          ),
-                        ),
-                        
-                        const SizedBox(height: 16),
-                        
-                        // Stickers ajoutés
-                        if (_stickerPaths.isNotEmpty)
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: _stickerPaths.asMap().entries.map((entry) {
-                              return Stack(
-                                children: [
-                                  Image.asset(
-                                    entry.value,
-                                    width: 60,
-                                    height: 60,
-                                  ),
-                                  Positioned(
-                                    top: 0,
-                                    right: 0,
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          _stickerPaths.removeAt(entry.key);
-                                        });
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.all(2),
-                                        decoration: const BoxDecoration(
-                                          color: Colors.red,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: const Icon(
-                                          Icons.close,
-                                          color: Colors.white,
-                                          size: 14,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            }).toList(),
-                          ),
-                        
-                        // Images attachées
-                        if (_attachedImagePaths.isNotEmpty) ...[
-                          const SizedBox(height: 16),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
-                            children: _attachedImagePaths.asMap().entries.map((entry) {
-                              return Stack(
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: Image.file(
-                                      File(entry.value),
-                                      width: 120,
-                                      height: 120,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  Positioned(
-                                    top: 4,
-                                    right: 4,
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          _attachedImagePaths.removeAt(entry.key);
-                                        });
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.all(4),
-                                        decoration: const BoxDecoration(
-                                          color: Colors.red,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: const Icon(
-                                          Icons.close,
-                                          color: Colors.white,
-                                          size: 16,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            }).toList(),
-                          ),
-                        ],
                       ],
                     ),
                   ),
-                ),
-                
-                // Bottom toolbar
-                Container(
-                  color: Colors.white.withOpacity(0.95),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      IconButton(
-                        onPressed: _showBackgroundPicker,
-                        icon: const Icon(Icons.wallpaper),
-                        tooltip: 'Background',
+
+                  // Scrollable content
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(18.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _dateLabel,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              color: _textColor,
+                              fontFamily: _fontFamily,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+
+                          // Title
+                          TextField(
+                            controller: _titleCtrl,
+                            decoration: const InputDecoration(
+                              hintText: 'Title',
+                              border: InputBorder.none,
+                            ),
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: _fontFamily,
+                              color: _textColor,
+                            ),
+                          ),
+
+                          // Body
+                          TextField(
+                            controller: _bodyCtrl,
+                            keyboardType: TextInputType.multiline,
+                            maxLines: null,
+                            minLines: 5,
+                            decoration: const InputDecoration(
+                              hintText: 'Write more here...',
+                              border: InputBorder.none,
+                            ),
+                            style: TextStyle(
+                              fontFamily: _fontFamily,
+                              color: _textColor,
+                              fontSize: _fontSize,
+                            ),
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          // Stickers
+                          if (_stickerPaths.isNotEmpty)
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: _stickerPaths.asMap().entries.map((e) {
+                                return Stack(
+                                  children: [
+                                    Image.asset(e.value,
+                                        width: 60, height: 60),
+                                    Positioned(
+                                      top: 0,
+                                      right: 0,
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            _stickerPaths.removeAt(e.key);
+                                          });
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.all(2),
+                                          decoration: const BoxDecoration(
+                                            color: Colors.red,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: const Icon(Icons.close,
+                                              color: Colors.white, size: 14),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              }).toList(),
+                            ),
+
+                          // Images
+                          if (_attachedImagePaths.isNotEmpty) ...[
+                            const SizedBox(height: 16),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children:
+                                  _attachedImagePaths.asMap().entries.map((e) {
+                                return Stack(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Image.file(
+                                        File(e.value),
+                                        width: 120,
+                                        height: 120,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                    Positioned(
+                                      top: 4,
+                                      right: 4,
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            _attachedImagePaths.removeAt(e.key);
+                                          });
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.all(4),
+                                          decoration: const BoxDecoration(
+                                            color: Colors.red,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: const Icon(Icons.close,
+                                              color: Colors.white, size: 16),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              }).toList(),
+                            ),
+                          ],
+                        ],
                       ),
-                      IconButton(
-                        onPressed: _pickImage,
-                        icon: const Icon(Icons.photo),
-                        tooltip: 'Add Image',
-                      ),
-                      IconButton(
-                        onPressed: _showStickerPicker,
-                        icon: const Icon(Icons.sticky_note_2_outlined),
-                        tooltip: 'Stickers',
-                      ),
-                      IconButton(
-                        onPressed: _showFontStylePicker,
-                        icon: const Icon(Icons.text_fields),
-                        tooltip: 'Text Style',
-                      ),
-                    ],
+                    ),
                   ),
-                )
-              ],
+
+                  // Bottom toolbar
+                  Container(
+                    color: Colors.white.withOpacity(0.95),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        IconButton(
+                          onPressed: _showBackgroundPicker,
+                          icon: const Icon(Icons.wallpaper),
+                          tooltip: 'Background',
+                        ),
+                        IconButton(
+                          onPressed: _pickImage,
+                          icon: const Icon(Icons.photo),
+                          tooltip: 'Add Image',
+                        ),
+                        IconButton(
+                          onPressed: _showStickerPicker,
+                          icon: const Icon(Icons.sticky_note_2_outlined),
+                          tooltip: 'Stickers',
+                        ),
+                        IconButton(
+                          onPressed: _showFontStylePicker,
+                          icon: const Icon(Icons.text_fields),
+                          tooltip: 'Text Style',
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -358,9 +367,9 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
     showModalBottomSheet(
       context: context,
       builder: (context) => StickerPickerBottomSheet(
-        onStickerSelected: (stickerPath) {
+        onStickerSelected: (path) {
           setState(() {
-            _stickerPaths.add(stickerPath);
+            _stickerPaths.add(path);
           });
         },
       ),
@@ -404,7 +413,6 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
       final XFile? image = await _imagePicker.pickImage(
         source: ImageSource.gallery,
       );
-      
       if (image != null) {
         setState(() {
           _attachedImagePaths.add(image.path);
@@ -434,15 +442,20 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
       moodImage: _selectedMood,
       title: title,
       fullText: body,
-      backgroundImage: _backgroundImage.isEmpty ? null : _backgroundImage,
+      backgroundImage:
+          _backgroundImage.isEmpty ? null : _backgroundImage,
       fontFamily: _fontFamily,
       textColor: _colorToHex(_textColor),
       fontSize: _fontSize,
-      attachedImages: _attachedImagePaths.isEmpty ? null : _attachedImagePaths,
+      attachedImages:
+          _attachedImagePaths.isEmpty ? null : _attachedImagePaths,
     );
 
     Navigator.of(context).pop(entry);
   }
 }
+
+
+
 
 

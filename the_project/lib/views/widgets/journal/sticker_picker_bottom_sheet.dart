@@ -1,12 +1,13 @@
+
 import 'package:flutter/material.dart';
 
 class StickerPickerBottomSheet extends StatelessWidget {
   final Function(String stickerPath) onStickerSelected;
 
   const StickerPickerBottomSheet({
-    super.key,
+    Key? key,
     required this.onStickerSelected,
-  });
+  }) : super(key: key);
 
   // Liste des stickers disponibles
   static const List<String> _stickers = [
