@@ -3,7 +3,9 @@ import '../../themes/style_simple/colors.dart';
 import 'habit_model.dart';
 
 class AddHabitDialog extends StatefulWidget {
-  const AddHabitDialog({super.key});
+  final List<Habit> existingHabits;
+
+  const AddHabitDialog({super.key, required this.existingHabits});
 
   @override
   State<AddHabitDialog> createState() => _AddHabitDialogState();
@@ -119,6 +121,20 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
                     ? 'Custom Habit'
                     : _customNameCtrl.text.trim())
                 : _selectedHabit;
+
+            // ✅ Check for duplicates
+            bool alreadyExists = widget.existingHabits
+                .any((habit) => habit.title.toLowerCase() == title.toLowerCase());
+
+            if (alreadyExists) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("This habit already exists!"),
+                  backgroundColor: Colors.redAccent,
+                ),
+              );
+              return;
+            }
 
             IconData icon = isCustom
                 ? Icons.star_border

@@ -12,23 +12,23 @@ class HabitList extends StatefulWidget {
 }
 
 class _HabitListState extends State<HabitList> {
+  List<Habit> completed = [];
+  List<Habit> skipped = [];
+
   @override
   Widget build(BuildContext context) {
-    if (widget.habits.isEmpty) {
-      return const Center(
-        child: Text(
-          'No habits yet',
-          style: TextStyle(color: Colors.white70, fontSize: 16),
-        ),
-      );
-    }
+    // Filter remaining (not done, not skipped)
+    final active = widget.habits
+        .where((h) => !completed.contains(h) && !skipped.contains(h))
+        .toList();
 
-    int completedCount = widget.habits.where((h) => h.done).length;
-    double progress =
-        widget.habits.isEmpty ? 0 : completedCount / widget.habits.length;
+    double progress = widget.habits.isEmpty
+        ? 0
+        : completed.length / widget.habits.length;
 
     return Column(
       children: [
+        // Progress bar
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
           child: ClipRRect(
@@ -41,21 +41,91 @@ class _HabitListState extends State<HabitList> {
             ),
           ),
         ),
+
         Expanded(
-          child: ListView.builder(
+          child: ListView(
             padding: const EdgeInsets.all(16),
-            itemCount: widget.habits.length,
-            itemBuilder: (context, i) {
-              final h = widget.habits[i];
-              return HabitCard(
-                habit: h,
-                onReset: () => setState(() => h.done = false),
-                onToggleDone: (val) => setState(() => h.done = val ?? false),
-              );
-            },
+            children: [
+              if (active.isNotEmpty) _buildSection("Today's Habits", active),
+              if (completed.isNotEmpty)
+                _buildSection("Completed", completed, faded: true),
+              if (skipped.isNotEmpty)
+                _buildSection("Skipped", skipped, faded: true),
+            ],
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildSection(String title, List<Habit> habits,
+      {bool faded = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding:
+              const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
+          child: Text(
+            title,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.9),
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        ...habits.map((h) => Dismissible(
+              key: ValueKey(h.title + title),
+              direction: title == "Today's Habits"
+                  ? DismissDirection.horizontal
+                  : DismissDirection.none,
+              background: _buildSwipeBackground(
+                  Icons.check, Colors.greenAccent.withOpacity(0.7), "Completed"),
+              secondaryBackground: _buildSwipeBackground(
+                  Icons.close, Colors.redAccent.withOpacity(0.7), "Skipped",
+                  alignRight: true),
+              onDismissed: (direction) {
+                setState(() {
+                  if (direction == DismissDirection.startToEnd) {
+                    completed.add(h);
+                  } else {
+                    skipped.add(h);
+                  }
+                });
+              },
+              child: Opacity(
+                opacity: faded ? 0.6 : 1,
+                child: HabitCard(habit: h), // No trailing buttons
+              ),
+            )),
+      ],
+    );
+  }
+
+  Widget _buildSwipeBackground(IconData icon, Color color, String label,
+      {bool alignRight = false}) {
+    return Container(
+      color: color,
+      alignment: alignRight ? Alignment.centerRight : Alignment.centerLeft,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment:
+            alignRight ? MainAxisAlignment.end : MainAxisAlignment.start,
+        children: [
+          if (alignRight)
+            Text(label,
+                style: const TextStyle(color: Colors.white, fontSize: 16)),
+          const SizedBox(width: 8),
+          Icon(icon, color: Colors.white, size: 28),
+          if (!alignRight)
+            const SizedBox(width: 8),
+          if (!alignRight)
+            Text(label,
+                style: const TextStyle(color: Colors.white, fontSize: 16)),
+        ],
+      ),
     );
   }
 }

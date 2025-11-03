@@ -5,10 +5,11 @@ import '../../themes/style_simple/colors.dart';
 import '../../themes/style_simple/styles.dart';
 import '../articles/plant_article.dart';
 import '../articles/sport_article.dart';
-import '../habits.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+
+  final VoidCallback? onViewAllHabits;
+  const HomeScreen({super.key, this.onViewAllHabits});
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -112,12 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
             title: 'Daily habits:',
             // tap to open habits list
             trailing: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const HabitsScreen()),
-                );
-              },
+              onTap: widget.onViewAllHabits, // ✅ use callback
               child: const Text(
                 'view all',
                 style: TextStyle(
@@ -280,35 +276,78 @@ class _MoodPicker extends StatelessWidget {
   final ValueChanged<int> onChanged;
   const _MoodPicker({required this.selected, required this.onChanged});
 
-  static const _faces = <String>['🌞', '🌤️', '🌥️', '🌦️', '🌧️', '🌩️'];
+  static const _moods = [
+    {'image': 'assets/images/happy.png', 'label': 'Happy'},
+    {'image': 'assets/images/good.png', 'label': 'Good'},
+    {'image': 'assets/images/excited.png', 'label': 'Excited'},
+    {'image': 'assets/images/calm.png', 'label': 'Calm'},
+    {'image': 'assets/images/sad.png', 'label': 'Sad'},
+    {'image': 'assets/images/tired.png', 'label': 'Tired'},
+    {'image': 'assets/images/anxious.png', 'label': 'Anxious'},
+    {'image': 'assets/images/angry.png', 'label': 'Angry'},
+    {'image': 'assets/images/confused.png', 'label': 'Confused'},
+    {'image': 'assets/images/grateful.png', 'label': 'Grateful'},
+  ];
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: List.generate(6, (i) {
-        final bool isSelected = selected == i;
-        return GestureDetector(
-          onTap: () => onChanged(i),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 160),
-            width: 42,
-            height: 42,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFF2F4),
-              borderRadius: BorderRadius.circular(8),
-              border: isSelected
-                  ? Border.all(color: Colors.black87, width: 1.2)
-                  : null,
+    // Constrain height so a horizontal ListView can render inside Column
+    return SizedBox(
+      height: 90,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 2),
+        itemCount: _moods.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 10),
+        itemBuilder: (context, i) {
+          final mood = _moods[i];
+          final bool isSelected = selected == i;
+
+          return GestureDetector(
+            onTap: () => onChanged(i),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 160),
+              width: 72,
+              height: 82,
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF2F4),
+                borderRadius: BorderRadius.circular(12),
+                border: isSelected
+                    ? Border.all(color: Colors.black87, width: 1.2)
+                    : null,
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    mood['image']!,
+                    width: 36,
+                    height: 36,
+                    fit: BoxFit.contain,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    mood['label']!,
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            child: Text(_faces[i], style: const TextStyle(fontSize: 24)),
-          ),
-        );
-      }),
+          );
+        },
+      ),
     );
   }
 }
+
 
 class _WaterCard extends StatelessWidget {
   final int count;
