@@ -1,5 +1,5 @@
-
-import 'package:flutter/material.dart';
+  import 'package:flutter/material.dart';
+import '../../themes/style_simple/colors.dart';
 
 class BackgroundPickerBottomSheet extends StatelessWidget {
   final Function(String backgroundPath) onBackgroundSelected;
@@ -26,7 +26,7 @@ class BackgroundPickerBottomSheet extends StatelessWidget {
     return Container(
       height: MediaQuery.of(context).size.height * 0.7,
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AppColors.card,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -63,7 +63,7 @@ class BackgroundPickerBottomSheet extends StatelessWidget {
               child: Container(
                 height: 60,
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey[300]!),
+                  border: Border.all(color: AppColors.textSecondary.withOpacity(0.3)),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Center(
@@ -101,7 +101,7 @@ class BackgroundPickerBottomSheet extends StatelessWidget {
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey[300]!, width: 2),
+                      border: Border.all(color: AppColors.textSecondary.withOpacity(0.3), width: 2),
                       image: DecorationImage(
                         image: AssetImage(_backgrounds[index]),
                         fit: BoxFit.cover,

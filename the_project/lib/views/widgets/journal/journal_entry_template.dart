@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../themes/style_simple/colors.dart';
 
 class JournalEntryTemplate extends StatelessWidget {
   final String title;
@@ -22,7 +23,7 @@ class JournalEntryTemplate extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.85),
+          color: AppColors.card.withOpacity(0.85),
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -51,14 +52,14 @@ class JournalEntryTemplate extends StatelessWidget {
                   Text(
                     time,
                     style: const TextStyle(
-                      color: Colors.grey,
+                      color: AppColors.textSecondary,
                       fontSize: 14,
                     ),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: Colors.grey),
+            const Icon(Icons.chevron_right, color: AppColors.textSecondary),
           ],
         ),
       ),

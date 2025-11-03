@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import '../../themes/style_simple/colors.dart';
 
 class StickerPickerBottomSheet extends StatelessWidget {
   final Function(String stickerPath) onStickerSelected;
@@ -30,7 +31,7 @@ class StickerPickerBottomSheet extends StatelessWidget {
     return Container(
       height: 350,
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AppColors.card,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -72,7 +73,7 @@ class StickerPickerBottomSheet extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.grey[100],
+                      color: AppColors.textSecondary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Image.asset(

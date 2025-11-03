@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../themes/style_simple/colors.dart';
 
 class JournalTopBar extends StatelessWidget {
   final VoidCallback onBack;
@@ -15,7 +16,7 @@ class JournalTopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white.withOpacity(0.0),
+      color: AppColors.card.withOpacity(0.0),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
       child: Row(
         children: [
@@ -30,19 +31,19 @@ class JournalTopBar extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 6),
               
               decoration: BoxDecoration(
-                color: Colors.blue.shade400,
+                color: AppColors.accentBlue,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: const Text(
                 'Save',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: AppColors.card),
               ),
             ),
           ),
           const SizedBox(width: 10),
           CircleAvatar(
             radius: 18,
-            backgroundColor: Colors.white.withOpacity(0.0),
+            backgroundColor: AppColors.card.withOpacity(0.0),
             child: Image.asset(selectedMood, width: 35, height: 35),
           ),
         ],
@@ -50,4 +51,3 @@ class JournalTopBar extends StatelessWidget {
     );
   }
 }
-

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../themes/style_simple/colors.dart';
 
 class MonthYearSelector extends StatelessWidget {
   final int selectedMonth;
@@ -17,7 +18,7 @@ class MonthYearSelector extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.8),
+        color: AppColors.card.withOpacity(0.8),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(

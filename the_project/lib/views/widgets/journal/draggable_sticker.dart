@@ -1,5 +1,5 @@
-
 import 'package:flutter/material.dart';
+import '../../themes/style_simple/colors.dart';
 
 class DraggableSticker extends StatefulWidget {
   final String stickerPath;
@@ -72,7 +72,7 @@ class _DraggableStickerState extends State<DraggableSticker> {
                 height: 80,
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: Colors.blue.withOpacity(0.5),
+                    color: AppColors.accentBlue.withOpacity(0.5),
                     width: 2,
                   ),
                   borderRadius: BorderRadius.circular(8),
@@ -94,12 +94,12 @@ class _DraggableStickerState extends State<DraggableSticker> {
                   child: Container(
                     padding: const EdgeInsets.all(4),
                     decoration: const BoxDecoration(
-                      color: Colors.red,
+                      color: AppColors.error,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       Icons.close,
-                      color: Colors.white,
+                      color: AppColors.card,
                       size: 16,
                     ),
                   ),
@@ -113,7 +113,7 @@ class _DraggableStickerState extends State<DraggableSticker> {
                 child: Container(
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: Colors.blue,
+                    color: AppColors.accentBlue,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
@@ -124,7 +124,7 @@ class _DraggableStickerState extends State<DraggableSticker> {
                   ),
                   child: const Icon(
                     Icons.zoom_out_map,
-                    color: Colors.white,
+                    color: AppColors.card,
                     size: 14,
                   ),
                 ),

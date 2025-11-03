@@ -1,5 +1,5 @@
-
 import 'package:flutter/material.dart';
+import '../../themes/style_simple/colors.dart';
 
 class FontStyleBottomSheet extends StatefulWidget {
   final String currentFontFamily;
@@ -34,14 +34,14 @@ class _FontStyleBottomSheetState extends State<FontStyleBottomSheet> {
   ];
 
   final List<Color> _colors = [
-    Colors.black,
-    Colors.blue,
-    Colors.red,
-    Colors.green,
-    Colors.purple,
-    Colors.orange,
-    Colors.pink,
-    Colors.teal,
+    AppColors.textPrimary,
+    AppColors.accentBlue,
+    AppColors.error,
+    AppColors.accentGreen,
+    AppColors.accentPurple,
+    AppColors.accentOrange,
+    AppColors.accentPink,
+    AppColors.mint,
   ];
 
   @override
@@ -57,7 +57,7 @@ class _FontStyleBottomSheetState extends State<FontStyleBottomSheet> {
     return Container(
       height: 450,
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AppColors.card,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
@@ -83,13 +83,13 @@ class _FontStyleBottomSheetState extends State<FontStyleBottomSheet> {
             ),
           ),
 
-          // A small grabber — also hints there is scrollable content
+          // A small grabber – also hints there is scrollable content
           Container(
             width: 40,
             height: 4,
             margin: const EdgeInsets.only(bottom: 8),
             decoration: BoxDecoration(
-              color: Colors.grey[300],
+              color: AppColors.textSecondary.withOpacity(0.3),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -125,13 +125,13 @@ class _FontStyleBottomSheetState extends State<FontStyleBottomSheet> {
                             vertical: 8,
                           ),
                           decoration: BoxDecoration(
-                            color: isSelected ? Colors.blue : Colors.grey[200],
+                            color: isSelected ? AppColors.accentBlue : AppColors.textSecondary.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
                             font,
                             style: TextStyle(
-                              color: isSelected ? Colors.white : Colors.black,
+                              color: isSelected ? AppColors.card : AppColors.textPrimary,
                               fontWeight:
                                   isSelected ? FontWeight.bold : FontWeight.normal,
                             ),
@@ -168,7 +168,7 @@ class _FontStyleBottomSheetState extends State<FontStyleBottomSheet> {
                             shape: BoxShape.circle,
                             border: isSelected
                                 ? Border.all(
-                                    color: Colors.black,
+                                    color: AppColors.textPrimary,
                                     width: 3,
                                   )
                                 : null,
@@ -234,14 +234,14 @@ class _FontStyleBottomSheetState extends State<FontStyleBottomSheet> {
             ),
           ),
 
-          // Footer: Apply button — outside scroll, always visible
+          // Footer: Apply button – outside scroll, always visible
           SafeArea(
             top: false,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
               child: SizedBox(
-                width: 180, // 👈 Set your desired width
-  height: 45, // 👈 Set your desired height
+                width: 180,
+                height: 45,
                 child: ElevatedButton(
                   onPressed: () {
                     widget.onStyleChanged(
@@ -252,7 +252,7 @@ class _FontStyleBottomSheetState extends State<FontStyleBottomSheet> {
                     Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: AppColors.accentBlue,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(25),
@@ -263,7 +263,7 @@ class _FontStyleBottomSheetState extends State<FontStyleBottomSheet> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: AppColors.card,
                     ),
                   ),
                 ),

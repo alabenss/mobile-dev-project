@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import '../../themes/style_simple/colors.dart';
 
 class JournalBodyFields extends StatelessWidget {
   final String dateLabel;
@@ -101,12 +102,12 @@ class JournalBodyFields extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.all(4),
                         decoration: const BoxDecoration(
-                          color: Colors.red,
+                          color: AppColors.error,
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
                           Icons.close,
-                          color: Colors.white,
+                          color: AppColors.card,
                           size: 16,
                         ),
                       ),

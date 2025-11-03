@@ -1,5 +1,5 @@
-
 import 'package:flutter/material.dart';
+import '../../themes/style_simple/colors.dart';
 
 class JournalBottomToolbar extends StatelessWidget {
   final VoidCallback onBackground;
@@ -18,7 +18,7 @@ class JournalBottomToolbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white.withOpacity(0.95),
+      color: AppColors.card.withOpacity(0.95),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,

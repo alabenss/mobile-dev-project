@@ -1,4 +1,7 @@
+
+
 import 'package:flutter/material.dart';
+import '../../themes/style_simple/colors.dart';
 
 class MoodCard extends StatefulWidget {
   final String? selectedMood;
@@ -41,7 +44,7 @@ class _MoodCardState extends State<MoodCard> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.8),
+        color: AppColors.card,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -75,13 +78,13 @@ class _MoodCardState extends State<MoodCard> {
               ),
               Text(
                 formattedTime,
-                style: const TextStyle(color: Colors.grey),
+                style: const TextStyle(color: AppColors.textSecondary),
               ),
             ],
           ),
         ),
         IconButton(
-          icon: const Icon(Icons.edit, color: Colors.grey),
+          icon: const Icon(Icons.edit, color: AppColors.textSecondary),
           onPressed: () {
             // Allow user to change mood
             widget.onMoodSelected?.call('', ''); // Reset to show selector
@@ -133,7 +136,7 @@ class _MoodCardState extends State<MoodCard> {
                         mood['label']!,
                         style: const TextStyle(
                           fontSize: 11,
-                          color: Colors.grey,
+                          color: AppColors.textSecondary,
                         ),
                       ),
                     ],

@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:the_project/views/themes/style_simple/colors.dart';
 import '../../widgets/journal/journal_entry_model.dart';
 import '../../widgets/journal/sticker_picker_bottom_sheet.dart';
 import '../../widgets/journal/background_picker_bottom_sheet.dart';
@@ -52,7 +53,7 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
   // Style properties
   String _backgroundImage = '';
   String _fontFamily = 'Roboto';
-  Color _textColor = Colors.black;
+  Color _textColor = AppColors.textPrimary;
   double _fontSize = 16.0;
 
   final List<String> _attachedImagePaths = [];
@@ -148,7 +149,7 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
             // Semi-transparent overlay for readability
             Positioned.fill(
               child: Container(
-                color: Colors.white.withOpacity(0.3),
+                color: AppColors.card.withOpacity(0.3),
               ),
             ),
 

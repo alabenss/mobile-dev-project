@@ -71,7 +71,7 @@ class _JournalingScreenState extends State<JournalingScreen> {
         shape: const CircleBorder(),
         onPressed: () => _openWritePage(),
         backgroundColor: AppColors.icon,
-        child: const Icon(Icons.add, color: Colors.white,size: 28),
+        child: const Icon(Icons.add, color: AppColors.card, size: 28),
       ),
       body: AppBackground(
         child: Padding(
@@ -138,7 +138,7 @@ class _JournalingScreenState extends State<JournalingScreen> {
                         child: Text(
                           'Select a day to view journals',
                           style: TextStyle(
-                            color: Colors.grey[600],
+                            color: AppColors.textSecondary,
                             fontSize: 16,
                           ),
                         ),
@@ -148,7 +148,7 @@ class _JournalingScreenState extends State<JournalingScreen> {
                             child: Text(
                               'No journals for this day',
                               style: TextStyle(
-                                color: Colors.grey[600],
+                                color: AppColors.textSecondary,
                                 fontSize: 16,
                               ),
                             ),
@@ -206,7 +206,7 @@ class _JournalingScreenState extends State<JournalingScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Cannot create journal for future dates'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.error,
           ),
         );
         return;
