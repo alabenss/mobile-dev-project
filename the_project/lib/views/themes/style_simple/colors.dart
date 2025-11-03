@@ -7,7 +7,7 @@ class AppColors {
   static const Color bgBottom = Color(0xFFF6E2C9);
 
   // 🎨 General colors
-  static const Color card = Color.fromARGB(255, 206, 50, 50);
+  static const Color card = Color.fromARGB(255, 218, 193, 193);
   static const Color textPrimary = Color(0xFF2B2B2B);
   static const Color textSecondary = Color(0xFF6B6B6B);
 
