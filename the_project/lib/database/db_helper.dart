@@ -44,7 +44,7 @@ class DBHelper {
         frequency TEXT,       -- 'daily', 'weekly', 'monthly'
         status TEXT,          -- 'active', 'completed', 'skipped'
         createdDate TEXT,     -- date when habit was added
-        lastUpdated TEXT,     -- date when last status was updated
+        Doitat TEXT,     -- when task is going to be performed y3ni alert time
         points INTEGER,       -- points earned when completed
         FOREIGN KEY (userId) REFERENCES users(id)
       );
@@ -64,35 +64,11 @@ class DBHelper {
       );
     ''');
 
-    // Activities table
-    await db.execute('''
-      CREATE TABLE activities (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
-        description TEXT,
-        cost INTEGER
-      );
-    ''');
-
-    // Transactions table (for tracking earned and spent points)
-    await db.execute('''
-      CREATE TABLE transactions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        userId INTEGER,
-        type TEXT,            -- 'earn' or 'spend'
-        amount INTEGER,
-        description TEXT,
-        date TEXT,
-        FOREIGN KEY (userId) REFERENCES users(id)
-      );
-    ''');
   }
 
   // clear all tables 
   static Future<void> clearAll() async {
     final db = await database;
-    await db.delete('transactions');
-    await db.delete('activities');
     await db.delete('journals');
     await db.delete('habits');
     await db.delete('users');
