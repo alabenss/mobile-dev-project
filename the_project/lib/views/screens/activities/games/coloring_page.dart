@@ -1,205 +1,174 @@
 import 'dart:math' as Math;
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../../widgets/activities/activity_shell.dart';
 import '../../../themes/style_simple/colors.dart';
 
-class ColoringPage extends StatefulWidget {
+import '../../../../logic/activities/games/coloring_cubit.dart';
+import '../../../../logic/activities/games/coloring_state.dart';
+
+class ColoringPage extends StatelessWidget {
   const ColoringPage({super.key});
-
-  @override
-  State<ColoringPage> createState() => _ColoringPageState();
-}
-
-class _ColoringPageState extends State<ColoringPage> {
-  int _template = 0; // 0..5
-  Color _current = const Color(0xFF3ECF8E);
-
-  // Editable palette; user can replace any swatch
-  final List<Color> _palette = [
-    const Color(0xFF1E3A5F),
-    const Color(0xFFE53935),
-    const Color(0xFF3ECF8E),
-    const Color(0xFFFFC107),
-    const Color(0xFF42A5F5),
-    const Color(0xFFBA68C8),
-    const Color(0xFFFF7043),
-    const Color(0xFFFFEB3B),
-    const Color(0xFF8D6E63),
-    const Color(0xFFFFFFFF),
-  ];
-
-  final List<_FillAction> _history = [];
-  final List<_FillAction> _redo = [];
-
-  void _onFill(int regionIndex, Color previous, Color next) {
-    setState(() {
-      _redo.clear();
-      _history.add(_FillAction(_template, regionIndex, previous, next));
-    });
-  }
-
-  void _undo() {
-    if (_history.isEmpty) return;
-    setState(() => _redo.add(_history.removeLast()));
-  }
-
-  void _redoAct() {
-    if (_redo.isEmpty) return;
-    setState(() => _history.add(_redo.removeLast()));
-  }
-
-  void _clear() {
-    setState(() {
-      _history.removeWhere((a) => a.template == _template);
-      _redo.clear();
-    });
-  }
-
-  Future<void> _pickAndReplace(int index) async {
-    final c = await showDialog<Color>(
-      context: context,
-      builder: (_) => _ColorPickerDialog(initial: _palette[index]),
-    );
-    if (c != null) {
-      setState(() {
-        _palette[index] = c;
-        _current = c;
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     return ActivityShell(
       title: 'Coloring',
-      child: Column(
-        children: [
-          // Template chooser
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF3EB),
-                borderRadius: BorderRadius.circular(22),
-              ),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: List.generate(6, (i) {
-                    return _TemplateChip(
-                      label: _templateNames[i],
-                      emoji: _templateEmojis[i],
-                      selected: _template == i,
-                      onTap: () {
-                        setState(() => _template = i);
-                      },
-                    );
-                  }),
+      child: BlocBuilder<ColoringCubit, ColoringState>(
+        builder: (context, state) {
+          final cubit = context.read<ColoringCubit>();
+
+          return Column(
+            children: [
+              // Template chooser
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF3EB),
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: List.generate(6, (i) {
+                        return _TemplateChip(
+                          label: _templateNames[i],
+                          emoji: _templateEmojis[i],
+                          selected: state.template == i,
+                          onTap: () => cubit.selectTemplate(i),
+                        );
+                      }),
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
 
-          // Palette
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 6, 16, 8),
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF3EB),
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          for (int i = 0; i < _palette.length; i++)
-                            _Swatch(
-                              color: _palette[i],
-                              selected: _current.value == _palette[i].value,
-                              onTap: () =>
-                                  setState(() => _current = _palette[i]),
-                              onLongPress: () => _pickAndReplace(i),
-                            ),
-                          _AddSwatch(
-                            onTap: () async {
-                              final c = await showDialog<Color>(
-                                context: context,
-                                builder: (_) =>
-                                    _ColorPickerDialog(initial: _current),
-                              );
-                              if (c != null) {
-                                setState(() {
-                                  // replace last swatch with new color
-                                  _palette[_palette.length - 1] = c;
-                                  _current = c;
-                                });
-                              }
-                            },
+              // Palette
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 6, 16, 8),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF3EB),
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              for (int i = 0; i < state.palette.length; i++)
+                                _Swatch(
+                                  color: state.palette[i],
+                                  selected: state.currentColor.value ==
+                                      state.palette[i].value,
+                                  onTap: () =>
+                                      cubit.selectColor(state.palette[i]),
+                                  onLongPress: () async {
+                                    final c =
+                                        await showDialog<Color>(
+                                      context: context,
+                                      builder: (_) =>
+                                          _ColorPickerDialog(
+                                        initial: state.palette[i],
+                                      ),
+                                    );
+                                    if (c != null) {
+                                      cubit.replacePaletteColor(i, c);
+                                    }
+                                  },
+                                ),
+                              _AddSwatch(
+                                onTap: () async {
+                                  final c = await showDialog<Color>(
+                                    context: context,
+                                    builder: (_) =>
+                                        _ColorPickerDialog(
+                                      initial: state.currentColor,
+                                    ),
+                                  );
+                                  if (c != null) {
+                                    cubit.addNewColor(c);
+                                  }
+                                },
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      const Icon(
+                        Icons.palette_rounded,
+                        color: AppColors.accentPink,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Tools
+              Padding(
+                padding: const EdgeInsets.fromLTRB(18, 4, 18, 4),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _Tool(
+                      icon: Icons.undo_rounded,
+                      onTap: cubit.undo,
+                    ),
+                    const SizedBox(width: 12),
+                    _Tool(
+                      icon: Icons.redo_rounded,
+                      onTap: cubit.redo,
+                    ),
+                    const SizedBox(width: 12),
+                    _Tool(
+                      icon: Icons.cleaning_services_rounded,
+                      onTap: cubit.clearCurrentTemplate,
+                    ),
+                    const SizedBox(width: 12),
+                    _Tool(
+                      icon: Icons.download_rounded,
+                      onTap: () =>
+                          ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content:
+                              Text('Saved! (wire export later)'),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Canvas
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 6, 16, 16),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(22),
+                    child: Container(
+                      color: _templateBg(state.template),
+                      child: _ColoringCanvas(
+                        template: state.template,
+                        currentColor: state.currentColor,
+                        history: state.history,
+                        onFill: (idx, prev, next) =>
+                            cubit.onFill(idx, prev, next),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 6),
-                  const Icon(
-                    Icons.palette_rounded,
-                    color: AppColors.accentPink,
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // Tools
-          Padding(
-            padding: const EdgeInsets.fromLTRB(18, 4, 18, 4),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _Tool(icon: Icons.undo_rounded, onTap: _undo),
-                const SizedBox(width: 12),
-                _Tool(icon: Icons.redo_rounded, onTap: _redoAct),
-                const SizedBox(width: 12),
-                _Tool(icon: Icons.cleaning_services_rounded, onTap: _clear),
-                const SizedBox(width: 12),
-                _Tool(
-                  icon: Icons.download_rounded,
-                  onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Saved! (wire export later)'),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Canvas
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 6, 16, 16),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(22),
-                child: Container(
-                  color: _templateBg(_template),
-                  child: _ColoringCanvas(
-                    template: _template,
-                    currentColor: _current,
-                    history: _history,
-                    palette: _palette,
-                    onFill: _onFill,
-                  ),
                 ),
               ),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }
@@ -348,14 +317,6 @@ class _Tool extends StatelessWidget {
   }
 }
 
-class _FillAction {
-  final int template;
-  final int regionIndex;
-  final Color previous;
-  final Color next;
-  _FillAction(this.template, this.regionIndex, this.previous, this.next);
-}
-
 class _Region {
   Path Function(Size) pathBuilder;
   Color color;
@@ -365,15 +326,13 @@ class _Region {
 class _ColoringCanvas extends StatefulWidget {
   final int template; // 0..5
   final Color currentColor;
-  final List<_FillAction> history;
-  final List<Color> palette;
+  final List<ColoringFillAction> history;
   final void Function(int regionIndex, Color previous, Color next) onFill;
 
   const _ColoringCanvas({
     required this.template,
     required this.currentColor,
     required this.history,
-    required this.palette,
     required this.onFill,
   });
 
@@ -387,22 +346,35 @@ class _ColoringCanvasState extends State<_ColoringCanvas> {
   @override
   void initState() {
     super.initState();
-    _regions = _buildRegions(widget.template);
+    _rebuildRegions();
   }
 
   @override
   void didUpdateWidget(covariant _ColoringCanvas oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.template != widget.template) {
-      _regions = _buildRegions(widget.template);
-    }
-    // rebuild colors from history for this template
+    _rebuildRegions();
+  }
+
+  void _rebuildRegions() {
+    // 1. build base regions with default colors
     final initial = _buildRegions(widget.template);
+
+    // 2. apply fills from history (for this template)
+    final filledIndexes = <int>{};
     for (final a in widget.history.where(
       (a) => a.template == widget.template,
     )) {
       initial[a.regionIndex].color = a.next;
+      filledIndexes.add(a.regionIndex);
     }
+
+    // 3. regions never filled -> transparent (only outlines visible)
+    for (var i = 0; i < initial.length; i++) {
+      if (!filledIndexes.contains(i)) {
+        initial[i].color = Colors.transparent;
+      }
+    }
+
     _regions = initial;
   }
 
@@ -433,7 +405,8 @@ class _ColoringCanvasState extends State<_ColoringCanvas> {
     );
   }
 
-  /// Build six different sets of regions (simple, tappable comic shapes)
+  // ------------ template building (same as before) ------------
+
   List<_Region> _buildRegions(int t) {
     switch (t) {
       case 0:
@@ -451,6 +424,16 @@ class _ColoringCanvasState extends State<_ColoringCanvas> {
         return _tplMandala();
     }
   }
+
+  _Region _r(Path Function(Size) b, Color c) => _Region(b, c);
+
+  static Offset _pt(Size s, Offset rel) =>
+      Offset(s.width * rel.dx, s.height * rel.dy);
+  static Rect _rectCircle(Size s, Offset relCenter, double relRadius) =>
+      Rect.fromCircle(
+        center: _pt(s, relCenter),
+        radius: s.shortestSide * relRadius,
+      );
 
   List<_Region> _tplSpace() {
     return [
@@ -582,14 +565,10 @@ class _ColoringCanvasState extends State<_ColoringCanvas> {
           ),
         const Color(0xFF5D4037),
       ),
-      _r(
-        (s) => _antenna(s, const Offset(.5, .42), true),
-        const Color(0xFF5D4037),
-      ),
-      _r(
-        (s) => _antenna(s, const Offset(.5, .42), false),
-        const Color(0xFF5D4037),
-      ),
+      _r((s) => _antenna(s, const Offset(.5, .42), true),
+          const Color(0xFF5D4037)),
+      _r((s) => _antenna(s, const Offset(.5, .42), false),
+          const Color(0xFF5D4037)),
     ];
   }
 
@@ -608,7 +587,9 @@ class _ColoringCanvasState extends State<_ColoringCanvas> {
       _r((s) => _cloud(s, const Offset(.70, .18), .20), Colors.white),
       _r(
         (s) => Path()
-          ..addRect(Rect.fromLTWH(0, s.height * .86, s.width, s.height * .14)),
+          ..addRect(
+            Rect.fromLTWH(0, s.height * .86, s.width, s.height * .14),
+          ),
         const Color(0xFF9CCC65),
       ),
     ];
@@ -622,7 +603,8 @@ class _ColoringCanvasState extends State<_ColoringCanvas> {
       ),
       for (final r in [0.42, 0.32, 0.24, 0.17, 0.11, 0.07])
         _r(
-          (s) => Path()..addOval(_rectCircle(s, const Offset(.5, .55), r)),
+          (s) => Path()
+            ..addOval(_rectCircle(s, const Offset(.5, .55), r)),
           Colors.white.withOpacity(.95),
         ),
       // petals
@@ -633,16 +615,6 @@ class _ColoringCanvasState extends State<_ColoringCanvas> {
         }, const Color(0xFFB2DFDB)),
     ];
   }
-
-  _Region _r(Path Function(Size) b, Color c) => _Region(b, c);
-
-  static Offset _pt(Size s, Offset rel) =>
-      Offset(s.width * rel.dx, s.height * rel.dy);
-  static Rect _rectCircle(Size s, Offset relCenter, double relRadius) =>
-      Rect.fromCircle(
-        center: _pt(s, relCenter),
-        radius: s.shortestSide * relRadius,
-      );
 
   static Path _star(Size s, Offset relCenter, double relR) {
     final c = _pt(s, relCenter);
@@ -666,7 +638,6 @@ class _ColoringCanvasState extends State<_ColoringCanvas> {
 
   static Path _sun(Size s, Offset relCenter, double relR) {
     final p = Path()..addOval(_rectCircle(s, relCenter, relR));
-    // rays
     final c = _pt(s, relCenter);
     final R = s.shortestSide * (relR + .03);
     for (int i = 0; i < 12; i++) {
@@ -676,7 +647,10 @@ class _ColoringCanvasState extends State<_ColoringCanvas> {
           c.dx + (R - 10) * Math.cos(a - .2),
           c.dy + (R - 10) * Math.sin(a - .2),
         ),
-        Offset(c.dx + (R + 6) * Math.cos(a), c.dy + (R + 6) * Math.sin(a)),
+        Offset(
+          c.dx + (R + 6) * Math.cos(a),
+          c.dy + (R + 6) * Math.sin(a),
+        ),
         Offset(
           c.dx + (R - 10) * Math.cos(a + .2),
           c.dy + (R - 10) * Math.sin(a + .2),
@@ -713,10 +687,14 @@ class _ColoringCanvasState extends State<_ColoringCanvas> {
     final h = s.height * relH;
     final p = Path();
     p.moveTo(c.dx, c.dy - h / 2);
-    p.quadraticBezierTo(c.dx + w / 2, c.dy - h / 2, c.dx + w / 2, c.dy);
-    p.quadraticBezierTo(c.dx + w / 2, c.dy + h / 2, c.dx, c.dy + h / 2);
-    p.quadraticBezierTo(c.dx - w / 2, c.dy + h / 2, c.dx - w / 2, c.dy);
-    p.quadraticBezierTo(c.dx - w / 2, c.dy - h / 2, c.dx, c.dy - h / 2);
+    p.quadraticBezierTo(
+        c.dx + w / 2, c.dy - h / 2, c.dx + w / 2, c.dy);
+    p.quadraticBezierTo(
+        c.dx + w / 2, c.dy + h / 2, c.dx, c.dy + h / 2);
+    p.quadraticBezierTo(
+        c.dx - w / 2, c.dy + h / 2, c.dx - w / 2, c.dy);
+    p.quadraticBezierTo(
+        c.dx - w / 2, c.dy - h / 2, c.dx, c.dy - h / 2);
     p.close();
     return p;
   }
@@ -726,7 +704,7 @@ class _ColoringCanvasState extends State<_ColoringCanvas> {
     final R = s.shortestSide * relR;
     final p = Path();
 
-    // petals (add multiple petal shapes around the center)
+    // petals
     for (int i = 0; i < 6; i++) {
       final a = i * (2 * Math.pi / 6);
       final tip = Offset(c.dx + R * Math.cos(a), c.dy + R * Math.sin(a));
@@ -748,7 +726,7 @@ class _ColoringCanvasState extends State<_ColoringCanvas> {
       p.addPath(petal, Offset.zero);
     }
 
-    // center circle
+    // center
     p.addOval(Rect.fromCircle(center: c, radius: R * .32));
     return p;
   }
@@ -759,7 +737,6 @@ class _ColoringCanvasState extends State<_ColoringCanvas> {
     final body = Rect.fromCenter(center: c, width: r * 2.2, height: r * 1.3);
     final p = Path()
       ..addRRect(RRect.fromRectAndRadius(body, Radius.circular(r)));
-    // tail
     p.addPolygon([
       c + Offset(r * 1.1, 0),
       c + Offset(r * 1.8, -r * .8),
@@ -797,12 +774,8 @@ class _ColoringCanvasState extends State<_ColoringCanvas> {
     return p;
   }
 
-  static Path _wing(
-    Size s,
-    Offset relCenter,
-    double relR, {
-    required bool left,
-  }) {
+  static Path _wing(Size s, Offset relCenter, double relR,
+      {required bool left}) {
     final c = _pt(s, relCenter);
     final r = s.shortestSide * relR;
     final sign = left ? -1.0 : 1.0;
@@ -814,7 +787,12 @@ class _ColoringCanvasState extends State<_ColoringCanvas> {
       c.dx + sign * r,
       c.dy,
     );
-    p.quadraticBezierTo(c.dx + sign * r * .6, c.dy + r * .6, c.dx, c.dy);
+    p.quadraticBezierTo(
+      c.dx + sign * r * .6,
+      c.dy + r * .6,
+      c.dx,
+      c.dy,
+    );
     p.close();
     return p;
   }
@@ -837,47 +815,54 @@ class _ColoringCanvasState extends State<_ColoringCanvas> {
     final w = s.width * .46;
     final h = s.height * .36;
     final c = _pt(s, const Offset(.5, .62));
-    return Path()..addRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromCenter(center: c, width: w, height: h),
-        const Radius.circular(16),
-      ),
-    );
+    return Path()
+      ..addRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromCenter(center: c, width: w, height: h),
+          const Radius.circular(16),
+        ),
+      );
   }
 
   static Path _roof(Size s) {
     final c = _pt(s, const Offset(.5, .44));
     final w = s.width * .52;
     final h = s.height * .16;
-    return Path()..addPolygon([
-      c + Offset(-w / 2, h / 2),
-      c + Offset(0, -h / 2),
-      c + Offset(w / 2, h / 2),
-    ], true);
+    return Path()
+      ..addPolygon(
+        [
+          c + Offset(-w / 2, h / 2),
+          c + Offset(0, -h / 2),
+          c + Offset(w / 2, h / 2),
+        ],
+        true,
+      );
   }
 
   static Path _door(Size s) {
     final c = _pt(s, const Offset(.5, .68));
     final w = s.width * .10;
     final h = s.height * .20;
-    return Path()..addRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromCenter(center: c, width: w, height: h),
-        const Radius.circular(8),
-      ),
-    );
+    return Path()
+      ..addRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromCenter(center: c, width: w, height: h),
+          const Radius.circular(8),
+        ),
+      );
   }
 
   static Path _window(Size s, Offset relCenter) {
     final c = _pt(s, relCenter);
     final w = s.width * .10;
     final h = s.height * .10;
-    return Path()..addRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromCenter(center: c, width: w, height: h),
-        const Radius.circular(8),
-      ),
-    );
+    return Path()
+      ..addRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromCenter(center: c, width: w, height: h),
+          const Radius.circular(8),
+        ),
+      );
   }
 
   static Path _petal(Size s, Offset relC, double relR, double angle) {
@@ -910,10 +895,12 @@ class _ScenePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     for (final r in regions) {
       final path = r.pathBuilder(size);
+
+      // Fill (may be transparent)
       final fill = Paint()..color = r.color;
       canvas.drawPath(path, fill);
 
-      // comic outline
+      // Comic outline
       final stroke = Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 3
@@ -1089,17 +1076,17 @@ const _templateEmojis = ['🪐', '🌼', '🐟', '🦋', '🏠', '🌀'];
 Color _templateBg(int t) {
   switch (t) {
     case 0:
-      return const Color(0xFF113B5C); // space deep blue
+      return const Color(0xFFE8F5E9); // space deep blue
     case 1:
       return const Color(0xFFE8F5E9);
     case 2:
-      return const Color(0xFF0E3B55);
+      return const Color(0xFFE8F5E9);
     case 3:
-      return const Color(0xFFE3F2FD);
+      return const Color((0xFFE8F5E9));
     case 4:
-      return const Color(0xFFB3E5FC);
+      return const Color(0xFFE8F5E9);
     case 5:
-      return const Color(0xFF0E2433);
+      return const Color(0xFFE8F5E9);
     default:
       return Colors.white;
   }

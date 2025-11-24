@@ -1,6 +1,10 @@
-import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../../logic/activities/games/breathing_cubit.dart';
+import '../../../../logic/activities/games/breathing_state.dart';
+
 import '../../../themes/style_simple/colors.dart';
 import '../../../themes/style_simple/app_background.dart';
 
@@ -11,17 +15,13 @@ class BreathPage extends StatefulWidget {
   State<BreathPage> createState() => _BreathPageState();
 }
 
-class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
-  /// One breath cycle (inhale + exhale). Tweak to your taste.
-  static const Duration _cycle = Duration(seconds: 6); // 4s in + 2s out feel
-  static const Duration _session = Duration(minutes: 1);
+class _BreathPageState extends State<BreathPage>
+    with TickerProviderStateMixin {
+  /// One breath cycle (inhale + exhale).
+  static const Duration _cycle = Duration(seconds: 6); // 4s in + 2s out
 
   late final AnimationController _breathCtrl;
   late final Animation<double> _scale;
-
-  Timer? _countdownTimer;
-  Duration _remaining = _session;
-  bool _running = false;
 
   @override
   void initState() {
@@ -30,50 +30,43 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
     // Repeating inhale/exhale loop
     _breathCtrl = AnimationController(vsync: this, duration: _cycle);
 
-    // Scale between 0.8 -> 1.0 (inhale), then 1.0 -> 0.8 (exhale)
+    // Scale between 0.82 -> 1.0 (inhale), then 1.0 -> 0.82 (exhale)
     _scale = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: .82, end: 1.0).chain(CurveTween(curve: Curves.easeOutCubic)), weight: 4),
-      TweenSequenceItem(tween: Tween(begin: 1.0, end: .82).chain(CurveTween(curve: Curves.easeInCubic)), weight: 2),
+      TweenSequenceItem(
+        tween: Tween(begin: .82, end: 1.0)
+            .chain(CurveTween(curve: Curves.easeOutCubic)),
+        weight: 4,
+      ),
+      TweenSequenceItem(
+        tween: Tween(begin: 1.0, end: .82)
+            .chain(CurveTween(curve: Curves.easeInCubic)),
+        weight: 2,
+      ),
     ]).animate(_breathCtrl);
   }
 
   @override
   void dispose() {
-    _countdownTimer?.cancel();
     _breathCtrl.dispose();
     super.dispose();
   }
 
   void _start() {
-    if (_running) return;
-    setState(() {
-      _running = true;
-      _remaining = _session;
-    });
+    final cubit = context.read<BreathingCubit>();
+    if (cubit.state.running) return;
 
     _breathCtrl
       ..reset()
       ..repeat();
 
-    _countdownTimer?.cancel();
-    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (t) {
-      if (!mounted) return;
-      setState(() {
-        _remaining -= const Duration(seconds: 1);
-        if (_remaining.inSeconds <= 0) {
-          _stop(resetToZero: false); // stop at 00:00
-        }
-      });
-    });
+    cubit.startSession();
   }
 
-  void _stop({bool resetToZero = true}) {
-    _countdownTimer?.cancel();
+  void _stop() {
+    final cubit = context.read<BreathingCubit>();
+
     _breathCtrl.stop();
-    setState(() {
-      _running = false;
-      _remaining = resetToZero ? Duration.zero : Duration.zero;
-    });
+    cubit.stopSession(resetToZero: true);
   }
 
   String _fmt(Duration d) {
@@ -88,114 +81,127 @@ class _BreathPageState extends State<BreathPage> with TickerProviderStateMixin {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-  title: const Text(
-    'Breath',
-    style: TextStyle(
-      fontWeight: FontWeight.w700,
-      fontSize: 20,
-      color: Colors.white,
-    ),
-  ),
-  centerTitle: true,
-  backgroundColor: Colors.transparent,
-  elevation: 0,
-  leading: IconButton(
-    icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-    onPressed: () => Navigator.of(context).pop(),
-  ),
-),
-
+          title: const Text(
+            'Breath',
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              fontSize: 20,
+              color: Colors.white,
+            ),
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: Colors.white,
+            ),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ),
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            child: Column(
-              children: [
-                // Main soft card
-                Expanded(
-                  child: Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFF1E9), // soft peach
-                      borderRadius: BorderRadius.circular(22),
-                    ),
-                    padding: const EdgeInsets.fromLTRB(18, 18, 18, 14),
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 6),
-                        const Text(
-                          'Take a deep breath and let your body wind down\nfor the day.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 18,
-                            height: 1.35,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          _fmt(_remaining),
-                          style: const TextStyle(
-                            fontSize: 44,
-                            fontWeight: FontWeight.w800,
-                            color: AppColors.textPrimary,
-                            letterSpacing: 1,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
+            child: BlocBuilder<BreathingCubit, BreathingState>(
+              builder: (context, state) {
+                final running = state.running;
+                final remaining = state.remaining;
 
-                        // Breathing flower in white circle
-                        Expanded(
-                          child: Center(
-                            child: AnimatedBuilder(
-                              animation: _breathCtrl,
-                              builder: (_, __) {
-                                return Container(
-                                  width: 320,
-                                  height: 320,
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.white,
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Transform.scale(
-                                    scale: _scale.value,
-                                    child: const _LotusFlower(), 
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
+                return Column(
+                  children: [
+                    // Main soft card
+                    Expanded(
+                      child: Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF1E9), // soft peach
+                          borderRadius: BorderRadius.circular(22),
                         ),
-
-                        const SizedBox(height: 8),
-
-                        // Primary button
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: _running ? _stop : _start,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFBF8E7A), // warm brown like mock
-                              foregroundColor: Colors.white,
-                              elevation: 0,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(18),
+                        padding:
+                            const EdgeInsets.fromLTRB(18, 18, 18, 14),
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 6),
+                            const Text(
+                              'Take a deep breath and let your body wind down\nfor the day.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 18,
+                                height: 1.35,
+                                color: AppColors.textPrimary,
                               ),
-                              textStyle: const TextStyle(
-                                fontSize: 20,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              _fmt(remaining),
+                              style: const TextStyle(
+                                fontSize: 44,
                                 fontWeight: FontWeight.w800,
+                                color: AppColors.textPrimary,
+                                letterSpacing: 1,
                               ),
                             ),
-                            child: Text(_running ? 'Stop' : 'Start'),
-                          ),
+                            const SizedBox(height: 16),
+
+                            // Breathing flower in white circle
+                            Expanded(
+                              child: Center(
+                                child: AnimatedBuilder(
+                                  animation: _breathCtrl,
+                                  builder: (_, __) {
+                                    return Container(
+                                      width: 320,
+                                      height: 320,
+                                      decoration: const BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.white,
+                                      ),
+                                      alignment: Alignment.center,
+                                      child: Transform.scale(
+                                        scale: _scale.value,
+                                        child: const _LotusFlower(),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+
+                            const SizedBox(height: 8),
+
+                            // Primary button
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: running ? _stop : _start,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      const Color(0xFFBF8E7A), // warm brown
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 16),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.circular(18),
+                                  ),
+                                  textStyle: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                                child: Text(running ? 'Stop' : 'Start'),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
-              ],
+                  ],
+                );
+              },
             ),
           ),
         ),
@@ -226,13 +232,16 @@ class _LotusPainter extends CustomPainter {
       Paint()..color = const Color(0xFF4FB0EA).withOpacity(.85),
     ];
 
-    // Draw three layers of mirrored petals
     void drawPetal(double w, double h, double angle, Paint p) {
       canvas.save();
       canvas.translate(center.dx, center.dy);
       canvas.rotate(angle);
       final r = RRect.fromRectAndRadius(
-        Rect.fromCenter(center: Offset(0, 0), width: w, height: h),
+        Rect.fromCenter(
+          center: const Offset(0, 0),
+          width: w,
+          height: h,
+        ),
         const Radius.circular(90),
       );
       canvas.drawRRect(r, p);
@@ -301,12 +310,18 @@ class _TulipPainter extends CustomPainter {
     canvas.drawPath(tear(70, .6), petal);
     canvas.save();
     canvas.translate(-36, 10);
-    canvas.drawPath(tear(52, .6), petal..color = petal.color.withOpacity(.75));
+    canvas.drawPath(
+      tear(52, .6),
+      petal..color = petal.color.withOpacity(.75),
+    );
     canvas.restore();
 
     canvas.save();
     canvas.translate(36, 10);
-    canvas.drawPath(tear(52, .6), petal..color = petal.color.withOpacity(.75));
+    canvas.drawPath(
+      tear(52, .6),
+      petal..color = petal.color.withOpacity(.75),
+    );
     canvas.restore();
   }
 

@@ -15,11 +15,7 @@ class DBHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(
-      path,
-      version: 1,
-      onCreate: _onCreate,
-    );
+    return await openDatabase(path, version: 1, onCreate: _onCreate);
   }
 
   // Create all the tables
@@ -34,6 +30,20 @@ class DBHelper {
       );
     ''');
 
+    // home status table
+    await db.execute('''
+      CREATE TABLE home_status(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        date TEXT NOT NULL UNIQUE,
+        water_count INTEGER NOT NULL,
+        water_goal INTEGER NOT NULL,
+        detox_progress REAL NOT NULL,
+        mood_label TEXT,
+        mood_image TEXT,
+        mood_time TEXT
+      );
+    ''');
+
     // Habits table (includes createdDate and lastUpdated)
     await db.execute('''
       CREATE TABLE habits (
@@ -44,7 +54,7 @@ class DBHelper {
         frequency TEXT,       -- 'daily', 'weekly', 'monthly'
         status TEXT,          -- 'active', 'completed', 'skipped'
         createdDate TEXT,     -- date when habit was added
-        Doitat TEXT,     -- when task is going to be performed y3ni alert time
+        Doitat TEXT,          -- when task is going to be performed (alert time)
         points INTEGER,       -- points earned when completed
         FOREIGN KEY (userId) REFERENCES users(id)
       );
@@ -63,20 +73,78 @@ class DBHelper {
         FOREIGN KEY (userId) REFERENCES users(id)
       );
     ''');
-
   }
 
-  // clear all tables 
+  // ------------------ Helpers for user + totalPoints ------------------
+
+  /// Ensure there is at least one default user row and return its id.
+  static Future<int> ensureDefaultUser() async {
+    final db = await database;
+    final result = await db.query('users', limit: 1);
+
+    if (result.isNotEmpty) {
+      final row = result.first;
+      final dynamic idValue = row['id'];
+      if (idValue is int) return idValue;
+      if (idValue is num) return idValue.toInt();
+    }
+
+    final id = await db.insert('users', {
+      'name': 'Guest',
+      'email': 'guest@example.com',
+      'totalPoints': 0,
+    });
+    return id;
+  }
+
+  /// Read current total points for the default user.
+  static Future<int> getUserTotalPoints() async {
+    final db = await database;
+    final userId = await ensureDefaultUser();
+
+    final result = await db.query(
+      'users',
+      columns: ['totalPoints'],
+      where: 'id = ?',
+      whereArgs: [userId],
+      limit: 1,
+    );
+
+    if (result.isNotEmpty) {
+      final value = result.first['totalPoints'];
+      if (value is int) return value;
+      if (value is num) return value.toInt();
+    }
+    return 0;
+  }
+
+  /// Update total points for the default user.
+  static Future<void> setUserTotalPoints(int points) async {
+    final db = await database;
+    final userId = await ensureDefaultUser();
+
+    await db.update(
+      'users',
+      {'totalPoints': points},
+      where: 'id = ?',
+      whereArgs: [userId],
+    );
+  }
+
+  // ------------------ Utilities ------------------
+
+  // clear all tables
   static Future<void> clearAll() async {
     final db = await database;
     await db.delete('journals');
     await db.delete('habits');
+    await db.delete('home_status');
     await db.delete('users');
   }
 
   // Close the database
   static Future<void> close() async {
-    final db = await _database;
+    final db = _database;
     db?.close();
     _database = null;
   }

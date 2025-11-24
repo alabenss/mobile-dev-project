@@ -1,24 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:audioplayers/audioplayers.dart';
-import '../../../widgets/activities/activity_shell.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class BubblePopperGame extends StatefulWidget {
+import '../../../widgets/activities/activity_shell.dart';
+import '../../../../logic/activities/games/bubble_popper_cubit.dart';
+import '../../../../logic/activities/games/bubble_popper_state.dart';
+
+class BubblePopperGame extends StatelessWidget {
   const BubblePopperGame({super.key});
 
-  @override
-  State<BubblePopperGame> createState() => _BubblePopperGameState();
-}
-
-class _BubblePopperGameState extends State<BubblePopperGame> {
   static const int _rows = 7;
   static const int _cols = 4;
-
-  // popped state
-  late List<List<bool>> _popped;
-
-  // low-latency audio (preloaded)
-  late final AudioPlayer _player;
 
   // row strip colors (match your reference)
   static const List<Color> _rowColors = [
@@ -32,39 +24,9 @@ class _BubblePopperGameState extends State<BubblePopperGame> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-    _popped = List.generate(_rows, (_) => List.generate(_cols, (_) => false));
-
-    _player = AudioPlayer(playerId: 'pop');
-    _player.setReleaseMode(ReleaseMode.stop);
-    _player.setVolume(1.0);
-    _player.setSourceAsset('sounds/pop.mp3'); // ensure in pubspec.yaml
-  }
-
-  @override
-  void dispose() {
-    _player.dispose();
-    super.dispose();
-  }
-
-  Future<void> _playPop() async {
-    try {
-      await _player.seek(Duration.zero);
-      await _player.resume();
-    } catch (_) {
-      // ignore device-specific audio errors
-    }
-  }
-
-  void _toggle(int r, int c) {
-    setState(() => _popped[r][c] = !_popped[r][c]);
-    HapticFeedback.lightImpact();
-    _playPop();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final cubit = context.read<BubblePopperCubit>();
+
     return ActivityShell(
       title: 'Pop It',
       child: Column(
@@ -74,7 +36,8 @@ class _BubblePopperGameState extends State<BubblePopperGame> {
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
             child: Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
               decoration: BoxDecoration(
                 color: const Color(0xFFFFF3EB),
                 borderRadius: BorderRadius.circular(22),
@@ -114,12 +77,16 @@ class _BubblePopperGameState extends State<BubblePopperGame> {
                     ),
                   ],
                 ),
-                child: _Board(
-                  rows: _rows,
-                  cols: _cols,
-                  rowColors: _rowColors,
-                  popped: _popped,
-                  onToggle: _toggle,
+                child: BlocBuilder<BubblePopperCubit, BubblePopperState>(
+                  builder: (context, state) {
+                    return _Board(
+                      rows: _rows,
+                      cols: _cols,
+                      rowColors: _rowColors,
+                      popped: state.popped,
+                      onToggle: cubit.toggle,
+                    );
+                  },
                 ),
               ),
             ),
@@ -157,17 +124,23 @@ class _Board extends StatelessWidget {
         final double boardMaxW = constraints.maxWidth;
         final double boardMaxH = constraints.maxHeight;
 
-        final double usableW = boardMaxW - outerPad.horizontal - innerPad.horizontal;
-        final double usableH = boardMaxH - outerPad.vertical - innerPad.vertical;
+        final double usableW =
+            boardMaxW - outerPad.horizontal - innerPad.horizontal;
+        final double usableH =
+            boardMaxH - outerPad.vertical - innerPad.vertical;
 
         // width-based bubble size
-        final double sizeByW = (usableW - bandGap * (cols - 1)) / cols;
+        final double sizeByW =
+            (usableW - bandGap * (cols - 1)) / cols;
 
         // height-based bubble size (subtract row paddings & gaps)
-        final double sizeByH =
-            (usableH - (rows * (bandPadV * 2)) - bandGap * (rows - 1)) / rows;
+        final double sizeByH = (usableH -
+                (rows * (bandPadV * 2)) -
+                bandGap * (rows - 1)) /
+            rows;
 
-        final double bubbleSize = sizeByW < sizeByH ? sizeByW : sizeByH;
+        final double bubbleSize =
+            sizeByW < sizeByH ? sizeByW : sizeByH;
 
         return Padding(
           padding: outerPad,
@@ -182,14 +155,19 @@ class _Board extends StatelessWidget {
               children: List.generate(rows, (r) {
                 final band = rowColors[r % rowColors.length];
                 return Container(
-                  margin: EdgeInsets.only(bottom: r == rows - 1 ? 0 : bandGap),
+                  margin: EdgeInsets.only(
+                    bottom: r == rows - 1 ? 0 : bandGap,
+                  ),
                   decoration: BoxDecoration(
                     color: band,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: bandPadV),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: bandPadV,
+                  ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment:
+                        MainAxisAlignment.spaceBetween,
                     children: List.generate(cols, (c) {
                       final isDown = popped[r][c];
                       return _Bubble(
