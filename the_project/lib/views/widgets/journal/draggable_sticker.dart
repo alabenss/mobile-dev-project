@@ -8,12 +8,12 @@ class DraggableSticker extends StatefulWidget {
   final ValueChanged<Offset>? onPositionChanged; 
 
   const DraggableSticker({
-    Key? key,
+    super.key,
     required this.stickerPath,
     required this.onDelete,
     required this.initialPosition,
     this.onPositionChanged,
-  }) : super(key: key);
+  });
 
   @override
   State<DraggableSticker> createState() => _DraggableStickerState();

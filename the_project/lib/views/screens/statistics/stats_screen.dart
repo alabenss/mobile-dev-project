@@ -156,6 +156,7 @@ class _StatsScreenState extends State<StatsScreen> with TickerProviderStateMixin
       child: Column(
         children: [
           StatsCardWidget(
+            padding: const EdgeInsets.all(14),
             child: WaterStatsWidget(
               waterData: waterData,
               labels: labels,
@@ -163,11 +164,11 @@ class _StatsScreenState extends State<StatsScreen> with TickerProviderStateMixin
               animationDuration: animDur,
               animationCurve: animCurve,
             ),
-            padding: const EdgeInsets.all(14),
           ),
           const SizedBox(height: 12),
 
           StatsCardWidget(
+            padding: const EdgeInsets.all(14),
             child: MoodStatsWidget(
               moodData: moodData,
               labels: labels,
@@ -175,12 +176,12 @@ class _StatsScreenState extends State<StatsScreen> with TickerProviderStateMixin
               animationDuration: animDur,
               animationCurve: animCurve,
             ),
-            padding: const EdgeInsets.all(14),
           ),
 
           const SizedBox(height: 12),
 
           StatsCardWidget(
+            padding: const EdgeInsets.all(14),
             child: JournalingStatsWidget(
               journalingCount: journalingCount,
               selectedRange: selectedRange,
@@ -188,18 +189,17 @@ class _StatsScreenState extends State<StatsScreen> with TickerProviderStateMixin
               animationDuration: animDur,
               animationCurve: animCurve,
             ),
-            padding: const EdgeInsets.all(14),
           ),
 
           const SizedBox(height: 12),
 
           StatsCardWidget(
+            padding: const EdgeInsets.all(14),
             child: ScreenTimeWidget(
               screenTime: screenTime,
               animationDuration: animDur,
               animationCurve: animCurve,
             ),
-            padding: const EdgeInsets.all(14),
           ),
 
           const SizedBox(height: 90),

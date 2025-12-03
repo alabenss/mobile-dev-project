@@ -100,7 +100,7 @@ class DBHelper {
 
   // Close the database
   static Future<void> close() async {
-    final db = await _database;
+    final db = _database;
     db?.close();
     _database = null;
   }
