@@ -1,7 +1,11 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../widgets/activities/activity_shell.dart'; 
+import '../../../../logic/activities/games/painting_cubit.dart';
+import '../../../../logic/activities/games/painting_state.dart';
+
+import '../../../widgets/activities/activity_shell.dart';
 import '../../../themes/style_simple/colors.dart';
 
 class PaintingPage extends StatefulWidget {
@@ -14,57 +18,8 @@ class PaintingPage extends StatefulWidget {
 class _PaintingPageState extends State<PaintingPage> {
   final GlobalKey _repaintKey = GlobalKey();
 
-  // Current tool state
-  Color _color = const Color(0xFFF7D254); 
-  double _width = 6;
-  bool _eraser = false;
-
-  // Stacks for undo/redo
-  final List<_Stroke> _strokes = [];
-  final List<_Stroke> _redo = [];
-
-  // Background color of the drawing card (eraser uses this)
+  // Background color of the drawing card (must match cubit.canvasBg)
   static const Color _canvasBg = Color(0xFFF5EAE5);
-
-  // Available brush widths for the dock
-  static const List<double> _widths = [2, 4, 6, 10, 18];
-
-  void _startStroke(Offset pos) {
-    setState(() {
-      _redo.clear();
-      _strokes.add(
-        _Stroke(
-          [_Point(pos, _width)],
-          color: _eraser ? _canvasBg : _color,
-          width: _width,
-        ),
-      );
-    });
-  }
-
-  void _extendStroke(Offset pos) {
-    setState(() {
-      if (_strokes.isEmpty) return;
-      _strokes.last.points.add(_Point(pos, _width));
-    });
-  }
-
-  void _undo() {
-    if (_strokes.isEmpty) return;
-    setState(() => _redo.add(_strokes.removeLast()));
-  }
-
-  void _redoAct() {
-    if (_redo.isEmpty) return;
-    setState(() => _strokes.add(_redo.removeLast()));
-  }
-
-  void _clear() {
-    setState(() {
-      _strokes.clear();
-      _redo.clear();
-    });
-  }
 
   Future<void> _saveMock() async {
     // Hook ready: the RepaintBoundary is set. Keep it simple for now.
@@ -81,120 +36,130 @@ class _PaintingPageState extends State<PaintingPage> {
   Widget build(BuildContext context) {
     return ActivityShell(
       title: 'Draw',
-      child: Column(
-        children: [
-          // Prompt
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFF3EB),
-                borderRadius: BorderRadius.circular(22),
-              ),
-              child: const Text(
-                'Take a deep breath, pick your color, and let your creativity flow.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 18,
-                  height: 1.3,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-            ),
-          ),
+      child: BlocBuilder<PaintingCubit, PaintingState>(
+        builder: (context, state) {
+          final cubit = context.read<PaintingCubit>();
 
-          // Tool row
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _ToolButton(icon: Icons.undo_rounded, onTap: _undo),
-                const SizedBox(width: 14),
-                _ToolButton(icon: Icons.redo_rounded, onTap: _redoAct),
-                const SizedBox(width: 14),
-                _ToolButton(icon: Icons.cleaning_services_rounded, onTap: _clear),
-                const SizedBox(width: 14),
-                _ToolButton(icon: Icons.download_rounded, onTap: _saveMock),
-              ],
-            ),
-          ),
-
-          // Drawing area (big card)
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(22),
+          return Column(
+            children: [
+              // Prompt
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
                 child: Container(
-                  color: _canvasBg,
-                  child: RepaintBoundary(
-                    key: _repaintKey,
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        return GestureDetector(
-                          onPanStart: (d) => _startStroke(d.localPosition),
-                          onPanUpdate: (d) => _extendStroke(d.localPosition),
-                          child: CustomPaint(
-                            painter: _CanvasPainter(_strokes),
-                            size: Size(constraints.maxWidth, constraints.maxHeight),
-                          ),
-                        );
-                      },
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 18, vertical: 16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF3EB),
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                  child: const Text(
+                    'Take a deep breath, pick your color, and let your creativity flow.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 18,
+                      height: 1.3,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                 ),
               ),
-            ),
-          ),
 
-          // Bottom tool dock (brushes + eraser + color dot)
-          _ToolDock(
-            selectedWidth: _width,
-            onWidth: (w) => setState(() => _width = w),
-            eraser: _eraser,
-            onToggleEraser: () => setState(() => _eraser = !_eraser),
-            color: _color,
-            onPickColor: () async {
-              final picked = await showModalBottomSheet<Color>(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.white,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+              // Tool row
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _ToolButton(
+                      icon: Icons.undo_rounded,
+                      onTap: cubit.undo,
+                    ),
+                    const SizedBox(width: 14),
+                    _ToolButton(
+                      icon: Icons.redo_rounded,
+                      onTap: cubit.redo,
+                    ),
+                    const SizedBox(width: 14),
+                    _ToolButton(
+                      icon: Icons.cleaning_services_rounded,
+                      onTap: cubit.clear,
+                    ),
+                    const SizedBox(width: 14),
+                    _ToolButton(
+                      icon: Icons.download_rounded,
+                      onTap: _saveMock,
+                    ),
+                  ],
                 ),
-                builder: (_) => _ColorPickerSheet(initial: _color),
-              );
-              if (picked != null) {
-                setState(() {
-                  _color = picked;
-                  _eraser = false;
-                });
-              }
-            },
-          ),
-        ],
+              ),
+
+              // Drawing area (big card)
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(22),
+                    child: Container(
+                      color: _canvasBg,
+                      child: RepaintBoundary(
+                        key: _repaintKey,
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            return GestureDetector(
+                              onPanStart: (d) =>
+                                  cubit.startStroke(d.localPosition),
+                              onPanUpdate: (d) =>
+                                  cubit.extendStroke(d.localPosition),
+                              child: CustomPaint(
+                                painter: _CanvasPainter(state.strokes),
+                                size: Size(
+                                  constraints.maxWidth,
+                                  constraints.maxHeight,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+
+              // Bottom tool dock (brushes + eraser + color dot)
+              _ToolDock(
+                selectedWidth: state.width,
+                onWidth: (w) => cubit.setWidth(w),
+                eraser: state.eraser,
+                onToggleEraser: cubit.toggleEraser,
+                color: state.color,
+                onPickColor: () async {
+                  final picked = await showModalBottomSheet<Color>(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.white,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(22)),
+                    ),
+                    builder: (_) => _ColorPickerSheet(initial: state.color),
+                  );
+                  if (picked != null) {
+                    cubit.setColor(picked);
+                  }
+                },
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 }
 
-class _Point {
-  final Offset offset;
-  final double width;
-  _Point(this.offset, this.width);
-}
-
-class _Stroke {
-  final List<_Point> points;
-  final Color color;
-  final double width;
-  _Stroke(this.points, {required this.color, required this.width});
-}
-
+/// Canvas painter now uses PaintingStroke model
 class _CanvasPainter extends CustomPainter {
-  final List<_Stroke> strokes;
+  final List<PaintingStroke> strokes;
   _CanvasPainter(this.strokes);
 
   @override
@@ -224,11 +189,15 @@ class _CanvasPainter extends CustomPainter {
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round;
 
-      final path = Path()..moveTo(s.points.first.offset.dx, s.points.first.offset.dy);
+      final first = s.points.first.offset;
+      final path = Path()..moveTo(first.dx, first.dy);
       for (int i = 1; i < s.points.length; i++) {
         final prev = s.points[i - 1].offset;
         final curr = s.points[i].offset;
-        final mid = Offset((prev.dx + curr.dx) / 2, (prev.dy + curr.dy) / 2);
+        final mid = Offset(
+          (prev.dx + curr.dx) / 2,
+          (prev.dy + curr.dy) / 2,
+        );
         path.quadraticBezierTo(prev.dx, prev.dy, mid.dx, mid.dy);
       }
       canvas.drawPath(path, p);
@@ -241,7 +210,7 @@ class _CanvasPainter extends CustomPainter {
 }
 
 /// -------------------------------------
-/// UI bits
+/// UI bits (unchanged)
 /// -------------------------------------
 
 class _ToolButton extends StatelessWidget {
@@ -277,7 +246,7 @@ class _ToolButton extends StatelessWidget {
 
 class _ToolDock extends StatelessWidget {
   static const List<double> widths = [2, 4, 6, 10, 18];
-  
+
   final double selectedWidth;
   final ValueChanged<double> onWidth;
   final bool eraser;
@@ -300,16 +269,21 @@ class _ToolDock extends StatelessWidget {
       height: 88,
       decoration: BoxDecoration(
         color: Colors.white,
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(.1), blurRadius: 10)],
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withOpacity(.1), blurRadius: 10),
+        ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          ..._ToolDock.widths.map((w) => _BrushIcon(
-                width: w,
-                selected: selectedWidth == w && !eraser,
-                onTap: () => onWidth(w),
-              )),
+          ..._ToolDock.widths.map(
+            (w) => _BrushIcon(
+              width: w,
+              selected: selectedWidth == w && !eraser,
+              onTap: () => onWidth(w),
+            ),
+          ),
           _EraserIcon(selected: eraser, onTap: onToggleEraser),
           _ColorDot(color: color, onTap: onPickColor),
         ],
@@ -322,7 +296,11 @@ class _BrushIcon extends StatelessWidget {
   final double width;
   final bool selected;
   final VoidCallback onTap;
-  const _BrushIcon({required this.width, required this.selected, required this.onTap});
+  const _BrushIcon({
+    required this.width,
+    required this.selected,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -374,8 +352,10 @@ class _EraserIcon extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.auto_fix_off_rounded,
-              color: selected ? AppColors.accentPink : Colors.black54),
+          Icon(
+            Icons.auto_fix_off_rounded,
+            color: selected ? AppColors.accentPink : Colors.black54,
+          ),
           const SizedBox(height: 6),
           Container(width: 36, height: 3, color: Colors.black12),
         ],
@@ -398,17 +378,25 @@ class _ColorDot extends StatelessWidget {
         alignment: Alignment.center,
         children: [
           Container(
-            width: 34, height: 34,
+            width: 34,
+            height: 34,
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
               gradient: SweepGradient(colors: [
-                Colors.red, Colors.orange, Colors.yellow, Colors.green,
-                Colors.cyan, Colors.blue, Colors.purple, Colors.red
+                Colors.red,
+                Colors.orange,
+                Colors.yellow,
+                Colors.green,
+                Colors.cyan,
+                Colors.blue,
+                Colors.purple,
+                Colors.red
               ]),
             ),
           ),
           Container(
-            width: 24, height: 24,
+            width: 24,
+            height: 24,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: color,
@@ -443,38 +431,52 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
     _a = widget.initial.opacity;
   }
 
-  Color get _current => HSVColor.fromAHSV(_a, _h, _s, _v).toColor();
+  Color get _current =>
+      HSVColor.fromAHSV(_a, _h, _s, _v).toColor();
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
-        left: 16, right: 16, top: 16,
+        left: 16,
+        right: 16,
+        top: 16,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(width: 44, height: 5,
+          Container(
+              width: 44,
+              height: 5,
               decoration: BoxDecoration(
-                color: Colors.black12, borderRadius: BorderRadius.circular(3))),
+                  color: Colors.black12,
+                  borderRadius: BorderRadius.circular(3))),
           const SizedBox(height: 16),
-          const Text('Colors', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+          const Text('Colors',
+              style: TextStyle(
+                  fontSize: 18, fontWeight: FontWeight.w700)),
           const SizedBox(height: 14),
 
-          _sliderRow('Hue', _h, 0, 360, (v)=> setState(()=> _h = v)),
-          _sliderRow('Saturation', _s, 0, 1, (v)=> setState(()=> _s = v)),
-          _sliderRow('Value', _v, 0, 1, (v)=> setState(()=> _v = v)),
-          _sliderRow('Opacity', _a, 0, 1, (v)=> setState(()=> _a = v)),
+          _sliderRow('Hue', _h, 0, 360,
+              (v) => setState(() => _h = v)),
+          _sliderRow('Saturation', _s, 0, 1,
+              (v) => setState(() => _s = v)),
+          _sliderRow('Value', _v, 0, 1,
+              (v) => setState(() => _v = v)),
+          _sliderRow('Opacity', _a, 0, 1,
+              (v) => setState(() => _a = v)),
 
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                width: 42, height: 42,
+                width: 42,
+                height: 42,
                 decoration: BoxDecoration(
-                  color: _current, shape: BoxShape.circle,
+                  color: _current,
+                  shape: BoxShape.circle,
                   border: Border.all(color: Colors.black12),
                 ),
               ),
@@ -487,11 +489,14 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.accentPink,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14)),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 12),
               ),
               onPressed: () => Navigator.pop(context, _current),
-              child: const Text('Use Color', style: TextStyle(fontWeight: FontWeight.w700)),
+              child: const Text('Use Color',
+                  style: TextStyle(fontWeight: FontWeight.w700)),
             ),
           ),
           const SizedBox(height: 14),
@@ -500,14 +505,20 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
     );
   }
 
-  Widget _sliderRow(String label, double value, double min, double max, ValueChanged<double> onChanged) {
+  Widget _sliderRow(String label, double value, double min, double max,
+      ValueChanged<double> onChanged) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label,
-            style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+            style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                color: AppColors.textPrimary)),
         Slider(
-          value: value, min: min, max: max, divisions: (max-min).round(),
+          value: value,
+          min: min,
+          max: max,
+          divisions: (max - min).round(),
           onChanged: onChanged,
         ),
       ],

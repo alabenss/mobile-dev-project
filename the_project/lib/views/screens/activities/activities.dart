@@ -1,4 +1,7 @@
+// lib/views/screens/activities/activities.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../widgets/activities/activity_card.dart';
 import 'games/bubble_popper_game.dart';
 import 'games/breathing_page.dart';
@@ -8,76 +11,101 @@ import 'games/puzzle_game.dart';
 import 'games/grow_plant.dart';
 import '../../themes/style_simple/colors.dart';
 
+import '../../../logic/activities/activities_cubit.dart';
+import '../../../logic/activities/activities_state.dart';
+import '../../../database/repo/activities_repo.dart';
+
+import '../../../logic/activities/games/breathing_cubit.dart';
+import '../../../logic/activities/games/bubble_popper_cubit.dart';
+import '../../../logic/activities/games/puzzle_cubit.dart';
+import '../../../logic/activities/games/painting_cubit.dart';
+import '../../../logic/activities/games/coloring_cubit.dart';
+
+
 class Activities extends StatelessWidget {
   const Activities({super.key});
- 
 
   @override
   Widget build(BuildContext context) {
-    final cards = <_MoodCardData>[
-      _MoodCardData(
-        title: 'Breathing',
-        subtitle: 'Calm your mind with\ndeep breaths',
-        asset: 'assets/images/breathing.png',
-      ),
-      _MoodCardData(
-        title: 'Bubble Popper',
-        subtitle: 'Find joy and calm in\nevery pop',
-        asset: 'assets/images/popup.png',
-      ),
-      _MoodCardData(
-        title: 'Painting',
-        subtitle: 'Express your feelings\nthrough painting',
-        asset: 'assets/images/painting.png',
-      ),
-      _MoodCardData(
-        title: 'Puzzle',
-        subtitle: 'Focus and have fun\nsolving puzzles',
-        asset: 'assets/images/puzzle.png',
-      ),
-      _MoodCardData(
-        title: 'Grow the plant',
-        subtitle: 'Watch your own little\nplant thrive',
-        asset: 'assets/images/planting.png',
-      ),
-      _MoodCardData(
-        title: 'Coloring',
-        subtitle: 'Relax with mindful\ncoloring',
-        asset: 'assets/images/coloring.png',
-      ),
-    ];
+    return BlocBuilder<ActivitiesCubit, ActivitiesState>(
+      builder: (context, state) {
+        if (state.isLoading && state.activities.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-    // Map card title -> page builder
-    final Map<String, WidgetBuilder> routes = {
-      'Bubble Popper': (_) => const BubblePopperGame(),
-      'Breathing': (_) => const BreathPage(),
-      'Painting': (_) => const PaintingPage(),
-      'Coloring': (_) => const ColoringPage(),
-      'Puzzle': (_) => const PuzzleGame(),
-      'Grow the plant': (_) => const GrowPlantPage(),
-    };
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-      child: _UniformGrid(
-        itemHeight: 208,
-        children: [
-          for (final c in cards)
-            InkWell(
-              borderRadius: BorderRadius.circular(22),
-              onTap: () {
-                final builder = routes[c.title];
-                if (builder != null) {
-                  Navigator.of(context).push(MaterialPageRoute(builder: builder));
-                }
-              },
-              child: MoodCard(
-                data: c,
-                bg: AppColors.card,
-                border: AppColors.textPrimary,
-              ),
+        if (state.error != null) {
+          return Center(
+            child: Text(
+              'Failed to load activities\n${state.error}',
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.red),
             ),
-        ],
-      ),
+          );
+        }
+
+        final List<ActivityItem> items = state.activities;
+
+        // Map activity title -> page builder (navigation)
+        final Map<String, WidgetBuilder> routes = {
+          'Bubble Popper': (_) => BlocProvider(
+          create: (_) => BubblePopperCubit(),
+          child: const BubblePopperGame(),
+          ),
+          'Breathing': (_) => BlocProvider(
+          create: (_) => BreathingCubit(),
+          child: const BreathPage(),
+          ),
+          'Painting': (_) => BlocProvider(
+          create: (_) => PaintingCubit(),
+          child: const PaintingPage(),
+          ),
+          'Coloring': (_) => BlocProvider(
+          create: (_) => ColoringCubit(),
+          child: const ColoringPage(),
+        ),
+          'Puzzle': (_) => BlocProvider(
+          create: (_) => PuzzleCubit(),
+          child: const PuzzleGame(),
+        ),
+          'Grow the plant': (_) => const GrowPlantPage(),
+        };
+
+        // Convert ActivityItem -> UI data object
+        final cards = <_MoodCardData>[
+          for (final a in items)
+            _MoodCardData(
+              title: a.title,
+              subtitle: a.subtitle,
+              asset: a.asset,
+            ),
+        ];
+
+        return SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+          child: _UniformGrid(
+            itemHeight: 208,
+            children: [
+              for (final c in cards)
+                InkWell(
+                  borderRadius: BorderRadius.circular(22),
+                  onTap: () {
+                    final builder = routes[c.title];
+                    if (builder != null) {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: builder),
+                      );
+                    }
+                  },
+                  child: MoodCard(
+                    data: c,
+                    bg: AppColors.card,
+                    border: AppColors.textPrimary,
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
