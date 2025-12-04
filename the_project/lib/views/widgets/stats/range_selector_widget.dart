@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_project/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:the_project/views/themes/style_simple/colors.dart';
 
@@ -20,11 +21,13 @@ class RangeSelectorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     final tabs = {
-      StatsRange.today: 'today',
-      StatsRange.weekly: 'weekly',
-      StatsRange.monthly: 'monthly',
-      StatsRange.yearly: 'yearly'
+      StatsRange.today: t.today,
+      StatsRange.weekly: t.weekly,
+      StatsRange.monthly: t.monthly,
+      StatsRange.yearly: t.yearly,
     };
 
     return Container(
@@ -61,7 +64,8 @@ class RangeSelectorWidget extends StatelessWidget {
                     entry.value,
                     style: GoogleFonts.poppins(
                       fontSize: 12,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.w500,
                       color: AppColors.textPrimary,
                     ),
                   ),
