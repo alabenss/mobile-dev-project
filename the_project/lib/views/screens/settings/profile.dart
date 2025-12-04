@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../themes/style_simple/colors.dart';
+import '../../../logic/auth/auth_cubit.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -132,8 +134,9 @@ class ProfileScreen extends StatelessWidget {
 
                 // 🚪 Log out
                 TextButton.icon(
-                  onPressed: () {
-                    // handle logout
+                  onPressed: () async {
+                    await context.read<AuthCubit>().logout();
+                    Navigator.of(context).pushReplacementNamed('/login');
                   },
                   icon: const Icon(Icons.logout, color: Colors.redAccent),
                   label: const Text(
@@ -145,6 +148,7 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+                
               ],
             ),
           ),
@@ -153,6 +157,10 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 }
+
+
+
+
 
 // ------------------------------------------------------------
 // 🔹 Profile Field Widget
