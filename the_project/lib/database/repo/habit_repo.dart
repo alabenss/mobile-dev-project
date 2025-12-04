@@ -1,9 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../db_helper.dart';
 import '../../models/habit_model.dart';
 
 class HabitRepository {
+  /// Get the current logged-in user's ID
+  Future<int> _getCurrentUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getInt('userId');
+    
+    if (userId == null) {
+      // Fallback to default user if no one is logged in
+      return await DBHelper.ensureDefaultUser();
+    }
+    
+    return userId;
+  }
+
   /// Convert a Habit object to a Map for database storage
   Map<String, dynamic> _habitToMap(Habit habit) {
     return {
@@ -16,7 +30,7 @@ class HabitRepository {
       'Doitat': habit.time != null
           ? '${habit.time!.hour.toString().padLeft(2, '0')}:${habit.time!.minute.toString().padLeft(2, '0')}'
           : null,
-      'points': habit.points, // Use the habit's points value
+      'points': habit.points,
     };
   }
 
@@ -44,7 +58,7 @@ class HabitRepository {
       frequency: map['frequency'] as String,
       time: time,
       reminder: map['Doitat'] != null && map['Doitat'] != '',
-      points: map['points'] as int? ?? 10, // Get points from database
+      points: map['points'] as int? ?? 10,
       done: status == 'completed',
       skipped: status == 'skipped',
     );
@@ -65,26 +79,10 @@ class HabitRepository {
     return iconMap[title] ?? Icons.star_border;
   }
 
-  /// Calculate points based on frequency
-  int _getPointsForFrequency(String frequency) {
-    switch (frequency.toLowerCase()) {
-      case 'daily':
-        return 10;
-      case 'weekly':
-        return 50;
-      case 'monthly':
-        return 200;
-      case 'yearly':
-        return 1000;
-      default:
-        return 10;
-    }
-  }
-
   /// Insert a new habit into the database
   Future<int> insertHabit(Habit habit) async {
     final db = await DBHelper.database;
-    final userId = await DBHelper.ensureDefaultUser();
+    final userId = await _getCurrentUserId();
 
     final map = _habitToMap(habit);
     map['userId'] = userId;
@@ -95,7 +93,7 @@ class HabitRepository {
   /// Retrieve all habits from the database
   Future<List<Habit>> getAllHabits() async {
     final db = await DBHelper.database;
-    final userId = await DBHelper.ensureDefaultUser();
+    final userId = await _getCurrentUserId();
 
     final List<Map<String, dynamic>> maps = await db.query(
       'habits',
@@ -110,7 +108,7 @@ class HabitRepository {
   /// Get habits by frequency (Daily, Weekly, Monthly, Yearly)
   Future<List<Habit>> getHabitsByFrequency(String frequency) async {
     final db = await DBHelper.database;
-    final userId = await DBHelper.ensureDefaultUser();
+    final userId = await _getCurrentUserId();
 
     final List<Map<String, dynamic>> maps = await db.query(
       'habits',
@@ -211,7 +209,7 @@ class HabitRepository {
   /// Check and reset habits from previous periods
   Future<void> checkAndResetOldHabits() async {
     final db = await DBHelper.database;
-    final userId = await DBHelper.ensureDefaultUser();
+    final userId = await _getCurrentUserId();
     final now = DateTime.now();
 
     final List<Map<String, dynamic>> allHabits = await db.query(
@@ -258,13 +256,13 @@ class HabitRepository {
   /// Update habit status (active, completed, skipped)
   Future<int> updateHabitStatus(String title, String status) async {
     final db = await DBHelper.database;
-    final userId = await DBHelper.ensureDefaultUser();
+    final userId = await _getCurrentUserId();
 
     // If completed, award points
     if (status == 'completed') {
       final habit = await getHabitByTitle(title);
       if (habit != null) {
-        await _awardPoints(habit.points); // Use the habit's specific points
+        await _awardPoints(habit.points);
       }
     }
 
@@ -282,7 +280,7 @@ class HabitRepository {
   /// Get a specific habit by title
   Future<Habit?> getHabitByTitle(String title) async {
     final db = await DBHelper.database;
-    final userId = await DBHelper.ensureDefaultUser();
+    final userId = await _getCurrentUserId();
 
     final List<Map<String, dynamic>> maps = await db.query(
       'habits',
@@ -298,7 +296,7 @@ class HabitRepository {
   /// Delete a habit by title
   Future<int> deleteHabit(String title) async {
     final db = await DBHelper.database;
-    final userId = await DBHelper.ensureDefaultUser();
+    final userId = await _getCurrentUserId();
 
     return await db.delete(
       'habits',
@@ -310,7 +308,7 @@ class HabitRepository {
   /// Delete all habits
   Future<int> deleteAllHabits() async {
     final db = await DBHelper.database;
-    final userId = await DBHelper.ensureDefaultUser();
+    final userId = await _getCurrentUserId();
 
     return await db.delete(
       'habits',
@@ -322,7 +320,7 @@ class HabitRepository {
   /// Get count of completed habits
   Future<int> getCompletedHabitsCount() async {
     final db = await DBHelper.database;
-    final userId = await DBHelper.ensureDefaultUser();
+    final userId = await _getCurrentUserId();
 
     final result = await db.rawQuery(
       'SELECT COUNT(*) as count FROM habits WHERE userId = ? AND status = ?',
@@ -334,15 +332,13 @@ class HabitRepository {
 
   /// Get habits that are due today (based on frequency and last completed date)
   Future<List<Habit>> getTodayHabits() async {
-    // This is a simplified version - you might want to add more logic
-    // based on when habits were last completed
     return await getHabitsByFrequency('Daily');
   }
 
   /// Reset daily habit statuses (call this at the start of each day)
   Future<void> resetDailyHabits() async {
     final db = await DBHelper.database;
-    final userId = await DBHelper.ensureDefaultUser();
+    final userId = await _getCurrentUserId();
 
     await db.update(
       'habits',
@@ -354,14 +350,41 @@ class HabitRepository {
 
   /// Award points to user when completing a habit
   Future<void> _awardPoints(int points) async {
-    final currentPoints = await DBHelper.getUserTotalPoints();
-    await DBHelper.setUserTotalPoints(currentPoints + points);
+    final userId = await _getCurrentUserId();
+    final db = await DBHelper.database;
+    
+    // Get current points for this specific user
+    final result = await db.query(
+      'users',
+      columns: ['totalPoints'],
+      where: 'id = ?',
+      whereArgs: [userId],
+      limit: 1,
+    );
+    
+    int currentPoints = 0;
+    if (result.isNotEmpty) {
+      final value = result.first['totalPoints'];
+      if (value is int) {
+        currentPoints = value;
+      } else if (value is num) {
+        currentPoints = value.toInt();
+      }
+    }
+    
+    // Update points for this specific user
+    await db.update(
+      'users',
+      {'totalPoints': currentPoints + points},
+      where: 'id = ?',
+      whereArgs: [userId],
+    );
   }
 
   /// Get total points earned from all completed habits
   Future<int> getTotalHabitPoints() async {
     final db = await DBHelper.database;
-    final userId = await DBHelper.ensureDefaultUser();
+    final userId = await _getCurrentUserId();
 
     final result = await db.rawQuery(
       'SELECT SUM(points) as total FROM habits WHERE userId = ? AND status = ?',
@@ -378,7 +401,7 @@ class HabitRepository {
   /// Check if a habit with the given title already exists
   Future<bool> habitExists(String title) async {
     final db = await DBHelper.database;
-    final userId = await DBHelper.ensureDefaultUser();
+    final userId = await _getCurrentUserId();
 
     final result = await db.query(
       'habits',
@@ -393,7 +416,7 @@ class HabitRepository {
   /// Check if a habit with the given title and frequency already exists
   Future<bool> habitExistsWithFrequency(String title, String frequency) async {
     final db = await DBHelper.database;
-    final userId = await DBHelper.ensureDefaultUser();
+    final userId = await _getCurrentUserId();
 
     final result = await db.query(
       'habits',

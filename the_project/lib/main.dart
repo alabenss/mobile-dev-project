@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:the_project/l10n/app_localizations.dart';
 
 import 'logic/home/home_cubit.dart';
 import 'logic/activities/activities_cubit.dart';
@@ -31,7 +33,7 @@ void main() async {
           create: (_) => AuthCubit()..checkAuthStatus(),
         ),
         BlocProvider<HomeCubit>(
-          create: (_) => HomeCubit(homeRepo)..loadInitial(),
+          create: (_) => HomeCubit(homeRepo, habitRepo),
         ),
         BlocProvider<ActivitiesCubit>(
           create: (_) => ActivitiesCubit(activitiesRepo)..loadActivities(),
@@ -52,24 +54,34 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: BlocBuilder<AuthCubit, AuthState>(
-        builder: (context, state) {
-          if (state.isLoading) {
-            return const Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
-              ),
-            );
+      home: BlocListener<AuthCubit, AuthState>(
+        listener: (context, state) {
+          // When user logs in, load their data
+          if (state.isAuthenticated && state.user != null) {
+            context.read<HomeCubit>().loadInitial(userName: state.user!.name);
+            context.read<HabitCubit>().loadHabits();
+            context.read<ActivitiesCubit>().loadActivities();
           }
-          
-          // Show login screen if not authenticated
-          if (!state.isAuthenticated) {
-            return const LoginScreen();
-          }
-          
-          // Show main app if authenticated
-          return const BottomNavWrapper();
         },
+        child: BlocBuilder<AuthCubit, AuthState>(
+          builder: (context, state) {
+            if (state.isLoading) {
+              return const Scaffold(
+                body: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+            
+            // Show login screen if not authenticated
+            if (!state.isAuthenticated) {
+              return const LoginScreen();
+            }
+            
+            // Show main app if authenticated
+            return const BottomNavWrapper();
+          },
+        ),
       ),
       routes: {
         '/login': (context) => const LoginScreen(),

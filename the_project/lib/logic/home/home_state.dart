@@ -1,10 +1,12 @@
 // lib/logic/home/home_state.dart
+import '../../models/habit_model.dart';
+
 class HomeState {
   final int waterCount;
   final int waterGoal;
   final double detoxProgress;
-  final bool habitWalk;
-  final bool habitRead;
+  final String userName;
+  final List<Habit> dailyHabits;
 
   final String? selectedMoodImage;
   final String? selectedMoodLabel;
@@ -14,8 +16,8 @@ class HomeState {
     this.waterCount = 4,
     this.waterGoal = 8,
     this.detoxProgress = 0.35,
-    this.habitWalk = true,
-    this.habitRead = false,
+    this.userName = 'Guest',
+    this.dailyHabits = const [],
     this.selectedMoodImage,
     this.selectedMoodLabel,
     this.selectedMoodTime,
@@ -25,8 +27,8 @@ class HomeState {
     int? waterCount,
     int? waterGoal,
     double? detoxProgress,
-    bool? habitWalk,
-    bool? habitRead,
+    String? userName,
+    List<Habit>? dailyHabits,
     String? selectedMoodImage,
     String? selectedMoodLabel,
     DateTime? selectedMoodTime,
@@ -36,8 +38,8 @@ class HomeState {
       waterCount: waterCount ?? this.waterCount,
       waterGoal: waterGoal ?? this.waterGoal,
       detoxProgress: detoxProgress ?? this.detoxProgress,
-      habitWalk: habitWalk ?? this.habitWalk,
-      habitRead: habitRead ?? this.habitRead,
+      userName: userName ?? this.userName,
+      dailyHabits: dailyHabits ?? this.dailyHabits,
       selectedMoodImage:
           clearMood ? null : (selectedMoodImage ?? this.selectedMoodImage),
       selectedMoodLabel:

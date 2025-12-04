@@ -18,10 +18,41 @@ import '../../widgets/home/explore_card.dart';
 
 import '../../../logic/home/home_cubit.dart';
 import '../../../logic/home/home_state.dart';
+import '../../../logic/auth/auth_cubit.dart';
+import '../../../logic/auth/auth_state.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   final VoidCallback? onViewAllHabits;
   const HomeScreen({super.key, this.onViewAllHabits});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  // Access widget properties through widget.propertyName
+  VoidCallback? get onViewAllHabits => widget.onViewAllHabits;
+  @override
+  void initState() {
+    super.initState();
+    // Load initial data when screen is created
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authState = context.read<AuthCubit>().state;
+      final userName = authState.user?.name ?? 'Guest';
+      context.read<HomeCubit>().loadInitial(userName: userName);
+    });
+  }
+
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) {
+      return 'Good morning';
+    } else if (hour < 17) {
+      return 'Good afternoon';
+    } else {
+      return 'Good evening';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,9 +74,9 @@ class HomeScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 30),
-                const Text(
-                  "Good morning, ala",
-                  style: TextStyle(
+                Text(
+                  "Hello, ${state.userName}",
+                  style: const TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.w700,
                     color: AppColors.textPrimary,
@@ -55,7 +86,7 @@ class HomeScreen extends StatelessWidget {
 
                 ImageQuoteCard(
                   imagePath: AppImages.quotes,
-                  quote: AppConfig.quote,
+                  quote: AppConfig.quoteOfTheDay,
                 ),
                 const SizedBox(height: 18),
 
@@ -110,23 +141,39 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  child: Column(
-                    children: [
-                      HabitTile(
-                        icon: Icons.directions_walk,
-                        title: 'Morning walk',
-                        checked: state.habitWalk,
-                        onToggle: homeCubit.toggleHabitWalk,
-                      ),
-                      const SizedBox(height: 8),
-                      HabitTile(
-                        icon: Icons.menu_book_outlined,
-                        title: 'Read 1 chapter',
-                        checked: state.habitRead,
-                        onToggle: homeCubit.toggleHabitRead,
-                      ),
-                    ],
-                  ),
+                  child: state.dailyHabits.isEmpty
+                      ? const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 16.0),
+                          child: Center(
+                            child: Text(
+                              'No daily habits yet. Tap "view all" to add some!',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: AppColors.textSecondary,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        )
+                      : Column(
+                          children: [
+                            for (int i = 0; i < state.dailyHabits.length; i++) ...[
+                              HabitTile(
+                                icon: state.dailyHabits[i].icon,
+                                title: state.dailyHabits[i].title,
+                                checked: state.dailyHabits[i].done,
+                                onToggle: () {
+                                  homeCubit.toggleHabitCompletion(
+                                    state.dailyHabits[i].title,
+                                    state.dailyHabits[i].done,
+                                  );
+                                },
+                              ),
+                              if (i < state.dailyHabits.length - 1)
+                                const SizedBox(height: 8),
+                            ],
+                          ],
+                        ),
                 ),
                 const SizedBox(height: 8),
 

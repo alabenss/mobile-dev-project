@@ -1,0 +1,82 @@
+{
+  "@@locale": "en",
+  "statistics": "Statistics",
+  "today": "Today",
+  "weekly": "Weekly",
+  "monthly": "Monthly",
+  "yearly": "Yearly",
+  "waterStats": "Water statistics",
+  "moodTracking": "Mood tracking",
+  "journaling": "Journaling",
+  "screenTime": "Screen time",
+  "glassesToday": "{count} glasses today",
+  "@glassesToday": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "avgPerDay": "Avg. {count} glasses / day",
+  "@avgPerDay": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "monthlyAvg": "Monthly average {count} glasses",
+  "@monthlyAvg": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "yearlyAvg": "Yearly average {count} glasses",
+  "@yearlyAvg": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "youWroteToday": "You wrote today",
+  "noEntryToday": "No entry today",
+  "daysLogged": "{count} days logged",
+  "@daysLogged": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "entriesThisMonth": "{count} entries this month",
+  "@entriesThisMonth": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "totalEntries": "{count} entries total",
+  "@totalEntries": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "moodFeelingGreat": "Feeling great",
+  "moodNice": "Nice",
+  "moodOk": "Okay",
+  "moodLow": "Low",
+  "calm": "Calm",
+  "balanced": "Balanced",
+  "low": "Low",
+  "social": "Social",
+  "entertainment": "Entertainment",
+  "productivity": "Productivity",
+  "hoursPerDay": "{count} h/day",
+  "@hoursPerDay": {
+    "placeholders": {
+      "count": {}
+    }
+  }
+}

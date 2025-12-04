@@ -1,5 +1,6 @@
 // lib/data/repo/home_repo.dart
 import 'package:sqflite/sqflite.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../db_helper.dart';
 
@@ -39,6 +40,19 @@ abstract class AbstractHomeRepo {
 class HomeRepoDb implements AbstractHomeRepo {
   static const String tableName = 'home_status';
 
+  /// Get the current logged-in user's ID
+  Future<int> _getCurrentUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getInt('userId');
+    
+    if (userId == null) {
+      // Fallback to default user if no one is logged in
+      return await DBHelper.ensureDefaultUser();
+    }
+    
+    return userId;
+  }
+
   // yyyy-MM-dd string for "today"
   String _todayKey() {
     final now = DateTime.now();
@@ -50,12 +64,13 @@ class HomeRepoDb implements AbstractHomeRepo {
   @override
   Future<HomeStatus> loadTodayStatus() async {
     final Database db = await DBHelper.database;
+    final userId = await _getCurrentUserId();
     final dateKey = _todayKey();
 
     final result = await db.query(
       tableName,
-      where: 'date = ?',
-      whereArgs: [dateKey],
+      where: 'date = ? AND userId = ?',
+      whereArgs: [dateKey, userId],
       limit: 1,
     );
 
@@ -92,12 +107,14 @@ class HomeRepoDb implements AbstractHomeRepo {
   @override
   Future<void> saveStatus(HomeStatus status) async {
     final Database db = await DBHelper.database;
+    final userId = await _getCurrentUserId();
     final dateKey = _todayKey();
 
     await db.insert(
       tableName,
       {
         'date': dateKey,
+        'userId': userId,
         'water_count': status.waterCount,
         'water_goal': status.waterGoal,
         'detox_progress': status.detoxProgress,

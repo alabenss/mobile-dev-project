@@ -17,9 +17,18 @@ class DBHelper {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 2, // Increment version to trigger onUpgrade
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
     );
+  }
+
+  // Handle database upgrades
+  static Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      // Add userId column to home_status table
+      await db.execute('ALTER TABLE home_status ADD COLUMN userId INTEGER');
+    }
   }
 
   // Create all the tables
@@ -35,17 +44,20 @@ class DBHelper {
       );
     ''');
 
-    // home status table
+    // home status table with userId
     await db.execute('''
       CREATE TABLE home_status(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        date TEXT NOT NULL UNIQUE,
+        date TEXT NOT NULL,
+        userId INTEGER,
         water_count INTEGER NOT NULL,
         water_goal INTEGER NOT NULL,
         detox_progress REAL NOT NULL,
         mood_label TEXT,
         mood_image TEXT,
-        mood_time TEXT
+        mood_time TEXT,
+        FOREIGN KEY (userId) REFERENCES users(id),
+        UNIQUE(date, userId)
       );
     ''');
 
