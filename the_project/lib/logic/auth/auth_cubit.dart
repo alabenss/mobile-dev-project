@@ -39,9 +39,9 @@ class AuthCubit extends Cubit<AuthState> {
     emit(state.copyWith(isLoading: true));
     
     try {
-      // Check if user already exists
-      final exists = await DBHelper.userExists(email);
-      if (exists) {
+      // Check if user already exists by email or username
+      final existsEmail = await DBHelper.userExists(email);
+      if (existsEmail) {
         emit(state.copyWith(
           isLoading: false,
           error: 'An account with this email already exists',
@@ -76,17 +76,21 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
-  /// Login existing user
-  Future<bool> login(String email, String password) async {
+  /// Login existing user (email or username)
+  Future<bool> login(String emailOrUsername, String password) async {
     emit(state.copyWith(isLoading: true));
     
     try {
-      final userMap = await DBHelper.loginUser(email, password);
+      // Detect if input is email or username
+      final isEmail = emailOrUsername.contains('@');
+      final userMap = isEmail
+          ? await DBHelper.loginUserByEmail(emailOrUsername, password)
+          : await DBHelper.loginUserByUsername(emailOrUsername, password);
       
       if (userMap == null) {
         emit(state.copyWith(
           isLoading: false,
-          error: 'Invalid email or password',
+          error: 'Invalid credentials',
         ));
         return false;
       }

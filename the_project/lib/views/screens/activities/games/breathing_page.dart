@@ -17,8 +17,7 @@ class BreathPage extends StatefulWidget {
 
 class _BreathPageState extends State<BreathPage>
     with TickerProviderStateMixin {
-  /// One breath cycle (inhale + exhale).
-  static const Duration _cycle = Duration(seconds: 6); // 4s in + 2s out
+  static const Duration _cycle = Duration(seconds: 6);
 
   late final AnimationController _breathCtrl;
   late final Animation<double> _scale;
@@ -27,10 +26,8 @@ class _BreathPageState extends State<BreathPage>
   void initState() {
     super.initState();
 
-    // Repeating inhale/exhale loop
     _breathCtrl = AnimationController(vsync: this, duration: _cycle);
 
-    // Scale between 0.82 -> 1.0 (inhale), then 1.0 -> 0.82 (exhale)
     _scale = TweenSequence<double>([
       TweenSequenceItem(
         tween: Tween(begin: .82, end: 1.0)
@@ -64,7 +61,6 @@ class _BreathPageState extends State<BreathPage>
 
   void _stop() {
     final cubit = context.read<BreathingCubit>();
-
     _breathCtrl.stop();
     cubit.stopSession(resetToZero: true);
   }
@@ -110,12 +106,11 @@ class _BreathPageState extends State<BreathPage>
 
                 return Column(
                   children: [
-                    // Main soft card
                     Expanded(
                       child: Container(
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFFF1E9), // soft peach
+                          color: const Color(0xFFFFF1E9),
                           borderRadius: BorderRadius.circular(22),
                         ),
                         padding:
@@ -144,8 +139,6 @@ class _BreathPageState extends State<BreathPage>
                               ),
                             ),
                             const SizedBox(height: 16),
-
-                            // Breathing flower in white circle
                             Expanded(
                               child: Center(
                                 child: AnimatedBuilder(
@@ -161,24 +154,25 @@ class _BreathPageState extends State<BreathPage>
                                       alignment: Alignment.center,
                                       child: Transform.scale(
                                         scale: _scale.value,
-                                        child: const _LotusFlower(),
+                                        child: Image.asset(
+    'assets/images/heart.png',
+    width: 220,
+    height: 220,
+  ),
                                       ),
                                     );
                                   },
                                 ),
                               ),
                             ),
-
                             const SizedBox(height: 8),
-
-                            // Primary button
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton(
                                 onPressed: running ? _stop : _start,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor:
-                                      const Color(0xFFBF8E7A), // warm brown
+                                      const Color(0xFFBF8E7A),
                                   foregroundColor: Colors.white,
                                   elevation: 0,
                                   padding: const EdgeInsets.symmetric(
@@ -208,123 +202,4 @@ class _BreathPageState extends State<BreathPage>
       ),
     );
   }
-}
-
-class _LotusFlower extends StatelessWidget {
-  const _LotusFlower();
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomPaint(
-      size: const Size(220, 220),
-      painter: _LotusPainter(),
-    );
-  }
-}
-
-class _LotusPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2 + 22);
-    final petalPaints = [
-      Paint()..color = const Color(0xFF8FD1FF).withOpacity(.85),
-      Paint()..color = const Color(0xFF68BFF6).withOpacity(.85),
-      Paint()..color = const Color(0xFF4FB0EA).withOpacity(.85),
-    ];
-
-    void drawPetal(double w, double h, double angle, Paint p) {
-      canvas.save();
-      canvas.translate(center.dx, center.dy);
-      canvas.rotate(angle);
-      final r = RRect.fromRectAndRadius(
-        Rect.fromCenter(
-          center: const Offset(0, 0),
-          width: w,
-          height: h,
-        ),
-        const Radius.circular(90),
-      );
-      canvas.drawRRect(r, p);
-      canvas.restore();
-    }
-
-    // back layer
-    drawPetal(210, 90, 0, petalPaints[0]);
-    drawPetal(210, 90, pi / 8, petalPaints[0]);
-    drawPetal(210, 90, -pi / 8, petalPaints[0]);
-
-    // middle layer
-    drawPetal(180, 76, 0, petalPaints[1]);
-    drawPetal(180, 76, pi / 9, petalPaints[1]);
-    drawPetal(180, 76, -pi / 9, petalPaints[1]);
-
-    // front layer
-    drawPetal(150, 64, 0, petalPaints[2]);
-
-    // tiny heart/seed
-    final heart = Paint()..color = const Color(0xFFEAA39A);
-    canvas.drawCircle(Offset(center.dx, center.dy - 4), 16, heart);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class _TulipFlower extends StatelessWidget {
-  const _TulipFlower();
-
-  @override
-  Widget build(BuildContext context) {
-    return CustomPaint(
-      size: const Size(200, 200),
-      painter: _TulipPainter(),
-    );
-  }
-}
-
-class _TulipPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final c = Offset(size.width / 2, size.height / 2);
-    final petal = Paint()..color = const Color(0xFF6CC3FF).withOpacity(.9);
-
-    Path tear(double radius, double sharpness) {
-      final p = Path();
-      p.moveTo(c.dx, c.dy - radius);
-      p.quadraticBezierTo(
-        c.dx + radius * .9,
-        c.dy - radius * .2,
-        c.dx,
-        c.dy + radius * sharpness,
-      );
-      p.quadraticBezierTo(
-        c.dx - radius * .9,
-        c.dy - radius * .2,
-        c.dx,
-        c.dy - radius,
-      );
-      p.close();
-      return p;
-    }
-
-    canvas.drawPath(tear(70, .6), petal);
-    canvas.save();
-    canvas.translate(-36, 10);
-    canvas.drawPath(
-      tear(52, .6),
-      petal..color = petal.color.withOpacity(.75),
-    );
-    canvas.restore();
-
-    canvas.save();
-    canvas.translate(36, 10);
-    canvas.drawPath(
-      tear(52, .6),
-      petal..color = petal.color.withOpacity(.75),
-    );
-    canvas.restore();
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

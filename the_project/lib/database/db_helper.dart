@@ -40,7 +40,8 @@ class DBHelper {
         name TEXT,
         email TEXT UNIQUE,
         password TEXT,
-        totalPoints INTEGER DEFAULT 0
+        totalPoints INTEGER DEFAULT 0,
+        stars INTEGER DEFAULT 0
       );
     ''');
 
@@ -95,17 +96,7 @@ class DBHelper {
 
   // ------------------ Auth Methods ------------------
 
-  /// Check if a user exists with the given email
-  static Future<bool> userExists(String email) async {
-    final db = await database;
-    final result = await db.query(
-      'users',
-      where: 'email = ?',
-      whereArgs: [email],
-      limit: 1,
-    );
-    return result.isNotEmpty;
-  }
+
 
   /// Create a new user and return their ID
   static Future<int> createUser(String name, String email, String password) async {
@@ -220,4 +211,69 @@ class DBHelper {
     db?.close();
     _database = null;
   }
+
+static Future<int> getUserStars(int userId) async {
+  final db = await DBHelper.database;;
+  final result = await db.query(
+    'users',
+    columns: ['stars'],
+    where: 'id = ?',
+    whereArgs: [userId],
+  );
+
+  return result.first['stars'] as int;
+}
+
+static Future<void> updateUserStars(int userId, int newStars) async {
+  final db = await DBHelper.database;
+  await db.update(
+    'users',
+    {'stars': newStars},
+    where: 'id = ?',
+    whereArgs: [userId],
+  );
+}
+
+static Future<Map<String, dynamic>?> loginUserByEmail(
+      String email, String password) async {
+    final db = await DBHelper.database;
+    final result = await db.query(
+      'users',
+      where: 'email = ? AND password = ?',
+      whereArgs: [email, password],
+    );
+
+    if (result.isNotEmpty) {
+      return result.first;
+    }
+    return null;
+  }
+
+  // Login by username
+  static Future<Map<String, dynamic>?> loginUserByUsername(
+      String username, String password) async {
+    final db = await DBHelper.database;
+    final result = await db.query(
+      'users',
+      where: 'name = ? AND password = ?',
+      whereArgs: [username, password],
+    );
+
+    if (result.isNotEmpty) {
+      return result.first;
+    }
+    return null;
+  }
+
+  //check if a user exists by email or username
+  static Future<bool> userExists(String emailOrUsername) async {
+    final db = await DBHelper.database;
+    final result = await db.query(
+      'users',
+      where: 'email = ? OR name = ?',
+      whereArgs: [emailOrUsername, emailOrUsername],
+    );
+    return result.isNotEmpty;
+  }
+
 }
