@@ -3,15 +3,22 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'home_state.dart';
 import '../../database/repo/home_repo.dart';
+import '../../database/repo/habit_repo.dart';
+import '../../models/habit_model.dart';
 
 class HomeCubit extends Cubit<HomeState> {
   final AbstractHomeRepo _repo;
+  final HabitRepository _habitRepo;
 
-  HomeCubit(this._repo) : super(const HomeState());
+  HomeCubit(this._repo, this._habitRepo) : super(const HomeState());
 
-  // Load initial values (water, detox, mood) from DB
-  Future<void> loadInitial() async {
+  // Load initial values (water, detox, mood, userName, and daily habits)
+  Future<void> loadInitial({String? userName}) async {
     final status = await _repo.loadTodayStatus();
+    
+    // Get daily habits
+    final dailyHabits = await _habitRepo.getHabitsByFrequency('Daily');
+    
     emit(state.copyWith(
       waterCount: status.waterCount,
       waterGoal: status.waterGoal,
@@ -19,6 +26,8 @@ class HomeCubit extends Cubit<HomeState> {
       selectedMoodImage: status.moodImage,
       selectedMoodLabel: status.moodLabel,
       selectedMoodTime: status.moodTime,
+      userName: userName ?? state.userName,
+      dailyHabits: dailyHabits,
     ));
   }
 
@@ -77,12 +86,24 @@ class HomeCubit extends Cubit<HomeState> {
     await _persist();
   }
 
-  // habits – still in memory only
-  void toggleHabitWalk() {
-    emit(state.copyWith(habitWalk: !state.habitWalk));
+  // Toggle habit completion
+  Future<void> toggleHabitCompletion(String title, bool currentStatus) async {
+    if (currentStatus) {
+      // If already done, reset it
+      await _habitRepo.updateHabitStatus(title, 'active');
+    } else {
+      // Mark as completed
+      await _habitRepo.updateHabitStatus(title, 'completed');
+    }
+    
+    // Reload daily habits to reflect changes
+    final dailyHabits = await _habitRepo.getHabitsByFrequency('Daily');
+    emit(state.copyWith(dailyHabits: dailyHabits));
   }
-
-  void toggleHabitRead() {
-    emit(state.copyWith(habitRead: !state.habitRead));
+  
+  // Reload daily habits (call this when returning from habits screen)
+  Future<void> reloadDailyHabits() async {
+    final dailyHabits = await _habitRepo.getHabitsByFrequency('Daily');
+    emit(state.copyWith(dailyHabits: dailyHabits));
   }
 }
