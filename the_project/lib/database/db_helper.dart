@@ -15,17 +15,22 @@ class DBHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(path, version: 1, onCreate: _onCreate);
+    return await openDatabase(
+      path,
+      version: 1,
+      onCreate: _onCreate,
+    );
   }
 
   // Create all the tables
   static Future<void> _onCreate(Database db, int version) async {
-    // Users table
+    // Users table with password field
     await db.execute('''
       CREATE TABLE users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
-        email TEXT,
+        email TEXT UNIQUE,
+        password TEXT,
         totalPoints INTEGER DEFAULT 0
       );
     ''');
@@ -44,18 +49,19 @@ class DBHelper {
       );
     ''');
 
-    // Habits table (includes createdDate and lastUpdated)
+    // Habits table (includes createdDate, lastUpdated)
     await db.execute('''
       CREATE TABLE habits (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         userId INTEGER,
         title TEXT,
         description TEXT,
-        frequency TEXT,       -- 'daily', 'weekly', 'monthly'
-        status TEXT,          -- 'active', 'completed', 'skipped'
-        createdDate TEXT,     -- date when habit was added
-        Doitat TEXT,          -- when task is going to be performed (alert time)
-        points INTEGER,       -- points earned when completed
+        frequency TEXT,
+        status TEXT,
+        createdDate TEXT,
+        lastUpdated TEXT,
+        Doitat TEXT,
+        points INTEGER,
         FOREIGN KEY (userId) REFERENCES users(id)
       );
     ''');
@@ -75,7 +81,60 @@ class DBHelper {
     ''');
   }
 
-  // ------------------ Helpers for user + totalPoints ------------------
+  // ------------------ Auth Methods ------------------
+
+  /// Check if a user exists with the given email
+  static Future<bool> userExists(String email) async {
+    final db = await database;
+    final result = await db.query(
+      'users',
+      where: 'email = ?',
+      whereArgs: [email],
+      limit: 1,
+    );
+    return result.isNotEmpty;
+  }
+
+  /// Create a new user and return their ID
+  static Future<int> createUser(String name, String email, String password) async {
+    final db = await database;
+    return await db.insert('users', {
+      'name': name,
+      'email': email,
+      'password': password,
+      'totalPoints': 0,
+    });
+  }
+
+  /// Login user - verify credentials
+  static Future<Map<String, dynamic>?> loginUser(String email, String password) async {
+    final db = await database;
+    final result = await db.query(
+      'users',
+      where: 'email = ? AND password = ?',
+      whereArgs: [email, password],
+      limit: 1,
+    );
+    
+    if (result.isEmpty) return null;
+    return result.first;
+  }
+
+  /// Get user by ID
+  static Future<Map<String, dynamic>?> getUserById(int id) async {
+    final db = await database;
+    final result = await db.query(
+      'users',
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
+    
+    if (result.isEmpty) return null;
+    return result.first;
+  }
+
+  // ------------------ User + Points Methods ------------------
 
   /// Ensure there is at least one default user row and return its id.
   static Future<int> ensureDefaultUser() async {
@@ -92,6 +151,7 @@ class DBHelper {
     final id = await db.insert('users', {
       'name': 'Guest',
       'email': 'guest@example.com',
+      'password': 'guest123',
       'totalPoints': 0,
     });
     return id;
