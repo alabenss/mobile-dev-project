@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:the_project/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:the_project/views/themes/style_simple/colors.dart';
@@ -21,15 +22,10 @@ class MoodStatsWidget extends StatelessWidget {
     this.animationCurve = Curves.easeInOutCubic,
   });
 
-  String get _headline {
-    final mean = (moodData.reduce((a, b) => a + b) / moodData.length);
-    if (mean >= 0.75) return 'Feeling great';
-    if (mean >= 0.6) return 'Nice';
-    if (mean >= 0.45) return 'Okay';
-    return 'Low';
-  }
-
   Widget _buildDonutChart() {
+    if (moodData.isEmpty) {
+      return const SizedBox.shrink();
+    }
     final avg = (moodData.reduce((a, b) => a + b) / moodData.length);
     final high = ((avg - 0.45) / 0.55).clamp(0.0, 1.0);
     final mid = (1 - high) * 0.6;
@@ -62,13 +58,15 @@ class MoodStatsWidget extends StatelessWidget {
   }
 
   Widget _buildLineChart() {
-    final spots = List.generate(moodData.length, (i) => FlSpot(i.toDouble(), moodData[i]));
+    if (moodData.isEmpty) return const SizedBox.shrink();
+    final spots =
+        List.generate(moodData.length, (i) => FlSpot(i.toDouble(), moodData[i]));
     return LineChart(
       LineChartData(
         minY: 0.0,
         maxY: 1.0,
         gridData: const FlGridData(show: false),
-        borderData: FlBorderData(show: false), // Removed const
+        borderData: FlBorderData(show: false),
         titlesData: const FlTitlesData(show: false),
         lineBarsData: [
           LineChartBarData(
@@ -94,6 +92,7 @@ class MoodStatsWidget extends StatelessWidget {
 
   Widget _buildChartLabels() {
     final count = labels.length;
+    if (count == 0) return const SizedBox.shrink();
     final showCount = (count <= 7) ? count : (count <= 12 ? 7 : 8);
     final step = max(1, (count / showCount).floor());
     final chosen = <String>[];
@@ -103,7 +102,8 @@ class MoodStatsWidget extends StatelessWidget {
     if (chosen.isEmpty) chosen.addAll(labels.take(1));
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: chosen.map((d) => Text(d, style: GoogleFonts.poppins(fontSize: 10))).toList(),
+      children:
+          chosen.map((d) => Text(d, style: GoogleFonts.poppins(fontSize: 10))).toList(),
     );
   }
 
@@ -123,13 +123,31 @@ class MoodStatsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
+    String headline;
+    if (moodData.isEmpty) {
+      headline = t.moodOk;
+    } else {
+      final mean = (moodData.reduce((a, b) => a + b) / moodData.length);
+      if (mean >= 0.75) {
+        headline = t.moodFeelingGreat;
+      } else if (mean >= 0.6) {
+        headline = t.moodNice;
+      } else if (mean >= 0.45) {
+        headline = t.moodOk;
+      } else {
+        headline = t.moodLow;
+      }
+    }
+
     return AnimatedContainer(
       duration: animationDuration,
       curve: animationCurve,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Mood tracking', style: GoogleFonts.poppins(fontSize: 12)),
+          Text(t.moodTracking, style: GoogleFonts.poppins(fontSize: 12)),
           const SizedBox(height: 10),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -139,15 +157,16 @@ class MoodStatsWidget extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(_headline,
-                      style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w700)),
+                  Text(headline,
+                      style: GoogleFonts.poppins(
+                          fontSize: 20, fontWeight: FontWeight.w700)),
                   const SizedBox(height: 8),
                   Row(children: [
-                    _smallLegendDot(AppColors.mint, 'Calm'),
+                    _smallLegendDot(AppColors.mint, t.calm),
                     const SizedBox(width: 8),
-                    _smallLegendDot(AppColors.peach, 'Balanced'),
+                    _smallLegendDot(AppColors.peach, t.balanced),
                     const SizedBox(width: 8),
-                    _smallLegendDot(AppColors.coral, 'Low'),
+                    _smallLegendDot(AppColors.coral, t.low),
                   ]),
                 ],
               )

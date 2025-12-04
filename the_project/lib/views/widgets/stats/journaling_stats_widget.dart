@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:the_project/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:the_project/views/themes/style_simple/colors.dart';
 import 'package:the_project/views/widgets/stats/range_selector_widget.dart';
@@ -20,30 +21,36 @@ class JournalingStatsWidget extends StatelessWidget {
     this.animationCurve = Curves.easeInOutCubic,
   });
 
-  String get _headline {
-    if (selectedRange == StatsRange.today) {
-      return journalingCount > 0 ? 'You wrote today' : 'No entry today';
-    } else if (selectedRange == StatsRange.weekly) {
-      return '$journalingCount days logged';
-    } else if (selectedRange == StatsRange.monthly) {
-      return '$journalingCount entries this month';
-    } else {
-      return '$journalingCount total entries';
-    }
-  }
-
   String _journalLabelForIndex(int i) {
-    if (selectedRange == StatsRange.today) return 'Today';
-    if (selectedRange == StatsRange.weekly) return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i % 7];
-    if (selectedRange == StatsRange.monthly) return 'W${(i % 4) + 1}';
-    return ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][i % 12];
+    if (selectedRange == StatsRange.today) return 'Aujourd\'hui';
+    if (selectedRange == StatsRange.weekly) {
+      const days = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+      return days[i % 7];
+    }
+    if (selectedRange == StatsRange.monthly) return 'S${(i % 4) + 1}';
+    return [
+      'Jan',
+      'Fév',
+      'Mar',
+      'Avr',
+      'Mai',
+      'Juin',
+      'Juil',
+      'Août',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Déc'
+    ][i % 12];
   }
 
-  List<Widget> _buildDayBubbles() {
+  List<Widget> _buildDayBubbles(AppLocalizations t) {
     final list = <Widget>[];
     final totalSlots = selectedRange == StatsRange.today
         ? 1
-        : (selectedRange == StatsRange.weekly ? 7 : (selectedRange == StatsRange.monthly ? 12 : 12));
+        : (selectedRange == StatsRange.weekly
+            ? 7
+            : (selectedRange == StatsRange.monthly ? 12 : 12));
     final rnd = Random(journalingCount + labels.length);
     final filledIndices = <int>{};
     for (var i = 0; i < min(totalSlots, journalingCount); i++) {
@@ -73,12 +80,14 @@ class JournalingStatsWidget extends StatelessWidget {
             child: Center(
               child: Text(
                 filled ? '${rnd.nextInt(3) + 1}' : '',
-                style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w700),
+                style: GoogleFonts.poppins(
+                    fontSize: 14, fontWeight: FontWeight.w700),
               ),
             ),
           ),
           const SizedBox(height: 6),
-          Text(_journalLabelForIndex(i), style: GoogleFonts.poppins(fontSize: 11)),
+          Text(_journalLabelForIndex(i),
+              style: GoogleFonts.poppins(fontSize: 11)),
         ],
       ));
     }
@@ -87,20 +96,37 @@ class JournalingStatsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
+    String headline;
+    if (selectedRange == StatsRange.today) {
+      headline = journalingCount > 0
+          ? t.youWroteToday
+          : t.noEntryToday;
+    } else if (selectedRange == StatsRange.weekly) {
+      headline = t.daysLogged(journalingCount);
+    } else if (selectedRange == StatsRange.monthly) {
+      headline = t.entriesThisMonth(journalingCount);
+    } else {
+      headline = t.totalEntries(journalingCount);
+    }
+
     return AnimatedContainer(
       duration: animationDuration,
       curve: animationCurve,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Journaling', style: GoogleFonts.poppins(fontSize: 12)),
+          Text(t.journaling, style: GoogleFonts.poppins(fontSize: 12)),
           const SizedBox(height: 8),
-          Text(_headline, style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w700)),
+          Text(headline,
+              style:
+                  GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w700)),
           const SizedBox(height: 12),
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: _buildDayBubbles(),
+            children: _buildDayBubbles(t),
           ),
         ],
       ),

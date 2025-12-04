@@ -6,9 +6,9 @@ class StickerPickerBottomSheet extends StatelessWidget {
   final Function(String stickerPath) onStickerSelected;
 
   const StickerPickerBottomSheet({
-    Key? key,
+    super.key,
     required this.onStickerSelected,
-  }) : super(key: key);
+  });
 
   // list of stickers
   static const List<String> _stickers = [
