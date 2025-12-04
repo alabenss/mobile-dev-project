@@ -2,15 +2,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'logic/home/home_cubit.dart';
-import 'logic/activities/activities_cubit.dart';
+import '../../logic/home/home_cubit.dart';
+import '../../logic/activities/activities_cubit.dart';
 
-import 'database/repo/home_repo.dart';
-import 'database/repo/activities_repo.dart';
+import '../../database/repo/home_repo.dart';
+import '../../database/repo/activities_repo.dart';
 
-import 'views/widgets/common/bottom_nav_wrapper.dart';
-import 'views/screens/settings/profile.dart';
-import 'views/screens/settings/app_lock_screen.dart';
+import 'common/bottom_nav_wrapper.dart';
+import '../screens/settings/profile.dart';
+import '../screens/settings/app_lock_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
