@@ -24,6 +24,11 @@ class _HabitsScreenState extends State<HabitsScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    
+    // Load habits when screen initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<HabitCubit>().loadHabits();
+    });
   }
 
   @override

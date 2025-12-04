@@ -50,9 +50,6 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
       case 'Monthly':
         _pointsCtrl.text = '200';
         break;
-      case 'Yearly':
-        _pointsCtrl.text = '1000';
-        break;
     }
   }
 
@@ -105,7 +102,6 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
                 DropdownMenuItem(value: 'Daily', child: Text('Daily')),
                 DropdownMenuItem(value: 'Weekly', child: Text('Weekly')),
                 DropdownMenuItem(value: 'Monthly', child: Text('Monthly')),
-                DropdownMenuItem(value: 'Yearly', child: Text('Yearly')),
               ],
               onChanged: (v) {
                 setState(() {

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:rive/rive.dart';
 
 import '../../../themes/style_simple/colors.dart';
 import '../../../widgets/activities/activity_shell.dart';
 import '../../habits/habits_screen.dart';
-
 import '../../../../logic/activities/games/plant_cubit.dart';
 import '../../../../logic/activities/games/plant_state.dart';
 
@@ -32,7 +32,6 @@ class _GrowPlantView extends StatelessWidget {
         child: BlocBuilder<PlantCubit, PlantState>(
           builder: (context, state) {
             final cubit = context.read<PlantCubit>();
-
             return Column(
               children: [
                 // Headline / helper text
@@ -56,7 +55,7 @@ class _GrowPlantView extends StatelessWidget {
                 ),
                 const SizedBox(height: 14),
 
-                // Plant preview
+                // Plant preview - RIVE ANIMATION
                 _SoftCard(
                   padding: const EdgeInsets.fromLTRB(18, 18, 18, 22),
                   child: Column(
@@ -75,7 +74,11 @@ class _GrowPlantView extends StatelessWidget {
                             ),
                           ],
                         ),
-                        child: const _PlantIllustration(),
+                        child: ClipOval(
+                          child: _PlantRiveAnimation(
+                            growthProgress: state.stage / 3.0,
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 14),
                       Text(
@@ -91,7 +94,7 @@ class _GrowPlantView extends StatelessWidget {
                 ),
                 const SizedBox(height: 14),
 
-                // Points summary (navigates to habits.dart)
+                // Points summary
                 _SoftCard(
                   child: Row(
                     children: [
@@ -117,8 +120,7 @@ class _GrowPlantView extends StatelessWidget {
                         },
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppColors.accentPink,
-                          side:
-                              const BorderSide(color: AppColors.accentPink),
+                          side: const BorderSide(color: AppColors.accentPink),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
@@ -130,7 +132,7 @@ class _GrowPlantView extends StatelessWidget {
                 ),
                 const SizedBox(height: 14),
 
-                // Meters (now dynamic)
+                // Meters
                 _SoftCard(
                   child: Column(
                     children: [
@@ -141,8 +143,8 @@ class _GrowPlantView extends StatelessWidget {
                         value: state.water,
                         actionLabel: 'Water (5)',
                         helper: 'Spend 5 pts',
-                        enabled: state.availablePoints >= 5 &&
-                            state.water < 1.0,
+                        enabled:
+                            state.availablePoints >= 5 && state.water < 1.0,
                         onPressed: () => cubit.spendWater(),
                       ),
                       const SizedBox(height: 12),
@@ -153,8 +155,8 @@ class _GrowPlantView extends StatelessWidget {
                         value: state.sunlight,
                         actionLabel: 'Sun (4)',
                         helper: 'Spend 4 pts',
-                        enabled: state.availablePoints >= 4 &&
-                            state.sunlight < 1.0,
+                        enabled:
+                            state.availablePoints >= 4 && state.sunlight < 1.0,
                         onPressed: () => cubit.spendSun(),
                       ),
                     ],
@@ -241,7 +243,6 @@ class _MeterTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final pct = (value * 100).round();
-
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -299,8 +300,8 @@ class _MeterTile extends StatelessWidget {
                   backgroundColor: color,
                   foregroundColor: Colors.white,
                   elevation: 0,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -319,106 +320,62 @@ class _MeterTile extends StatelessWidget {
   }
 }
 
-class _PlantIllustration extends StatelessWidget {
-  const _PlantIllustration();
+/// Rive Animation Widget for Plant Growth
+class _PlantRiveAnimation extends StatefulWidget {
+  final double growthProgress; // 0.0 to 1.0
+
+  const _PlantRiveAnimation({required this.growthProgress});
+
+  @override
+  State<_PlantRiveAnimation> createState() => _PlantRiveAnimationState();
+}
+
+class _PlantRiveAnimationState extends State<_PlantRiveAnimation> {
+  StateMachineController? _controller;
+  SMINumber? _growInput;
+
+  void _onRiveInit(Artboard artboard) {
+    // Try to find the state machine - adjust name based on your .riv file
+    final controller = StateMachineController.fromArtboard(
+      artboard,
+      'State Machine 1', // Common default name, change if needed
+    );
+    
+    if (controller != null) {
+      artboard.addController(controller);
+      _controller = controller;
+      
+      // Find the number input - adjust name based on your .riv file
+      _growInput = controller.findInput<double>('input') as SMINumber?;
+      _updateGrowth();
+    }
+  }
+
+  void _updateGrowth() {
+    // Convert 0.0-1.0 progress to 0-100 for Rive input
+    _growInput?.value = widget.growthProgress * 100;
+  }
+
+  @override
+  void didUpdateWidget(covariant _PlantRiveAnimation oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.growthProgress != widget.growthProgress) {
+      _updateGrowth();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Pot
-          Positioned(
-            bottom: 48,
-            child: Container(
-              width: 120,
-              height: 70,
-              decoration: BoxDecoration(
-                color: const Color(0xFFD9A07C),
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(.08),
-                    blurRadius: 8,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 100,
-            child: Container(
-              width: 140,
-              height: 20,
-              decoration: BoxDecoration(
-                color: const Color(0xFFE6B393),
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          ),
-
-          // Stem
-          Positioned(
-            bottom: 118,
-            child: Container(
-              width: 12,
-              height: 70,
-              decoration: BoxDecoration(
-                color: const Color(0xFF76C893),
-                borderRadius: BorderRadius.circular(6),
-              ),
-            ),
-          ),
-
-          // Leaves
-          Positioned(
-            bottom: 165,
-            child: Row(
-              children: [
-                _leaf(angle: -18),
-                const SizedBox(width: 6),
-                _leaf(angle: 18),
-              ],
-            ),
-          ),
-
-          // Bud
-          Positioned(
-            bottom: 188,
-            child: Container(
-              width: 18,
-              height: 18,
-              decoration: const BoxDecoration(
-                color: Color(0xFF2DBE7B),
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _leaf({required double angle}) {
-    return Transform.rotate(
-      angle: angle * 3.14159 / 180,
-      child: Container(
-        width: 64,
-        height: 34,
-        decoration: BoxDecoration(
-          color: const Color(0xFF80ED99),
-          borderRadius: BorderRadius.circular(22),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(.06),
-              blurRadius: 6,
-              offset: const Offset(0, 3),
-            )
-          ],
-        ),
-      ),
+    return RiveAnimation.asset(
+      'assets/rive/growing_plant.riv',
+      fit: BoxFit.contain,
+      onInit: _onRiveInit,
     );
   }
 }
