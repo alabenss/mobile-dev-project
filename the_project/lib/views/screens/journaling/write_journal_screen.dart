@@ -1,13 +1,12 @@
- import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:the_project/views/themes/style_simple/colors.dart';
+import '../../themes/style_simple/colors.dart';
 import '../../widgets/journal/journal_entry_model.dart';
 import '../../widgets/journal/sticker_picker_bottom_sheet.dart';
 import '../../widgets/journal/background_picker_bottom_sheet.dart';
+import '../../widgets/journal/mood_picker_bottom_sheet.dart';
 import '../../themes/style_simple/app_background.dart';
 import '../../widgets/journal/font_style_bottom_sheet.dart';
-
-// NEW imports for splitted widgets:
 import '../../widgets/journal/journal_top_bar.dart';
 import '../../widgets/journal/journal_body_fields.dart';
 import '../../widgets/journal/journal_attachments.dart';
@@ -41,11 +40,6 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
   final TextEditingController _titleCtrl = TextEditingController();
   final TextEditingController _bodyCtrl = TextEditingController();
 
-  final List<String> _moods = [
-    'assets/images/good.png',
-    'assets/images/happy.png',
-    'assets/images/tired.png',
-  ];
   String _selectedMood = 'assets/images/good.png';
 
   // Style properties
@@ -154,11 +148,12 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
             SafeArea(
               child: Column(
                 children: [
-                  // Top bar (split)
+                  // Top bar (with mood tap handler)
                   JournalTopBar(
                     onBack: () => Navigator.of(context).pop(),
                     onSave: _save,
                     selectedMood: _selectedMood,
+                    onMoodTap: _showMoodPicker,
                   ),
 
                   // Scrollable content (body + attachments)
@@ -186,7 +181,7 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
 
                           const SizedBox(height: 16),
 
-                          // Stickers area (split)
+                          // Stickers area
                           JournalAttachments(
                             stickerPaths: _stickerPaths,
                             onRemoveSticker: (index) {
@@ -202,7 +197,7 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
                     ),
                   ),
 
-                  // Bottom toolbar (split)
+                  // Bottom toolbar
                   JournalBottomToolbar(
                     onBackground: _showBackgroundPicker,
                     onPickImage: _pickImage,
@@ -214,6 +209,21 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // Show mood picker bottom sheet
+  void _showMoodPicker() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => MoodPickerBottomSheet(
+        currentMood: _selectedMood,
+        onMoodSelected: (moodImage, moodLabel) {
+          setState(() {
+            _selectedMood = moodImage;
+          });
+        },
       ),
     );
   }
@@ -291,22 +301,34 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
       return;
     }
 
+    // Determine if we're editing or creating
+    final isEditing = widget.existingEntry != null;
+
+    // Create entry
     final entry = JournalEntryModel(
+      id: widget.existingEntry?.id, // PRESERVE ID when editing
       dateLabel: _dateLabel,
-      date: _selectedDate,
+      date: isEditing 
+          ? widget.existingEntry!.date  // Keep original date when editing
+          : DateTime.now(),              // Use current time when creating new
       moodImage: _selectedMood,
       title: title,
       fullText: body,
-      backgroundImage:
-          _backgroundImage.isEmpty ? null : _backgroundImage,
+      backgroundImage: _backgroundImage.isEmpty ? null : _backgroundImage,
       fontFamily: _fontFamily,
       textColor: _colorToHex(_textColor),
       fontSize: _fontSize,
-      attachedImages:
-          _attachedImagePaths.isEmpty ? null : _attachedImagePaths,
+      attachedImages: _attachedImagePaths.isEmpty ? null : _attachedImagePaths,
     );
 
     Navigator.of(context).pop(entry);
+  }
+
+  @override
+  void dispose() {
+    _titleCtrl.dispose();
+    _bodyCtrl.dispose();
+    super.dispose();
   }
 }
 

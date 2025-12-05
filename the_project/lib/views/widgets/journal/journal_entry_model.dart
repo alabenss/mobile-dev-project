@@ -1,5 +1,5 @@
-
 class JournalEntryModel {
+  final int? id; // Added ID for tracking in database
   final String dateLabel;
   final DateTime date;
   final String moodImage;
@@ -7,17 +7,16 @@ class JournalEntryModel {
   final String fullText;
   final bool isEmpty;
   
-  
   final String? backgroundImage;
   final String? fontFamily;
   final String? textColor;
   final double? fontSize;
   final List<String>? attachedImages;
   
-  
   final List<StickerData>? stickers;
 
   JournalEntryModel({
+    this.id,
     required this.dateLabel,
     required this.date,
     required this.moodImage,
@@ -32,7 +31,8 @@ class JournalEntryModel {
   }) : isEmpty = false;
 
   JournalEntryModel.empty()
-      : dateLabel = '',
+      : id = null,
+        dateLabel = '',
         date = DateTime.now(),
         moodImage = '',
         title = '',
@@ -44,8 +44,38 @@ class JournalEntryModel {
         fontSize = null,
         attachedImages = null,
         stickers = null;
-}
 
+  // Copy with method for updates
+  JournalEntryModel copyWith({
+    int? id,
+    String? dateLabel,
+    DateTime? date,
+    String? moodImage,
+    String? title,
+    String? fullText,
+    String? backgroundImage,
+    String? fontFamily,
+    String? textColor,
+    double? fontSize,
+    List<String>? attachedImages,
+    List<StickerData>? stickers,
+  }) {
+    return JournalEntryModel(
+      id: id ?? this.id,
+      dateLabel: dateLabel ?? this.dateLabel,
+      date: date ?? this.date,
+      moodImage: moodImage ?? this.moodImage,
+      title: title ?? this.title,
+      fullText: fullText ?? this.fullText,
+      backgroundImage: backgroundImage ?? this.backgroundImage,
+      fontFamily: fontFamily ?? this.fontFamily,
+      textColor: textColor ?? this.textColor,
+      fontSize: fontSize ?? this.fontSize,
+      attachedImages: attachedImages ?? this.attachedImages,
+      stickers: stickers ?? this.stickers,
+    );
+  }
+}
 
 class StickerData {
   final String path;
@@ -66,7 +96,7 @@ class StickerData {
 
   factory StickerData.fromJson(Map<String, dynamic> json) => StickerData(
     path: json['path'],
-    x: json['x'],
-    y: json['y'],
+    x: json['x'].toDouble(),
+    y: json['y'].toDouble(),
   );
 }

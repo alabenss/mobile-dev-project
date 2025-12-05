@@ -17,7 +17,7 @@ class DBHelper {
 
     return await openDatabase(
       path,
-      version: 2, // Increment version to trigger onUpgrade
+      version: 4, // Increment version to trigger onUpgrade
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -28,6 +28,35 @@ class DBHelper {
     if (oldVersion < 2) {
       // Add userId column to home_status table
       await db.execute('ALTER TABLE home_status ADD COLUMN userId INTEGER');
+    }
+    
+    if (oldVersion < 3) {
+      // Add new columns to journals table for enhanced features
+      await db.execute('ALTER TABLE journals ADD COLUMN title TEXT');
+      await db.execute('ALTER TABLE journals ADD COLUMN backgroundImage TEXT');
+      await db.execute('ALTER TABLE journals ADD COLUMN fontFamily TEXT');
+      await db.execute('ALTER TABLE journals ADD COLUMN textColor TEXT');
+      await db.execute('ALTER TABLE journals ADD COLUMN fontSize REAL');
+      await db.execute('ALTER TABLE journals ADD COLUMN attachedImages TEXT'); // JSON array
+      await db.execute('ALTER TABLE journals ADD COLUMN stickers TEXT'); // JSON array
+      await db.execute('ALTER TABLE journals ADD COLUMN time TEXT'); // Time of journal entry
+    }
+
+    if (oldVersion < 4) {
+      // Create daily_moods table
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS daily_moods (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          userId INTEGER NOT NULL,
+          date TEXT NOT NULL,
+          moodImage TEXT NOT NULL,
+          moodLabel TEXT NOT NULL,
+          createdAt TEXT NOT NULL,
+          updatedAt TEXT NOT NULL,
+          FOREIGN KEY (userId) REFERENCES users(id),
+          UNIQUE(userId, date)
+        )
+      ''');
     }
   }
 
@@ -78,17 +107,40 @@ class DBHelper {
       );
     ''');
 
-    // Journals table
+    // Journals table with enhanced fields
     await db.execute('''
       CREATE TABLE journals (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         userId INTEGER,
         date TEXT,
+        time TEXT,
         mood TEXT,
         text TEXT,
+        title TEXT,
         imagePath TEXT,
         voicePath TEXT,
+        backgroundImage TEXT,
+        fontFamily TEXT,
+        textColor TEXT,
+        fontSize REAL,
+        attachedImages TEXT,
+        stickers TEXT,
         FOREIGN KEY (userId) REFERENCES users(id)
+      );
+    ''');
+
+    // Daily moods table
+    await db.execute('''
+      CREATE TABLE daily_moods (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        userId INTEGER NOT NULL,
+        date TEXT NOT NULL,
+        moodImage TEXT NOT NULL,
+        moodLabel TEXT NOT NULL,
+        createdAt TEXT NOT NULL,
+        updatedAt TEXT NOT NULL,
+        FOREIGN KEY (userId) REFERENCES users(id),
+        UNIQUE(userId, date)
       );
     ''');
   }
@@ -211,6 +263,7 @@ class DBHelper {
     await db.delete('journals');
     await db.delete('habits');
     await db.delete('home_status');
+    await db.delete('daily_moods'); // ADD THIS
     await db.delete('users');
   }
 

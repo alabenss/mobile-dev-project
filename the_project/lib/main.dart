@@ -8,16 +8,22 @@ import 'logic/activities/activities_cubit.dart';
 import 'logic/habits/habit_cubit.dart';
 import 'logic/auth/auth_cubit.dart';
 import 'logic/auth/auth_state.dart';
+import 'logic/journal/journal_cubit.dart';
+import 'logic/journal/daily_mood_cubit.dart';
 
 import 'database/repo/home_repo.dart';
 import 'database/repo/activities_repo.dart';
 import 'database/repo/habit_repo.dart';
+import 'database/repo/journal_repository.dart';
+import 'database/repo/daily_mood_repository.dart';
 
 import 'views/widgets/common/bottom_nav_wrapper.dart';
 import 'views/screens/settings/profile.dart';
 import 'views/screens/settings/app_lock_screen.dart';
 import 'views/screens/auth/login_screen.dart';
 import 'views/screens/auth/signup_screen.dart';
+
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,6 +47,10 @@ void main() async {
         BlocProvider<HabitCubit>(
           create: (_) => HabitCubit(habitRepo)..loadHabits(),
         ),
+        BlocProvider(create: (_) => JournalCubit(JournalRepository())),
+        BlocProvider(
+      create: (context) => DailyMoodCubit(DailyMoodRepository()),
+    ),
       ],
       child: const MyApp(),
     ),

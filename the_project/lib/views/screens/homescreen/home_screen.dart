@@ -92,12 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 const SizedBox(height: 10),
                 MoodCard(
-                  selectedMood: state.selectedMoodImage,
-                  selectedMoodLabel: state.selectedMoodLabel,
-                  selectedTime: state.selectedMoodTime,
-                  onMoodSelected: (moodImage, moodLabel) {
-                    homeCubit.setMood(moodImage, moodLabel);
-                  },
+
                 ),
 
                 const SizedBox(height: 12),
