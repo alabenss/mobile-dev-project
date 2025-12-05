@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../themes/style_simple/colors.dart';
 import '../../../models/habit_model.dart';
 import 'habit_card.dart';
@@ -16,6 +17,8 @@ class HabitList extends StatefulWidget {
 class _HabitListState extends State<HabitList> {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     // Separate habits by status
     final active = widget.habits
         .where((h) => !h.done && !h.skipped)
@@ -50,7 +53,7 @@ class _HabitListState extends State<HabitList> {
           child: widget.habits.isEmpty
               ? Center(
                   child: Text(
-                    'No habits yet!\nTap + to add your first habit',
+                    l10n.noHabitsYet,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.7),
@@ -62,11 +65,11 @@ class _HabitListState extends State<HabitList> {
                   padding: const EdgeInsets.all(16),
                   children: [
                     if (active.isNotEmpty)
-                      _buildSection("Today's Habits", active),
+                      _buildSection(l10n.todaysHabits, active),
                     if (completed.isNotEmpty)
-                      _buildSection("Completed", completed, faded: true),
+                      _buildSection(l10n.completed, completed, faded: true),
                     if (skipped.isNotEmpty) 
-                    _buildSection("Skipped", skipped, faded: true),
+                      _buildSection(l10n.skipped, skipped, faded: true),
                   ],
                 ),
         ),
@@ -92,7 +95,7 @@ class _HabitListState extends State<HabitList> {
         ),
         ...habits.map((habit) => Dismissible(
               key: ValueKey('${habit.title}_${habit.frequency}_$title'),
-              direction: title == "Today's Habits"
+              direction: title == "Today's Habits" || title == "Habits d'aujourd'hui"
                   ? DismissDirection.horizontal
                   : DismissDirection.none,
               background: _buildSwipeBackground(
@@ -114,6 +117,7 @@ class _HabitListState extends State<HabitList> {
               },
               onDismissed: (direction) async {
                 final cubit = context.read<HabitCubit>();
+                final l10n = AppLocalizations.of(context)!;
                 
                 if (direction == DismissDirection.startToEnd) {
                   // Mark as completed
@@ -128,7 +132,7 @@ class _HabitListState extends State<HabitList> {
                             const Icon(Icons.check_circle, color: Colors.white),
                             const SizedBox(width: 8),
                             Expanded(
-                              child: Text('${habit.title} completed!'),
+                              child: Text(l10n.habitCompleted(habit.title)),
                             ),
                             Container(
                               padding: const EdgeInsets.symmetric(
@@ -172,7 +176,7 @@ class _HabitListState extends State<HabitList> {
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('${habit.title} skipped'),
+                        content: Text(l10n.habitSkipped(habit.title)),
                         backgroundColor: Colors.orangeAccent,
                         duration: const Duration(seconds: 2),
                       ),
@@ -185,12 +189,13 @@ class _HabitListState extends State<HabitList> {
                   final shouldDelete = await _showDeleteConfirmation(context, habit);
                   if (shouldDelete && mounted) {
                     final cubit = context.read<HabitCubit>();
+                    final l10n = AppLocalizations.of(context)!;
                     await cubit.deleteHabit(habit.title);
                     
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('🗑️ ${habit.title} deleted'),
+                          content: Text(l10n.habitDeleted(habit.title)),
                           backgroundColor: Colors.red,
                           duration: const Duration(seconds: 2),
                         ),
@@ -209,21 +214,22 @@ class _HabitListState extends State<HabitList> {
   }
 
   Future<bool> _showSkipConfirmation(BuildContext context, Habit habit) async {
+    final l10n = AppLocalizations.of(context)!;
     return await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
             backgroundColor: AppColors.card,
-            title: const Text('Skip Habit?'),
+            title: Text(l10n.skipHabit),
             content: Text(
-              'Are you sure you want to skip "${habit.title}"?',
+              l10n.skipHabitConfirmation(habit.title),
               style: const TextStyle(color: AppColors.textSecondary),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: const Text(
-                  'Cancel',
-                  style: TextStyle(color: AppColors.textPrimary),
+                child: Text(
+                  l10n.cancel,
+                  style: const TextStyle(color: AppColors.textPrimary),
                 ),
               ),
               ElevatedButton(
@@ -231,9 +237,9 @@ class _HabitListState extends State<HabitList> {
                   backgroundColor: Colors.orangeAccent,
                 ),
                 onPressed: () => Navigator.pop(context, true),
-                child: const Text(
-                  'Skip',
-                  style: TextStyle(color: Colors.white),
+                child: Text(
+                  l10n.skip,
+                  style: const TextStyle(color: Colors.white),
                 ),
               ),
             ],
@@ -243,6 +249,7 @@ class _HabitListState extends State<HabitList> {
   }
 
   Future<bool> _showDeleteConfirmation(BuildContext context, Habit habit) async {
+    final l10n = AppLocalizations.of(context)!;
     return await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
@@ -251,7 +258,7 @@ class _HabitListState extends State<HabitList> {
               children: [
                 const Icon(Icons.warning_amber_rounded, color: Colors.redAccent, size: 28),
                 const SizedBox(width: 8),
-                const Text('Delete Habit?'),
+                Text(l10n.deleteHabit),
               ],
             ),
             content: Column(
@@ -259,13 +266,13 @@ class _HabitListState extends State<HabitList> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Are you sure you want to permanently delete "${habit.title}"?',
+                  l10n.deleteHabitConfirmation(habit.title),
                   style: const TextStyle(color: AppColors.textSecondary),
                 ),
                 const SizedBox(height: 12),
-                const Text(
-                  'This action cannot be undone.',
-                  style: TextStyle(
+                Text(
+                  l10n.actionCannotBeUndone,
+                  style: const TextStyle(
                     color: Colors.redAccent,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -276,9 +283,9 @@ class _HabitListState extends State<HabitList> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: const Text(
-                  'Cancel',
-                  style: TextStyle(color: AppColors.textPrimary),
+                child: Text(
+                  l10n.cancel,
+                  style: const TextStyle(color: AppColors.textPrimary),
                 ),
               ),
               ElevatedButton(
@@ -286,9 +293,9 @@ class _HabitListState extends State<HabitList> {
                   backgroundColor: Colors.redAccent,
                 ),
                 onPressed: () => Navigator.pop(context, true),
-                child: const Text(
-                  'Delete',
-                  style: TextStyle(color: Colors.white),
+                child: Text(
+                  l10n.delete,
+                  style: const TextStyle(color: Colors.white),
                 ),
               ),
             ],

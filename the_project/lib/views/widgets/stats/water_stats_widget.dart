@@ -38,64 +38,72 @@ class WaterStatsWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildBarChart() {
-    final values = waterData;
-    if (values.isEmpty) {
-      return const SizedBox.shrink();
-    }
-    final maxY = values.reduce(max) * 1.1;
-    return BarChart(
-      BarChartData(
-        maxY: maxY,
-        barGroups: List.generate(values.length, (i) {
-          final val = values[i];
-          return BarChartGroupData(
-            x: i,
-            barRods: [
-              BarChartRodData(
-                toY: val,
-                width: (values.length <= 7 ? 18 : (values.length <= 12 ? 12 : 6))
-                    .toDouble(),
-                borderRadius: BorderRadius.circular(6),
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.sky.withOpacity(0.95),
-                    AppColors.peach.withOpacity(0.95),
-                  ],
-                ),
-              ),
-            ],
-          );
-        }),
-        titlesData: const FlTitlesData(show: false),
-        gridData: const FlGridData(show: false),
-        borderData: FlBorderData(show: false),
-        barTouchData: BarTouchData(enabled: true),
-        alignment: BarChartAlignment.spaceBetween,
+Widget _buildBarChart(AppLocalizations? t) {
+  final values = waterData;
+  if (values.isEmpty) {
+    return Center(
+      child: Text(
+        t?.statsNoData ?? 'No data available',
+        style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
       ),
     );
   }
+  
+  final maxY = values.reduce(max) * 1.2;
+  if (maxY <= 0) return const SizedBox.shrink();
+  
+  return BarChart(
+    BarChartData(
+      maxY: maxY,
+      minY: 0,
+      barGroups: List.generate(values.length, (i) {
+        final val = values[i];
+        return BarChartGroupData(
+          x: i,
+          barRods: [
+            BarChartRodData(
+              toY: val,
+              width: (values.length <= 7 ? 18 : (values.length <= 12 ? 12 : 6)).toDouble(),
+              borderRadius: BorderRadius.circular(6),
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.sky.withOpacity(0.95),
+                  AppColors.peach.withOpacity(0.95),
+                ],
+              ),
+            ),
+          ],
+        );
+      }),
+      titlesData: const FlTitlesData(show: false),
+      gridData: const FlGridData(show: false),
+      borderData: FlBorderData(show: false),
+      barTouchData: BarTouchData(enabled: true),
+      alignment: BarChartAlignment.spaceBetween,
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context)!;
+    final t = AppLocalizations.of(context);
 
     String headline;
     if (waterData.isEmpty) {
-      headline = t.glassesToday(0);
+      headline = t?.glassesToday(0) ?? '0 glasses today';
     } else if (selectedRange == StatsRange.today) {
-      headline = t.glassesToday(waterData.first.toInt());
+      headline = t?.glassesToday(waterData.first.toInt()) ?? '${waterData.first.toInt()} glasses today';
     } else if (selectedRange == StatsRange.weekly) {
       final avg =
           (waterData.reduce((a, b) => a + b) / waterData.length).round();
-      headline = t.avgPerDay(avg);
+      headline = t?.avgPerDay(avg) ?? '$avg avg/day';
     } else if (selectedRange == StatsRange.monthly) {
       final avg =
           (waterData.reduce((a, b) => a + b) / waterData.length);
-      headline = t.monthlyAvg(avg.toStringAsFixed(1));
+      headline = t?.monthlyAvg(avg.toStringAsFixed(1)) ?? '${avg.toStringAsFixed(1)} monthly avg';
     } else {
       final avg = waterData.reduce((a, b) => a + b) / waterData.length;
-      headline = t.yearlyAvg(avg.toStringAsFixed(1));
+      headline = t?.yearlyAvg(avg.toStringAsFixed(1)) ?? '${avg.toStringAsFixed(1)} yearly avg';
     }
 
     return AnimatedContainer(
@@ -104,7 +112,12 @@ class WaterStatsWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(t.waterStats, style: GoogleFonts.poppins(fontSize: 12)),
+          Text(t?.waterStats ?? 'Water Stats', 
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              color: AppColors.textPrimary.withOpacity(0.6)
+            )
+          ),
           const SizedBox(height: 8),
           Text(headline,
               style:
@@ -112,7 +125,7 @@ class WaterStatsWidget extends StatelessWidget {
           const SizedBox(height: 12),
           SizedBox(
             height: 140,
-            child: _buildBarChart(),
+            child: _buildBarChart(t),
           ),
           const SizedBox(height: 8),
           _buildChartLabels(),

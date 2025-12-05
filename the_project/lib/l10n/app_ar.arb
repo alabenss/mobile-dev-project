@@ -1,0 +1,349 @@
+{
+  "@@locale": "ar",
+  
+  "statistics": "الإحصائيات",
+  "today": "اليوم",
+  "weekly": "أسبوعي",
+  "monthly": "شهري",
+  "yearly": "سنوي",
+  
+  "waterStats": "إحصائيات الماء",
+  "moodTracking": "تتبع المزاج",
+  "journaling": "التدوين",
+  "screenTime": "وقت الشاشة",
+  
+  "glassesToday": "{count} كأس اليوم",
+  "@glassesToday": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "avgPerDay": "متوسط {count} كأس / يوم",
+  "@avgPerDay": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "monthlyAvg": "المتوسط الشهري {count} كأس",
+  "@monthlyAvg": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "yearlyAvg": "المتوسط السنوي {count} كأس",
+  "@yearlyAvg": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  
+  "youWroteToday": "لقد كتبت اليوم",
+  "noEntryToday": "لا يوجد مدخل اليوم",
+  "daysLogged": "{count} يوم مسجل",
+  "@daysLogged": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "entriesThisMonth": "{count} مدخل هذا الشهر",
+  "@entriesThisMonth": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "totalEntries": "{count} مدخل إجمالي",
+  "@totalEntries": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  
+  "noData": "لا توجد بيانات",
+  "noMoodData": "لا توجد بيانات عن المزاج",
+  "noWaterData": "لا توجد بيانات عن الماء",
+  "noScreenTimeData": "لا توجد بيانات عن وقت الشاشة",
+  
+  "moodCalm": "هادئ",
+  "moodBalanced": "متوازن",
+  "moodLow": "منخفض",
+  "moodFeelingGreat": "شعور رائع",
+  "moodNice": "مزاج جيد",
+  "moodOkay": "حسن",
+  "moodFeelingLow": "شعور منخفض",
+  
+  "statsNoData": "لا توجد بيانات",
+  "statsNoMoodData": "لا توجد بيانات عن المزاج",
+  
+  "statsRefreshingData": "جاري تحديث البيانات...",
+  "statsLoading": "جاري تحميل الإحصائيات...",
+  "statsErrorTitle": "عذراً! حدث خطأ ما",
+  "commonTryAgain": "حاول مرة أخرى",
+  
+  "statsEmptyTitle": "لا توجد بيانات بعد",
+  "statsEmptySubtitle": "ابدأ باستخدام التطبيق لرؤية إحصائياتك هنا",
+  "statsEmptyTrackMood": "تابع مزاجك يومياً",
+  "statsEmptyLogWater": "سجل استهلاكك للماء",
+  "statsEmptyWriteJournal": "اكتب في دفتر اليوميات",
+  
+  "calm": "هادئ",
+  "balanced": "متوازن",
+  "low": "منخفض",
+  
+  "social": "تواصل اجتماعي",
+  "entertainment": "ترفيه",
+  "productivity": "إنتاجية",
+  
+  "hoursPerDay": "{count} ساعة/يوم",
+  "@hoursPerDay": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  
+  "addNewHabit": "إضافة عادة جديدة",
+  "selectHabit": "اختر العادة",
+  "customHabitName": "اسم العادة المخصص",
+  "customHabit": "عادة مخصصة",
+  "frequency": "التكرار",
+  "rewardPoints": "نقاط المكافأة",
+  "pointsEarnedOnCompletion": "النقاط المكتسبة عند الإكمال",
+  "customizeReward": "تخصيص المكافأة لهذه العادة",
+  "time": "الوقت",
+  "selectTime": "اختر الوقت",
+  "setReminder": "تعيين تذكير",
+  "cancel": "إلغاء",
+  "add": "إضافة",
+  
+  "habitAlreadyExists": "هذه العادة موجودة بالفمع تكرار {frequency}!",
+  "@habitAlreadyExists": {
+    "placeholders": {
+      "frequency": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "pointsMustBeGreaterThanZero": "يجب أن تكون النقاط أكبر من 0!",
+  
+  "habitDrinkWater": "شرب الماء",
+  "habitExercise": "ممارسة الرياضة",
+  "habitMeditate": "التأمل",
+  "habitRead": "القراءة",
+  "habitSleepEarly": "النوم مبكراً",
+  "habitStudy": "الدراسة",
+  "habitWalk": "المشي",
+  "habitOther": "أخرى",
+  
+  "noHabitsYet": "لا توجد عادات بعد!\nاضغط + لإضافة عادتك الأولى",
+  "todaysHabits": "عادات اليوم",
+  "completed": "مكتمل",
+  "skipped": "تخطي",
+  
+  "skipHabit": "تخطي العادة؟",
+  "skipHabitConfirmation": "هل أنت متأكد أنك تريد تخطي \"{habit}\"؟",
+  "@skipHabitConfirmation": {
+    "placeholders": {
+      "habit": {
+        "type": "String"
+      }
+    }
+  },
+  "skip": "تخطي",
+  
+  "deleteHabit": "حذف العادة؟",
+  "deleteHabitConfirmation": "هل أنت متأكد أنك تريد حذف \"{habit}\" بشكل دائم؟",
+  "@deleteHabitConfirmation": {
+    "placeholders": {
+      "habit": {
+        "type": "String"
+      }
+    }
+  },
+  "actionCannotBeUndone": "لا يمكن التراجع عن هذا الإجراء.",
+  "delete": "حذف",
+  
+  "habitCompleted": "تم إكمال {habit}!",
+  "@habitCompleted": {
+    "placeholders": {
+      "habit": {
+        "type": "String"
+      }
+    }
+  },
+  "habitSkipped": "تم تخطي {habit}",
+  "@habitSkipped": {
+    "placeholders": {
+      "habit": {
+        "type": "String"
+      }
+    }
+  },
+  "habitDeleted": "🗑️ تم حذف {habit}",
+  "@habitDeleted": {
+    "placeholders": {
+      "habit": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "noDailyHabits": "لا توجد عادات يومية بعد",
+  "noWeeklyHabits": "لا توجد عادات أسبوعية بعد",
+  "noMonthlyHabits": "لا توجد عادات شهرية بعد",
+  "tapToAddHabit": "اضغط على زر + لإضافة عادة",
+
+  "detoxProgress": "تقدم التخلص من السموم",
+  "detoxExcellent": "تقدم ممتاز!",
+  "detoxGood": "تقدم جيد",
+  "detoxModerate": "تقدم متوسط",
+  "detoxLow": "استمر",
+  "detoxStart": "البداية فقط",
+  "detoxInfo": "متوسط تقدم التخلص من السموم للفترة المحددة",
+
+  "failedToLoadActivities": "فشل تحميل الأنشطة\\n{error}",
+  "@failedToLoadActivities": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "breathingTitle": "تنفّس",
+  "breathingDescription": "خذ نفسًا عميقًا ودع جسمك يهدأ\\nفي نهاية اليوم.",
+  "breathingStart": "ابدأ",
+  "breathingStop": "إيقاف",
+
+  "bubblePopperTitle": "فرقع الفقاعات",
+  "bubblePopperDescription": "ابحث عن الهدوء والتركيز بينما تفرّغ التوتر، فقاعة بعد أخرى.",
+
+  "coloringTitle": "التلوين",
+  "coloringSaved": "تم الحفظ! (سيتم إضافة التصدير لاحقًا)",
+  "coloringPickColorTitle": "اختر لونًا",
+  "coloringHue": "تدرج اللون",
+  "coloringSaturation": "الإشباع",
+  "coloringBrightness": "السطوع",
+  "coloringOpacity": "الشفافية",
+  "coloringUseColor": "استخدام اللون",
+  "coloringTemplateSpace": "الفضاء",
+  "coloringTemplateGarden": "الحديقة",
+  "coloringTemplateFish": "سمكة",
+  "coloringTemplateButterfly": "فراشة",
+  "coloringTemplateHouse": "منزل",
+  "coloringTemplateMandala": "ماندالا",
+  "coloringLoadError": "حدث خطأ أثناء تحميل صفحة التلوين:\\n{error}",
+  "@coloringLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "growPlantTitle": "نمِّ النبتة",
+  "growPlantHeadline": "اعتنِ بنبتتك بالماء والضوء.\\nاستخدم نقاط الأنشطة لمساعدتها على النمو!",
+  "growPlantStars": "النجوم: {count}",
+  "@growPlantStars": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "growPlantStage": "المرحلة",
+  "growPlantAvailablePoints": "النقاط المتاحة: {count}",
+  "@growPlantAvailablePoints": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "growPlantGetPoints": "احصل على نقاط",
+  "growPlantWaterLabel": "الماء",
+  "growPlantSunlightLabel": "أشعة الشمس",
+  "growPlantWaterAction": "ماء ({cost})",
+  "@growPlantWaterAction": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
+  "growPlantSunAction": "شمس ({cost})",
+  "@growPlantSunAction": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
+  "growPlantWaterHelper": "استخدم {cost} نقطة",
+  "@growPlantWaterHelper": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
+  "growPlantSunHelper": "استخدم {cost} نقطة",
+  "@growPlantSunHelper": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
+  "growPlantTip": "نصيحة: عندما يمتلئ الشريطان، ستنتقل نبتتك إلى المرحلة التالية.",
+
+  "paintingTitle": "ارسم",
+  "paintingPrompt": "خذ نفسًا عميقًا، اختر لونك، ودع إبداعك يتدفق.",
+  "paintingSaved": "تم حفظ الصورة!.",
+  "paintingColorsTitle": "الألوان",
+  "paintingHue": "تدرج اللون",
+  "paintingSaturation": "الإشباع",
+  "paintingValue": "القيمة",
+  "paintingOpacity": "الشفافية",
+  "paintingUseColor": "استخدام اللون",
+
+  "puzzleTitle": "لغز",
+  "puzzleInstruction": "حرّك القطع لإعادة ترتيبها بالترتيب الصحيح.",
+  "puzzleShuffle": "خلط",
+  "puzzleReset": "إعادة تعيين",
+  "puzzleSolved": "تم الحل! 🎉",
+  "plantArticleTitle": "التأثير المهدئ للنباتات",
+  "plantArticleIntro": "النباتات لا تزيّن مكانك فقط — بل تهدّئ عقلك أيضًا. الاعتناء بنبتة يبطئ وتيرتك ويعيد تركيزك إلى اللحظة الحالية.",
+  "plantArticleBenefitsTitle": "الفوائد باختصار",
+  "plantArticleBullet1": "يقلل من التوتر والإرهاق الذهني",
+  "plantArticleBullet2": "يحسّن التركيز والإبداع",
+  "plantArticleBullet3": "يضيف لمسة لطيفة وطبيعية لمحيطك",
+  "plantArticleBullet4": "يخلق طقسًا يوميًا بسيطًا (سقي، تقليم، ملاحظة)",
+  "plantArticleQuote": "«العناية بالحديقة تغذي ليس الجسد فقط، بل الروح أيضًا.»",
+  "plantArticleTipTitle": "نصيحة اليوم",
+  "plantArticleTipBody": "ضع نبتة صغيرة بالقرب من المكان الذي تعمل فيه غالبًا. ألقِ نظرة عليها مرة في اليوم — استراحة لمدة 30 ثانية لعقلك.",
+  "plantArticleFooter": "استمر في النمو — ورقة بعد أخرى 🌿",
+  "sportArticleTitle": "حسِّن مزاجك بالرياضة",
+  "sportArticleHeroText": "قليل من الحركة\\يخلق الكثير من الشعور 💪✨",
+  "sportArticleIntro": "تحريك جسمك من أسرع الطرق لرفع مزاجك. النشاط يفرز الإندورفين — وهي مواد كيميائية طبيعية في الدماغ تمنحك شعورًا جيدًا.",
+  "sportArticleEasyWaysTitle": "طرق بسيطة للبدء",
+  "sportArticleBullet1": "مشي 5–10 دقائق بعد الوجبات",
+  "sportArticleBullet2": "استراحة رقص على أغنية واحدة أثناء تحضير القهوة",
+  "sportArticleBullet3": "تمددات خفيفة أثناء مشاهدة التلفاز",
+  "sportArticleBullet4": "ادعُ صديقًا لركض قصير أو جولة بالدراجة",
+  "sportArticleQuote": "احضر فقط لمدة 5 دقائق. في أغلب الأيام، هذا يكفي للبدء.",
+  "sportArticleRememberTitle": "تذكّر",
+  "sportArticleRememberBody": "اختر حركة تجعلك تبتسم — ليس فقط تتعرّق. المتعة تصنع الاستمرارية، والاستمرارية ترفع المزاج.",
+  "sportArticleStartActivityCta": "ابدأ نشاطًا"
+
+
+}

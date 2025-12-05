@@ -63,10 +63,77 @@
       }
     }
   },
-  "moodFeelingGreat": "Feeling great",
-  "moodNice": "Nice",
-  "moodOk": "Okay",
+  "noData": "No data",
+  "noMoodData": "No mood data available",
+  "noWaterData": "No water data available",
+  "noScreenTimeData": "No screen time data available",
+
+  "moodCalm": "Calm",
+  "moodBalanced": "Balanced",
   "moodLow": "Low",
+  "moodFeelingGreat": "Feeling great",
+  "moodNice": "Nice mood",
+  "moodOkay": "Okay",
+  "moodFeelingLow": "Feeling low",
+  "statsNoData": "No data",
+  "statsNoMoodData": "No mood data available",
+"appLockTitle": "App Lock",
+  "appLockChooseType": "Choose Lock Type:",
+  "appLockPin": "PIN",
+  "appLockPinSubtitle": "Secure with numeric PIN",
+  "appLockPattern": "Pattern",
+  "appLockPatternSubtitle": "Draw a pattern to unlock",
+  "appLockPassword": "Password",
+  "appLockPasswordSubtitle": "Use alphanumeric password",
+  "appLockRemoveExisting": "Remove Existing Lock",
+  "appLockSetYour": "Set Your {type}",
+  "appLockConfirmYour": "Confirm Your {type}",
+  "appLockCreateLock": "Create your {type} lock",
+  "appLockReenterLock": "Re-enter your {type} to confirm",
+  "appLockEnterPin": "Enter 4-6 digit PIN",
+  "appLockConfirmPin": "Confirm your PIN",
+  "appLockDrawPattern": "Draw your pattern",
+  "appLockDrawPatternAgain": "Draw your pattern again",
+  "appLockPointsSelected": "Points selected: {count}",
+  "appLockRedrawPattern": "Redraw Pattern",
+  "appLockEnterPassword": "Enter password",
+  "appLockConfirmPassword": "Confirm your password",
+  "appLockMismatch": "Lock values don't match!",
+  "appLockContinue": "Continue",
+  "appLockSaveLock": "Save Lock",
+  "appLockSaved": "App lock saved successfully",
+  "appLockSaveError": "Failed to save app lock",
+  "appLockRemoved": "App lock removed",
+  "appLockEnterToUnlock": "Enter {type} to unlock",
+  "appLockWrongAttempt": "Wrong {type}! Try again",
+  "appLockUnlock": "Unlock",
+  "appLockForgotLock": "Forgot {type}?",
+  "appLockVerifyIdentity": "Verify your identity to reset the lock",
+  "appLockCurrentType": "Current lock: {type}",
+"@appLockCurrentType": {
+  "placeholders": {
+    "type": {}
+  }
+},
+"appLockChangeOrRemove": "You can change or remove your current lock.",
+
+"appLockEnabled": "App Lock Enabled",
+"appLockChangeLock": "Change Lock",
+"appLockRemove": "Remove",
+"appLockCurrentSettings": "Current Settings",
+"appLockRemoveConfirm": "Remove App Lock?",
+"appLockRemoveMessage": "Are you sure you want to remove the app lock?",
+"appLockCancel": "Cancel",
+
+  "statsRefreshingData": "Refreshing data...",
+  "statsLoading": "Loading statistics...",
+  "statsErrorTitle": "Oops! Something went wrong",
+  "commonTryAgain": "Try Again",
+  "statsEmptyTitle": "No Data Yet",
+  "statsEmptySubtitle": "Start using the app to see your statistics here",
+  "statsEmptyTrackMood": "Track your mood daily",
+  "statsEmptyLogWater": "Log your water intake",
+  "statsEmptyWriteJournal": "Write journal entries",
   "calm": "Calm",
   "balanced": "Balanced",
   "low": "Low",
@@ -78,5 +145,240 @@
     "placeholders": {
       "count": {}
     }
-  }
+  },
+
+  "addNewHabit": "Add New Habit",
+  "selectHabit": "Select Habit",
+  "customHabitName": "Custom Habit Name",
+  "customHabit": "Custom Habit",
+  "frequency": "Frequency",
+  "rewardPoints": "Reward Points",
+  "pointsEarnedOnCompletion": "Points earned on completion",
+  "customizeReward": "Customize the reward for this habit",
+  "time": "Time",
+  "selectTime": "Select time",
+  "setReminder": "Set Reminder",
+  "cancel": "Cancel",
+  "add": "Add",
+  "habitAlreadyExists": "This habit already exists with {frequency} frequency!",
+  "@habitAlreadyExists": {
+    "placeholders": {
+      "frequency": {
+        "type": "String"
+      }
+    }
+  },
+  "pointsMustBeGreaterThanZero": "Points must be greater than 0!",
+  
+  "habitDrinkWater": "Drink Water",
+  "habitExercise": "Exercise",
+  "habitMeditate": "Meditate",
+  "habitRead": "Read",
+  "habitSleepEarly": "Sleep Early",
+  "habitStudy": "Study",
+  "habitWalk": "Walk",
+  "habitOther": "Other",
+  
+  "noHabitsYet": "No habits yet!\nTap + to add your first habit",
+  "todaysHabits": "Today's Habits",
+  "completed": "Completed",
+  "skipped": "Skipped",
+  
+  "skipHabit": "Skip Habit?",
+  "skipHabitConfirmation": "Are you sure you want to skip \"{habit}\"?",
+  "@skipHabitConfirmation": {
+    "placeholders": {
+      "habit": {
+        "type": "String"
+      }
+    }
+  },
+  "skip": "Skip",
+  
+  "deleteHabit": "Delete Habit?",
+  "deleteHabitConfirmation": "Are you sure you want to permanently delete \"{habit}\"?",
+  "@deleteHabitConfirmation": {
+    "placeholders": {
+      "habit": {
+        "type": "String"
+      }
+    }
+  },
+  "actionCannotBeUndone": "This action cannot be undone.",
+  "delete": "Delete",
+  
+  "habitCompleted": "{habit} completed!",
+  "@habitCompleted": {
+    "placeholders": {
+      "habit": {
+        "type": "String"
+      }
+    }
+  },
+  "habitSkipped": "{habit} skipped",
+  "@habitSkipped": {
+    "placeholders": {
+      "habit": {
+        "type": "String"
+      }
+    }
+  },
+  "habitDeleted": "🗑️ {habit} deleted",
+  "@habitDeleted": {
+    "placeholders": {
+      "habit": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "noDailyHabits": "No daily habits yet",
+  "noWeeklyHabits": "No weekly habits yet",
+  "noMonthlyHabits": "No monthly habits yet",
+  "tapToAddHabit": "Tap + button to add a habit",
+
+  "detoxProgress": "Detox Progress",
+  "detoxExcellent": "Excellent Progress!",
+  "detoxGood": "Good Progress",
+  "detoxModerate": "Moderate Progress",
+  "detoxLow": "Keep Going",
+  "detoxStart": "Just Starting",
+  "detoxInfo": "Average detox progress for the selected period",
+
+  "failedToLoadActivities": "Failed to load activities\\n{error}",
+  "@failedToLoadActivities": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "breathingTitle": "Breath",
+  "breathingDescription": "Take a deep breath and let your body wind down\\nfor the day.",
+  "breathingStart": "Start",
+  "breathingStop": "Stop",
+
+  "bubblePopperTitle": "Pop It",
+  "bubblePopperDescription": "Find calm and focus as you pop away stress, one bubble at a time.",
+
+  "coloringTitle": "Coloring",
+  "coloringSaved": "Saved! (wire export later)",
+  "coloringPickColorTitle": "Pick a color",
+  "coloringHue": "Hue",
+  "coloringSaturation": "Saturation",
+  "coloringBrightness": "Brightness",
+  "coloringOpacity": "Opacity",
+  "coloringUseColor": "Use color",
+  "coloringTemplateSpace": "Space",
+  "coloringTemplateGarden": "Garden",
+  "coloringTemplateFish": "Fish",
+  "coloringTemplateButterfly": "Butterfly",
+  "coloringTemplateHouse": "House",
+  "coloringTemplateMandala": "Mandala",
+  "coloringLoadError": "Error loading coloring page:\\n{error}",
+  "@coloringLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "growPlantTitle": "Grow the plant",
+  "growPlantHeadline": "Nurture your plant with water and sunlight.\\nSpend activity points to help it grow!",
+  "growPlantStars": "Stars: {count}",
+  "@growPlantStars": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "growPlantStage": "Stage",
+  "growPlantAvailablePoints": "Available points: {count}",
+  "@growPlantAvailablePoints": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "growPlantGetPoints": "Get points",
+  "growPlantWaterLabel": "Water",
+  "growPlantSunlightLabel": "Sunlight",
+  "growPlantWaterAction": "Water ({cost})",
+  "@growPlantWaterAction": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
+  "growPlantSunAction": "Sun ({cost})",
+  "@growPlantSunAction": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
+  "growPlantWaterHelper": "Spend {cost} pts",
+  "@growPlantWaterHelper": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
+  "growPlantSunHelper": "Spend {cost} pts",
+  "@growPlantSunHelper": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
+  "growPlantTip": "Tip: when both bars are full, your plant will grow to the next stage.",
+
+  "paintingTitle": "Draw",
+  "paintingPrompt": "Take a deep breath, pick your color, and let your creativity flow.",
+  "paintingSaved": "Image Saved!.",
+  "paintingColorsTitle": "Colors",
+  "paintingHue": "Hue",
+  "paintingSaturation": "Saturation",
+  "paintingValue": "Value",
+  "paintingOpacity": "Opacity",
+  "paintingUseColor": "Use Color",
+
+  "puzzleTitle": "Puzzle",
+  "puzzleInstruction": "Slide the tiles to re-create the correct order.",
+  "puzzleShuffle": "Shuffle",
+  "puzzleReset": "Reset",
+  "puzzleSolved": "Solved! 🎉",
+  "plantArticleTitle": "The calming effect of plants",
+  "plantArticleIntro": "Greenery does more than decorate your space — it relaxes your mind. Caring for a plant slows you down and brings your focus to the present moment.",
+  "plantArticleBenefitsTitle": "Benefits at a glance",
+  "plantArticleBullet1": "Reduces stress and mental fatigue",
+  "plantArticleBullet2": "Improves focus and creativity",
+  "plantArticleBullet3": "Adds gentle, natural color to your room",
+  "plantArticleBullet4": "Creates a tiny daily ritual (water, prune, observe)",
+  "plantArticleQuote": "“To nurture a garden is to feed not just the body, but the soul.”",
+  "plantArticleTipTitle": "Tip of the day",
+  "plantArticleTipBody": "Place one small plant near where you work most. Check in with it once a day — a 30-second reset for your brain.",
+  "plantArticleFooter": "Keep growing — one leaf at a time 🌿",
+  "sportArticleTitle": "Boost your mood with sports",
+  "sportArticleHeroText": "A little motion\\ncreates a lot of emotion 💪✨",
+  "sportArticleIntro": "Moving your body is one of the fastest ways to lift your mood. Activity releases endorphins — your brain’s natural “feel-good” chemicals.",
+  "sportArticleEasyWaysTitle": "Easy ways to start",
+  "sportArticleBullet1": "5–10 minute walk after meals",
+  "sportArticleBullet2": "1 song dance break while making coffee",
+  "sportArticleBullet3": "Light stretches while watching TV",
+  "sportArticleBullet4": "Invite a friend for a short jog or cycle",
+  "sportArticleQuote": "Show up for 5 minutes. Most days, that’s all it takes to start.",
+  "sportArticleRememberTitle": "Remember",
+  "sportArticleRememberBody": "Pick a movement that makes you smile — not just one that makes you sweat. Joy builds consistency, and consistency lifts mood.",
+  "sportArticleStartActivityCta": "Start an activity"
+
+
 }

@@ -34,6 +34,24 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
+  /// Refresh user data from database (for profile screen)
+  Future<void> refreshUserData() async {
+    if (state.user == null) return;
+    
+    try {
+      final userMap = await DBHelper.getUserById(state.user!.id);
+      if (userMap != null) {
+        final updatedUser = User.fromMap(userMap);
+        emit(state.copyWith(
+          user: updatedUser,
+          isAuthenticated: true,
+        ));
+      }
+    } catch (e) {
+      print('Error refreshing user data: $e');
+    }
+  }
+
   /// Sign up a new user
   Future<bool> signUp(String name, String email, String password) async {
     emit(state.copyWith(isLoading: true));
@@ -124,79 +142,48 @@ class AuthCubit extends Cubit<AuthState> {
     emit(state.copyWith(error: null));
   }
 
-  // Add these methods to your existing AuthCubit class
-
-// Update user name
-Future<void> updateUserName(String newName) async {
-  if (state.user == null) return;
-  
-  try {
-    // Update in database (you'll need to add this method to DBHelper)
-    await DBHelper.updateUserName(state.user!.id, newName);
+  /// Update user name
+  Future<void> updateUserName(String newName) async {
+    if (state.user == null) return;
     
-    // Update state with new name
-    final updatedUser = User(
-      id: state.user!.id,
-      name: newName,
-      email: state.user!.email,
-      totalPoints: state.user!.totalPoints,
-      stars: state.user!.stars,
-      createdAt: state.user!.createdAt,
-    );
-    
-    emit(AuthState(
-      isAuthenticated: true,
-      user: updatedUser,
-      isLoading: false,
-    ));
-    
-    // Update shared preferences
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('userName', newName);
-  } catch (e) {
-    print('Error updating user name: $e');
-  }
-}
-
-// Update user email
-Future<void> updateUserEmail(String newEmail) async {
-  if (state.user == null) return;
-  
-  try {
-    // Check if email already exists
-    final exists = await DBHelper.userExists(newEmail);
-    if (exists) {
-      throw Exception('Email already in use');
+    try {
+      // Update in database
+      await DBHelper.updateUserName(state.user!.id, newName);
+      
+      // Refresh user data to get updated info
+      await refreshUserData();
+      
+      // Update shared preferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('userName', newName);
+    } catch (e) {
+      print('Error updating user name: $e');
     }
-    
-    // Update in database (you'll need to add this method to DBHelper)
-    await DBHelper.updateUserEmail(state.user!.id, newEmail);
-    
-    // Update state with new email
-    final updatedUser = User(
-      id: state.user!.id,
-      name: state.user!.name,
-      email: newEmail,
-      totalPoints: state.user!.totalPoints,
-      stars: state.user!.stars,
-      createdAt: state.user!.createdAt,
-    );
-    
-    emit(AuthState(
-      isAuthenticated: true,
-      user: updatedUser,
-      isLoading: false,
-    ));
-    
-    // Update shared preferences
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('userEmail', newEmail);
-  } catch (e) {
-    print('Error updating user email: $e');
-    rethrow;
   }
-}
 
-
-
+  /// Update user email
+  Future<void> updateUserEmail(String newEmail) async {
+    if (state.user == null) return;
+    
+    try {
+      // Check if email already exists
+      final exists = await DBHelper.userExists(newEmail);
+      if (exists && newEmail != state.user!.email) {
+        throw Exception('Email already in use');
+      }
+      
+      // Update in database
+      await DBHelper.updateUserEmail(state.user!.id, newEmail);
+      
+      // Refresh user data to get updated info
+      await refreshUserData();
+      
+      // Update shared preferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('userEmail', newEmail);
+    } catch (e) {
+      print('Error updating user email: $e');
+      rethrow;
+    }
+  }
 }

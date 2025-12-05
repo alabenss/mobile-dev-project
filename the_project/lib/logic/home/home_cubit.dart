@@ -19,7 +19,7 @@ class HomeCubit extends Cubit<HomeState> {
     return super.close();
   }
 
-  // Load initial values (water, detox, mood, userName, and daily habits)
+  // Load initial values (water, detox, userName, and daily habits)
   Future<void> loadInitial({String? userName}) async {
     final status = await _repo.loadTodayStatus();
     
@@ -30,9 +30,6 @@ class HomeCubit extends Cubit<HomeState> {
       waterCount: status.waterCount,
       waterGoal: status.waterGoal,
       detoxProgress: status.detoxProgress,
-      selectedMoodImage: status.moodImage,
-      selectedMoodLabel: status.moodLabel,
-      selectedMoodTime: status.moodTime,
       userName: userName ?? state.userName,
       dailyHabits: dailyHabits,
     ));
@@ -43,26 +40,8 @@ class HomeCubit extends Cubit<HomeState> {
       waterCount: state.waterCount,
       waterGoal: state.waterGoal,
       detoxProgress: state.detoxProgress,
-      moodImage: state.selectedMoodImage,
-      moodLabel: state.selectedMoodLabel,
-      moodTime: state.selectedMoodTime,
     );
     await _repo.saveStatus(status);
-  }
-
-  // mood – now persisted
-  Future<void> setMood(String moodImage, String moodLabel) async {
-    final isReset = moodImage.isEmpty && moodLabel.isEmpty;
-    if (isReset) {
-      emit(state.copyWith(clearMood: true));
-    } else {
-      emit(state.copyWith(
-        selectedMoodImage: moodImage,
-        selectedMoodLabel: moodLabel,
-        selectedMoodTime: DateTime.now(),
-      ));
-    }
-    await _persist();
   }
 
   // water – persisted

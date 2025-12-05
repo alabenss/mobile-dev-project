@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../themes/style_simple/colors.dart';
 import '../../../models/habit_model.dart';
 
@@ -12,6 +13,18 @@ class HabitCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
+    // Format frequency for display
+    String frequencyText = habit.frequency;
+    if (habit.frequency == 'Daily') {
+      frequencyText = l10n.today;
+    } else if (habit.frequency == 'Weekly') {
+      frequencyText = l10n.weekly;
+    } else if (habit.frequency == 'Monthly') {
+      frequencyText = l10n.monthly;
+    }
+
     return Card(
       color: AppColors.card.withOpacity(0.85),
       shape: RoundedRectangleBorder(
@@ -27,7 +40,9 @@ class HabitCard extends StatelessWidget {
           ),
         ),
         subtitle: Text(
-          '${habit.frequency}${habit.time != null ? " at ${habit.time!.format(context)}" : ""}',
+          habit.time != null 
+            ? '$frequencyText at ${habit.time!.format(context)}'
+            : frequencyText,
           style: const TextStyle(
             color: AppColors.textSecondary,
             fontSize: 13,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:the_project/l10n/app_localizations.dart';
 
 import '../../../commons/config.dart';
 import '../../../commons/constants.dart';
@@ -35,11 +36,14 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Load initial data when screen is created
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final authState = context.read<AuthCubit>().state;
-      final userName = authState.user?.name ?? 'Guest';
-      context.read<HomeCubit>().loadInitial(userName: userName);
+
+      if (authState.isAuthenticated && authState.user != null) {
+        context.read<HomeCubit>().loadInitial(
+          userName: authState.user!.name,
+        );
+      }
     });
   }
 
@@ -56,9 +60,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!; // <-- added
+
     return BlocBuilder<HomeCubit, HomeState>(
       builder: (context, state) {
         final homeCubit = context.read<HomeCubit>();
+
+        // Limit to first 2 daily habits only
+        final habitsToShow = state.dailyHabits.take(2).toList();
 
         return Container(
           decoration: const BoxDecoration(
@@ -91,9 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 18),
 
                 const SizedBox(height: 10),
-                MoodCard(
-
-                ),
+                const MoodCard(),
 
                 const SizedBox(height: 12),
 
@@ -119,7 +126,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           lockEndTime: state.lockEndTime,
                           onDisableLock: homeCubit.disableLock,
                           permissionDenied: state.permissionDenied,
-                          onPermissionDeniedDismiss: homeCubit.clearPermissionDenied,
+                          onPermissionDeniedDismiss:
+                              homeCubit.clearPermissionDenied,
                         ),
                       ),
                     ],
@@ -129,11 +137,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 12),
 
                 SectionCard(
-                  title: 'Daily habits:',
+                  title: l10n.todaysHabits, // <-- localized
                   trailing: GestureDetector(
                     onTap: onViewAllHabits,
                     child: const Text(
-                      'view all',
+                      'view all', // no key in ARB yet, left as-is
                       style: TextStyle(
                         fontWeight: FontWeight.w500,
                         fontSize: 14,
@@ -141,13 +149,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  child: state.dailyHabits.isEmpty
-                      ? const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 16.0),
+                  child: habitsToShow.isEmpty
+                      ? Padding( // <-- removed const to use l10n
+                          padding: const EdgeInsets.symmetric(vertical: 16.0),
                           child: Center(
                             child: Text(
-                              'No daily habits yet. Tap "view all" to add some!',
-                              style: TextStyle(
+                              '${l10n.noDailyHabits}\n${l10n.tapToAddHabit}', // <-- localized text
+                              style: const TextStyle(
                                 fontSize: 14,
                                 color: AppColors.textSecondary,
                               ),
@@ -157,19 +165,19 @@ class _HomeScreenState extends State<HomeScreen> {
                         )
                       : Column(
                           children: [
-                            for (int i = 0; i < state.dailyHabits.length; i++) ...[
+                            for (int i = 0; i < habitsToShow.length; i++) ...[
                               HabitTile(
-                                icon: state.dailyHabits[i].icon,
-                                title: state.dailyHabits[i].title,
-                                checked: state.dailyHabits[i].done,
+                                icon: habitsToShow[i].icon,
+                                title: habitsToShow[i].title,
+                                checked: habitsToShow[i].done,
                                 onToggle: () {
                                   homeCubit.toggleHabitCompletion(
-                                    state.dailyHabits[i].title,
-                                    state.dailyHabits[i].done,
+                                    habitsToShow[i].title,
+                                    habitsToShow[i].done,
                                   );
                                 },
                               ),
-                              if (i < state.dailyHabits.length - 1)
+                              if (i < habitsToShow.length - 1)
                                 const SizedBox(height: 8),
                             ],
                           ],
@@ -180,7 +188,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 18),
 
                 const Text(
-                  'Explore',
+                  'Explore', // no key in ARB yet, left as-is
                   style: TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 20,
@@ -203,8 +211,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                         child: ExploreCard(
                           color: AppColors.mint,
-                          title: 'The calming effect of plants',
-                          cta: 'Read Now',
+                          title: 'The calming effect of plants', // left as-is
+                          cta: 'Read Now', // left as-is (no key yet)
                           assetImage: AppImages.plantIcon,
                         ),
                       ),
@@ -222,7 +230,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                         child: ExploreCard(
                           color: AppColors.primary,
-                          title: 'Boost your\nmood with\nsports',
+                          title: 'Boost your\nmood with\nsports', // left as-is
                           cta: '',
                           assetImage: AppImages.boostMoodIcon,
                         ),

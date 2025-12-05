@@ -6,8 +6,22 @@ import '../../../logic/auth/auth_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Refresh user data when screen is opened
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AuthCubit>().refreshUserData();
+    });
+  }
 
   String _formatJoinedDate(String? dateString) {
     if (dateString == null || dateString.isEmpty) {
@@ -113,7 +127,7 @@ class ProfileScreen extends StatelessWidget {
 
                     const SizedBox(height: 16),
 
-                    // 📝 Username
+                    // 📛 Username
                     Text(
                       user.name,
                       style: GoogleFonts.poppins(
@@ -384,7 +398,7 @@ class ProfileScreen extends StatelessWidget {
 }
 
 // ------------------------------------------------------------
-// 📹 Profile Field Widget
+// 🔹 Profile Field Widget
 class _ProfileField extends StatelessWidget {
   final String label;
   final String value;

@@ -77,16 +77,211 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get moodFeelingGreat => 'Feeling great';
+  String get noData => 'No data';
 
   @override
-  String get moodNice => 'Nice';
+  String get noMoodData => 'No mood data available';
 
   @override
-  String get moodOk => 'Okay';
+  String get noWaterData => 'No water data available';
+
+  @override
+  String get noScreenTimeData => 'No screen time data available';
+
+  @override
+  String get moodCalm => 'Calm';
+
+  @override
+  String get moodBalanced => 'Balanced';
 
   @override
   String get moodLow => 'Low';
+
+  @override
+  String get moodFeelingGreat => 'Feeling great';
+
+  @override
+  String get moodNice => 'Nice mood';
+
+  @override
+  String get moodOkay => 'Okay';
+
+  @override
+  String get moodFeelingLow => 'Feeling low';
+
+  @override
+  String get statsNoData => 'No data';
+
+  @override
+  String get statsNoMoodData => 'No mood data available';
+
+  @override
+  String get appLockTitle => 'App Lock';
+
+  @override
+  String get appLockChooseType => 'Choose Lock Type:';
+
+  @override
+  String get appLockPin => 'PIN';
+
+  @override
+  String get appLockPinSubtitle => 'Secure with numeric PIN';
+
+  @override
+  String get appLockPattern => 'Pattern';
+
+  @override
+  String get appLockPatternSubtitle => 'Draw a pattern to unlock';
+
+  @override
+  String get appLockPassword => 'Password';
+
+  @override
+  String get appLockPasswordSubtitle => 'Use alphanumeric password';
+
+  @override
+  String get appLockRemoveExisting => 'Remove Existing Lock';
+
+  @override
+  String appLockSetYour(Object type) {
+    return 'Set Your $type';
+  }
+
+  @override
+  String appLockConfirmYour(Object type) {
+    return 'Confirm Your $type';
+  }
+
+  @override
+  String appLockCreateLock(Object type) {
+    return 'Create your $type lock';
+  }
+
+  @override
+  String appLockReenterLock(Object type) {
+    return 'Re-enter your $type to confirm';
+  }
+
+  @override
+  String get appLockEnterPin => 'Enter 4-6 digit PIN';
+
+  @override
+  String get appLockConfirmPin => 'Confirm your PIN';
+
+  @override
+  String get appLockDrawPattern => 'Draw your pattern';
+
+  @override
+  String get appLockDrawPatternAgain => 'Draw your pattern again';
+
+  @override
+  String appLockPointsSelected(Object count) {
+    return 'Points selected: $count';
+  }
+
+  @override
+  String get appLockRedrawPattern => 'Redraw Pattern';
+
+  @override
+  String get appLockEnterPassword => 'Enter password';
+
+  @override
+  String get appLockConfirmPassword => 'Confirm your password';
+
+  @override
+  String get appLockMismatch => 'Lock values don\'t match!';
+
+  @override
+  String get appLockContinue => 'Continue';
+
+  @override
+  String get appLockSaveLock => 'Save Lock';
+
+  @override
+  String get appLockSaved => 'App lock saved successfully';
+
+  @override
+  String get appLockSaveError => 'Failed to save app lock';
+
+  @override
+  String get appLockRemoved => 'App lock removed';
+
+  @override
+  String appLockEnterToUnlock(Object type) {
+    return 'Enter $type to unlock';
+  }
+
+  @override
+  String appLockWrongAttempt(Object type) {
+    return 'Wrong $type! Try again';
+  }
+
+  @override
+  String get appLockUnlock => 'Unlock';
+
+  @override
+  String appLockForgotLock(Object type) {
+    return 'Forgot $type?';
+  }
+
+  @override
+  String get appLockVerifyIdentity => 'Verify your identity to reset the lock';
+
+  @override
+  String appLockCurrentType(Object type) {
+    return 'Current lock: $type';
+  }
+
+  @override
+  String get appLockChangeOrRemove => 'You can change or remove your current lock.';
+
+  @override
+  String get appLockEnabled => 'App Lock Enabled';
+
+  @override
+  String get appLockChangeLock => 'Change Lock';
+
+  @override
+  String get appLockRemove => 'Remove';
+
+  @override
+  String get appLockCurrentSettings => 'Current Settings';
+
+  @override
+  String get appLockRemoveConfirm => 'Remove App Lock?';
+
+  @override
+  String get appLockRemoveMessage => 'Are you sure you want to remove the app lock?';
+
+  @override
+  String get appLockCancel => 'Cancel';
+
+  @override
+  String get statsRefreshingData => 'Refreshing data...';
+
+  @override
+  String get statsLoading => 'Loading statistics...';
+
+  @override
+  String get statsErrorTitle => 'Oops! Something went wrong';
+
+  @override
+  String get commonTryAgain => 'Try Again';
+
+  @override
+  String get statsEmptyTitle => 'No Data Yet';
+
+  @override
+  String get statsEmptySubtitle => 'Start using the app to see your statistics here';
+
+  @override
+  String get statsEmptyTrackMood => 'Track your mood daily';
+
+  @override
+  String get statsEmptyLogWater => 'Log your water intake';
+
+  @override
+  String get statsEmptyWriteJournal => 'Write journal entries';
 
   @override
   String get calm => 'Calm';
@@ -110,4 +305,392 @@ class AppLocalizationsEn extends AppLocalizations {
   String hoursPerDay(Object count) {
     return '$count h/day';
   }
+
+  @override
+  String get addNewHabit => 'Add New Habit';
+
+  @override
+  String get selectHabit => 'Select Habit';
+
+  @override
+  String get customHabitName => 'Custom Habit Name';
+
+  @override
+  String get customHabit => 'Custom Habit';
+
+  @override
+  String get frequency => 'Frequency';
+
+  @override
+  String get rewardPoints => 'Reward Points';
+
+  @override
+  String get pointsEarnedOnCompletion => 'Points earned on completion';
+
+  @override
+  String get customizeReward => 'Customize the reward for this habit';
+
+  @override
+  String get time => 'Time';
+
+  @override
+  String get selectTime => 'Select time';
+
+  @override
+  String get setReminder => 'Set Reminder';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get add => 'Add';
+
+  @override
+  String habitAlreadyExists(String frequency) {
+    return 'This habit already exists with $frequency frequency!';
+  }
+
+  @override
+  String get pointsMustBeGreaterThanZero => 'Points must be greater than 0!';
+
+  @override
+  String get habitDrinkWater => 'Drink Water';
+
+  @override
+  String get habitExercise => 'Exercise';
+
+  @override
+  String get habitMeditate => 'Meditate';
+
+  @override
+  String get habitRead => 'Read';
+
+  @override
+  String get habitSleepEarly => 'Sleep Early';
+
+  @override
+  String get habitStudy => 'Study';
+
+  @override
+  String get habitWalk => 'Walk';
+
+  @override
+  String get habitOther => 'Other';
+
+  @override
+  String get noHabitsYet => 'No habits yet!\nTap + to add your first habit';
+
+  @override
+  String get todaysHabits => 'Today\'s Habits';
+
+  @override
+  String get completed => 'Completed';
+
+  @override
+  String get skipped => 'Skipped';
+
+  @override
+  String get skipHabit => 'Skip Habit?';
+
+  @override
+  String skipHabitConfirmation(String habit) {
+    return 'Are you sure you want to skip \"$habit\"?';
+  }
+
+  @override
+  String get skip => 'Skip';
+
+  @override
+  String get deleteHabit => 'Delete Habit?';
+
+  @override
+  String deleteHabitConfirmation(String habit) {
+    return 'Are you sure you want to permanently delete \"$habit\"?';
+  }
+
+  @override
+  String get actionCannotBeUndone => 'This action cannot be undone.';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String habitCompleted(String habit) {
+    return '$habit completed!';
+  }
+
+  @override
+  String habitSkipped(String habit) {
+    return '$habit skipped';
+  }
+
+  @override
+  String habitDeleted(String habit) {
+    return '🗑️ $habit deleted';
+  }
+
+  @override
+  String get noDailyHabits => 'No daily habits yet';
+
+  @override
+  String get noWeeklyHabits => 'No weekly habits yet';
+
+  @override
+  String get noMonthlyHabits => 'No monthly habits yet';
+
+  @override
+  String get tapToAddHabit => 'Tap + button to add a habit';
+
+  @override
+  String get detoxProgress => 'Detox Progress';
+
+  @override
+  String get detoxExcellent => 'Excellent Progress!';
+
+  @override
+  String get detoxGood => 'Good Progress';
+
+  @override
+  String get detoxModerate => 'Moderate Progress';
+
+  @override
+  String get detoxLow => 'Keep Going';
+
+  @override
+  String get detoxStart => 'Just Starting';
+
+  @override
+  String get detoxInfo => 'Average detox progress for the selected period';
+
+  @override
+  String failedToLoadActivities(String error) {
+    return 'Failed to load activities\\n$error';
+  }
+
+  @override
+  String get breathingTitle => 'Breath';
+
+  @override
+  String get breathingDescription => 'Take a deep breath and let your body wind down\\nfor the day.';
+
+  @override
+  String get breathingStart => 'Start';
+
+  @override
+  String get breathingStop => 'Stop';
+
+  @override
+  String get bubblePopperTitle => 'Pop It';
+
+  @override
+  String get bubblePopperDescription => 'Find calm and focus as you pop away stress, one bubble at a time.';
+
+  @override
+  String get coloringTitle => 'Coloring';
+
+  @override
+  String get coloringSaved => 'Saved! (wire export later)';
+
+  @override
+  String get coloringPickColorTitle => 'Pick a color';
+
+  @override
+  String get coloringHue => 'Hue';
+
+  @override
+  String get coloringSaturation => 'Saturation';
+
+  @override
+  String get coloringBrightness => 'Brightness';
+
+  @override
+  String get coloringOpacity => 'Opacity';
+
+  @override
+  String get coloringUseColor => 'Use color';
+
+  @override
+  String get coloringTemplateSpace => 'Space';
+
+  @override
+  String get coloringTemplateGarden => 'Garden';
+
+  @override
+  String get coloringTemplateFish => 'Fish';
+
+  @override
+  String get coloringTemplateButterfly => 'Butterfly';
+
+  @override
+  String get coloringTemplateHouse => 'House';
+
+  @override
+  String get coloringTemplateMandala => 'Mandala';
+
+  @override
+  String coloringLoadError(String error) {
+    return 'Error loading coloring page:\\n$error';
+  }
+
+  @override
+  String get growPlantTitle => 'Grow the plant';
+
+  @override
+  String get growPlantHeadline => 'Nurture your plant with water and sunlight.\\nSpend activity points to help it grow!';
+
+  @override
+  String growPlantStars(int count) {
+    return 'Stars: $count';
+  }
+
+  @override
+  String get growPlantStage => 'Stage';
+
+  @override
+  String growPlantAvailablePoints(int count) {
+    return 'Available points: $count';
+  }
+
+  @override
+  String get growPlantGetPoints => 'Get points';
+
+  @override
+  String get growPlantWaterLabel => 'Water';
+
+  @override
+  String get growPlantSunlightLabel => 'Sunlight';
+
+  @override
+  String growPlantWaterAction(int cost) {
+    return 'Water ($cost)';
+  }
+
+  @override
+  String growPlantSunAction(int cost) {
+    return 'Sun ($cost)';
+  }
+
+  @override
+  String growPlantWaterHelper(int cost) {
+    return 'Spend $cost pts';
+  }
+
+  @override
+  String growPlantSunHelper(int cost) {
+    return 'Spend $cost pts';
+  }
+
+  @override
+  String get growPlantTip => 'Tip: when both bars are full, your plant will grow to the next stage.';
+
+  @override
+  String get paintingTitle => 'Draw';
+
+  @override
+  String get paintingPrompt => 'Take a deep breath, pick your color, and let your creativity flow.';
+
+  @override
+  String get paintingSaved => 'Image Saved!.';
+
+  @override
+  String get paintingColorsTitle => 'Colors';
+
+  @override
+  String get paintingHue => 'Hue';
+
+  @override
+  String get paintingSaturation => 'Saturation';
+
+  @override
+  String get paintingValue => 'Value';
+
+  @override
+  String get paintingOpacity => 'Opacity';
+
+  @override
+  String get paintingUseColor => 'Use Color';
+
+  @override
+  String get puzzleTitle => 'Puzzle';
+
+  @override
+  String get puzzleInstruction => 'Slide the tiles to re-create the correct order.';
+
+  @override
+  String get puzzleShuffle => 'Shuffle';
+
+  @override
+  String get puzzleReset => 'Reset';
+
+  @override
+  String get puzzleSolved => 'Solved! 🎉';
+
+  @override
+  String get plantArticleTitle => 'The calming effect of plants';
+
+  @override
+  String get plantArticleIntro => 'Greenery does more than decorate your space — it relaxes your mind. Caring for a plant slows you down and brings your focus to the present moment.';
+
+  @override
+  String get plantArticleBenefitsTitle => 'Benefits at a glance';
+
+  @override
+  String get plantArticleBullet1 => 'Reduces stress and mental fatigue';
+
+  @override
+  String get plantArticleBullet2 => 'Improves focus and creativity';
+
+  @override
+  String get plantArticleBullet3 => 'Adds gentle, natural color to your room';
+
+  @override
+  String get plantArticleBullet4 => 'Creates a tiny daily ritual (water, prune, observe)';
+
+  @override
+  String get plantArticleQuote => '“To nurture a garden is to feed not just the body, but the soul.”';
+
+  @override
+  String get plantArticleTipTitle => 'Tip of the day';
+
+  @override
+  String get plantArticleTipBody => 'Place one small plant near where you work most. Check in with it once a day — a 30-second reset for your brain.';
+
+  @override
+  String get plantArticleFooter => 'Keep growing — one leaf at a time 🌿';
+
+  @override
+  String get sportArticleTitle => 'Boost your mood with sports';
+
+  @override
+  String get sportArticleHeroText => 'A little motion\\ncreates a lot of emotion 💪✨';
+
+  @override
+  String get sportArticleIntro => 'Moving your body is one of the fastest ways to lift your mood. Activity releases endorphins — your brain’s natural “feel-good” chemicals.';
+
+  @override
+  String get sportArticleEasyWaysTitle => 'Easy ways to start';
+
+  @override
+  String get sportArticleBullet1 => '5–10 minute walk after meals';
+
+  @override
+  String get sportArticleBullet2 => '1 song dance break while making coffee';
+
+  @override
+  String get sportArticleBullet3 => 'Light stretches while watching TV';
+
+  @override
+  String get sportArticleBullet4 => 'Invite a friend for a short jog or cycle';
+
+  @override
+  String get sportArticleQuote => 'Show up for 5 minutes. Most days, that’s all it takes to start.';
+
+  @override
+  String get sportArticleRememberTitle => 'Remember';
+
+  @override
+  String get sportArticleRememberBody => 'Pick a movement that makes you smile — not just one that makes you sweat. Joy builds consistency, and consistency lifts mood.';
+
+  @override
+  String get sportArticleStartActivityCta => 'Start an activity';
 }

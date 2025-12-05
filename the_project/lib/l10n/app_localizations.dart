@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
+import 'app_localizations_ar.dart';
 import 'app_localizations_en.dart';
 import 'app_localizations_fr.dart';
 
@@ -91,6 +92,7 @@ abstract class AppLocalizations {
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
+    Locale('ar'),
     Locale('en'),
     Locale('fr')
   ];
@@ -203,6 +205,48 @@ abstract class AppLocalizations {
   /// **'{count} entries total'**
   String totalEntries(int count);
 
+  /// No description provided for @noData.
+  ///
+  /// In en, this message translates to:
+  /// **'No data'**
+  String get noData;
+
+  /// No description provided for @noMoodData.
+  ///
+  /// In en, this message translates to:
+  /// **'No mood data available'**
+  String get noMoodData;
+
+  /// No description provided for @noWaterData.
+  ///
+  /// In en, this message translates to:
+  /// **'No water data available'**
+  String get noWaterData;
+
+  /// No description provided for @noScreenTimeData.
+  ///
+  /// In en, this message translates to:
+  /// **'No screen time data available'**
+  String get noScreenTimeData;
+
+  /// No description provided for @moodCalm.
+  ///
+  /// In en, this message translates to:
+  /// **'Calm'**
+  String get moodCalm;
+
+  /// No description provided for @moodBalanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Balanced'**
+  String get moodBalanced;
+
+  /// No description provided for @moodLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get moodLow;
+
   /// No description provided for @moodFeelingGreat.
   ///
   /// In en, this message translates to:
@@ -212,20 +256,332 @@ abstract class AppLocalizations {
   /// No description provided for @moodNice.
   ///
   /// In en, this message translates to:
-  /// **'Nice'**
+  /// **'Nice mood'**
   String get moodNice;
 
-  /// No description provided for @moodOk.
+  /// No description provided for @moodOkay.
   ///
   /// In en, this message translates to:
   /// **'Okay'**
-  String get moodOk;
+  String get moodOkay;
 
-  /// No description provided for @moodLow.
+  /// No description provided for @moodFeelingLow.
   ///
   /// In en, this message translates to:
-  /// **'Low'**
-  String get moodLow;
+  /// **'Feeling low'**
+  String get moodFeelingLow;
+
+  /// No description provided for @statsNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No data'**
+  String get statsNoData;
+
+  /// No description provided for @statsNoMoodData.
+  ///
+  /// In en, this message translates to:
+  /// **'No mood data available'**
+  String get statsNoMoodData;
+
+  /// No description provided for @appLockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'App Lock'**
+  String get appLockTitle;
+
+  /// No description provided for @appLockChooseType.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Lock Type:'**
+  String get appLockChooseType;
+
+  /// No description provided for @appLockPin.
+  ///
+  /// In en, this message translates to:
+  /// **'PIN'**
+  String get appLockPin;
+
+  /// No description provided for @appLockPinSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Secure with numeric PIN'**
+  String get appLockPinSubtitle;
+
+  /// No description provided for @appLockPattern.
+  ///
+  /// In en, this message translates to:
+  /// **'Pattern'**
+  String get appLockPattern;
+
+  /// No description provided for @appLockPatternSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Draw a pattern to unlock'**
+  String get appLockPatternSubtitle;
+
+  /// No description provided for @appLockPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get appLockPassword;
+
+  /// No description provided for @appLockPasswordSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Use alphanumeric password'**
+  String get appLockPasswordSubtitle;
+
+  /// No description provided for @appLockRemoveExisting.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove Existing Lock'**
+  String get appLockRemoveExisting;
+
+  /// No description provided for @appLockSetYour.
+  ///
+  /// In en, this message translates to:
+  /// **'Set Your {type}'**
+  String appLockSetYour(Object type);
+
+  /// No description provided for @appLockConfirmYour.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Your {type}'**
+  String appLockConfirmYour(Object type);
+
+  /// No description provided for @appLockCreateLock.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your {type} lock'**
+  String appLockCreateLock(Object type);
+
+  /// No description provided for @appLockReenterLock.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-enter your {type} to confirm'**
+  String appLockReenterLock(Object type);
+
+  /// No description provided for @appLockEnterPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter 4-6 digit PIN'**
+  String get appLockEnterPin;
+
+  /// No description provided for @appLockConfirmPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm your PIN'**
+  String get appLockConfirmPin;
+
+  /// No description provided for @appLockDrawPattern.
+  ///
+  /// In en, this message translates to:
+  /// **'Draw your pattern'**
+  String get appLockDrawPattern;
+
+  /// No description provided for @appLockDrawPatternAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Draw your pattern again'**
+  String get appLockDrawPatternAgain;
+
+  /// No description provided for @appLockPointsSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Points selected: {count}'**
+  String appLockPointsSelected(Object count);
+
+  /// No description provided for @appLockRedrawPattern.
+  ///
+  /// In en, this message translates to:
+  /// **'Redraw Pattern'**
+  String get appLockRedrawPattern;
+
+  /// No description provided for @appLockEnterPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter password'**
+  String get appLockEnterPassword;
+
+  /// No description provided for @appLockConfirmPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm your password'**
+  String get appLockConfirmPassword;
+
+  /// No description provided for @appLockMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock values don\'t match!'**
+  String get appLockMismatch;
+
+  /// No description provided for @appLockContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get appLockContinue;
+
+  /// No description provided for @appLockSaveLock.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Lock'**
+  String get appLockSaveLock;
+
+  /// No description provided for @appLockSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'App lock saved successfully'**
+  String get appLockSaved;
+
+  /// No description provided for @appLockSaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to save app lock'**
+  String get appLockSaveError;
+
+  /// No description provided for @appLockRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'App lock removed'**
+  String get appLockRemoved;
+
+  /// No description provided for @appLockEnterToUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter {type} to unlock'**
+  String appLockEnterToUnlock(Object type);
+
+  /// No description provided for @appLockWrongAttempt.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong {type}! Try again'**
+  String appLockWrongAttempt(Object type);
+
+  /// No description provided for @appLockUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock'**
+  String get appLockUnlock;
+
+  /// No description provided for @appLockForgotLock.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot {type}?'**
+  String appLockForgotLock(Object type);
+
+  /// No description provided for @appLockVerifyIdentity.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your identity to reset the lock'**
+  String get appLockVerifyIdentity;
+
+  /// No description provided for @appLockCurrentType.
+  ///
+  /// In en, this message translates to:
+  /// **'Current lock: {type}'**
+  String appLockCurrentType(Object type);
+
+  /// No description provided for @appLockChangeOrRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'You can change or remove your current lock.'**
+  String get appLockChangeOrRemove;
+
+  /// No description provided for @appLockEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'App Lock Enabled'**
+  String get appLockEnabled;
+
+  /// No description provided for @appLockChangeLock.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Lock'**
+  String get appLockChangeLock;
+
+  /// No description provided for @appLockRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get appLockRemove;
+
+  /// No description provided for @appLockCurrentSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Settings'**
+  String get appLockCurrentSettings;
+
+  /// No description provided for @appLockRemoveConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove App Lock?'**
+  String get appLockRemoveConfirm;
+
+  /// No description provided for @appLockRemoveMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to remove the app lock?'**
+  String get appLockRemoveMessage;
+
+  /// No description provided for @appLockCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get appLockCancel;
+
+  /// No description provided for @statsRefreshingData.
+  ///
+  /// In en, this message translates to:
+  /// **'Refreshing data...'**
+  String get statsRefreshingData;
+
+  /// No description provided for @statsLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading statistics...'**
+  String get statsLoading;
+
+  /// No description provided for @statsErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Oops! Something went wrong'**
+  String get statsErrorTitle;
+
+  /// No description provided for @commonTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try Again'**
+  String get commonTryAgain;
+
+  /// No description provided for @statsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No Data Yet'**
+  String get statsEmptyTitle;
+
+  /// No description provided for @statsEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start using the app to see your statistics here'**
+  String get statsEmptySubtitle;
+
+  /// No description provided for @statsEmptyTrackMood.
+  ///
+  /// In en, this message translates to:
+  /// **'Track your mood daily'**
+  String get statsEmptyTrackMood;
+
+  /// No description provided for @statsEmptyLogWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Log your water intake'**
+  String get statsEmptyLogWater;
+
+  /// No description provided for @statsEmptyWriteJournal.
+  ///
+  /// In en, this message translates to:
+  /// **'Write journal entries'**
+  String get statsEmptyWriteJournal;
 
   /// No description provided for @calm.
   ///
@@ -268,6 +624,726 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} h/day'**
   String hoursPerDay(Object count);
+
+  /// No description provided for @addNewHabit.
+  ///
+  /// In en, this message translates to:
+  /// **'Add New Habit'**
+  String get addNewHabit;
+
+  /// No description provided for @selectHabit.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Habit'**
+  String get selectHabit;
+
+  /// No description provided for @customHabitName.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom Habit Name'**
+  String get customHabitName;
+
+  /// No description provided for @customHabit.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom Habit'**
+  String get customHabit;
+
+  /// No description provided for @frequency.
+  ///
+  /// In en, this message translates to:
+  /// **'Frequency'**
+  String get frequency;
+
+  /// No description provided for @rewardPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward Points'**
+  String get rewardPoints;
+
+  /// No description provided for @pointsEarnedOnCompletion.
+  ///
+  /// In en, this message translates to:
+  /// **'Points earned on completion'**
+  String get pointsEarnedOnCompletion;
+
+  /// No description provided for @customizeReward.
+  ///
+  /// In en, this message translates to:
+  /// **'Customize the reward for this habit'**
+  String get customizeReward;
+
+  /// No description provided for @time.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get time;
+
+  /// No description provided for @selectTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Select time'**
+  String get selectTime;
+
+  /// No description provided for @setReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Set Reminder'**
+  String get setReminder;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @add.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get add;
+
+  /// No description provided for @habitAlreadyExists.
+  ///
+  /// In en, this message translates to:
+  /// **'This habit already exists with {frequency} frequency!'**
+  String habitAlreadyExists(String frequency);
+
+  /// No description provided for @pointsMustBeGreaterThanZero.
+  ///
+  /// In en, this message translates to:
+  /// **'Points must be greater than 0!'**
+  String get pointsMustBeGreaterThanZero;
+
+  /// No description provided for @habitDrinkWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Drink Water'**
+  String get habitDrinkWater;
+
+  /// No description provided for @habitExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercise'**
+  String get habitExercise;
+
+  /// No description provided for @habitMeditate.
+  ///
+  /// In en, this message translates to:
+  /// **'Meditate'**
+  String get habitMeditate;
+
+  /// No description provided for @habitRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Read'**
+  String get habitRead;
+
+  /// No description provided for @habitSleepEarly.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep Early'**
+  String get habitSleepEarly;
+
+  /// No description provided for @habitStudy.
+  ///
+  /// In en, this message translates to:
+  /// **'Study'**
+  String get habitStudy;
+
+  /// No description provided for @habitWalk.
+  ///
+  /// In en, this message translates to:
+  /// **'Walk'**
+  String get habitWalk;
+
+  /// No description provided for @habitOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get habitOther;
+
+  /// No description provided for @noHabitsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No habits yet!\nTap + to add your first habit'**
+  String get noHabitsYet;
+
+  /// No description provided for @todaysHabits.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s Habits'**
+  String get todaysHabits;
+
+  /// No description provided for @completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get completed;
+
+  /// No description provided for @skipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped'**
+  String get skipped;
+
+  /// No description provided for @skipHabit.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip Habit?'**
+  String get skipHabit;
+
+  /// No description provided for @skipHabitConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to skip \"{habit}\"?'**
+  String skipHabitConfirmation(String habit);
+
+  /// No description provided for @skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get skip;
+
+  /// No description provided for @deleteHabit.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Habit?'**
+  String get deleteHabit;
+
+  /// No description provided for @deleteHabitConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to permanently delete \"{habit}\"?'**
+  String deleteHabitConfirmation(String habit);
+
+  /// No description provided for @actionCannotBeUndone.
+  ///
+  /// In en, this message translates to:
+  /// **'This action cannot be undone.'**
+  String get actionCannotBeUndone;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @habitCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'{habit} completed!'**
+  String habitCompleted(String habit);
+
+  /// No description provided for @habitSkipped.
+  ///
+  /// In en, this message translates to:
+  /// **'{habit} skipped'**
+  String habitSkipped(String habit);
+
+  /// No description provided for @habitDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'🗑️ {habit} deleted'**
+  String habitDeleted(String habit);
+
+  /// No description provided for @noDailyHabits.
+  ///
+  /// In en, this message translates to:
+  /// **'No daily habits yet'**
+  String get noDailyHabits;
+
+  /// No description provided for @noWeeklyHabits.
+  ///
+  /// In en, this message translates to:
+  /// **'No weekly habits yet'**
+  String get noWeeklyHabits;
+
+  /// No description provided for @noMonthlyHabits.
+  ///
+  /// In en, this message translates to:
+  /// **'No monthly habits yet'**
+  String get noMonthlyHabits;
+
+  /// No description provided for @tapToAddHabit.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap + button to add a habit'**
+  String get tapToAddHabit;
+
+  /// No description provided for @detoxProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Detox Progress'**
+  String get detoxProgress;
+
+  /// No description provided for @detoxExcellent.
+  ///
+  /// In en, this message translates to:
+  /// **'Excellent Progress!'**
+  String get detoxExcellent;
+
+  /// No description provided for @detoxGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Progress'**
+  String get detoxGood;
+
+  /// No description provided for @detoxModerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate Progress'**
+  String get detoxModerate;
+
+  /// No description provided for @detoxLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep Going'**
+  String get detoxLow;
+
+  /// No description provided for @detoxStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Just Starting'**
+  String get detoxStart;
+
+  /// No description provided for @detoxInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Average detox progress for the selected period'**
+  String get detoxInfo;
+
+  /// No description provided for @failedToLoadActivities.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load activities\\n{error}'**
+  String failedToLoadActivities(String error);
+
+  /// No description provided for @breathingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Breath'**
+  String get breathingTitle;
+
+  /// No description provided for @breathingDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a deep breath and let your body wind down\\nfor the day.'**
+  String get breathingDescription;
+
+  /// No description provided for @breathingStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get breathingStart;
+
+  /// No description provided for @breathingStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get breathingStop;
+
+  /// No description provided for @bubblePopperTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pop It'**
+  String get bubblePopperTitle;
+
+  /// No description provided for @bubblePopperDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Find calm and focus as you pop away stress, one bubble at a time.'**
+  String get bubblePopperDescription;
+
+  /// No description provided for @coloringTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Coloring'**
+  String get coloringTitle;
+
+  /// No description provided for @coloringSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved! (wire export later)'**
+  String get coloringSaved;
+
+  /// No description provided for @coloringPickColorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a color'**
+  String get coloringPickColorTitle;
+
+  /// No description provided for @coloringHue.
+  ///
+  /// In en, this message translates to:
+  /// **'Hue'**
+  String get coloringHue;
+
+  /// No description provided for @coloringSaturation.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturation'**
+  String get coloringSaturation;
+
+  /// No description provided for @coloringBrightness.
+  ///
+  /// In en, this message translates to:
+  /// **'Brightness'**
+  String get coloringBrightness;
+
+  /// No description provided for @coloringOpacity.
+  ///
+  /// In en, this message translates to:
+  /// **'Opacity'**
+  String get coloringOpacity;
+
+  /// No description provided for @coloringUseColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Use color'**
+  String get coloringUseColor;
+
+  /// No description provided for @coloringTemplateSpace.
+  ///
+  /// In en, this message translates to:
+  /// **'Space'**
+  String get coloringTemplateSpace;
+
+  /// No description provided for @coloringTemplateGarden.
+  ///
+  /// In en, this message translates to:
+  /// **'Garden'**
+  String get coloringTemplateGarden;
+
+  /// No description provided for @coloringTemplateFish.
+  ///
+  /// In en, this message translates to:
+  /// **'Fish'**
+  String get coloringTemplateFish;
+
+  /// No description provided for @coloringTemplateButterfly.
+  ///
+  /// In en, this message translates to:
+  /// **'Butterfly'**
+  String get coloringTemplateButterfly;
+
+  /// No description provided for @coloringTemplateHouse.
+  ///
+  /// In en, this message translates to:
+  /// **'House'**
+  String get coloringTemplateHouse;
+
+  /// No description provided for @coloringTemplateMandala.
+  ///
+  /// In en, this message translates to:
+  /// **'Mandala'**
+  String get coloringTemplateMandala;
+
+  /// No description provided for @coloringLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading coloring page:\\n{error}'**
+  String coloringLoadError(String error);
+
+  /// No description provided for @growPlantTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Grow the plant'**
+  String get growPlantTitle;
+
+  /// No description provided for @growPlantHeadline.
+  ///
+  /// In en, this message translates to:
+  /// **'Nurture your plant with water and sunlight.\\nSpend activity points to help it grow!'**
+  String get growPlantHeadline;
+
+  /// No description provided for @growPlantStars.
+  ///
+  /// In en, this message translates to:
+  /// **'Stars: {count}'**
+  String growPlantStars(int count);
+
+  /// No description provided for @growPlantStage.
+  ///
+  /// In en, this message translates to:
+  /// **'Stage'**
+  String get growPlantStage;
+
+  /// No description provided for @growPlantAvailablePoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Available points: {count}'**
+  String growPlantAvailablePoints(int count);
+
+  /// No description provided for @growPlantGetPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Get points'**
+  String get growPlantGetPoints;
+
+  /// No description provided for @growPlantWaterLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Water'**
+  String get growPlantWaterLabel;
+
+  /// No description provided for @growPlantSunlightLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunlight'**
+  String get growPlantSunlightLabel;
+
+  /// No description provided for @growPlantWaterAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Water ({cost})'**
+  String growPlantWaterAction(int cost);
+
+  /// No description provided for @growPlantSunAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Sun ({cost})'**
+  String growPlantSunAction(int cost);
+
+  /// No description provided for @growPlantWaterHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Spend {cost} pts'**
+  String growPlantWaterHelper(int cost);
+
+  /// No description provided for @growPlantSunHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Spend {cost} pts'**
+  String growPlantSunHelper(int cost);
+
+  /// No description provided for @growPlantTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: when both bars are full, your plant will grow to the next stage.'**
+  String get growPlantTip;
+
+  /// No description provided for @paintingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Draw'**
+  String get paintingTitle;
+
+  /// No description provided for @paintingPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a deep breath, pick your color, and let your creativity flow.'**
+  String get paintingPrompt;
+
+  /// No description provided for @paintingSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Image Saved!.'**
+  String get paintingSaved;
+
+  /// No description provided for @paintingColorsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Colors'**
+  String get paintingColorsTitle;
+
+  /// No description provided for @paintingHue.
+  ///
+  /// In en, this message translates to:
+  /// **'Hue'**
+  String get paintingHue;
+
+  /// No description provided for @paintingSaturation.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturation'**
+  String get paintingSaturation;
+
+  /// No description provided for @paintingValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Value'**
+  String get paintingValue;
+
+  /// No description provided for @paintingOpacity.
+  ///
+  /// In en, this message translates to:
+  /// **'Opacity'**
+  String get paintingOpacity;
+
+  /// No description provided for @paintingUseColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Use Color'**
+  String get paintingUseColor;
+
+  /// No description provided for @puzzleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Puzzle'**
+  String get puzzleTitle;
+
+  /// No description provided for @puzzleInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Slide the tiles to re-create the correct order.'**
+  String get puzzleInstruction;
+
+  /// No description provided for @puzzleShuffle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shuffle'**
+  String get puzzleShuffle;
+
+  /// No description provided for @puzzleReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get puzzleReset;
+
+  /// No description provided for @puzzleSolved.
+  ///
+  /// In en, this message translates to:
+  /// **'Solved! 🎉'**
+  String get puzzleSolved;
+
+  /// No description provided for @plantArticleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The calming effect of plants'**
+  String get plantArticleTitle;
+
+  /// No description provided for @plantArticleIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Greenery does more than decorate your space — it relaxes your mind. Caring for a plant slows you down and brings your focus to the present moment.'**
+  String get plantArticleIntro;
+
+  /// No description provided for @plantArticleBenefitsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Benefits at a glance'**
+  String get plantArticleBenefitsTitle;
+
+  /// No description provided for @plantArticleBullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'Reduces stress and mental fatigue'**
+  String get plantArticleBullet1;
+
+  /// No description provided for @plantArticleBullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'Improves focus and creativity'**
+  String get plantArticleBullet2;
+
+  /// No description provided for @plantArticleBullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'Adds gentle, natural color to your room'**
+  String get plantArticleBullet3;
+
+  /// No description provided for @plantArticleBullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'Creates a tiny daily ritual (water, prune, observe)'**
+  String get plantArticleBullet4;
+
+  /// No description provided for @plantArticleQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'“To nurture a garden is to feed not just the body, but the soul.”'**
+  String get plantArticleQuote;
+
+  /// No description provided for @plantArticleTipTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip of the day'**
+  String get plantArticleTipTitle;
+
+  /// No description provided for @plantArticleTipBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Place one small plant near where you work most. Check in with it once a day — a 30-second reset for your brain.'**
+  String get plantArticleTipBody;
+
+  /// No description provided for @plantArticleFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep growing — one leaf at a time 🌿'**
+  String get plantArticleFooter;
+
+  /// No description provided for @sportArticleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Boost your mood with sports'**
+  String get sportArticleTitle;
+
+  /// No description provided for @sportArticleHeroText.
+  ///
+  /// In en, this message translates to:
+  /// **'A little motion\\ncreates a lot of emotion 💪✨'**
+  String get sportArticleHeroText;
+
+  /// No description provided for @sportArticleIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Moving your body is one of the fastest ways to lift your mood. Activity releases endorphins — your brain’s natural “feel-good” chemicals.'**
+  String get sportArticleIntro;
+
+  /// No description provided for @sportArticleEasyWaysTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Easy ways to start'**
+  String get sportArticleEasyWaysTitle;
+
+  /// No description provided for @sportArticleBullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'5–10 minute walk after meals'**
+  String get sportArticleBullet1;
+
+  /// No description provided for @sportArticleBullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'1 song dance break while making coffee'**
+  String get sportArticleBullet2;
+
+  /// No description provided for @sportArticleBullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'Light stretches while watching TV'**
+  String get sportArticleBullet3;
+
+  /// No description provided for @sportArticleBullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite a friend for a short jog or cycle'**
+  String get sportArticleBullet4;
+
+  /// No description provided for @sportArticleQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'Show up for 5 minutes. Most days, that’s all it takes to start.'**
+  String get sportArticleQuote;
+
+  /// No description provided for @sportArticleRememberTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remember'**
+  String get sportArticleRememberTitle;
+
+  /// No description provided for @sportArticleRememberBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a movement that makes you smile — not just one that makes you sweat. Joy builds consistency, and consistency lifts mood.'**
+  String get sportArticleRememberBody;
+
+  /// No description provided for @sportArticleStartActivityCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Start an activity'**
+  String get sportArticleStartActivityCta;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
@@ -279,7 +1355,7 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['en', 'fr'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['ar', 'en', 'fr'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -290,6 +1366,7 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
 
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
+    case 'ar': return AppLocalizationsAr();
     case 'en': return AppLocalizationsEn();
     case 'fr': return AppLocalizationsFr();
   }

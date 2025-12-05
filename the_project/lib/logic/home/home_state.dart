@@ -7,10 +7,6 @@ class HomeState {
   final double detoxProgress;
   final String userName;
   final List<Habit> dailyHabits;
-
-  final String? selectedMoodImage;
-  final String? selectedMoodLabel;
-  final DateTime? selectedMoodTime;
   
   // Timer fields
   final bool isPhoneLocked;
@@ -20,14 +16,11 @@ class HomeState {
   final bool permissionDenied;
 
   const HomeState({
-    this.waterCount = 4,
+    this.waterCount = 0,
     this.waterGoal = 8,
-    this.detoxProgress = 0.35,
+    this.detoxProgress = 0,
     this.userName = 'Guest',
     this.dailyHabits = const [],
-    this.selectedMoodImage,
-    this.selectedMoodLabel,
-    this.selectedMoodTime,
     this.isPhoneLocked = false,
     this.lockEndTime,
     this.permissionDenied = false,
@@ -39,10 +32,6 @@ class HomeState {
     double? detoxProgress,
     String? userName,
     List<Habit>? dailyHabits,
-    String? selectedMoodImage,
-    String? selectedMoodLabel,
-    DateTime? selectedMoodTime,
-    bool clearMood = false,
     bool? isPhoneLocked,
     DateTime? lockEndTime,
     bool clearLock = false,
@@ -54,12 +43,6 @@ class HomeState {
       detoxProgress: detoxProgress ?? this.detoxProgress,
       userName: userName ?? this.userName,
       dailyHabits: dailyHabits ?? this.dailyHabits,
-      selectedMoodImage:
-          clearMood ? null : (selectedMoodImage ?? this.selectedMoodImage),
-      selectedMoodLabel:
-          clearMood ? null : (selectedMoodLabel ?? this.selectedMoodLabel),
-      selectedMoodTime:
-          clearMood ? null : (selectedMoodTime ?? this.selectedMoodTime),
       isPhoneLocked: clearLock ? false : (isPhoneLocked ?? this.isPhoneLocked),
       lockEndTime: clearLock ? null : (lockEndTime ?? this.lockEndTime),
       permissionDenied: permissionDenied ?? this.permissionDenied,

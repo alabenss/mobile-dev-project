@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../themes/style_simple/colors.dart';
 
 import '../../../models/habit_model.dart';
@@ -27,7 +28,9 @@ class _HabitsScreenState extends State<HabitsScreen>
     
     // Load habits when screen initializes
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<HabitCubit>().loadHabits();
+      if (mounted) {
+        context.read<HabitCubit>().loadHabits();
+      }
     });
   }
 
@@ -39,6 +42,8 @@ class _HabitsScreenState extends State<HabitsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Container(
@@ -53,7 +58,7 @@ class _HabitsScreenState extends State<HabitsScreen>
           child: Column(
             children: [
               const SizedBox(height: 16),
-              _buildTabBar(),
+              _buildTabBar(l10n),
               const SizedBox(height: 16),
 
               /// Listen to Cubit state
@@ -61,7 +66,7 @@ class _HabitsScreenState extends State<HabitsScreen>
                 child: BlocConsumer<HabitCubit, HabitState>(
                   listener: (context, state) {
                     // Show error if any
-                    if (state.error != null) {
+                    if (state.error != null && mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(state.error!),
@@ -95,9 +100,15 @@ class _HabitsScreenState extends State<HabitsScreen>
                     return TabBarView(
                       controller: _tabController,
                       children: [
-                        HabitList(habits: daily),
-                        HabitList(habits: weekly),
-                        HabitList(habits: monthly),
+                        daily.isEmpty 
+                          ? _buildEmptyState(l10n, 'Daily')
+                          : HabitList(habits: daily),
+                        weekly.isEmpty 
+                          ? _buildEmptyState(l10n, 'Weekly')
+                          : HabitList(habits: weekly),
+                        monthly.isEmpty 
+                          ? _buildEmptyState(l10n, 'Monthly')
+                          : HabitList(habits: monthly),
                       ],
                     );
                   },
@@ -130,7 +141,7 @@ class _HabitsScreenState extends State<HabitsScreen>
     );
   }
 
-  Widget _buildTabBar() {
+  Widget _buildTabBar(AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Container(
@@ -166,12 +177,60 @@ class _HabitsScreenState extends State<HabitsScreen>
             fontWeight: FontWeight.bold,
             fontSize: 14,
           ),
-          tabs: const [
-            Tab(text: 'Daily'),
-            Tab(text: 'Weekly'),
-            Tab(text: 'Monthly'),
+          tabs: [
+            Tab(text: l10n.today),
+            Tab(text: l10n.weekly),
+            Tab(text: l10n.monthly),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(AppLocalizations l10n, String frequencyType) {
+    String message = '';
+    switch (frequencyType) {
+      case 'Daily':
+        message = l10n.noDailyHabits;
+        break;
+      case 'Weekly':
+        message = l10n.noWeeklyHabits;
+        break;
+      case 'Monthly':
+        message = l10n.noMonthlyHabits;
+        break;
+      default:
+        message = l10n.noHabitsYet;
+    }
+    
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.checklist_rounded,
+            size: 60,
+            color: Colors.white.withOpacity(0.3),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.7),
+              fontSize: 16,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            l10n.tapToAddHabit,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.5),
+              fontSize: 14,
+            ),
+          ),
+        ],
       ),
     );
   }
