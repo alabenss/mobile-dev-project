@@ -266,6 +266,15 @@ class HabitRepository {
       }
     }
 
+    // If from completed to active, reduce points
+    if (status == 'active') {
+      final habit = await getHabitByTitle(title);
+      if (habit != null) {
+        await _awardPoints(-habit.points);
+      }
+    }
+
+
     return await db.update(
       'habits',
       {

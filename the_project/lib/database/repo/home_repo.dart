@@ -10,17 +10,10 @@ class HomeStatus {
   final int waterGoal;
   final double detoxProgress;
 
-  final String? moodImage;
-  final String? moodLabel;
-  final DateTime? moodTime;
-
   const HomeStatus({
     required this.waterCount,
     required this.waterGoal,
     required this.detoxProgress,
-    this.moodImage,
-    this.moodLabel,
-    this.moodTime,
   });
 }
 
@@ -29,100 +22,84 @@ abstract class AbstractHomeRepo {
   Future<HomeStatus> loadTodayStatus();
   Future<void> saveStatus(HomeStatus status);
 
-  // Singleton (like in the lectures)
-  static AbstractHomeRepo? _instance;
-  static AbstractHomeRepo getInstance() {
-    _instance ??= HomeRepoDb();
-    return _instance!;
-  }
+  static AbstractHomeRepo getInstance() => _HomeRepoImpl();
 }
 
-class HomeRepoDb implements AbstractHomeRepo {
-  static const String tableName = 'home_status';
-
-  /// Get the current logged-in user's ID
-  Future<int> _getCurrentUserId() async {
+class _HomeRepoImpl extends AbstractHomeRepo {
+  @override
+  Future<HomeStatus> loadTodayStatus() async {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getInt('userId');
     
     if (userId == null) {
-      // Fallback to default user if no one is logged in
-      return await DBHelper.ensureDefaultUser();
+      // Return default values if no user is logged in
+      return HomeStatus(
+        waterCount: 0,
+        waterGoal: 8,
+        detoxProgress: 0,
+      );
     }
-    
-    return userId;
-  }
 
-  // yyyy-MM-dd string for "today"
-  String _todayKey() {
-    final now = DateTime.now();
-    return '${now.year.toString().padLeft(4, '0')}-'
-        '${now.month.toString().padLeft(2, '0')}-'
-        '${now.day.toString().padLeft(2, '0')}';
-  }
-
-  @override
-  Future<HomeStatus> loadTodayStatus() async {
-    final Database db = await DBHelper.database;
-    final userId = await _getCurrentUserId();
-    final dateKey = _todayKey();
+    final db = await DBHelper.database;
+    final today = _getTodayString();
 
     final result = await db.query(
-      tableName,
+      'home_status',
       where: 'date = ? AND userId = ?',
-      whereArgs: [dateKey, userId],
+      whereArgs: [today, userId],
       limit: 1,
     );
 
     if (result.isEmpty) {
-      // default values for a new day
-      return const HomeStatus(
-        waterCount: 4,
+      // Create a new entry for today
+      await db.insert('home_status', {
+        'date': today,
+        'userId': userId,
+        'water_count': 0,
+        'water_goal': 8,
+        'detox_progress': 0.0,
+      });
+
+      return HomeStatus(
+        waterCount: 0,
         waterGoal: 8,
-        detoxProgress: 0.35,
-        moodImage: null,
-        moodLabel: null,
-        moodTime: null,
+        detoxProgress: 0,
       );
     }
 
     final row = result.first;
-
-    DateTime? parsedMoodTime;
-    final moodTimeStr = row['mood_time'] as String?;
-    if (moodTimeStr != null) {
-      parsedMoodTime = DateTime.tryParse(moodTimeStr);
-    }
-
     return HomeStatus(
-      waterCount: row['water_count'] as int,
-      waterGoal: row['water_goal'] as int,
-      detoxProgress: (row['detox_progress'] as num).toDouble(),
-      moodImage: row['mood_image'] as String?,
-      moodLabel: row['mood_label'] as String?,
-      moodTime: parsedMoodTime,
+      waterCount: (row['water_count'] as int?) ?? 0,
+      waterGoal: (row['water_goal'] as int?) ?? 8,
+      detoxProgress: (row['detox_progress'] as num?)?.toDouble() ?? 0.0,
     );
   }
 
   @override
   Future<void> saveStatus(HomeStatus status) async {
-    final Database db = await DBHelper.database;
-    final userId = await _getCurrentUserId();
-    final dateKey = _todayKey();
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getInt('userId');
+    
+    if (userId == null) return;
+
+    final db = await DBHelper.database;
+    final today = _getTodayString();
 
     await db.insert(
-      tableName,
+      'home_status',
       {
-        'date': dateKey,
+        'date': today,
         'userId': userId,
         'water_count': status.waterCount,
         'water_goal': status.waterGoal,
         'detox_progress': status.detoxProgress,
-        'mood_label': status.moodLabel,
-        'mood_image': status.moodImage,
-        'mood_time': status.moodTime?.toIso8601String(),
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+  }
+
+  String _getTodayString() {
+    final now = DateTime.now();
+    return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
   }
 }
