@@ -1,44 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:the_project/l10n/app_localizations.dart';
 
 import 'logic/home/home_cubit.dart';
 import 'logic/activities/activities_cubit.dart';
 import 'logic/habits/habit_cubit.dart';
 import 'logic/auth/auth_cubit.dart';
 import 'logic/auth/auth_state.dart';
+import 'logic/journal/journal_cubit.dart';
+import 'logic/journal/daily_mood_cubit.dart';
 
 import 'database/repo/home_repo.dart';
 import 'database/repo/activities_repo.dart';
 import 'database/repo/habit_repo.dart';
+import 'database/repo/journal_repository.dart';
+import 'database/repo/daily_mood_repository.dart';
 import 'database/db_helper.dart';
 
 import 'views/widgets/common/bottom_nav_wrapper.dart';
+import 'views/widgets/home/phone_lock_wrapper.dart';
 import 'views/screens/settings/profile.dart';
 import 'views/screens/settings/app_lock_screen.dart';
 import 'views/screens/auth/login_screen.dart';
 import 'views/screens/auth/signup_screen.dart';
 
-import 'l10n/app_localizations.dart';
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   try {
     // Initialize database
     print('Initializing database...');
     final db = await DBHelper.database;
     print('Database initialized at: ${db.path}');
-    
+
     // Create demo data
     print('Creating demo data...');
     await DBHelper.initializeDemoData();
     print('Demo data created successfully');
-    
+
     // Verify data was created
     final userCount = await db.rawQuery('SELECT COUNT(*) as c FROM users');
     print('User count: ${userCount.first['c']}');
-    
+
     final homeRepo = AbstractHomeRepo.getInstance();
     final activitiesRepo = AbstractActivitiesRepo.getInstance();
     final habitRepo = HabitRepository();
@@ -58,6 +62,12 @@ void main() async {
           BlocProvider<HabitCubit>(
             create: (_) => HabitCubit(habitRepo)..loadHabits(),
           ),
+          BlocProvider<JournalCubit>(
+            create: (_) => JournalCubit(JournalRepository()),
+          ),
+          BlocProvider<DailyMoodCubit>(
+            create: (_) => DailyMoodCubit(DailyMoodRepository()),
+          ),
         ],
         child: const MyApp(),
       ),
@@ -65,30 +75,30 @@ void main() async {
   } catch (e, stackTrace) {
     print('Error initializing app: $e');
     print('Stack trace: $stackTrace');
-    
+
     // Show error screen
     runApp(
       MaterialApp(
         home: Scaffold(
           body: Center(
             child: Padding(
-              padding: EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline, size: 64, color: Colors.red),
-                  SizedBox(height: 20),
-                  Text(
+                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                  const SizedBox(height: 20),
+                  const Text(
                     'App initialization failed',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Text(
                     'Error: $e',
-                    style: TextStyle(fontSize: 12),
+                    style: const TextStyle(fontSize: 12),
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () async {
                       // Try to clear and reinitialize
@@ -97,7 +107,7 @@ void main() async {
                         await DBHelper.initializeDemoData();
                       } catch (_) {}
                     },
-                    child: Text('Retry'),
+                    child: const Text('Retry'),
                   ),
                 ],
               ),
@@ -116,8 +126,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      
-      // Add localizations
+
+      // Localizations
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
@@ -128,7 +138,7 @@ class MyApp extends StatelessWidget {
         Locale('en', ''),
         Locale('fr', ''),
       ],
-      
+
       home: BlocListener<AuthCubit, AuthState>(
         listener: (context, state) {
           // When user logs in, load their data
@@ -148,14 +158,16 @@ class MyApp extends StatelessWidget {
                 ),
               );
             }
-            
+
             // Show login screen if not authenticated
             if (!state.isAuthenticated) {
               return const LoginScreen();
             }
-            
-            // Show main app if authenticated
-            return const BottomNavWrapper();
+
+            // When authenticated, wrap main app with PhoneLockWrapper
+            return const PhoneLockWrapper(
+              child: BottomNavWrapper(),
+            );
           },
         ),
       ),

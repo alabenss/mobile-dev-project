@@ -39,9 +39,9 @@ class AuthCubit extends Cubit<AuthState> {
     emit(state.copyWith(isLoading: true));
     
     try {
-      // Check if user already exists
-      final exists = await DBHelper.userExists(email);
-      if (exists) {
+      // Check if user already exists by email or username
+      final existsEmail = await DBHelper.userExists(email);
+      if (existsEmail) {
         emit(state.copyWith(
           isLoading: false,
           error: 'An account with this email already exists',
@@ -76,17 +76,21 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
-  /// Login existing user
-  Future<bool> login(String email, String password) async {
+  /// Login existing user (email or username)
+  Future<bool> login(String emailOrUsername, String password) async {
     emit(state.copyWith(isLoading: true));
     
     try {
-      final userMap = await DBHelper.loginUser(email, password);
+      // Detect if input is email or username
+      final isEmail = emailOrUsername.contains('@');
+      final userMap = isEmail
+          ? await DBHelper.loginUserByEmail(emailOrUsername, password)
+          : await DBHelper.loginUserByUsername(emailOrUsername, password);
       
       if (userMap == null) {
         emit(state.copyWith(
           isLoading: false,
-          error: 'Invalid email or password',
+          error: 'Invalid credentials',
         ));
         return false;
       }
@@ -119,4 +123,80 @@ class AuthCubit extends Cubit<AuthState> {
   void clearError() {
     emit(state.copyWith(error: null));
   }
+
+  // Add these methods to your existing AuthCubit class
+
+// Update user name
+Future<void> updateUserName(String newName) async {
+  if (state.user == null) return;
+  
+  try {
+    // Update in database (you'll need to add this method to DBHelper)
+    await DBHelper.updateUserName(state.user!.id, newName);
+    
+    // Update state with new name
+    final updatedUser = User(
+      id: state.user!.id,
+      name: newName,
+      email: state.user!.email,
+      totalPoints: state.user!.totalPoints,
+      stars: state.user!.stars,
+      createdAt: state.user!.createdAt,
+    );
+    
+    emit(AuthState(
+      isAuthenticated: true,
+      user: updatedUser,
+      isLoading: false,
+    ));
+    
+    // Update shared preferences
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userName', newName);
+  } catch (e) {
+    print('Error updating user name: $e');
+  }
+}
+
+// Update user email
+Future<void> updateUserEmail(String newEmail) async {
+  if (state.user == null) return;
+  
+  try {
+    // Check if email already exists
+    final exists = await DBHelper.userExists(newEmail);
+    if (exists) {
+      throw Exception('Email already in use');
+    }
+    
+    // Update in database (you'll need to add this method to DBHelper)
+    await DBHelper.updateUserEmail(state.user!.id, newEmail);
+    
+    // Update state with new email
+    final updatedUser = User(
+      id: state.user!.id,
+      name: state.user!.name,
+      email: newEmail,
+      totalPoints: state.user!.totalPoints,
+      stars: state.user!.stars,
+      createdAt: state.user!.createdAt,
+    );
+    
+    emit(AuthState(
+      isAuthenticated: true,
+      user: updatedUser,
+      isLoading: false,
+    ));
+    
+    // Update shared preferences
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userEmail', newEmail);
+  } catch (e) {
+    print('Error updating user email: $e');
+    rethrow;
+  }
+}
+
+
+
 }
