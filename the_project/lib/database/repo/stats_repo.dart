@@ -1,9 +1,6 @@
-// lib/database/repo/stats_repo.dart
 import 'dart:math';
-
 import 'package:sqflite/sqflite.dart';
 import 'package:the_project/database/db_helper.dart';
-
 import 'package:the_project/views/widgets/stats/range_selector_widget.dart';
 
 class StatsData {
@@ -24,26 +21,25 @@ class StatsData {
 
 class StatsRepo {
   // Format date as yyyy-MM-dd
-  String _fmt(DateTime d) =>
+  String _formatDate(DateTime d) =>
       '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
   double _moodLabelToValue(String? label) {
-    if (label == null) return 0.5;
+    if (label == null || label.isEmpty) return 0.5;
     final l = label.toLowerCase();
-    if (l.contains('happy') || l.contains('joy') || l.contains('bien')) {
+    if (l.contains('happy') || l.contains('joy') || l.contains('bien') || l.contains('great')) {
       return 0.85;
     }
-    if (l.contains('ok') || l.contains('neut') || l.contains('moyen')) {
+    if (l.contains('ok') || l.contains('neut') || l.contains('moyen') || l.contains('average')) {
       return 0.6;
     }
-    if (l.contains('sad') || l.contains('bad') || l.contains('triste')) {
+    if (l.contains('sad') || l.contains('bad') || l.contains('triste') || l.contains('low')) {
       return 0.35;
     }
     return 0.5;
   }
 
   String _weekdayFr(int weekday) {
-    // Monday=1 ... Sunday=7
     switch (weekday) {
       case DateTime.monday:
         return 'Lun';
@@ -63,187 +59,291 @@ class StatsRepo {
     }
   }
 
-  Future<void> _seedIfEmpty(Database db) async {
-    final countRes = await db.rawQuery('SELECT COUNT(*) as c FROM home_status');
-    final int count =
-        Sqflite.firstIntValue(countRes) ?? 0; // Sqflite helper, returns int?
+  /// Helper method to get count safely
+  Future<int> _getCount(Database db, String table, {String? where, List<Object?>? whereArgs}) async {
+    try {
+      final query = 'SELECT COUNT(*) as c FROM $table${where != null ? ' WHERE $where' : ''}';
+      final result = await db.rawQuery(query, whereArgs ?? []);
+      return Sqflite.firstIntValue(result) ?? 0;
+    } catch (e) {
+      print('Error getting count from $table: $e');
+      return 0;
+    }
+  }
 
-    if (count > 0) return; // already have data
-
-    final userId = await DBHelper.ensureDefaultUser();
+  /// Generate empty placeholder data based on range
+  StatsData _generateEmptyData(StatsRange range) {
     final today = DateTime.now();
-
-    // Seed last 7 days
-    const moods = ['triste', 'moyen', 'heureux'];
-    final rnd = Random(1234);
-
-    for (int i = 0; i < 7; i++) {
-      final date = today.subtract(Duration(days: 6 - i));
-      final dateStr = _fmt(date);
-
-      final waterCount = 6 + rnd.nextInt(4); // 6..9
-      final waterGoal = 8;
-      final detox = 0.3 + rnd.nextDouble() * 0.5;
-      final moodLabel = moods[i % moods.length];
-
-      await db.insert('home_status', {
-        'date': dateStr,
-        'water_count': waterCount,
-        'water_goal': waterGoal,
-        'detox_progress': detox,
-        'mood_label': moodLabel,
-        'mood_image': '',
-        'mood_time': '',
-      });
-
-      // Add a journal entry for about half of the days
-      if (i % 2 == 0) {
-        await db.insert('journals', {
-          'userId': userId,
-          'date': dateStr,
-          'mood': moodLabel,
-          'text': 'Entrée de journal démo $i',
-          'imagePath': null,
-          'voicePath': null,
-        });
-      }
+    
+    switch (range) {
+      case StatsRange.today:
+        return StatsData(
+          waterData: [0.0],
+          moodData: [0.5],
+          journalingCount: 0,
+          screenTime: {},
+          labels: ['Today'],
+        );
+      case StatsRange.weekly:
+        final labels = <String>[];
+        for (int i = 6; i >= 0; i--) {
+          final date = today.subtract(Duration(days: i));
+          labels.add(_weekdayFr(date.weekday));
+        }
+        return StatsData(
+          waterData: List.filled(7, 0.0),
+          moodData: List.filled(7, 0.5),
+          journalingCount: 0,
+          screenTime: {},
+          labels: labels,
+        );
+      case StatsRange.monthly:
+        return StatsData(
+          waterData: List.filled(12, 0.0),
+          moodData: List.filled(12, 0.5),
+          journalingCount: 0,
+          screenTime: {},
+          labels: ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8', 'W9', 'W10', 'W11', 'W12'],
+        );
+      case StatsRange.yearly:
+        return StatsData(
+          waterData: List.filled(12, 0.0),
+          moodData: List.filled(12, 0.5),
+          journalingCount: 0,
+          screenTime: {},
+          labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'],
+        );
     }
   }
 
   Future<StatsData> loadWeeklyFromDb() async {
-    final db = await DBHelper.database;
-    await _seedIfEmpty(db);
+    try {
+      final db = await DBHelper.database;
+      
+      // Get default user ID
+      final userId = await DBHelper.ensureDefaultUser();
+      
+      // Check if we have any data for this user
+      final countHome = await _getCount(db, 'home_status', where: 'userId = ?', whereArgs: [userId]);
+      
+      if (countHome == 0) {
+        print('No data found for user $userId, returning empty data');
+        return _generateEmptyData(StatsRange.weekly);
+      }
 
-    final today = DateTime.now();
-    final from = today.subtract(const Duration(days: 6));
-    final fromStr = _fmt(from);
-    final toStr = _fmt(today);
+      final today = DateTime.now();
+      final from = today.subtract(const Duration(days: 6));
+      final fromStr = _formatDate(from);
+      final toStr = _formatDate(today);
 
-    final rows = await db.query(
-      'home_status',
-      where: 'date >= ? AND date <= ?',
-      whereArgs: [fromStr, toStr],
-      orderBy: 'date ASC',
-    );
+      final rows = await db.query(
+        'home_status',
+        where: 'date >= ? AND date <= ? AND userId = ?',
+        whereArgs: [fromStr, toStr, userId],
+        orderBy: 'date ASC',
+      );
 
-    final water = <double>[];
-    final mood = <double>[];
-    final labels = <String>[];
+      // If no recent data, get the most recent available
+      if (rows.isEmpty) {
+        final recentRows = await db.query(
+          'home_status',
+          where: 'userId = ?',
+          whereArgs: [userId],
+          orderBy: 'date DESC',
+          limit: 7,
+        );
+        
+        if (recentRows.isEmpty) {
+          return _generateEmptyData(StatsRange.weekly);
+        }
+        
+        return _processRows(List.from(recentRows.reversed), userId);
+      }
 
-    for (final r in rows) {
-      final dateStr = (r['date'] as String);
-      final date = DateTime.tryParse(dateStr) ??
-          DateTime.parse('$dateStr 00:00:00'); // fallback
-
-      water.add((r['water_count'] as num).toDouble());
-      mood.add(_moodLabelToValue(r['mood_label'] as String?));
-      labels.add(_weekdayFr(date.weekday));
+      return _processRows(rows, userId);
+    } catch (e) {
+      print('Error loading weekly data: $e');
+      return _generateEmptyData(StatsRange.weekly);
     }
-
-    // Journaling count = number of journal entries in this period
-    final journalCountRes = await db.rawQuery(
-      'SELECT COUNT(*) as c FROM journals WHERE date >= ? AND date <= ?',
-      [fromStr, toStr],
-    );
-    final journalingCount = Sqflite.firstIntValue(journalCountRes) ?? 0;
-
-    // Basic dummy screen time (still satisfies \"dummy data\" requirement)
-    final screenTime = <String, double>{
-      'social': 1.2,
-      'entertainment': 2.1,
-      'productivity': 3.0,
-    };
-
-    return StatsData(
-      waterData: water,
-      moodData: mood,
-      journalingCount: journalingCount,
-      screenTime: screenTime,
-      labels: labels,
-    );
   }
 
-  // For now, other ranges use transformed weekly data
-  Future<StatsData> loadForRange(StatsRange range) async {
-    final weekly = await loadWeeklyFromDb();
+  /// Process database rows into StatsData
+  Future<StatsData> _processRows(List<Map<String, dynamic>> rows, int userId) async {
+    try {
+      final db = await DBHelper.database;
+      final water = <double>[];
+      final mood = <double>[];
+      final labels = <String>[];
+      final today = DateTime.now();
 
-    switch (range) {
-      case StatsRange.today:
-        final lastWater =
-            weekly.waterData.isNotEmpty ? weekly.waterData.last : 0.0;
-        final lastMood =
-            weekly.moodData.isNotEmpty ? weekly.moodData.last : 0.5;
-        final todayWater = [lastWater];
-        final todayMood = [lastMood];
-        final labels = ['Aujourd\'hui'];
-        final journalingToday =
-            weekly.journalingCount > 0 ? 1 : 0; // simple approximation
-        return StatsData(
-          waterData: todayWater,
-          moodData: todayMood,
-          journalingCount: journalingToday,
-          screenTime: weekly.screenTime,
-          labels: labels,
-        );
-
-      case StatsRange.weekly:
-        return weekly;
-
-      case StatsRange.monthly:
-        // Repeat weekly pattern ~4 times to simulate a month
-        final repeat = 4;
-        final water = <double>[];
-        final mood = <double>[];
-        final labels = <String>[];
-
-        for (int r = 0; r < repeat; r++) {
-          for (int i = 0; i < weekly.waterData.length; i++) {
-            water.add(weekly.waterData[i]);
-            mood.add(weekly.moodData[i]);
-            labels.add('${r * weekly.waterData.length + i + 1}');
-          }
+      // Fill in missing days with zeros
+      final dateMap = <String, Map<String, dynamic>>{};
+      for (final r in rows) {
+        final dateStr = r['date'] as String?;
+        if (dateStr != null) {
+          dateMap[dateStr] = r;
         }
-        return StatsData(
-          waterData: water,
-          moodData: mood,
-          journalingCount: weekly.journalingCount * repeat,
-          screenTime: weekly.screenTime,
-          labels: labels,
-        );
+      }
 
-      case StatsRange.yearly:
-        // 12 months: aggregate weekly average to fake monthly stats
-        final avgWater = weekly.waterData.isNotEmpty
-            ? weekly.waterData.reduce((a, b) => a + b) / weekly.waterData.length
-            : 0.0;
-        final avgMood = weekly.moodData.isNotEmpty
-            ? weekly.moodData.reduce((a, b) => a + b) / weekly.moodData.length
-            : 0.5;
+      // Generate data for last 7 days
+      for (int i = 6; i >= 0; i--) {
+        final date = today.subtract(Duration(days: i));
+        final dateStr = _formatDate(date);
+        
+        if (dateMap.containsKey(dateStr)) {
+          final r = dateMap[dateStr]!;
+          water.add((r['water_count'] as num?)?.toDouble() ?? 0.0);
+          mood.add(_moodLabelToValue(r['mood_label'] as String?));
+        } else {
+          water.add(0.0);
+          mood.add(0.5);
+        }
+        
+        labels.add(_weekdayFr(date.weekday));
+      }
 
-        final water = List<double>.filled(12, avgWater);
-        final mood = List<double>.filled(12, avgMood);
-        final labels = [
-          'Jan',
-          'Fév',
-          'Mar',
-          'Avr',
-          'Mai',
-          'Juin',
-          'Juil',
-          'Août',
-          'Sep',
-          'Oct',
-          'Nov',
-          'Déc',
-        ];
+      // Journaling count for the week
+      final fromStr = _formatDate(today.subtract(Duration(days: 6)));
+      final toStr = _formatDate(today);
+      final journalCount = await _getCount(
+        db, 
+        'journals', 
+        where: 'userId = ? AND date >= ? AND date <= ?',
+        whereArgs: [userId, fromStr, toStr],
+      );
 
-        return StatsData(
-          waterData: water,
-          moodData: mood,
-          journalingCount: weekly.journalingCount * 12,
-          screenTime: weekly.screenTime,
-          labels: labels,
-        );
+      // Screen time data (simulated)
+      final screenTime = <String, double>{
+        'social': 1.2 + Random().nextDouble() * 1.0,
+        'entertainment': 2.1 + Random().nextDouble() * 1.0,
+        'productivity': 3.0 + Random().nextDouble() * 1.0,
+      };
+
+      return StatsData(
+        waterData: water,
+        moodData: mood,
+        journalingCount: journalCount,
+        screenTime: screenTime,
+        labels: labels,
+      );
+    } catch (e) {
+      print('Error processing rows: $e');
+      return _generateEmptyData(StatsRange.weekly);
+    }
+  }
+
+  Future<StatsData> loadForRange(StatsRange range) async {
+    try {
+      final weekly = await loadWeeklyFromDb();
+      
+      switch (range) {
+        case StatsRange.today:
+          final db = await DBHelper.database;
+          final userId = await DBHelper.ensureDefaultUser();
+          final todayStr = _formatDate(DateTime.now());
+          
+          // Get today's data
+          final todayRows = await db.query(
+            'home_status',
+            where: 'date = ? AND userId = ?',
+            whereArgs: [todayStr, userId],
+            limit: 1,
+          );
+          
+          double todayWater = 0.0;
+          double todayMood = 0.5;
+          
+          if (todayRows.isNotEmpty) {
+            final row = todayRows.first;
+            todayWater = (row['water_count'] as num?)?.toDouble() ?? 0.0;
+            todayMood = _moodLabelToValue(row['mood_label'] as String?);
+          }
+          
+          // Check journal entries for today
+          final journalCount = await _getCount(
+            db, 
+            'journals', 
+            where: 'userId = ? AND date = ?',
+            whereArgs: [userId, todayStr],
+          );
+          
+          return StatsData(
+            waterData: [todayWater],
+            moodData: [todayMood],
+            journalingCount: journalCount,
+            screenTime: weekly.screenTime,
+            labels: ['Today'],
+          );
+
+        case StatsRange.weekly:
+          return weekly;
+
+        case StatsRange.monthly:
+          // If we have no weekly data, return empty
+          if (weekly.waterData.isEmpty || weekly.waterData.every((w) => w == 0.0)) {
+            return _generateEmptyData(StatsRange.monthly);
+          }
+          
+          // Simulate monthly data based on weekly pattern
+          final water = <double>[];
+          final mood = <double>[];
+          final labels = <String>[];
+          
+          // Create 4 weeks of data
+          for (int week = 0; week < 4; week++) {
+            for (int day = 0; day < 7; day++) {
+              if (day < weekly.waterData.length) {
+                water.add(weekly.waterData[day] * (0.8 + Random().nextDouble() * 0.4));
+                mood.add(weekly.moodData[day]);
+              } else {
+                water.add(0.0);
+                mood.add(0.5);
+              }
+            }
+          }
+          
+          // Create week labels
+          for (int i = 1; i <= 4; i++) {
+            labels.add('W$i');
+          }
+          
+          final monthlyJournalCount = (weekly.journalingCount * 4).clamp(0, 30);
+          
+          return StatsData(
+            waterData: water.take(12).toList(), // Take only 12 points for cleaner display
+            moodData: mood.take(12).toList(),
+            journalingCount: monthlyJournalCount,
+            screenTime: weekly.screenTime,
+            labels: labels.take(12).toList(),
+          );
+
+        case StatsRange.yearly:
+          // If we have no weekly data, return empty
+          if (weekly.waterData.isEmpty || weekly.waterData.every((w) => w == 0.0)) {
+            return _generateEmptyData(StatsRange.yearly);
+          }
+          
+          final avgWater = weekly.waterData.reduce((a, b) => a + b) / weekly.waterData.length;
+          final avgMood = weekly.moodData.reduce((a, b) => a + b) / weekly.moodData.length;
+
+          final water = List<double>.filled(12, avgWater);
+          final mood = List<double>.filled(12, avgMood);
+          final labels = [
+            'Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin',
+            'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'
+          ];
+
+          return StatsData(
+            waterData: water,
+            moodData: mood,
+            journalingCount: weekly.journalingCount * 52,
+            screenTime: weekly.screenTime,
+            labels: labels,
+          );
+      }
+    } catch (e) {
+      print('Error loading stats for range $range: $e');
+      return _generateEmptyData(range);
     }
   }
 }

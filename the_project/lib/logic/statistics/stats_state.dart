@@ -1,4 +1,3 @@
-// lib/logic/statistics/stats_state.dart
 import 'package:equatable/equatable.dart';
 import 'package:the_project/views/widgets/stats/range_selector_widget.dart';
 
@@ -16,12 +15,12 @@ class StatsInitial extends StatsState {
 }
 
 class StatsLoading extends StatsState {
-  const StatsLoading(StatsRange range) : super(range);
+  const StatsLoading(super.range);
 }
 
 class StatsError extends StatsState {
   final String message;
-  const StatsError(StatsRange range, this.message) : super(range);
+  const StatsError(super.range, this.message);
 
   @override
   List<Object?> get props => [range, message];
@@ -44,6 +43,12 @@ class StatsLoaded extends StatsState {
   }) : super(range);
 
   @override
-  List<Object?> get props =>
-      [range, waterData, moodData, journalingCount, screenTime, labels];
+  List<Object?> get props => [
+    range, 
+    waterData, 
+    moodData, 
+    journalingCount, 
+    screenTime, 
+    labels
+  ];
 }

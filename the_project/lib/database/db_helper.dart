@@ -1,6 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-
+import 'dart:math';
 class DBHelper {
   static Database? _database;
 
@@ -220,4 +220,78 @@ class DBHelper {
     db?.close();
     _database = null;
   }
+  // In db_helper.dart, add this method:
+
+/// Create a demo user with demo data if no users exist
+static Future<void> initializeDemoData() async {
+  final db = await database;
+  
+  // Check if we have any users
+  final userCount = Sqflite.firstIntValue(
+    await db.rawQuery('SELECT COUNT(*) as c FROM users')
+  ) ?? 0;
+  
+  if (userCount == 0) {
+    // Create demo user
+    final userId = await db.insert('users', {
+      'name': 'Demo User',
+      'email': 'demo@example.com',
+      'password': 'demo123',
+      'totalPoints': 100,
+    });
+    
+    // Create demo data for the last 7 days
+    final today = DateTime.now();
+    final rnd = Random(1234);
+    
+    for (int i = 6; i >= 0; i--) {
+      final date = today.subtract(Duration(days: i));
+      final dateStr = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+      
+      // Insert home_status data
+      await db.insert('home_status', {
+        'date': dateStr,
+        'userId': userId,
+        'water_count': (rnd.nextDouble() * 3 + 5).toInt(), // 5-8 glasses
+        'water_goal': 8,
+        'detox_progress': rnd.nextDouble(),
+        'mood_label': ['happy', 'ok', 'sad'][i % 3],
+        'mood_image': '',
+        'mood_time': '${(8 + i % 4)}:00',
+      });
+      
+      // Add some journal entries
+      if (i % 2 == 0) {
+        await db.insert('journals', {
+          'userId': userId,
+          'date': dateStr,
+          'mood': ['happy', 'ok'][i % 2],
+          'text': 'Journal entry for $dateStr. Had a good day!',
+          'imagePath': null,
+          'voicePath': null,
+        });
+      }
+    }
+    
+    // Add some habits
+    final createdDateStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    await db.insert('habits', {
+      'userId': userId,
+      'title': 'Morning Meditation',
+      'description': 'Meditate for 10 minutes',
+      'frequency': 'daily',
+      'status': 'active',
+      'createdDate': createdDateStr,
+      'lastUpdated': createdDateStr,
+      'Doitat': '08:00',
+      'points': 10,
+    });
+  }
 }
+  
+}
+
+
+
+
+ 
