@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:the_project/l10n/app_localizations.dart';
 
 import '../../../widgets/activities/activity_shell.dart';
 import '../../../themes/style_simple/colors.dart';
@@ -15,8 +16,10 @@ class ColoringPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!; // <-- added
+
     return ActivityShell(
-      title: 'Coloring',
+      title: l10n.coloringTitle, // was: 'Coloring'
       child: BlocBuilder<ColoringCubit, ColoringState>(
         builder: (context, state) {
           final cubit = context.read<ColoringCubit>();
@@ -37,7 +40,7 @@ class ColoringPage extends StatelessWidget {
                     child: Row(
                       children: List.generate(6, (i) {
                         return _TemplateChip(
-                          label: _templateNames[i],
+                          label: _templateLabel(context, i), // <-- localized
                           emoji: _templateEmojis[i],
                           selected: state.template == i,
                           onTap: () => cubit.selectTemplate(i),
@@ -135,8 +138,11 @@ class ColoringPage extends StatelessWidget {
                       icon: Icons.download_rounded,
                       onTap: () =>
                           ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Saved! (wire export later)'),
+                        SnackBar( // <-- was const SnackBar
+                          content: Text(
+                            AppLocalizations.of(context)!
+                                .coloringSaved, // localized
+                          ),
                           behavior: SnackBarBehavior.floating,
                         ),
                       ),
@@ -344,7 +350,7 @@ class _ColoringCanvas extends StatefulWidget {
 class _ColoringCanvasState extends State<_ColoringCanvas> {
   late List<_Region> _regions;
   SvgTemplate? _svgTemplate;
-  String? _loadingError;        // <--- add this
+  String? _loadingError;
 
   // template index -> SVG asset path
   static const _templateAssets = [
@@ -390,8 +396,6 @@ class _ColoringCanvasState extends State<_ColoringCanvas> {
       _rebuildRegions();
       setState(() {});
     } catch (e, st) {
-      // This will show the error on screen and also in console
-      // so we know what went wrong.
       // ignore: avoid_print
       print('Error loading SVG template $assetPath: $e\n$st');
 
@@ -431,12 +435,15 @@ class _ColoringCanvasState extends State<_ColoringCanvas> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!; // <-- added
+
     if (_loadingError != null) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Text(
-            'Error loading coloring page:\n$_loadingError',
+            l10n.coloringLoadError(_loadingError!),
+            // was: 'Error loading coloring page:\n$_loadingError'
             textAlign: TextAlign.center,
             style: const TextStyle(color: Colors.red),
           ),
@@ -543,6 +550,8 @@ class _ColorPickerDialogState extends State<_ColorPickerDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!; // <-- added
+
     return Dialog(
       insetPadding: const EdgeInsets.all(18),
       child: Padding(
@@ -550,36 +559,37 @@ class _ColorPickerDialogState extends State<_ColorPickerDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              'Pick a color',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+            Text(
+              l10n.coloringPickColorTitle, // was: 'Pick a color'
+              style:
+                  const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 12),
             _Preview(color: color),
             const SizedBox(height: 12),
             _LabeledSlider(
-              label: 'Hue',
+              label: l10n.coloringHue, // was: 'Hue'
               value: h,
               min: 0,
               max: 360,
               onChanged: (x) => setState(() => h = x),
             ),
             _LabeledSlider(
-              label: 'Saturation',
+              label: l10n.coloringSaturation, // was: 'Saturation'
               value: s,
               min: 0,
               max: 1,
               onChanged: (x) => setState(() => s = x),
             ),
             _LabeledSlider(
-              label: 'Brightness',
+              label: l10n.coloringBrightness, // was: 'Brightness'
               value: v,
               min: 0,
               max: 1,
               onChanged: (x) => setState(() => v = x),
             ),
             _LabeledSlider(
-              label: 'Opacity',
+              label: l10n.coloringOpacity, // was: 'Opacity'
               value: a,
               min: 0,
               max: 1,
@@ -590,7 +600,7 @@ class _ColorPickerDialogState extends State<_ColorPickerDialog> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                  child: const Text('Cancel'),
+                  child: Text(l10n.cancel), // already exists in ARB
                   onPressed: () => Navigator.pop(context),
                 ),
                 const SizedBox(width: 8),
@@ -599,7 +609,7 @@ class _ColorPickerDialogState extends State<_ColorPickerDialog> {
                     backgroundColor: AppColors.accentPink,
                     foregroundColor: Colors.white,
                   ),
-                  child: const Text('Use color'),
+                  child: Text(l10n.coloringUseColor), // was: 'Use color'
                   onPressed: () => Navigator.pop(context, color),
                 ),
               ],
@@ -659,15 +669,7 @@ class _LabeledSlider extends StatelessWidget {
   }
 }
 
-const _templateNames = [
-  'Space',
-  'Garden',
-  'Fish',
-  'Butterfly',
-  'House',
-  'Mandala',
-];
-
+// Keep emojis as-is, only labels are localized via _templateLabel
 const _templateEmojis = ['🪐', '🌼', '🐟', '🦋', '🏠', '🌀'];
 
 Color _templateBg(int t) {
@@ -686,5 +688,26 @@ Color _templateBg(int t) {
       return const Color(0xFFE8F5E9);
     default:
       return Colors.white;
+  }
+}
+
+/// Helper to localize template names
+String _templateLabel(BuildContext context, int index) {
+  final l10n = AppLocalizations.of(context)!;
+  switch (index) {
+    case 0:
+      return l10n.coloringTemplateSpace;
+    case 1:
+      return l10n.coloringTemplateGarden;
+    case 2:
+      return l10n.coloringTemplateFish;
+    case 3:
+      return l10n.coloringTemplateButterfly;
+    case 4:
+      return l10n.coloringTemplateHouse;
+    case 5:
+      return l10n.coloringTemplateMandala;
+    default:
+      return '';
   }
 }

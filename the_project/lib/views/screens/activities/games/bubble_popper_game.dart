@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:the_project/l10n/app_localizations.dart';
 
 import '../../../widgets/activities/activity_shell.dart';
 import '../../../../logic/activities/games/bubble_popper_cubit.dart';
@@ -26,9 +26,10 @@ class BubblePopperGame extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<BubblePopperCubit>();
+    final l10n = AppLocalizations.of(context)!; // <-- added
 
     return ActivityShell(
-      title: 'Pop It',
+      title: l10n.bubblePopperTitle, // was: 'Pop It'
       child: Column(
         children: [
           // Instruction card (fixed intrinsic height)
@@ -49,10 +50,11 @@ class BubblePopperGame extends StatelessWidget {
                   ),
                 ],
               ),
-              child: const Text(
-                'Find calm and focus as you pop away stress, one bubble at a time.',
+              child: Text(
+                l10n.bubblePopperDescription,
+                // was: 'Find calm and focus as you pop away stress, one bubble at a time.'
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   height: 1.3,
                   color: Color(0xFF2D2D2D),

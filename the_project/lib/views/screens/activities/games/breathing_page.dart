@@ -1,6 +1,6 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:the_project/l10n/app_localizations.dart';
 
 import '../../../../logic/activities/games/breathing_cubit.dart';
 import '../../../../logic/activities/games/breathing_state.dart';
@@ -73,13 +73,15 @@ class _BreathPageState extends State<BreathPage>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!; // <-- added
+
     return AppBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-          title: const Text(
-            'Breath',
-            style: TextStyle(
+          title: Text(
+            l10n.breathingTitle, // was: 'Breath'
+            style: const TextStyle(
               fontWeight: FontWeight.w700,
               fontSize: 20,
               color: Colors.white,
@@ -118,10 +120,11 @@ class _BreathPageState extends State<BreathPage>
                         child: Column(
                           children: [
                             const SizedBox(height: 6),
-                            const Text(
-                              'Take a deep breath and let your body wind down\nfor the day.',
+                            Text(
+                              l10n.breathingDescription,
+                              // was: 'Take a deep breath and let your body wind down\nfor the day.'
                               textAlign: TextAlign.center,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 18,
                                 height: 1.35,
@@ -155,10 +158,10 @@ class _BreathPageState extends State<BreathPage>
                                       child: Transform.scale(
                                         scale: _scale.value,
                                         child: Image.asset(
-    'assets/images/heart.png',
-    width: 220,
-    height: 220,
-  ),
+                                          'assets/images/heart.png',
+                                          width: 220,
+                                          height: 220,
+                                        ),
                                       ),
                                     );
                                   },
@@ -186,7 +189,12 @@ class _BreathPageState extends State<BreathPage>
                                     fontWeight: FontWeight.w800,
                                   ),
                                 ),
-                                child: Text(running ? 'Stop' : 'Start'),
+                                child: Text(
+                                  running
+                                      ? l10n.breathingStop
+                                      : l10n.breathingStart,
+                                  // was: running ? 'Stop' : 'Start'
+                                ),
                               ),
                             ),
                           ],

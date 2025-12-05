@@ -3,35 +3,34 @@ import '../db_helper.dart';
 import 'package:the_project/views/widgets/journal/journal_entry_model.dart';
 
 class JournalRepository {
-  /// Format time as HH:mm (24-hour format)
   String _formatTime(DateTime date) {
     final hour = date.hour.toString().padLeft(2, '0');
     final minute = date.minute.toString().padLeft(2, '0');
     return '$hour:$minute';
   }
 
-  /// Create a new journal entry
   Future<int> createJournal({
     required int userId,
     required JournalEntryModel entry,
   }) async {
     final db = await DBHelper.database;
-    
+
     final data = {
       'userId': userId,
       'date': entry.date.toIso8601String(),
-      'time': _formatTime(entry.date), // HH:mm format
+      'time': _formatTime(entry.date),
       'mood': entry.moodImage,
       'title': entry.title,
       'text': entry.fullText,
+      'voicePath': entry.voicePath,
       'backgroundImage': entry.backgroundImage,
       'fontFamily': entry.fontFamily,
       'textColor': entry.textColor,
       'fontSize': entry.fontSize,
-      'attachedImages': entry.attachedImages != null 
-          ? jsonEncode(entry.attachedImages) 
+      'attachedImages': entry.attachedImages != null
+          ? jsonEncode(entry.attachedImages!.map((i) => i.toJson()).toList())
           : null,
-      'stickers': entry.stickers != null 
+      'stickers': entry.stickers != null
           ? jsonEncode(entry.stickers!.map((s) => s.toJson()).toList())
           : null,
     };
@@ -39,29 +38,29 @@ class JournalRepository {
     return await db.insert('journals', data);
   }
 
-  /// Update an existing journal entry
   Future<int> updateJournal({
     required int journalId,
     required int userId,
     required JournalEntryModel entry,
   }) async {
     final db = await DBHelper.database;
-    
+
     final data = {
       'userId': userId,
       'date': entry.date.toIso8601String(),
-      'time': _formatTime(entry.date), // HH:mm format
+      'time': _formatTime(entry.date),
       'mood': entry.moodImage,
       'title': entry.title,
       'text': entry.fullText,
+      'voicePath': entry.voicePath,
       'backgroundImage': entry.backgroundImage,
       'fontFamily': entry.fontFamily,
       'textColor': entry.textColor,
       'fontSize': entry.fontSize,
-      'attachedImages': entry.attachedImages != null 
-          ? jsonEncode(entry.attachedImages) 
+      'attachedImages': entry.attachedImages != null
+          ? jsonEncode(entry.attachedImages!.map((i) => i.toJson()).toList())
           : null,
-      'stickers': entry.stickers != null 
+      'stickers': entry.stickers != null
           ? jsonEncode(entry.stickers!.map((s) => s.toJson()).toList())
           : null,
     };
@@ -74,7 +73,6 @@ class JournalRepository {
     );
   }
 
-  /// Delete a journal entry
   Future<int> deleteJournal(int journalId, int userId) async {
     final db = await DBHelper.database;
     return await db.delete(
@@ -84,7 +82,6 @@ class JournalRepository {
     );
   }
 
-  /// Get all journals for a user
   Future<List<JournalEntryModel>> getAllJournals(int userId) async {
     final db = await DBHelper.database;
     final results = await db.query(
@@ -97,7 +94,6 @@ class JournalRepository {
     return results.map((row) => _mapToJournalEntry(row)).toList();
   }
 
-  /// Get journals for a specific month and year
   Future<List<JournalEntryModel>> getJournalsByMonth({
     required int userId,
     required int month,
@@ -117,7 +113,6 @@ class JournalRepository {
     return results.map((row) => _mapToJournalEntry(row)).toList();
   }
 
-  /// Get journals for a specific date label
   Future<List<JournalEntryModel>> getJournalsByDateLabel({
     required int userId,
     required String dateLabel,
@@ -126,7 +121,6 @@ class JournalRepository {
     return allJournals.where((j) => j.dateLabel == dateLabel).toList();
   }
 
-  /// Get a single journal by ID
   Future<JournalEntryModel?> getJournalById(int journalId, int userId) async {
     final db = await DBHelper.database;
     final results = await db.query(
@@ -140,15 +134,14 @@ class JournalRepository {
     return _mapToJournalEntry(results.first);
   }
 
-  /// Convert database row to JournalEntryModel
   JournalEntryModel _mapToJournalEntry(Map<String, dynamic> row) {
     final date = DateTime.parse(row['date'] as String);
     final dateLabel = _formatDateLabel(date);
 
-    List<String>? attachedImages;
+    List<ImageData>? attachedImages;
     if (row['attachedImages'] != null) {
       final decoded = jsonDecode(row['attachedImages'] as String);
-      attachedImages = List<String>.from(decoded);
+      attachedImages = (decoded as List).map((i) => ImageData.fromJson(i)).toList();
     }
 
     List<StickerData>? stickers;
@@ -158,12 +151,13 @@ class JournalRepository {
     }
 
     return JournalEntryModel(
-      id: row['id'] as int?, // IMPORTANT: Include the ID
+      id: row['id'] as int?,
       dateLabel: dateLabel,
       date: date,
       moodImage: row['mood'] as String,
       title: row['title'] as String? ?? '',
       fullText: row['text'] as String? ?? '',
+      voicePath: row['voicePath'] as String?,
       backgroundImage: row['backgroundImage'] as String?,
       fontFamily: row['fontFamily'] as String?,
       textColor: row['textColor'] as String?,
@@ -173,7 +167,6 @@ class JournalRepository {
     );
   }
 
-  /// Format date to label (e.g., "Wednesday, Oct 15")
   String _formatDateLabel(DateTime date) {
     return '${_getWeekdayFull(date.weekday)}, ${_getMonthShort(date.month)} ${date.day}';
   }

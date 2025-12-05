@@ -6,6 +6,7 @@ class JournalBottomToolbar extends StatelessWidget {
   final VoidCallback onPickImage;
   final VoidCallback onStickers;
   final VoidCallback onTextStyle;
+  final VoidCallback onVoiceNote; // NEW: Voice note callback
 
   const JournalBottomToolbar({
     super.key,
@@ -13,6 +14,7 @@ class JournalBottomToolbar extends StatelessWidget {
     required this.onPickImage,
     required this.onStickers,
     required this.onTextStyle,
+    required this.onVoiceNote, // NEW: Required parameter
   });
 
   @override
@@ -43,11 +45,11 @@ class JournalBottomToolbar extends StatelessWidget {
             icon: const Icon(Icons.text_fields),
             tooltip: 'Text Style',
           ),
-         IconButton(
-             onPressed: () {}, 
-             icon: const Icon(Icons.mic),
-              tooltip: 'Voice note',
-            ),
+          IconButton(
+            onPressed: onVoiceNote, // NEW: Call voice note handler
+            icon: const Icon(Icons.mic),
+            tooltip: 'Voice note',
+          ),
         ],
       ),
     );

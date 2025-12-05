@@ -22,12 +22,44 @@ class _JournalingScreenState extends State<JournalingScreen> {
   @override
   void initState() {
     super.initState();
-    // Load journals when screen opens
-    context.read<JournalCubit>().loadJournalsByMonth(
-      DateTime.now().month,
-      DateTime.now().year,
-    );
+    // Load journals for current month and auto-select today's date
+    final now = DateTime.now();
+    final cubit = context.read<JournalCubit>();
+    
+    cubit.loadJournalsByMonth(now.month, now.year).then((_) {
+      // After loading, auto-select today's date
+      final todayLabel = _formatDate(now);
+      cubit.filterByDateLabel(todayLabel);
+    });
   }
+
+  String _formatDate(DateTime d) =>
+      '${_weekdayName(d.weekday)}, ${_monthName(d.month)} ${d.day}';
+
+  String _weekdayName(int w) => [
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+        'Sunday'
+      ][w - 1];
+
+  String _monthName(int m) => [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec'
+      ][m - 1];
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +91,6 @@ class _JournalingScreenState extends State<JournalingScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // MoodCard now manages its own state
                   const MoodCard(),
                   const SizedBox(height: 20),
                   
@@ -135,11 +166,70 @@ class _JournalingScreenState extends State<JournalingScreen> {
         final entry = state.filteredJournals[index];
         return Padding(
           padding: const EdgeInsets.only(bottom: 10.0),
-          child: JournalEntryTemplate(
-            title: entry.title,
-            time: _formatTime(entry.date),
-            moodImage: entry.moodImage,
-            onTap: () => _openEditPage(entry),
+          child: Dismissible(
+            key: Key(entry.id.toString()),
+            direction: DismissDirection.endToStart,
+            background: Container(
+              alignment: Alignment.centerRight,
+              padding: const EdgeInsets.only(right: 20),
+              decoration: BoxDecoration(
+                color: AppColors.error,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Icon(
+                Icons.delete,
+                color: AppColors.card,
+                size: 28,
+              ),
+            ),
+            confirmDismiss: (direction) async {
+              return await showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text('Delete Journal'),
+                    content: const Text(
+                      'Are you sure you want to delete this journal entry?',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.error,
+                        ),
+                        child: const Text('Delete'),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            onDismissed: (direction) async {
+              if (entry.id != null) {
+                final success = await context
+                    .read<JournalCubit>()
+                    .deleteJournal(entry.id!);
+                
+                if (success && mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Journal deleted successfully'),
+                      backgroundColor: AppColors.accentGreen,
+                    ),
+                  );
+                }
+              }
+            },
+            child: JournalEntryTemplate(
+              title: entry.title,
+              time: _formatTime(entry.date),
+              moodImage: entry.moodImage,
+              onTap: () => _openEditPage(entry),
+            ),
           ),
         );
       },
@@ -216,9 +306,7 @@ class _JournalingScreenState extends State<JournalingScreen> {
     );
 
     if (result != null && mounted) {
-      // Check if the entry has an ID
       if (entry.id != null) {
-        // UPDATE the existing journal
         final success = await context.read<JournalCubit>().updateJournal(entry.id!, result);
         if (success && mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -229,10 +317,8 @@ class _JournalingScreenState extends State<JournalingScreen> {
           );
         }
       } else {
-        // Fallback: create new if somehow no ID exists
         await context.read<JournalCubit>().createJournal(result);
       }
     }
   }
 }
-

@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:the_project/l10n/app_localizations.dart';
 
 import '../../../widgets/activities/activity_shell.dart';
 import '../../../../logic/activities/games/puzzle_cubit.dart';
@@ -14,9 +15,10 @@ class PuzzleGame extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<PuzzleCubit>();
+    final l10n = AppLocalizations.of(context)!; // <-- added
 
     return ActivityShell(
-      title: 'Puzzle',
+      title: l10n.puzzleTitle, // was: 'Puzzle'
       child: Column(
         children: [
           // Top instruction + actions
@@ -40,10 +42,11 @@ class PuzzleGame extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const Text(
-                    'Slide the tiles to re-create the correct order.',
+                  Text(
+                    l10n.puzzleInstruction,
+                    // was: 'Slide the tiles to re-create the correct order.'
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 15,
                       height: 1.35,
                       color: Color(0xFF2B2B2B),
@@ -60,7 +63,7 @@ class PuzzleGame extends StatelessWidget {
                           Icons.shuffle_rounded,
                           size: 18,
                         ),
-                        label: const Text('Shuffle'),
+                        label: Text(l10n.puzzleShuffle), // was: 'Shuffle'
                       ),
                       OutlinedButton.icon(
                         onPressed: () => cubit.reset(shuffle: false),
@@ -68,7 +71,7 @@ class PuzzleGame extends StatelessWidget {
                           Icons.restart_alt_rounded,
                           size: 18,
                         ),
-                        label: const Text('Reset'),
+                        label: Text(l10n.puzzleReset), // was: 'Reset'
                       ),
                     ],
                   ),
@@ -183,9 +186,9 @@ class PuzzleGame extends StatelessWidget {
                                         borderRadius:
                                             BorderRadius.circular(22),
                                       ),
-                                      child: const Text(
-                                        'Solved! 🎉',
-                                        style: TextStyle(
+                                      child: Text(
+                                        l10n.puzzleSolved, // was: 'Solved! 🎉'
+                                        style: const TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.w700,
                                         ),

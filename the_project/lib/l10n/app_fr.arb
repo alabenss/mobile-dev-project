@@ -262,12 +262,148 @@
   "noWeeklyHabits": "Aucune habitude hebdomadaire pour l'instant",
   "noMonthlyHabits": "Aucune habitude mensuelle pour l'instant",
   "tapToAddHabit": "Appuyez sur le bouton + pour ajouter une habitude",
-
   "detoxProgress": "Progrès de détox",
-"detoxExcellent": "Excellent progrès !",
-"detoxGood": "Bon progrès",
-"detoxModerate": "Progrès modéré",
-"detoxLow": "Continuez",
-"detoxStart": "Début",
-"detoxInfo": "Progrès moyen de détox pour la période sélectionnée"
+  "detoxExcellent": "Excellent progrès !",
+  "detoxGood": "Bon progrès",
+  "detoxModerate": "Progrès modéré",
+  "detoxLow": "Continuez",
+  "detoxStart": "Début",
+  "detoxInfo": "Progrès moyen de détox pour la période sélectionnée",
+
+  "failedToLoadActivities": "Échec du chargement des activités\\n{error}",
+  "@failedToLoadActivities": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "breathingTitle": "Respiration",
+  "breathingDescription": "Prenez une grande inspiration et laissez votre corps se détendre\\npour la fin de la journée.",
+  "breathingStart": "Commencer",
+  "breathingStop": "Arrêter",
+
+  "bubblePopperTitle": "Pop It",
+  "bubblePopperDescription": "Trouvez le calme et la concentration en faisant éclater le stress, bulle après bulle.",
+
+  "coloringTitle": "Coloriage",
+  "coloringSaved": "Enregistré ! (export à venir plus tard)",
+  "coloringPickColorTitle": "Choisissez une couleur",
+  "coloringHue": "Teinte",
+  "coloringSaturation": "Saturation",
+  "coloringBrightness": "Luminosité",
+  "coloringOpacity": "Opacité",
+  "coloringUseColor": "Utiliser la couleur",
+  "coloringTemplateSpace": "Espace",
+  "coloringTemplateGarden": "Jardin",
+  "coloringTemplateFish": "Poisson",
+  "coloringTemplateButterfly": "Papillon",
+  "coloringTemplateHouse": "Maison",
+  "coloringTemplateMandala": "Mandala",
+  "coloringLoadError": "Erreur lors du chargement de la page de coloriage :\\n{error}",
+  "@coloringLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "growPlantTitle": "Fais pousser la plante",
+  "growPlantHeadline": "Prends soin de ta plante avec de l'eau et de la lumière.\\nUtilise des points d'activité pour l'aider à grandir !",
+  "growPlantStars": "Étoiles : {count}",
+  "@growPlantStars": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "growPlantStage": "Étape",
+  "growPlantAvailablePoints": "Points disponibles : {count}",
+  "@growPlantAvailablePoints": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "growPlantGetPoints": "Obtenir des points",
+  "growPlantWaterLabel": "Eau",
+  "growPlantSunlightLabel": "Lumière du soleil",
+  "growPlantWaterAction": "Eau ({cost})",
+  "@growPlantWaterAction": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
+  "growPlantSunAction": "Soleil ({cost})",
+  "@growPlantSunAction": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
+  "growPlantWaterHelper": "Dépenser {cost} pts",
+  "@growPlantWaterHelper": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
+  "growPlantSunHelper": "Dépenser {cost} pts",
+  "@growPlantSunHelper": {
+    "placeholders": {
+      "cost": {
+        "type": "int"
+      }
+    }
+  },
+  "growPlantTip": "Astuce : lorsque les deux barres sont pleines, ta plante passe au niveau suivant.",
+
+  "paintingTitle": "Dessiner",
+  "paintingPrompt": "Prenez une grande inspiration, choisissez votre couleur et laissez votre créativité s'exprimer.",
+  "paintingSaved": "Image enregistrée !.",
+  "paintingColorsTitle": "Couleurs",
+  "paintingHue": "Teinte",
+  "paintingSaturation": "Saturation",
+  "paintingValue": "Valeur",
+  "paintingOpacity": "Opacité",
+  "paintingUseColor": "Utiliser la couleur",
+
+  "puzzleTitle": "Puzzle",
+  "puzzleInstruction": "Faites glisser les tuiles pour les remettre dans le bon ordre.",
+  "puzzleShuffle": "Mélanger",
+  "puzzleReset": "Réinitialiser",
+  "puzzleSolved": "Résolu ! 🎉",
+  "plantArticleTitle": "L'effet apaisant des plantes",
+  "plantArticleIntro": "La verdure fait plus que décorer votre espace — elle apaise votre esprit. Prendre soin d'une plante vous ralentit et ramène votre attention au moment présent.",
+  "plantArticleBenefitsTitle": "Bénéfices en un coup d'œil",
+  "plantArticleBullet1": "Réduit le stress et la fatigue mentale",
+  "plantArticleBullet2": "Améliore la concentration et la créativité",
+  "plantArticleBullet3": "Ajoute une touche de couleur naturelle à votre pièce",
+  "plantArticleBullet4": "Crée un petit rituel quotidien (arroser, tailler, observer)",
+  "plantArticleQuote": "« Cultiver un jardin, c'est nourrir non seulement le corps, mais aussi l'âme. »",
+  "plantArticleTipTitle": "Astuce du jour",
+  "plantArticleTipBody": "Placez une petite plante près de l'endroit où vous travaillez le plus. Vérifiez-la une fois par jour — une pause de 30 secondes pour votre esprit.",
+  "plantArticleFooter": "Continuez de grandir — une feuille à la fois 🌿",
+    "sportArticleTitle": "Booster votre humeur avec le sport",
+  "sportArticleHeroText": "Un peu de mouvement\\ncrée beaucoup d'émotion 💪✨",
+  "sportArticleIntro": "Bouger votre corps est l’un des moyens les plus rapides pour améliorer votre humeur. L’activité libère des endorphines — les “hormones du bien-être” de votre cerveau.",
+  "sportArticleEasyWaysTitle": "Des façons simples de commencer",
+  "sportArticleBullet1": "Marche de 5–10 minutes après les repas",
+  "sportArticleBullet2": "Petite danse sur une chanson pendant le café",
+  "sportArticleBullet3": "Étirements légers devant la télé",
+  "sportArticleBullet4": "Invitez un ami pour un petit jogging ou une balade à vélo",
+  "sportArticleQuote": "Présentez-vous pendant 5 minutes. La plupart du temps, c’est tout ce qu’il faut pour démarrer.",
+  "sportArticleRememberTitle": "À retenir",
+  "sportArticleRememberBody": "Choisissez un mouvement qui vous fait sourire — pas seulement transpirer. La joie crée la régularité, et la régularité améliore l’humeur.",
+  "sportArticleStartActivityCta": "Commencer une activité"
+
+
 }

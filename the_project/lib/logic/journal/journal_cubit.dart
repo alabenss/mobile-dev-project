@@ -41,11 +41,14 @@ class JournalCubit extends Cubit<JournalState> {
 
   /// Load journals for specific month
   Future<void> loadJournalsByMonth(int month, int year) async {
+    // Store the current selected date label before loading
+    final previousSelectedDateLabel = state.selectedDateLabel;
+    
     emit(state.copyWith(
       status: JournalStatus.loading,
       selectedMonth: month,
       selectedYear: year,
-      clearDateLabel: true,
+      // Don't clear the date label yet
     ));
 
     try {
@@ -64,11 +67,25 @@ class JournalCubit extends Cubit<JournalState> {
         year: year,
       );
 
-      emit(state.copyWith(
-        status: JournalStatus.success,
-        allJournals: journals,
-        filteredJournals: const [],
-      ));
+      // If we had a selected date, filter by it automatically
+      if (previousSelectedDateLabel != null) {
+        final filtered = journals
+            .where((j) => j.dateLabel == previousSelectedDateLabel)
+            .toList();
+        
+        emit(state.copyWith(
+          status: JournalStatus.success,
+          allJournals: journals,
+          filteredJournals: filtered,
+          selectedDateLabel: previousSelectedDateLabel,
+        ));
+      } else {
+        emit(state.copyWith(
+          status: JournalStatus.success,
+          allJournals: journals,
+          filteredJournals: const [],
+        ));
+      }
     } catch (e) {
       emit(state.copyWith(
         status: JournalStatus.error,
@@ -108,8 +125,9 @@ class JournalCubit extends Cubit<JournalState> {
 
       await _repository.createJournal(userId: userId, entry: entry);
       
-      // Reload journals for current month
+      // Reload journals for current month (this will maintain the selected date)
       await loadJournalsByMonth(state.selectedMonth, state.selectedYear);
+      
       return true;
     } catch (e) {
       emit(state.copyWith(error: e.toString()));
@@ -132,8 +150,9 @@ class JournalCubit extends Cubit<JournalState> {
         entry: entry,
       );
 
-      // Reload journals for current month
+      // Reload journals for current month (this will maintain the selected date)
       await loadJournalsByMonth(state.selectedMonth, state.selectedYear);
+      
       return true;
     } catch (e) {
       emit(state.copyWith(error: e.toString()));
@@ -152,8 +171,9 @@ class JournalCubit extends Cubit<JournalState> {
 
       await _repository.deleteJournal(journalId, userId);
       
-      // Reload journals for current month
+      // Reload journals for current month (this will maintain the selected date)
       await loadJournalsByMonth(state.selectedMonth, state.selectedYear);
+      
       return true;
     } catch (e) {
       emit(state.copyWith(error: e.toString()));

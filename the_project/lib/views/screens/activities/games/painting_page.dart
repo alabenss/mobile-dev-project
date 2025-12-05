@@ -1,6 +1,7 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:the_project/l10n/app_localizations.dart';
 
 import '../../../../logic/activities/games/painting_cubit.dart';
 import '../../../../logic/activities/games/painting_state.dart';
@@ -22,11 +23,12 @@ class _PaintingPageState extends State<PaintingPage> {
   static const Color _canvasBg = Color(0xFFF5EAE5);
 
   Future<void> _saveMock() async {
-    // Hook ready: the RepaintBoundary is set. Keep it simple for now.
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Image Saved!.'),
+      SnackBar( // <-- removed const to use localization
+        content: Text(
+          AppLocalizations.of(context)!.paintingSaved,
+        ),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -34,8 +36,10 @@ class _PaintingPageState extends State<PaintingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!; // <-- added
+
     return ActivityShell(
-      title: 'Draw',
+      title: l10n.paintingTitle, // was: 'Draw'
       child: BlocBuilder<PaintingCubit, PaintingState>(
         builder: (context, state) {
           final cubit = context.read<PaintingCubit>();
@@ -47,15 +51,18 @@ class _PaintingPageState extends State<PaintingPage> {
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 18, vertical: 16),
+                    horizontal: 18,
+                    vertical: 16,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFFFF3EB),
                     borderRadius: BorderRadius.circular(22),
                   ),
-                  child: const Text(
-                    'Take a deep breath, pick your color, and let your creativity flow.',
+                  child: Text(
+                    l10n.paintingPrompt,
+                    // was: 'Take a deep breath, pick your color, and let your creativity flow.'
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 18,
                       height: 1.3,
                       color: AppColors.textPrimary,
@@ -142,7 +149,8 @@ class _PaintingPageState extends State<PaintingPage> {
                       borderRadius:
                           BorderRadius.vertical(top: Radius.circular(22)),
                     ),
-                    builder: (_) => _ColorPickerSheet(initial: state.color),
+                    builder: (_) =>
+                        _ColorPickerSheet(initial: state.color),
                   );
                   if (picked != null) {
                     cubit.setColor(picked);
@@ -210,7 +218,7 @@ class _CanvasPainter extends CustomPainter {
 }
 
 /// -------------------------------------
-/// UI bits (unchanged)
+/// UI bits
 /// -------------------------------------
 
 class _ToolButton extends StatelessWidget {
@@ -238,7 +246,10 @@ class _ToolButton extends StatelessWidget {
             )
           ],
         ),
-        child: Icon(icon, color: const Color(0xFFE9C7B6)),
+        child: const Icon(
+          Icons.brush_rounded,
+          color: Color(0xFFE9C7B6),
+        ),
       ),
     );
   }
@@ -271,7 +282,9 @@ class _ToolDock extends StatelessWidget {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(.1), blurRadius: 10),
+            color: Colors.black.withOpacity(.1),
+            blurRadius: 10,
+          ),
         ],
       ),
       child: Row(
@@ -436,6 +449,8 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!; // <-- added
+
     return Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -447,25 +462,51 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-              width: 44,
-              height: 5,
-              decoration: BoxDecoration(
-                  color: Colors.black12,
-                  borderRadius: BorderRadius.circular(3))),
+            width: 44,
+            height: 5,
+            decoration: BoxDecoration(
+              color: Colors.black12,
+              borderRadius: BorderRadius.circular(3),
+            ),
+          ),
           const SizedBox(height: 16),
-          const Text('Colors',
-              style: TextStyle(
-                  fontSize: 18, fontWeight: FontWeight.w700)),
+          Text(
+            l10n.paintingColorsTitle, // was: 'Colors'
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
           const SizedBox(height: 14),
 
-          _sliderRow('Hue', _h, 0, 360,
-              (v) => setState(() => _h = v)),
-          _sliderRow('Saturation', _s, 0, 1,
-              (v) => setState(() => _s = v)),
-          _sliderRow('Value', _v, 0, 1,
-              (v) => setState(() => _v = v)),
-          _sliderRow('Opacity', _a, 0, 1,
-              (v) => setState(() => _a = v)),
+          _sliderRow(
+            l10n.paintingHue, // was: 'Hue'
+            _h,
+            0,
+            360,
+            (v) => setState(() => _h = v),
+          ),
+          _sliderRow(
+            l10n.paintingSaturation, // was: 'Saturation'
+            _s,
+            0,
+            1,
+            (v) => setState(() => _s = v),
+          ),
+          _sliderRow(
+            l10n.paintingValue, // was: 'Value'
+            _v,
+            0,
+            1,
+            (v) => setState(() => _v = v),
+          ),
+          _sliderRow(
+            l10n.paintingOpacity, // was: 'Opacity'
+            _a,
+            0,
+            1,
+            (v) => setState(() => _a = v),
+          ),
 
           const SizedBox(height: 12),
           Row(
@@ -490,13 +531,15 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
                 backgroundColor: AppColors.accentPink,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14)),
-                padding:
-                    const EdgeInsets.symmetric(vertical: 12),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 12),
               ),
               onPressed: () => Navigator.pop(context, _current),
-              child: const Text('Use Color',
-                  style: TextStyle(fontWeight: FontWeight.w700)),
+              child: Text(
+                l10n.paintingUseColor, // was: 'Use Color'
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
             ),
           ),
           const SizedBox(height: 14),
@@ -505,15 +548,23 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
     );
   }
 
-  Widget _sliderRow(String label, double value, double min, double max,
-      ValueChanged<double> onChanged) {
+  Widget _sliderRow(
+    String label,
+    double value,
+    double min,
+    double max,
+    ValueChanged<double> onChanged,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary)),
+        Text(
+          label,
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary,
+          ),
+        ),
         Slider(
           value: value,
           min: min,

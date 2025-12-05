@@ -7,7 +7,6 @@ import '../../../logic/journal/daily_mood_state.dart';
 import '../../../logic/journal/daily_mood_cubit.dart';
 import '../../themes/style_simple/colors.dart';
 
-
 class MoodCard extends StatefulWidget {
   const MoodCard({super.key});
 
@@ -45,12 +44,13 @@ class _MoodCardState extends State<MoodCard> {
   void _loadMoodIfNeeded() async {
     await Future.delayed(Duration.zero); // Wait for frame
     if (!mounted) return;
-    
+
     final currentUserId = await _getCurrentUserId();
     print('MoodCard: Current userId from SharedPreferences: $currentUserId');
-    
+
     if (currentUserId != null && _lastLoadedUserId != currentUserId) {
-      print('MoodCard: Loading mood for NEW user: $currentUserId (previous: $_lastLoadedUserId)');
+      print(
+          'MoodCard: Loading mood for NEW user: $currentUserId (previous: $_lastLoadedUserId)');
       setState(() {
         _lastLoadedUserId = currentUserId;
       });
@@ -71,11 +71,13 @@ class _MoodCardState extends State<MoodCard> {
           listener: (context, authState) async {
             if (authState.isAuthenticated && authState.user != null) {
               final currentUserId = await _getCurrentUserId();
-              print('MoodCard: Auth state changed, userId: $currentUserId, last loaded: $_lastLoadedUserId');
-              
+              print(
+                  'MoodCard: Auth state changed, userId: $currentUserId, last loaded: $_lastLoadedUserId');
+
               // Reload mood if user changed
               if (currentUserId != null && _lastLoadedUserId != currentUserId) {
-                print('MoodCard: User CHANGED from $_lastLoadedUserId to $currentUserId, reloading mood');
+                print(
+                    'MoodCard: User CHANGED from $_lastLoadedUserId to $currentUserId, reloading mood');
                 setState(() {
                   _lastLoadedUserId = currentUserId;
                 });
@@ -161,9 +163,7 @@ class _MoodCardState extends State<MoodCard> {
 
     final hasSelectedMood = state.todayMood != null;
 
-    return hasSelectedMood
-        ? _buildSelectedMood(state)
-        : _buildMoodSelector();
+    return hasSelectedMood ? _buildSelectedMood(state) : _buildMoodSelector();
   }
 
   Widget _buildSelectedMood(DailyMoodState state) {
@@ -260,7 +260,9 @@ class _MoodCardState extends State<MoodCard> {
   }
 
   String _formatDateTime(DateTime date) {
-    final hour = date.hour > 12 ? date.hour - 12 : (date.hour == 0 ? 12 : date.hour);
+    final hour = date.hour > 12
+        ? date.hour - 12
+        : (date.hour == 0 ? 12 : date.hour);
     final minute = date.minute.toString().padLeft(2, '0');
     final period = date.hour >= 12 ? 'PM' : 'AM';
     final day = date.day;
@@ -287,3 +289,5 @@ class _MoodCardState extends State<MoodCard> {
     return months[month - 1];
   }
 }
+
+

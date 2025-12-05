@@ -1,6 +1,7 @@
 // lib/views/screens/activities/activities.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:the_project/l10n/app_localizations.dart';
 
 import '../../widgets/activities/activity_card.dart';
 import 'games/bubble_popper_game.dart';
@@ -27,6 +28,8 @@ class Activities extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!; // <-- added
+
     return BlocBuilder<ActivitiesCubit, ActivitiesState>(
       builder: (context, state) {
         if (state.isLoading && state.activities.isEmpty) {
@@ -36,7 +39,8 @@ class Activities extends StatelessWidget {
         if (state.error != null) {
           return Center(
             child: Text(
-              'Failed to load activities\n${state.error}',
+              l10n.failedToLoadActivities(state.error ?? ''),
+              // was: 'Failed to load activities\n${state.error}'
               textAlign: TextAlign.center,
               style: const TextStyle(color: Colors.red),
             ),
@@ -48,25 +52,25 @@ class Activities extends StatelessWidget {
         // Map activity title -> page builder (navigation)
         final Map<String, WidgetBuilder> routes = {
           'Bubble Popper': (_) => BlocProvider(
-          create: (_) => BubblePopperCubit(),
-          child: const BubblePopperGame(),
-          ),
+                create: (_) => BubblePopperCubit(),
+                child: const BubblePopperGame(),
+              ),
           'Breathing': (_) => BlocProvider(
-          create: (_) => BreathingCubit(),
-          child: const BreathPage(),
-          ),
+                create: (_) => BreathingCubit(),
+                child: const BreathPage(),
+              ),
           'Painting': (_) => BlocProvider(
-          create: (_) => PaintingCubit(),
-          child: const PaintingPage(),
-          ),
+                create: (_) => PaintingCubit(),
+                child: const PaintingPage(),
+              ),
           'Coloring': (_) => BlocProvider(
-          create: (_) => ColoringCubit(),
-          child: const ColoringPage(),
-        ),
+                create: (_) => ColoringCubit(),
+                child: const ColoringPage(),
+              ),
           'Puzzle': (_) => BlocProvider(
-          create: (_) => PuzzleCubit(),
-          child: const PuzzleGame(),
-        ),
+                create: (_) => PuzzleCubit(),
+                child: const PuzzleGame(),
+              ),
           'Grow the plant': (_) => const GrowPlantPage(),
         };
 

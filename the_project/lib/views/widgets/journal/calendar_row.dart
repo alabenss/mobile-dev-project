@@ -1,8 +1,7 @@
-  
 import 'package:flutter/material.dart';
 import '../../themes/style_simple/colors.dart';
 
-class CalendarRow extends StatelessWidget {
+class CalendarRow extends StatefulWidget {
   final int month;
   final int year;
   final String? selectedDateLabel;
@@ -19,23 +18,84 @@ class CalendarRow extends StatelessWidget {
   });
 
   @override
+  State<CalendarRow> createState() => _CalendarRowState();
+}
+
+class _CalendarRowState extends State<CalendarRow> {
+  final ScrollController _scrollController = ScrollController();
+  bool _hasScrolledToToday = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Scroll to today after the widget is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToToday();
+    });
+  }
+
+  @override
+  void didUpdateWidget(CalendarRow oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Reset scroll flag if month/year changed
+    if (oldWidget.month != widget.month || oldWidget.year != widget.year) {
+      _hasScrolledToToday = false;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _scrollToToday();
+      });
+    }
+  }
+
+  void _scrollToToday() {
+    if (_hasScrolledToToday || !_scrollController.hasClients) return;
+
+    final now = DateTime.now();
+    // Only auto-scroll if we're viewing the current month
+    if (widget.month == now.month && widget.year == now.year) {
+      final todayIndex = now.day - 1;
+      // Calculate position: each item is 70 width + 8 padding
+      final scrollPosition = todayIndex * 78.0;
+      // Scroll to center the current day
+      final offset = (scrollPosition - (MediaQuery.of(context).size.width / 2) + 39).clamp(
+        0.0,
+        _scrollController.position.maxScrollExtent,
+      );
+
+      _scrollController.animateTo(
+        offset,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeInOut,
+      );
+
+      _hasScrolledToToday = true;
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final daysInMonth = DateTime(year, month + 1, 0).day;
+    final daysInMonth = DateTime(widget.year, widget.month + 1, 0).day;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     
     return SizedBox(
       height: 100,
       child: ListView.builder(
+        controller: _scrollController,
         scrollDirection: Axis.horizontal,
         itemCount: daysInMonth,
         itemBuilder: (context, index) {
           final day = index + 1;
-          final date = DateTime(year, month, day);
+          final date = DateTime(widget.year, widget.month, day);
           final dateLabel = _formatDateLabel(date);
-          final hasEntries = entriesByDate.containsKey(dateLabel);
-          final entryCount = entriesByDate[dateLabel] ?? 0;
-          final isSelected = selectedDateLabel == dateLabel;
+          final hasEntries = widget.entriesByDate.containsKey(dateLabel);
+          final entryCount = widget.entriesByDate[dateLabel] ?? 0;
+          final isSelected = widget.selectedDateLabel == dateLabel;
           final isFuture = date.isAfter(today);
 
           return Padding(
@@ -43,7 +103,7 @@ class CalendarRow extends StatelessWidget {
             child: Opacity(
               opacity: isFuture ? 0.4 : 1.0,
               child: GestureDetector(
-                onTap: isFuture ? null : () => onDateTap(dateLabel),
+                onTap: isFuture ? null : () => widget.onDateTap(dateLabel),
                 child: Container(
                   width: 70,
                   decoration: BoxDecoration(
