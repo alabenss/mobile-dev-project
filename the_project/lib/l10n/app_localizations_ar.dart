@@ -693,4 +693,75 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get sportArticleStartActivityCta => 'ابدأ نشاطًا';
+
+  @override
+  String get detoxCardTitle => 'التحرر الرقمي:';
+
+  @override
+  String get detoxCardPhoneLocked => 'الهاتف مقفول';
+
+  @override
+  String get detoxCardDisableLock => 'إيقاف القفل';
+
+  @override
+  String get detoxCardComplete => 'مكتمل';
+
+  @override
+  String get detoxCardReset => 'إعادة التعيين';
+
+  @override
+  String get detoxCardLock30m => 'قفل لمدة 30 دقيقة';
+
+  @override
+  String get exploreSectionTitle => 'استكشف';
+
+  @override
+  String get explorePlantTitle => 'التأثير المهدئ للنباتات';
+
+  @override
+  String get exploreReadNow => 'اقرأ الآن';
+
+  @override
+  String get exploreSportsTitle => 'حسِّن\nمزاجك\nبالرياضة';
+
+  @override
+  String homeHello(String name) {
+    return 'مرحبًا، $name';
+  }
+
+  @override
+  String get homeViewAllHabits => 'عرض الكل';
+
+  @override
+  String get phoneLockTitle => 'الهاتف مقفول';
+
+  @override
+  String get phoneLockSubtitle => 'خذ استراحة من الشاشة.\nعملية التخلص من السموم الرقمية قيد التقدم.';
+
+  @override
+  String get phoneLockStayStrong => 'ابقَ قويًا!';
+
+  @override
+  String get phoneLockDisableTitle => 'إلغاء القفل؟';
+
+  @override
+  String get phoneLockDisableMessage => 'إذا ألغيت القفل مبكرًا، فلن يزداد تقدم التخلص من السموم الرقمية. هل أنت متأكد؟';
+
+  @override
+  String get phoneLockStayLockedCta => 'ابقَ مقفولًا';
+
+  @override
+  String get phoneLockDisableCta => 'إلغاء';
+
+  @override
+  String get phoneLockDisableButton => 'إلغاء القفل';
+
+  @override
+  String get waterIntakeTitle => 'شرب الماء:';
+
+  @override
+  String get waterGlassesUnit => 'أكواب';
+
+  @override
+  String get commonReset => 'إعادة التعيين';
 }

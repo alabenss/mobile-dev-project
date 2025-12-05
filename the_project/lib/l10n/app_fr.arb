@@ -392,7 +392,7 @@
   "plantArticleTipTitle": "Astuce du jour",
   "plantArticleTipBody": "Placez une petite plante près de l'endroit où vous travaillez le plus. Vérifiez-la une fois par jour — une pause de 30 secondes pour votre esprit.",
   "plantArticleFooter": "Continuez de grandir — une feuille à la fois 🌿",
-    "sportArticleTitle": "Booster votre humeur avec le sport",
+  "sportArticleTitle": "Booster votre humeur avec le sport",
   "sportArticleHeroText": "Un peu de mouvement\\ncrée beaucoup d'émotion 💪✨",
   "sportArticleIntro": "Bouger votre corps est l’un des moyens les plus rapides pour améliorer votre humeur. L’activité libère des endorphines — les “hormones du bien-être” de votre cerveau.",
   "sportArticleEasyWaysTitle": "Des façons simples de commencer",
@@ -403,7 +403,44 @@
   "sportArticleQuote": "Présentez-vous pendant 5 minutes. La plupart du temps, c’est tout ce qu’il faut pour démarrer.",
   "sportArticleRememberTitle": "À retenir",
   "sportArticleRememberBody": "Choisissez un mouvement qui vous fait sourire — pas seulement transpirer. La joie crée la régularité, et la régularité améliore l’humeur.",
-  "sportArticleStartActivityCta": "Commencer une activité"
+  "sportArticleStartActivityCta": "Commencer une activité",
+  "detoxCardTitle": "Détox numérique :",
+  "detoxCardPhoneLocked": "Téléphone verrouillé",
+  "detoxCardDisableLock": "Désactiver le verrouillage",
+  "detoxCardComplete": "terminé",
+  "detoxCardReset": "Réinitialiser",
+  "detoxCardLock30m": "Verrouiller 30 min",
+  "exploreSectionTitle": "Explorer",
+  "explorePlantTitle": "L'effet apaisant des plantes",
+  "exploreReadNow": "Lire maintenant",
+  "exploreSportsTitle": "Améliore ton\nmoral avec\nle sport",
+  "homeHello": "Bonjour, {name}",
+  "@homeHello": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "homeViewAllHabits": "voir tout",
+  "exploreSectionTitle": "Explorer",
+  "explorePlantTitle": "L'effet apaisant des plantes",
+  "exploreReadNow": "Lire maintenant",
+  "exploreSportsTitle": "Améliore ton\nmoral avec\nle sport",
+  "phoneLockTitle": "Téléphone verrouillé",
+  "phoneLockSubtitle": "Faites une pause loin de l'écran.\nVotre détox numérique est en cours.",
+  "phoneLockStayStrong": "Tiens bon !",
+  "phoneLockDisableTitle": "Désactiver le verrouillage ?",
+  "phoneLockDisableMessage": "Si vous désactivez le verrouillage trop tôt, vos progrès de détox n'augmenteront pas. Êtes-vous sûr(e) ?",
+  "phoneLockStayLockedCta": "Rester verrouillé",
+  "phoneLockDisableCta": "Désactiver",
+  "phoneLockDisableButton": "Désactiver le verrouillage",
+  "waterIntakeTitle": "Hydratation :",
+  "waterGlassesUnit": "verres",
+  "commonReset": "Réinitialiser"
+
+
+
+
+
 
 
 }

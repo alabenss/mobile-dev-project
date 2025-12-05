@@ -1344,6 +1344,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Start an activity'**
   String get sportArticleStartActivityCta;
+
+  /// No description provided for @detoxCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Digital detox:'**
+  String get detoxCardTitle;
+
+  /// No description provided for @detoxCardPhoneLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone is locked'**
+  String get detoxCardPhoneLocked;
+
+  /// No description provided for @detoxCardDisableLock.
+  ///
+  /// In en, this message translates to:
+  /// **'Disable Lock'**
+  String get detoxCardDisableLock;
+
+  /// No description provided for @detoxCardComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'complete'**
+  String get detoxCardComplete;
+
+  /// No description provided for @detoxCardReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get detoxCardReset;
+
+  /// No description provided for @detoxCardLock30m.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock 30m'**
+  String get detoxCardLock30m;
+
+  /// No description provided for @exploreSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore'**
+  String get exploreSectionTitle;
+
+  /// No description provided for @explorePlantTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The calming effect of plants'**
+  String get explorePlantTitle;
+
+  /// No description provided for @exploreReadNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Read Now'**
+  String get exploreReadNow;
+
+  /// No description provided for @exploreSportsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Boost your\nmood with\nsports'**
+  String get exploreSportsTitle;
+
+  /// No description provided for @homeHello.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello, {name}'**
+  String homeHello(String name);
+
+  /// No description provided for @homeViewAllHabits.
+  ///
+  /// In en, this message translates to:
+  /// **'view all'**
+  String get homeViewAllHabits;
+
+  /// No description provided for @phoneLockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone is locked'**
+  String get phoneLockTitle;
+
+  /// No description provided for @phoneLockSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a break from your screen.\nYour digital detox is in progress.'**
+  String get phoneLockSubtitle;
+
+  /// No description provided for @phoneLockStayStrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay strong!'**
+  String get phoneLockStayStrong;
+
+  /// No description provided for @phoneLockDisableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Disable Lock?'**
+  String get phoneLockDisableTitle;
+
+  /// No description provided for @phoneLockDisableMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'If you disable the lock early, your detox progress will not increase. Are you sure?'**
+  String get phoneLockDisableMessage;
+
+  /// No description provided for @phoneLockStayLockedCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay Locked'**
+  String get phoneLockStayLockedCta;
+
+  /// No description provided for @phoneLockDisableCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Disable'**
+  String get phoneLockDisableCta;
+
+  /// No description provided for @phoneLockDisableButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Disable Lock'**
+  String get phoneLockDisableButton;
+
+  /// No description provided for @waterIntakeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Water intake:'**
+  String get waterIntakeTitle;
+
+  /// No description provided for @waterGlassesUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'glasses'**
+  String get waterGlassesUnit;
+
+  /// No description provided for @commonReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get commonReset;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

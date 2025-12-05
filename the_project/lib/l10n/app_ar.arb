@@ -343,7 +343,42 @@
   "sportArticleQuote": "احضر فقط لمدة 5 دقائق. في أغلب الأيام، هذا يكفي للبدء.",
   "sportArticleRememberTitle": "تذكّر",
   "sportArticleRememberBody": "اختر حركة تجعلك تبتسم — ليس فقط تتعرّق. المتعة تصنع الاستمرارية، والاستمرارية ترفع المزاج.",
-  "sportArticleStartActivityCta": "ابدأ نشاطًا"
+  "sportArticleStartActivityCta": "ابدأ نشاطًا",
+  "detoxCardTitle": "التحرر الرقمي:",
+  "detoxCardPhoneLocked": "الهاتف مقفول",
+  "detoxCardDisableLock": "إيقاف القفل",
+  "detoxCardComplete": "مكتمل",
+  "detoxCardReset": "إعادة التعيين",
+  "detoxCardLock30m": "قفل لمدة 30 دقيقة",
+  "exploreSectionTitle": "استكشف",
+  "explorePlantTitle": "التأثير المهدئ للنباتات",
+  "exploreReadNow": "اقرأ الآن",
+  "exploreSportsTitle": "حسِّن\nمزاجك\nبالرياضة",
+  "homeHello": "مرحبًا، {name}",
+  "@homeHello": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "homeViewAllHabits": "عرض الكل",
+  "exploreSectionTitle": "استكشف",
+  "explorePlantTitle": "التأثير المهدئ للنباتات",
+  "exploreReadNow": "اقرأ الآن",
+  "exploreSportsTitle": "حسِّن\nمزاجك\nبالرياضة",
+  "phoneLockTitle": "الهاتف مقفول",
+  "phoneLockSubtitle": "خذ استراحة من الشاشة.\nعملية التخلص من السموم الرقمية قيد التقدم.",
+  "phoneLockStayStrong": "ابقَ قويًا!",
+  "phoneLockDisableTitle": "إلغاء القفل؟",
+  "phoneLockDisableMessage": "إذا ألغيت القفل مبكرًا، فلن يزداد تقدم التخلص من السموم الرقمية. هل أنت متأكد؟",
+  "phoneLockStayLockedCta": "ابقَ مقفولًا",
+  "phoneLockDisableCta": "إلغاء",
+  "phoneLockDisableButton": "إلغاء القفل",
+  "waterIntakeTitle": "شرب الماء:",
+  "waterGlassesUnit": "أكواب",
+  "commonReset": "إعادة التعيين"
+
+
+
 
 
 }

@@ -378,7 +378,39 @@
   "sportArticleQuote": "Show up for 5 minutes. Most days, that’s all it takes to start.",
   "sportArticleRememberTitle": "Remember",
   "sportArticleRememberBody": "Pick a movement that makes you smile — not just one that makes you sweat. Joy builds consistency, and consistency lifts mood.",
-  "sportArticleStartActivityCta": "Start an activity"
-
+  "sportArticleStartActivityCta": "Start an activity",
+  "detoxCardTitle": "Digital detox:",
+  "detoxCardPhoneLocked": "Phone is locked",
+  "detoxCardDisableLock": "Disable Lock",
+  "detoxCardComplete": "complete",
+  "detoxCardReset": "Reset",
+  "detoxCardLock30m": "Lock 30m",
+  "exploreSectionTitle": "Explore",
+  "explorePlantTitle": "The calming effect of plants",
+  "exploreReadNow": "Read Now",
+  "exploreSportsTitle": "Boost your\nmood with\nsports",
+  "homeHello": "Hello, {name}",
+  "@homeHello": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "homeViewAllHabits": "view all",
+  "exploreSectionTitle": "Explore",
+  "explorePlantTitle": "The calming effect of plants",
+  "exploreReadNow": "Read Now",
+  "exploreSportsTitle": "Boost your\nmood with\nsports",
+  "phoneLockTitle": "Phone is locked",
+  "phoneLockSubtitle": "Take a break from your screen.\nYour digital detox is in progress.",
+  "phoneLockStayStrong": "Stay strong!",
+  "phoneLockDisableTitle": "Disable Lock?",
+  "phoneLockDisableMessage": "If you disable the lock early, your detox progress will not increase. Are you sure?",
+  "phoneLockStayLockedCta": "Stay Locked",
+  "phoneLockDisableCta": "Disable",
+  "phoneLockDisableButton": "Disable Lock",
+  "waterIntakeTitle": "Water intake:",
+  "waterGlassesUnit": "glasses",
+  "commonReset": "Reset"
+  
 
 }
