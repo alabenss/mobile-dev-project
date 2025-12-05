@@ -16,7 +16,7 @@ class DBHelper {
 
     return await openDatabase(
       path,
-      version: 4, // Increment version to trigger onUpgrade
+      version: 5, // Increment version to trigger onUpgrade
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -57,6 +57,38 @@ class DBHelper {
         )
       ''');
     }
+
+    if (oldVersion < 5) {
+      // Remove mood columns from home_status table
+      // SQLite doesn't support DROP COLUMN directly, so we need to recreate the table
+      
+      // Create new table without mood columns
+      await db.execute('''
+        CREATE TABLE home_status_new(
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          date TEXT NOT NULL,
+          userId INTEGER,
+          water_count INTEGER NOT NULL,
+          water_goal INTEGER NOT NULL,
+          detox_progress REAL NOT NULL,
+          FOREIGN KEY (userId) REFERENCES users(id),
+          UNIQUE(date, userId)
+        );
+      ''');
+      
+      // Copy data from old table (excluding mood columns)
+      await db.execute('''
+        INSERT INTO home_status_new (id, date, userId, water_count, water_goal, detox_progress)
+        SELECT id, date, userId, water_count, water_goal, detox_progress
+        FROM home_status;
+      ''');
+      
+      // Drop old table
+      await db.execute('DROP TABLE home_status;');
+      
+      // Rename new table to original name
+      await db.execute('ALTER TABLE home_status_new RENAME TO home_status;');
+    }
   }
 
   // Create all the tables
@@ -73,7 +105,7 @@ class DBHelper {
       );
     ''');
 
-    // home status table with userId
+    // home status table with userId (WITHOUT mood fields)
     await db.execute('''
       CREATE TABLE home_status(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -82,9 +114,6 @@ class DBHelper {
         water_count INTEGER NOT NULL,
         water_goal INTEGER NOT NULL,
         detox_progress REAL NOT NULL,
-        mood_label TEXT,
-        mood_image TEXT,
-        mood_time TEXT,
         FOREIGN KEY (userId) REFERENCES users(id),
         UNIQUE(date, userId)
       );
@@ -129,7 +158,7 @@ class DBHelper {
       );
     ''');
 
-    // Daily moods table
+    // Daily moods table (separate from home_status)
     await db.execute('''
       CREATE TABLE daily_moods (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -349,7 +378,7 @@ class DBHelper {
     await db.delete('journals');
     await db.delete('habits');
     await db.delete('home_status');
-    await db.delete('daily_moods'); // ADD THIS
+    await db.delete('daily_moods');
     await db.delete('users');
   }
 
@@ -359,78 +388,110 @@ class DBHelper {
     db?.close();
     _database = null;
   }
-  // In db_helper.dart, add this method:
 
-/// Create a demo user with demo data if no users exist
-static Future<void> initializeDemoData() async {
-  final db = await database;
-  
-  // Check if we have any users
-  final userCount = Sqflite.firstIntValue(
-    await db.rawQuery('SELECT COUNT(*) as c FROM users')
-  ) ?? 0;
-  
-  if (userCount == 0) {
-    // Create demo user
-    final userId = await db.insert('users', {
-      'name': 'Demo User',
-      'email': 'demo@example.com',
-      'password': 'demo123',
-      'totalPoints': 100,
-    });
+  /// Create a demo user with demo data if no users exist
+  static Future<void> initializeDemoData() async {
+    final db = await database;
     
-    // Create demo data for the last 7 days
-    final today = DateTime.now();
-    final rnd = Random(1234);
+    // Check if we have any users
+    final userCount = Sqflite.firstIntValue(
+      await db.rawQuery('SELECT COUNT(*) as c FROM users')
+    ) ?? 0;
     
-    for (int i = 6; i >= 0; i--) {
-      final date = today.subtract(Duration(days: i));
-      final dateStr = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-      
-      // Insert home_status data
-      await db.insert('home_status', {
-        'date': dateStr,
-        'userId': userId,
-        'water_count': (rnd.nextDouble() * 3 + 5).toInt(), // 5-8 glasses
-        'water_goal': 8,
-        'detox_progress': rnd.nextDouble(),
-        'mood_label': ['happy', 'ok', 'sad'][i % 3],
-        'mood_image': '',
-        'mood_time': '${(8 + i % 4)}:00',
+    if (userCount == 0) {
+      // Create demo user
+      final userId = await db.insert('users', {
+        'name': 'Demo User',
+        'email': 'demo@example.com',
+        'password': 'demo123',
+        'totalPoints': 0,
+        'stars': 0,
       });
       
-      // Add some journal entries
-      if (i % 2 == 0) {
-        await db.insert('journals', {
-          'userId': userId,
+      // Create demo data for the last 7 days
+      final today = DateTime.now();
+      final rnd = Random(1234);
+      
+      for (int i = 6; i >= 0; i--) {
+        final date = today.subtract(Duration(days: i));
+        final dateStr = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+        
+        // For today, start with 0 water and 0 detox
+        final isToday = i == 0;
+        
+        // Insert home_status data (WITHOUT mood fields)
+        await db.insert('home_status', {
           'date': dateStr,
-          'mood': ['happy', 'ok'][i % 2],
-          'text': 'Journal entry for $dateStr. Had a good day!',
-          'imagePath': null,
-          'voicePath': null,
+          'userId': userId,
+          'water_count': isToday ? 0 : (rnd.nextDouble() * 3 + 5).toInt(),
+          'water_goal': 8,
+          'detox_progress': isToday ? 0.0 : rnd.nextDouble(),
         });
+        
+        // Add mood data to daily_moods table instead (but not for today)
+        if (!isToday) {
+          await db.insert('daily_moods', {
+            'userId': userId,
+            'date': dateStr,
+            'moodImage': 'assets/moods/mood_${i % 3}.png',
+            'moodLabel': ['happy', 'ok', 'sad'][i % 3],
+            'createdAt': DateTime.now().toIso8601String(),
+            'updatedAt': DateTime.now().toIso8601String(),
+          });
+        }
+        
+        // Add some journal entries (but not for today)
+        if (i % 2 == 0 && !isToday) {
+          await db.insert('journals', {
+            'userId': userId,
+            'date': dateStr,
+            'mood': ['happy', 'ok'][i % 2],
+            'text': 'Journal entry for $dateStr. Had a good day!',
+            'imagePath': null,
+            'voicePath': null,
+          });
+        }
       }
+      
+      // Add some habits
+      final createdDateStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+      
+      await db.insert('habits', {
+        'userId': userId,
+        'title': 'Morning Meditation',
+        'description': 'Meditate for 10 minutes',
+        'frequency': 'daily',
+        'status': 'active',
+        'createdDate': createdDateStr,
+        'lastUpdated': createdDateStr,
+        'Doitat': '08:00',
+        'points': 10,
+      });
+      
+      await db.insert('habits', {
+        'userId': userId,
+        'title': 'Read a Book',
+        'description': 'Read for 20 minutes',
+        'frequency': 'daily',
+        'status': 'active',
+        'createdDate': createdDateStr,
+        'lastUpdated': createdDateStr,
+        'Doitat': '20:00',
+        'points': 10,
+      });
+      
+      await db.insert('habits', {
+        'userId': userId,
+        'title': 'Weekly Review',
+        'description': 'Review your week',
+        'frequency': 'weekly',
+        'status': 'active',
+        'createdDate': createdDateStr,
+        'lastUpdated': createdDateStr,
+        'Doitat': '18:00',
+        'points': 20,
+      });
     }
-    
-    // Add some habits
-    final createdDateStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
-    await db.insert('habits', {
-      'userId': userId,
-      'title': 'Morning Meditation',
-      'description': 'Meditate for 10 minutes',
-      'frequency': 'daily',
-      'status': 'active',
-      'createdDate': createdDateStr,
-      'lastUpdated': createdDateStr,
-      'Doitat': '08:00',
-      'points': 10,
-    });
   }
-}
   
 }
-
-
-
-
- 

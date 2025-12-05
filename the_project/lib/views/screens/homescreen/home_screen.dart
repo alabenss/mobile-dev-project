@@ -61,6 +61,9 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context, state) {
         final homeCubit = context.read<HomeCubit>();
 
+        // Limit to first 2 daily habits only
+        final habitsToShow = state.dailyHabits.take(2).toList();
+
         return Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -142,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  child: state.dailyHabits.isEmpty
+                  child: habitsToShow.isEmpty
                       ? const Padding(
                           padding: EdgeInsets.symmetric(vertical: 16.0),
                           child: Center(
@@ -158,19 +161,19 @@ class _HomeScreenState extends State<HomeScreen> {
                         )
                       : Column(
                           children: [
-                            for (int i = 0; i < state.dailyHabits.length; i++) ...[
+                            for (int i = 0; i < habitsToShow.length; i++) ...[
                               HabitTile(
-                                icon: state.dailyHabits[i].icon,
-                                title: state.dailyHabits[i].title,
-                                checked: state.dailyHabits[i].done,
+                                icon: habitsToShow[i].icon,
+                                title: habitsToShow[i].title,
+                                checked: habitsToShow[i].done,
                                 onToggle: () {
                                   homeCubit.toggleHabitCompletion(
-                                    state.dailyHabits[i].title,
-                                    state.dailyHabits[i].done,
+                                    habitsToShow[i].title,
+                                    habitsToShow[i].done,
                                   );
                                 },
                               ),
-                              if (i < state.dailyHabits.length - 1)
+                              if (i < habitsToShow.length - 1)
                                 const SizedBox(height: 8),
                             ],
                           ],
