@@ -912,6 +912,438 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Average detox progress for the selected period'**
   String get detoxInfo;
+
+  /// No description provided for @failedToLoadActivities.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load activities\\n{error}'**
+  String failedToLoadActivities(String error);
+
+  /// No description provided for @breathingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Breath'**
+  String get breathingTitle;
+
+  /// No description provided for @breathingDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a deep breath and let your body wind down\\nfor the day.'**
+  String get breathingDescription;
+
+  /// No description provided for @breathingStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get breathingStart;
+
+  /// No description provided for @breathingStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get breathingStop;
+
+  /// No description provided for @bubblePopperTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pop It'**
+  String get bubblePopperTitle;
+
+  /// No description provided for @bubblePopperDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Find calm and focus as you pop away stress, one bubble at a time.'**
+  String get bubblePopperDescription;
+
+  /// No description provided for @coloringTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Coloring'**
+  String get coloringTitle;
+
+  /// No description provided for @coloringSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved! (wire export later)'**
+  String get coloringSaved;
+
+  /// No description provided for @coloringPickColorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a color'**
+  String get coloringPickColorTitle;
+
+  /// No description provided for @coloringHue.
+  ///
+  /// In en, this message translates to:
+  /// **'Hue'**
+  String get coloringHue;
+
+  /// No description provided for @coloringSaturation.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturation'**
+  String get coloringSaturation;
+
+  /// No description provided for @coloringBrightness.
+  ///
+  /// In en, this message translates to:
+  /// **'Brightness'**
+  String get coloringBrightness;
+
+  /// No description provided for @coloringOpacity.
+  ///
+  /// In en, this message translates to:
+  /// **'Opacity'**
+  String get coloringOpacity;
+
+  /// No description provided for @coloringUseColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Use color'**
+  String get coloringUseColor;
+
+  /// No description provided for @coloringTemplateSpace.
+  ///
+  /// In en, this message translates to:
+  /// **'Space'**
+  String get coloringTemplateSpace;
+
+  /// No description provided for @coloringTemplateGarden.
+  ///
+  /// In en, this message translates to:
+  /// **'Garden'**
+  String get coloringTemplateGarden;
+
+  /// No description provided for @coloringTemplateFish.
+  ///
+  /// In en, this message translates to:
+  /// **'Fish'**
+  String get coloringTemplateFish;
+
+  /// No description provided for @coloringTemplateButterfly.
+  ///
+  /// In en, this message translates to:
+  /// **'Butterfly'**
+  String get coloringTemplateButterfly;
+
+  /// No description provided for @coloringTemplateHouse.
+  ///
+  /// In en, this message translates to:
+  /// **'House'**
+  String get coloringTemplateHouse;
+
+  /// No description provided for @coloringTemplateMandala.
+  ///
+  /// In en, this message translates to:
+  /// **'Mandala'**
+  String get coloringTemplateMandala;
+
+  /// No description provided for @coloringLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading coloring page:\\n{error}'**
+  String coloringLoadError(String error);
+
+  /// No description provided for @growPlantTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Grow the plant'**
+  String get growPlantTitle;
+
+  /// No description provided for @growPlantHeadline.
+  ///
+  /// In en, this message translates to:
+  /// **'Nurture your plant with water and sunlight.\\nSpend activity points to help it grow!'**
+  String get growPlantHeadline;
+
+  /// No description provided for @growPlantStars.
+  ///
+  /// In en, this message translates to:
+  /// **'Stars: {count}'**
+  String growPlantStars(int count);
+
+  /// No description provided for @growPlantStage.
+  ///
+  /// In en, this message translates to:
+  /// **'Stage'**
+  String get growPlantStage;
+
+  /// No description provided for @growPlantAvailablePoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Available points: {count}'**
+  String growPlantAvailablePoints(int count);
+
+  /// No description provided for @growPlantGetPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Get points'**
+  String get growPlantGetPoints;
+
+  /// No description provided for @growPlantWaterLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Water'**
+  String get growPlantWaterLabel;
+
+  /// No description provided for @growPlantSunlightLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunlight'**
+  String get growPlantSunlightLabel;
+
+  /// No description provided for @growPlantWaterAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Water ({cost})'**
+  String growPlantWaterAction(int cost);
+
+  /// No description provided for @growPlantSunAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Sun ({cost})'**
+  String growPlantSunAction(int cost);
+
+  /// No description provided for @growPlantWaterHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Spend {cost} pts'**
+  String growPlantWaterHelper(int cost);
+
+  /// No description provided for @growPlantSunHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Spend {cost} pts'**
+  String growPlantSunHelper(int cost);
+
+  /// No description provided for @growPlantTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip: when both bars are full, your plant will grow to the next stage.'**
+  String get growPlantTip;
+
+  /// No description provided for @paintingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Draw'**
+  String get paintingTitle;
+
+  /// No description provided for @paintingPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a deep breath, pick your color, and let your creativity flow.'**
+  String get paintingPrompt;
+
+  /// No description provided for @paintingSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Image Saved!.'**
+  String get paintingSaved;
+
+  /// No description provided for @paintingColorsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Colors'**
+  String get paintingColorsTitle;
+
+  /// No description provided for @paintingHue.
+  ///
+  /// In en, this message translates to:
+  /// **'Hue'**
+  String get paintingHue;
+
+  /// No description provided for @paintingSaturation.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturation'**
+  String get paintingSaturation;
+
+  /// No description provided for @paintingValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Value'**
+  String get paintingValue;
+
+  /// No description provided for @paintingOpacity.
+  ///
+  /// In en, this message translates to:
+  /// **'Opacity'**
+  String get paintingOpacity;
+
+  /// No description provided for @paintingUseColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Use Color'**
+  String get paintingUseColor;
+
+  /// No description provided for @puzzleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Puzzle'**
+  String get puzzleTitle;
+
+  /// No description provided for @puzzleInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Slide the tiles to re-create the correct order.'**
+  String get puzzleInstruction;
+
+  /// No description provided for @puzzleShuffle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shuffle'**
+  String get puzzleShuffle;
+
+  /// No description provided for @puzzleReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get puzzleReset;
+
+  /// No description provided for @puzzleSolved.
+  ///
+  /// In en, this message translates to:
+  /// **'Solved! 🎉'**
+  String get puzzleSolved;
+
+  /// No description provided for @plantArticleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The calming effect of plants'**
+  String get plantArticleTitle;
+
+  /// No description provided for @plantArticleIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Greenery does more than decorate your space — it relaxes your mind. Caring for a plant slows you down and brings your focus to the present moment.'**
+  String get plantArticleIntro;
+
+  /// No description provided for @plantArticleBenefitsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Benefits at a glance'**
+  String get plantArticleBenefitsTitle;
+
+  /// No description provided for @plantArticleBullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'Reduces stress and mental fatigue'**
+  String get plantArticleBullet1;
+
+  /// No description provided for @plantArticleBullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'Improves focus and creativity'**
+  String get plantArticleBullet2;
+
+  /// No description provided for @plantArticleBullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'Adds gentle, natural color to your room'**
+  String get plantArticleBullet3;
+
+  /// No description provided for @plantArticleBullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'Creates a tiny daily ritual (water, prune, observe)'**
+  String get plantArticleBullet4;
+
+  /// No description provided for @plantArticleQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'“To nurture a garden is to feed not just the body, but the soul.”'**
+  String get plantArticleQuote;
+
+  /// No description provided for @plantArticleTipTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip of the day'**
+  String get plantArticleTipTitle;
+
+  /// No description provided for @plantArticleTipBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Place one small plant near where you work most. Check in with it once a day — a 30-second reset for your brain.'**
+  String get plantArticleTipBody;
+
+  /// No description provided for @plantArticleFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep growing — one leaf at a time 🌿'**
+  String get plantArticleFooter;
+
+  /// No description provided for @sportArticleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Boost your mood with sports'**
+  String get sportArticleTitle;
+
+  /// No description provided for @sportArticleHeroText.
+  ///
+  /// In en, this message translates to:
+  /// **'A little motion\\ncreates a lot of emotion 💪✨'**
+  String get sportArticleHeroText;
+
+  /// No description provided for @sportArticleIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Moving your body is one of the fastest ways to lift your mood. Activity releases endorphins — your brain’s natural “feel-good” chemicals.'**
+  String get sportArticleIntro;
+
+  /// No description provided for @sportArticleEasyWaysTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Easy ways to start'**
+  String get sportArticleEasyWaysTitle;
+
+  /// No description provided for @sportArticleBullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'5–10 minute walk after meals'**
+  String get sportArticleBullet1;
+
+  /// No description provided for @sportArticleBullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'1 song dance break while making coffee'**
+  String get sportArticleBullet2;
+
+  /// No description provided for @sportArticleBullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'Light stretches while watching TV'**
+  String get sportArticleBullet3;
+
+  /// No description provided for @sportArticleBullet4.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite a friend for a short jog or cycle'**
+  String get sportArticleBullet4;
+
+  /// No description provided for @sportArticleQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'Show up for 5 minutes. Most days, that’s all it takes to start.'**
+  String get sportArticleQuote;
+
+  /// No description provided for @sportArticleRememberTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remember'**
+  String get sportArticleRememberTitle;
+
+  /// No description provided for @sportArticleRememberBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a movement that makes you smile — not just one that makes you sweat. Joy builds consistency, and consistency lifts mood.'**
+  String get sportArticleRememberBody;
+
+  /// No description provided for @sportArticleStartActivityCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Start an activity'**
+  String get sportArticleStartActivityCta;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

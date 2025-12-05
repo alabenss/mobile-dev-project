@@ -461,4 +461,236 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get detoxInfo => 'Progrès moyen de détox pour la période sélectionnée';
+
+  @override
+  String failedToLoadActivities(String error) {
+    return 'Échec du chargement des activités\\n$error';
+  }
+
+  @override
+  String get breathingTitle => 'Respiration';
+
+  @override
+  String get breathingDescription => 'Prenez une grande inspiration et laissez votre corps se détendre\\npour la fin de la journée.';
+
+  @override
+  String get breathingStart => 'Commencer';
+
+  @override
+  String get breathingStop => 'Arrêter';
+
+  @override
+  String get bubblePopperTitle => 'Pop It';
+
+  @override
+  String get bubblePopperDescription => 'Trouvez le calme et la concentration en faisant éclater le stress, bulle après bulle.';
+
+  @override
+  String get coloringTitle => 'Coloriage';
+
+  @override
+  String get coloringSaved => 'Enregistré ! (export à venir plus tard)';
+
+  @override
+  String get coloringPickColorTitle => 'Choisissez une couleur';
+
+  @override
+  String get coloringHue => 'Teinte';
+
+  @override
+  String get coloringSaturation => 'Saturation';
+
+  @override
+  String get coloringBrightness => 'Luminosité';
+
+  @override
+  String get coloringOpacity => 'Opacité';
+
+  @override
+  String get coloringUseColor => 'Utiliser la couleur';
+
+  @override
+  String get coloringTemplateSpace => 'Espace';
+
+  @override
+  String get coloringTemplateGarden => 'Jardin';
+
+  @override
+  String get coloringTemplateFish => 'Poisson';
+
+  @override
+  String get coloringTemplateButterfly => 'Papillon';
+
+  @override
+  String get coloringTemplateHouse => 'Maison';
+
+  @override
+  String get coloringTemplateMandala => 'Mandala';
+
+  @override
+  String coloringLoadError(String error) {
+    return 'Erreur lors du chargement de la page de coloriage :\\n$error';
+  }
+
+  @override
+  String get growPlantTitle => 'Fais pousser la plante';
+
+  @override
+  String get growPlantHeadline => 'Prends soin de ta plante avec de l\'eau et de la lumière.\\nUtilise des points d\'activité pour l\'aider à grandir !';
+
+  @override
+  String growPlantStars(int count) {
+    return 'Étoiles : $count';
+  }
+
+  @override
+  String get growPlantStage => 'Étape';
+
+  @override
+  String growPlantAvailablePoints(int count) {
+    return 'Points disponibles : $count';
+  }
+
+  @override
+  String get growPlantGetPoints => 'Obtenir des points';
+
+  @override
+  String get growPlantWaterLabel => 'Eau';
+
+  @override
+  String get growPlantSunlightLabel => 'Lumière du soleil';
+
+  @override
+  String growPlantWaterAction(int cost) {
+    return 'Eau ($cost)';
+  }
+
+  @override
+  String growPlantSunAction(int cost) {
+    return 'Soleil ($cost)';
+  }
+
+  @override
+  String growPlantWaterHelper(int cost) {
+    return 'Dépenser $cost pts';
+  }
+
+  @override
+  String growPlantSunHelper(int cost) {
+    return 'Dépenser $cost pts';
+  }
+
+  @override
+  String get growPlantTip => 'Astuce : lorsque les deux barres sont pleines, ta plante passe au niveau suivant.';
+
+  @override
+  String get paintingTitle => 'Dessiner';
+
+  @override
+  String get paintingPrompt => 'Prenez une grande inspiration, choisissez votre couleur et laissez votre créativité s\'exprimer.';
+
+  @override
+  String get paintingSaved => 'Image enregistrée !.';
+
+  @override
+  String get paintingColorsTitle => 'Couleurs';
+
+  @override
+  String get paintingHue => 'Teinte';
+
+  @override
+  String get paintingSaturation => 'Saturation';
+
+  @override
+  String get paintingValue => 'Valeur';
+
+  @override
+  String get paintingOpacity => 'Opacité';
+
+  @override
+  String get paintingUseColor => 'Utiliser la couleur';
+
+  @override
+  String get puzzleTitle => 'Puzzle';
+
+  @override
+  String get puzzleInstruction => 'Faites glisser les tuiles pour les remettre dans le bon ordre.';
+
+  @override
+  String get puzzleShuffle => 'Mélanger';
+
+  @override
+  String get puzzleReset => 'Réinitialiser';
+
+  @override
+  String get puzzleSolved => 'Résolu ! 🎉';
+
+  @override
+  String get plantArticleTitle => 'L\'effet apaisant des plantes';
+
+  @override
+  String get plantArticleIntro => 'La verdure fait plus que décorer votre espace — elle apaise votre esprit. Prendre soin d\'une plante vous ralentit et ramène votre attention au moment présent.';
+
+  @override
+  String get plantArticleBenefitsTitle => 'Bénéfices en un coup d\'œil';
+
+  @override
+  String get plantArticleBullet1 => 'Réduit le stress et la fatigue mentale';
+
+  @override
+  String get plantArticleBullet2 => 'Améliore la concentration et la créativité';
+
+  @override
+  String get plantArticleBullet3 => 'Ajoute une touche de couleur naturelle à votre pièce';
+
+  @override
+  String get plantArticleBullet4 => 'Crée un petit rituel quotidien (arroser, tailler, observer)';
+
+  @override
+  String get plantArticleQuote => '« Cultiver un jardin, c\'est nourrir non seulement le corps, mais aussi l\'âme. »';
+
+  @override
+  String get plantArticleTipTitle => 'Astuce du jour';
+
+  @override
+  String get plantArticleTipBody => 'Placez une petite plante près de l\'endroit où vous travaillez le plus. Vérifiez-la une fois par jour — une pause de 30 secondes pour votre esprit.';
+
+  @override
+  String get plantArticleFooter => 'Continuez de grandir — une feuille à la fois 🌿';
+
+  @override
+  String get sportArticleTitle => 'Booster votre humeur avec le sport';
+
+  @override
+  String get sportArticleHeroText => 'Un peu de mouvement\\ncrée beaucoup d\'émotion 💪✨';
+
+  @override
+  String get sportArticleIntro => 'Bouger votre corps est l’un des moyens les plus rapides pour améliorer votre humeur. L’activité libère des endorphines — les “hormones du bien-être” de votre cerveau.';
+
+  @override
+  String get sportArticleEasyWaysTitle => 'Des façons simples de commencer';
+
+  @override
+  String get sportArticleBullet1 => 'Marche de 5–10 minutes après les repas';
+
+  @override
+  String get sportArticleBullet2 => 'Petite danse sur une chanson pendant le café';
+
+  @override
+  String get sportArticleBullet3 => 'Étirements légers devant la télé';
+
+  @override
+  String get sportArticleBullet4 => 'Invitez un ami pour un petit jogging ou une balade à vélo';
+
+  @override
+  String get sportArticleQuote => 'Présentez-vous pendant 5 minutes. La plupart du temps, c’est tout ce qu’il faut pour démarrer.';
+
+  @override
+  String get sportArticleRememberTitle => 'À retenir';
+
+  @override
+  String get sportArticleRememberBody => 'Choisissez un mouvement qui vous fait sourire — pas seulement transpirer. La joie crée la régularité, et la régularité améliore l’humeur.';
+
+  @override
+  String get sportArticleStartActivityCta => 'Commencer une activité';
 }

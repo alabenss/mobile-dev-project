@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:the_project/l10n/app_localizations.dart';
 
 import '../../../commons/config.dart';
 import '../../../commons/constants.dart';
@@ -33,20 +34,19 @@ class _HomeScreenState extends State<HomeScreen> {
   // Access widget properties through widget.propertyName
   VoidCallback? get onViewAllHabits => widget.onViewAllHabits;
   
-@override
-void initState() {
-  super.initState();
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    final authState = context.read<AuthCubit>().state;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authState = context.read<AuthCubit>().state;
 
-    if (authState.isAuthenticated && authState.user != null) {
-      context.read<HomeCubit>().loadInitial(
-        userName: authState.user!.name,
-      );
-    }
-  });
-}
-
+      if (authState.isAuthenticated && authState.user != null) {
+        context.read<HomeCubit>().loadInitial(
+          userName: authState.user!.name,
+        );
+      }
+    });
+  }
 
   String _getGreeting() {
     final hour = DateTime.now().hour;
@@ -61,6 +61,8 @@ void initState() {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!; // <-- added
+
     return BlocBuilder<HomeCubit, HomeState>(
       builder: (context, state) {
         final homeCubit = context.read<HomeCubit>();
@@ -99,9 +101,7 @@ void initState() {
                 const SizedBox(height: 18),
 
                 const SizedBox(height: 10),
-                MoodCard(
-
-                ),
+                const MoodCard(),
 
                 const SizedBox(height: 12),
 
@@ -127,7 +127,8 @@ void initState() {
                           lockEndTime: state.lockEndTime,
                           onDisableLock: homeCubit.disableLock,
                           permissionDenied: state.permissionDenied,
-                          onPermissionDeniedDismiss: homeCubit.clearPermissionDenied,
+                          onPermissionDeniedDismiss:
+                              homeCubit.clearPermissionDenied,
                         ),
                       ),
                     ],
@@ -137,11 +138,11 @@ void initState() {
                 const SizedBox(height: 12),
 
                 SectionCard(
-                  title: 'Daily habits:',
+                  title: l10n.todaysHabits, // <-- localized
                   trailing: GestureDetector(
                     onTap: onViewAllHabits,
                     child: const Text(
-                      'view all',
+                      'view all', // no key in ARB yet, left as-is
                       style: TextStyle(
                         fontWeight: FontWeight.w500,
                         fontSize: 14,
@@ -150,12 +151,12 @@ void initState() {
                     ),
                   ),
                   child: habitsToShow.isEmpty
-                      ? const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 16.0),
+                      ? Padding( // <-- removed const to use l10n
+                          padding: const EdgeInsets.symmetric(vertical: 16.0),
                           child: Center(
                             child: Text(
-                              'No daily habits yet. Tap "view all" to add some!',
-                              style: TextStyle(
+                              '${l10n.noDailyHabits}\n${l10n.tapToAddHabit}', // <-- localized text
+                              style: const TextStyle(
                                 fontSize: 14,
                                 color: AppColors.textSecondary,
                               ),
@@ -188,7 +189,7 @@ void initState() {
                 const SizedBox(height: 18),
 
                 const Text(
-                  'Explore',
+                  'Explore', // no key in ARB yet, left as-is
                   style: TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 20,
@@ -211,8 +212,8 @@ void initState() {
                         },
                         child: ExploreCard(
                           color: AppColors.mint,
-                          title: 'The calming effect of plants',
-                          cta: 'Read Now',
+                          title: 'The calming effect of plants', // left as-is
+                          cta: 'Read Now', // left as-is (no key yet)
                           assetImage: AppImages.plantIcon,
                         ),
                       ),
@@ -230,7 +231,7 @@ void initState() {
                         },
                         child: ExploreCard(
                           color: AppColors.primary,
-                          title: 'Boost your\nmood with\nsports',
+                          title: 'Boost your\nmood with\nsports', // left as-is
                           cta: '',
                           assetImage: AppImages.boostMoodIcon,
                         ),

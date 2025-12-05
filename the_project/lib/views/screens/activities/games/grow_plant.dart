@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rive/rive.dart';
+import 'package:the_project/l10n/app_localizations.dart'; // <-- added
 
 import '../../../themes/style_simple/colors.dart';
 import '../../../widgets/activities/activity_shell.dart';
@@ -25,8 +26,10 @@ class _GrowPlantView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!; // <-- added
+
     return ActivityShell(
-      title: 'Grow the plant',
+      title: l10n.growPlantTitle, // was: 'Grow the plant'
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
         child: BlocBuilder<PlantCubit, PlantState>(
@@ -37,43 +40,47 @@ class _GrowPlantView extends StatelessWidget {
                 // Headline / helper text
                 _SoftCard(
                   child: Column(
-                    children: const [
-                      SizedBox(height: 6),
+                    children: [
+                      const SizedBox(height: 6),
                       Text(
-                        'Nurture your plant with water and sunlight.\n'
-                        'Spend activity points to help it grow!',
+                        l10n.growPlantHeadline,
+                        // was: 'Nurture your plant with water and sunlight.\nSpend activity points to help it grow!'
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 15,
                           height: 1.35,
                           color: AppColors.textPrimary,
                         ),
                       ),
-                      SizedBox(height: 6),
+                      const SizedBox(height: 6),
                     ],
                   ),
                 ),
                 const SizedBox(height: 14),
 
                 _SoftCard(
-  child: Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      const Icon(Icons.star, color: AppColors.accentOrange, size: 28),
-      const SizedBox(width: 8),
-      Text(
-        'Stars: ${state.stars}',
-        style: const TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-          color: AppColors.textPrimary,
-        ),
-      ),
-    ],
-  ),
-),
-const SizedBox(height: 14),
-
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.star,
+                        color: AppColors.accentOrange,
+                        size: 28,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        l10n.growPlantStars(state.stars),
+                        // was: 'Stars: ${state.stars}'
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
 
                 // Plant preview - RIVE ANIMATION
                 _SoftCard(
@@ -102,7 +109,8 @@ const SizedBox(height: 14),
                       ),
                       const SizedBox(height: 14),
                       Text(
-                        'Stage: ${state.stageLabel}',
+                        '${l10n.growPlantStage}: ${state.stageLabel}',
+                        // was: 'Stage: ${state.stageLabel}'
                         style: const TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 16,
@@ -118,12 +126,17 @@ const SizedBox(height: 14),
                 _SoftCard(
                   child: Row(
                     children: [
-                      const Icon(Icons.stars_rounded,
-                          color: AppColors.accentOrange),
+                      const Icon(
+                        Icons.stars_rounded,
+                        color: AppColors.accentOrange,
+                      ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          'Available points: ${state.availablePoints}',
+                          l10n.growPlantAvailablePoints(
+                            state.availablePoints,
+                          ),
+                          // was: 'Available points: ${state.availablePoints}'
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             color: AppColors.textPrimary,
@@ -135,7 +148,8 @@ const SizedBox(height: 14),
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (_) => const HabitsScreen()),
+                              builder: (_) => const HabitsScreen(),
+                            ),
                           );
                         },
                         style: OutlinedButton.styleFrom(
@@ -145,7 +159,8 @@ const SizedBox(height: 14),
                             borderRadius: BorderRadius.circular(14),
                           ),
                         ),
-                        child: const Text('Get points'),
+                        child: Text(l10n.growPlantGetPoints),
+                        // was: const Text('Get points')
                       ),
                     ],
                   ),
@@ -157,26 +172,30 @@ const SizedBox(height: 14),
                   child: Column(
                     children: [
                       _MeterTile(
-                        label: 'Water',
+                        label: l10n.growPlantWaterLabel, // 'Water'
                         icon: Icons.water_drop_rounded,
                         color: AppColors.accentBlue,
                         value: state.water,
-                        actionLabel: 'Water (30)',
-                        helper: 'Spend 30 pts',
-                        enabled:
-                            state.availablePoints >= 30 && state.water < 1.0,
+                        actionLabel: l10n.growPlantWaterAction(30),
+                        // was: 'Water (30)'
+                        helper: l10n.growPlantWaterHelper(30),
+                        // was: 'Spend 30 pts'
+                        enabled: state.availablePoints >= 30 &&
+                            state.water < 1.0,
                         onPressed: () => cubit.spendWater(),
                       ),
                       const SizedBox(height: 12),
                       _MeterTile(
-                        label: 'Sunlight',
+                        label: l10n.growPlantSunlightLabel, // 'Sunlight'
                         icon: Icons.wb_sunny_rounded,
                         color: AppColors.accentOrange,
                         value: state.sunlight,
-                        actionLabel: 'Sun (25)',
-                        helper: 'Spend 25 pts',
-                        enabled:
-                            state.availablePoints >= 25 && state.sunlight < 1.0,
+                        actionLabel: l10n.growPlantSunAction(25),
+                        // was: 'Sun (25)'
+                        helper: l10n.growPlantSunHelper(25),
+                        // was: 'Spend 25 pts'
+                        enabled: state.availablePoints >= 25 &&
+                            state.sunlight < 1.0,
                         onPressed: () => cubit.spendSun(),
                       ),
                     ],
@@ -188,13 +207,17 @@ const SizedBox(height: 14),
                 _SoftCard(
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Icon(Icons.eco_rounded, color: AppColors.accentGreen),
-                      SizedBox(width: 10),
+                    children: [
+                      const Icon(
+                        Icons.eco_rounded,
+                        color: AppColors.accentGreen,
+                      ),
+                      const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          'Tip: when both bars are full, your plant will grow to the next stage.',
-                          style: TextStyle(
+                          l10n.growPlantTip,
+                          // was: 'Tip: when both bars are full, your plant will grow to the next stage.'
+                          style: const TextStyle(
                             color: AppColors.textPrimary,
                             height: 1.35,
                           ),
@@ -360,11 +383,11 @@ class _PlantRiveAnimationState extends State<_PlantRiveAnimation> {
       artboard,
       'State Machine 1', // Common default name, change if needed
     );
-    
+
     if (controller != null) {
       artboard.addController(controller);
       _controller = controller;
-      
+
       // Find the number input - adjust name based on your .riv file
       _growInput = controller.findInput<double>('input') as SMINumber?;
       _updateGrowth();

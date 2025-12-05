@@ -461,4 +461,236 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get detoxInfo => 'Average detox progress for the selected period';
+
+  @override
+  String failedToLoadActivities(String error) {
+    return 'Failed to load activities\\n$error';
+  }
+
+  @override
+  String get breathingTitle => 'Breath';
+
+  @override
+  String get breathingDescription => 'Take a deep breath and let your body wind down\\nfor the day.';
+
+  @override
+  String get breathingStart => 'Start';
+
+  @override
+  String get breathingStop => 'Stop';
+
+  @override
+  String get bubblePopperTitle => 'Pop It';
+
+  @override
+  String get bubblePopperDescription => 'Find calm and focus as you pop away stress, one bubble at a time.';
+
+  @override
+  String get coloringTitle => 'Coloring';
+
+  @override
+  String get coloringSaved => 'Saved! (wire export later)';
+
+  @override
+  String get coloringPickColorTitle => 'Pick a color';
+
+  @override
+  String get coloringHue => 'Hue';
+
+  @override
+  String get coloringSaturation => 'Saturation';
+
+  @override
+  String get coloringBrightness => 'Brightness';
+
+  @override
+  String get coloringOpacity => 'Opacity';
+
+  @override
+  String get coloringUseColor => 'Use color';
+
+  @override
+  String get coloringTemplateSpace => 'Space';
+
+  @override
+  String get coloringTemplateGarden => 'Garden';
+
+  @override
+  String get coloringTemplateFish => 'Fish';
+
+  @override
+  String get coloringTemplateButterfly => 'Butterfly';
+
+  @override
+  String get coloringTemplateHouse => 'House';
+
+  @override
+  String get coloringTemplateMandala => 'Mandala';
+
+  @override
+  String coloringLoadError(String error) {
+    return 'Error loading coloring page:\\n$error';
+  }
+
+  @override
+  String get growPlantTitle => 'Grow the plant';
+
+  @override
+  String get growPlantHeadline => 'Nurture your plant with water and sunlight.\\nSpend activity points to help it grow!';
+
+  @override
+  String growPlantStars(int count) {
+    return 'Stars: $count';
+  }
+
+  @override
+  String get growPlantStage => 'Stage';
+
+  @override
+  String growPlantAvailablePoints(int count) {
+    return 'Available points: $count';
+  }
+
+  @override
+  String get growPlantGetPoints => 'Get points';
+
+  @override
+  String get growPlantWaterLabel => 'Water';
+
+  @override
+  String get growPlantSunlightLabel => 'Sunlight';
+
+  @override
+  String growPlantWaterAction(int cost) {
+    return 'Water ($cost)';
+  }
+
+  @override
+  String growPlantSunAction(int cost) {
+    return 'Sun ($cost)';
+  }
+
+  @override
+  String growPlantWaterHelper(int cost) {
+    return 'Spend $cost pts';
+  }
+
+  @override
+  String growPlantSunHelper(int cost) {
+    return 'Spend $cost pts';
+  }
+
+  @override
+  String get growPlantTip => 'Tip: when both bars are full, your plant will grow to the next stage.';
+
+  @override
+  String get paintingTitle => 'Draw';
+
+  @override
+  String get paintingPrompt => 'Take a deep breath, pick your color, and let your creativity flow.';
+
+  @override
+  String get paintingSaved => 'Image Saved!.';
+
+  @override
+  String get paintingColorsTitle => 'Colors';
+
+  @override
+  String get paintingHue => 'Hue';
+
+  @override
+  String get paintingSaturation => 'Saturation';
+
+  @override
+  String get paintingValue => 'Value';
+
+  @override
+  String get paintingOpacity => 'Opacity';
+
+  @override
+  String get paintingUseColor => 'Use Color';
+
+  @override
+  String get puzzleTitle => 'Puzzle';
+
+  @override
+  String get puzzleInstruction => 'Slide the tiles to re-create the correct order.';
+
+  @override
+  String get puzzleShuffle => 'Shuffle';
+
+  @override
+  String get puzzleReset => 'Reset';
+
+  @override
+  String get puzzleSolved => 'Solved! 🎉';
+
+  @override
+  String get plantArticleTitle => 'The calming effect of plants';
+
+  @override
+  String get plantArticleIntro => 'Greenery does more than decorate your space — it relaxes your mind. Caring for a plant slows you down and brings your focus to the present moment.';
+
+  @override
+  String get plantArticleBenefitsTitle => 'Benefits at a glance';
+
+  @override
+  String get plantArticleBullet1 => 'Reduces stress and mental fatigue';
+
+  @override
+  String get plantArticleBullet2 => 'Improves focus and creativity';
+
+  @override
+  String get plantArticleBullet3 => 'Adds gentle, natural color to your room';
+
+  @override
+  String get plantArticleBullet4 => 'Creates a tiny daily ritual (water, prune, observe)';
+
+  @override
+  String get plantArticleQuote => '“To nurture a garden is to feed not just the body, but the soul.”';
+
+  @override
+  String get plantArticleTipTitle => 'Tip of the day';
+
+  @override
+  String get plantArticleTipBody => 'Place one small plant near where you work most. Check in with it once a day — a 30-second reset for your brain.';
+
+  @override
+  String get plantArticleFooter => 'Keep growing — one leaf at a time 🌿';
+
+  @override
+  String get sportArticleTitle => 'Boost your mood with sports';
+
+  @override
+  String get sportArticleHeroText => 'A little motion\\ncreates a lot of emotion 💪✨';
+
+  @override
+  String get sportArticleIntro => 'Moving your body is one of the fastest ways to lift your mood. Activity releases endorphins — your brain’s natural “feel-good” chemicals.';
+
+  @override
+  String get sportArticleEasyWaysTitle => 'Easy ways to start';
+
+  @override
+  String get sportArticleBullet1 => '5–10 minute walk after meals';
+
+  @override
+  String get sportArticleBullet2 => '1 song dance break while making coffee';
+
+  @override
+  String get sportArticleBullet3 => 'Light stretches while watching TV';
+
+  @override
+  String get sportArticleBullet4 => 'Invite a friend for a short jog or cycle';
+
+  @override
+  String get sportArticleQuote => 'Show up for 5 minutes. Most days, that’s all it takes to start.';
+
+  @override
+  String get sportArticleRememberTitle => 'Remember';
+
+  @override
+  String get sportArticleRememberBody => 'Pick a movement that makes you smile — not just one that makes you sweat. Joy builds consistency, and consistency lifts mood.';
+
+  @override
+  String get sportArticleStartActivityCta => 'Start an activity';
 }
