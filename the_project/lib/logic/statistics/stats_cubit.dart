@@ -41,6 +41,7 @@ class StatsCubit extends Cubit<StatsState> {
         waterData: data.waterData,
         moodData: data.moodData,
         journalingCount: data.journalingCount,
+        journalCounts: data.journalCounts,
         screenTime: data.screenTime,
         labels: data.labels,
       ));
@@ -68,6 +69,7 @@ class StatsCubit extends Cubit<StatsState> {
         waterData: data.waterData,
         moodData: data.moodData,
         journalingCount: data.journalingCount,
+        journalCounts: data.journalCounts,
         screenTime: data.screenTime,
         labels: data.labels,
       ));
@@ -85,6 +87,7 @@ class StatsCubit extends Cubit<StatsState> {
           waterData: fallbackData.waterData,
           moodData: fallbackData.moodData,
           journalingCount: fallbackData.journalingCount,
+          journalCounts: fallbackData.journalCounts,
           screenTime: fallbackData.screenTime,
           labels: fallbackData.labels,
         ));
@@ -102,6 +105,7 @@ class StatsCubit extends Cubit<StatsState> {
           waterData: [6.0],
           moodData: [0.7],
           journalingCount: 1,
+          journalCounts: [1],
           screenTime: {'social': 1.0, 'entertainment': 2.0, 'productivity': 3.0},
           labels: ['Today'],
         );
@@ -110,6 +114,7 @@ class StatsCubit extends Cubit<StatsState> {
           waterData: [6.0, 7.0, 5.0, 8.0, 6.0, 7.0, 8.0],
           moodData: [0.7, 0.6, 0.8, 0.5, 0.7, 0.9, 0.6],
           journalingCount: 3,
+          journalCounts: [0, 1, 0, 1, 0, 0, 1],
           screenTime: {'social': 1.2, 'entertainment': 2.1, 'productivity': 3.0},
           labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
         );
@@ -118,6 +123,7 @@ class StatsCubit extends Cubit<StatsState> {
           waterData: List.filled(4, 6.5),
           moodData: List.filled(4, 0.65),
           journalingCount: 15,
+          journalCounts: [3, 4, 5, 3],
           screenTime: {'social': 1.5, 'entertainment': 2.5, 'productivity': 4.0},
           labels: ['W1', 'W2', 'W3', 'W4'],
         );
@@ -126,6 +132,7 @@ class StatsCubit extends Cubit<StatsState> {
           waterData: List.filled(12, 6.5),
           moodData: List.filled(12, 0.65),
           journalingCount: 180,
+          journalCounts: [15, 14, 16, 15, 14, 16, 15, 14, 16, 15, 14, 16],
           screenTime: {'social': 1.5, 'entertainment': 2.5, 'productivity': 4.0},
           labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
         );

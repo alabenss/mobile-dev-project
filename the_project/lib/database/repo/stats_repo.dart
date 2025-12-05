@@ -8,6 +8,7 @@ class StatsData {
   final List<double> waterData;
   final List<double> moodData; // 0..1
   final int journalingCount;
+  final List<int> journalCounts; // NEW: counts per day/period
   final Map<String, double> screenTime;
   final List<String> labels;
 
@@ -15,6 +16,7 @@ class StatsData {
     required this.waterData,
     required this.moodData,
     required this.journalingCount,
+    required this.journalCounts,
     required this.screenTime,
     required this.labels,
   });
@@ -110,7 +112,7 @@ class StatsRepo {
     return moodValues.reduce((a, b) => a + b) / moodValues.length;
   }
 
-  /// Get average detox progress for screen time
+  /// Get total detox progress for screen time (sum, not average)
   Future<Map<String, double>> _getScreenTimeData(Database db, int userId, String startDate, String endDate) async {
     final detoxRows = await db.query(
       'home_status',
@@ -128,8 +130,8 @@ class StatsRepo {
       totalDetox += (row['detox_progress'] as num?)?.toDouble() ?? 0.0;
     }
     
-    final avgDetox = totalDetox / detoxRows.length;
-    return {'detox': avgDetox};
+    // Return the total sum, not the average
+    return {'detox': totalDetox};
   }
 
   String _weekdayFr(int weekday) {
@@ -173,6 +175,7 @@ class StatsRepo {
           waterData: [0.0],
           moodData: [0.5],
           journalingCount: 0,
+          journalCounts: [0],
           screenTime: {'detox': 0.0},
           labels: ['Today'],
         );
@@ -186,6 +189,7 @@ class StatsRepo {
           waterData: List.filled(7, 0.0),
           moodData: List.filled(7, 0.5),
           journalingCount: 0,
+          journalCounts: List.filled(7, 0),
           screenTime: {'detox': 0.0},
           labels: labels,
         );
@@ -194,6 +198,7 @@ class StatsRepo {
           waterData: List.filled(4, 0.0),
           moodData: List.filled(4, 0.5),
           journalingCount: 0,
+          journalCounts: List.filled(4, 0),
           screenTime: {'detox': 0.0},
           labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
         );
@@ -202,6 +207,7 @@ class StatsRepo {
           waterData: List.filled(12, 0.0),
           moodData: List.filled(12, 0.5),
           journalingCount: 0,
+          journalCounts: List.filled(12, 0),
           screenTime: {'detox': 0.0},
           labels: List.generate(12, (i) => _monthFr(i + 1)),
         );
@@ -247,6 +253,7 @@ class StatsRepo {
         waterData: [water],
         moodData: [mood],
         journalingCount: journalCount,
+        journalCounts: [journalCount],
         screenTime: screenTime,
         labels: ['Today'],
       );
@@ -264,6 +271,7 @@ class StatsRepo {
       
       final waterData = <double>[];
       final moodData = <double>[];
+      final journalCounts = <int>[];
       final labels = <String>[];
       int totalJournalCount = 0;
       
@@ -297,10 +305,11 @@ class StatsRepo {
         
         // Journal count for this day
         final count = await DBHelper.getJournalCountForRange(userId, dateStr, dateStr);
+        journalCounts.add(count);
         totalJournalCount += count;
       }
       
-      print('StatsRepo: Weekly totals - Water: $waterData, Mood: $moodData, Journals: $totalJournalCount');
+      print('StatsRepo: Weekly totals - Water: $waterData, Mood: $moodData, Journals per day: $journalCounts, Total: $totalJournalCount');
       
       // Screen time (detox average for the week)
       final screenTime = await _getScreenTimeData(db, userId, _formatDate(firstDay), _formatDate(lastDay));
@@ -309,6 +318,7 @@ class StatsRepo {
         waterData: waterData,
         moodData: moodData,
         journalingCount: totalJournalCount,
+        journalCounts: journalCounts,
         screenTime: screenTime,
         labels: labels,
       );
@@ -326,6 +336,7 @@ class StatsRepo {
       
       final waterData = <double>[];
       final moodData = <double>[];
+      final journalCounts = <int>[];
       final labels = <String>[];
       int totalJournalCount = 0;
       
@@ -337,6 +348,7 @@ class StatsRepo {
       for (int week = 3; week >= 0; week--) {
         double weekWater = 0.0;
         double weekMood = 0.0;
+        int weekJournalCount = 0;
         int daysWithWater = 0;
         int daysWithMood = 0;
         
@@ -366,16 +378,18 @@ class StatsRepo {
           
           // Journal count
           final count = await DBHelper.getJournalCountForRange(userId, dateStr, dateStr);
+          weekJournalCount += count;
           totalJournalCount += count;
         }
         
         // Add weekly averages (insert at beginning to maintain chronological order)
         waterData.insert(0, daysWithWater > 0 ? weekWater / daysWithWater : 0.0);
         moodData.insert(0, daysWithMood > 0 ? weekMood / daysWithMood : 0.5);
+        journalCounts.insert(0, weekJournalCount);
         labels.insert(0, 'W${4 - week}');
       }
       
-      print('StatsRepo: Monthly totals - Journals: $totalJournalCount');
+      print('StatsRepo: Monthly totals - Journals per week: $journalCounts, Total: $totalJournalCount');
       
       // Screen time (detox average for the month)
       final screenTime = await _getScreenTimeData(db, userId, _formatDate(firstDay), _formatDate(today));
@@ -384,6 +398,7 @@ class StatsRepo {
         waterData: waterData,
         moodData: moodData,
         journalingCount: totalJournalCount,
+        journalCounts: journalCounts,
         screenTime: screenTime,
         labels: labels,
       );
@@ -401,6 +416,7 @@ class StatsRepo {
       
       final waterData = <double>[];
       final moodData = <double>[];
+      final journalCounts = <int>[];
       final labels = <String>[];
       int totalJournalCount = 0;
       
@@ -452,7 +468,9 @@ class StatsRepo {
         }
         
         // Journal count for month
-        totalJournalCount += await DBHelper.getJournalCountForRange(userId, startStr, endStr);
+        final monthJournalCount = await DBHelper.getJournalCountForRange(userId, startStr, endStr);
+        journalCounts.add(monthJournalCount);
+        totalJournalCount += monthJournalCount;
         
         // Add monthly data
         waterData.add(waterDays > 0 ? monthWater / waterDays : 0.0);
@@ -460,7 +478,7 @@ class StatsRepo {
         labels.add(_monthFr(targetMonth));
       }
       
-      print('StatsRepo: Yearly totals - Journals: $totalJournalCount');
+      print('StatsRepo: Yearly totals - Journals per month: $journalCounts, Total: $totalJournalCount');
       
       // Screen time (detox average for the year)
       final yearStart = DateTime(today.year - 1, today.month, today.day);
@@ -470,6 +488,7 @@ class StatsRepo {
         waterData: waterData,
         moodData: moodData,
         journalingCount: totalJournalCount,
+        journalCounts: journalCounts,
         screenTime: screenTime,
         labels: labels,
       );

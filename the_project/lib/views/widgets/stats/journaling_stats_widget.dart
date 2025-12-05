@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:the_project/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,6 +8,7 @@ class JournalingStatsWidget extends StatelessWidget {
   final int journalingCount;
   final StatsRange selectedRange;
   final List<String> labels;
+  final List<int>? dailyJournalCounts; // Optional: counts per day/period
   final Duration animationDuration;
   final Curve animationCurve;
 
@@ -17,6 +17,7 @@ class JournalingStatsWidget extends StatelessWidget {
     required this.journalingCount,
     required this.selectedRange,
     required this.labels,
+    this.dailyJournalCounts,
     this.animationDuration = const Duration(milliseconds: 420),
     this.animationCurve = Curves.easeInOutCubic,
   });
@@ -25,34 +26,75 @@ class JournalingStatsWidget extends StatelessWidget {
   List<Widget> _buildDayBubbles(AppLocalizations t) {
     final list = <Widget>[];
     
-    // Number of periods to show based on range
-    final totalSlots = selectedRange == StatsRange.today
-        ? 1
-        : (selectedRange == StatsRange.weekly
-            ? 7
-            : (selectedRange == StatsRange.monthly ? 4 : 12));
+    // If we don't have daily counts, show empty bubbles
+    if (dailyJournalCounts == null || dailyJournalCounts!.isEmpty) {
+      // Number of periods to show based on range
+      final totalSlots = selectedRange == StatsRange.today
+          ? 1
+          : (selectedRange == StatsRange.weekly
+              ? 7
+              : (selectedRange == StatsRange.monthly ? 4 : 12));
+      
+      for (var i = 0; i < totalSlots; i++) {
+        final label = i < labels.length ? labels[i] : '';
+        
+        list.add(Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: AppColors.card,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Center(
+                child: Text(
+                  '',
+                  style: GoogleFonts.poppins(
+                      fontSize: 14, 
+                      fontWeight: FontWeight.w700,
+                      color: Colors.transparent),
+                ),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(label,
+                style: GoogleFonts.poppins(
+                  fontSize: 11,
+                  color: AppColors.textPrimary.withOpacity(0.7),
+                )),
+          ],
+        ));
+      }
+      return list;
+    }
     
-    // Distribute journal entries across slots
-    // For weekly: show entries per day
-    // For monthly: show entries per week
-    // For yearly: show entries per month
-    final entriesPerSlot = journalingCount > 0 ? 
-        (journalingCount / totalSlots).ceil() : 0;
-    
-    for (var i = 0; i < totalSlots; i++) {
-      // Calculate how many entries for this slot
-      final remainingEntries = journalingCount - (i * entriesPerSlot);
-      final entryCount = remainingEntries > 0 
-          ? min(entriesPerSlot, remainingEntries) 
-          : 0;
+    // Build bubbles with actual counts
+    for (var i = 0; i < dailyJournalCounts!.length; i++) {
+      final entryCount = dailyJournalCounts![i];
       final hasEntry = entryCount > 0;
       
-      // Get the label for this slot (matches order from labels list)
+      // Get the label for this slot
       final label = i < labels.length ? labels[i] : '';
       
       list.add(Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // Show count above bubble if there are entries
+          if (hasEntry) ...[
+            Text(
+              '$entryCount',
+              style: GoogleFonts.poppins(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: AppColors.peach,
+              ),
+            ),
+            const SizedBox(height: 4),
+          ] else
+            const SizedBox(height: 20), // Spacing when no entry
+          
           Container(
             width: 44,
             height: 44,
@@ -70,12 +112,12 @@ class JournalingStatsWidget extends StatelessWidget {
                   : null,
             ),
             child: Center(
-              child: Text(
-                hasEntry ? '$entryCount' : '',
-                style: GoogleFonts.poppins(
-                    fontSize: 14, 
-                    fontWeight: FontWeight.w700,
-                    color: hasEntry ? AppColors.textPrimary : Colors.transparent),
+              child: Icon(
+                hasEntry ? Icons.check : Icons.circle_outlined,
+                size: 20,
+                color: hasEntry 
+                    ? AppColors.textPrimary 
+                    : AppColors.textPrimary.withOpacity(0.2),
               ),
             ),
           ),
