@@ -8,11 +8,13 @@ enum DailyMoodStatus {
 }
 
 class DailyMoodState {
+  static const Object _unset = Object();
+
   final DailyMoodStatus status;
   final DailyMoodModel? todayMood;
   final String? error;
 
-  DailyMoodState({
+  const DailyMoodState({
     this.status = DailyMoodStatus.initial,
     this.todayMood,
     this.error,
@@ -20,14 +22,24 @@ class DailyMoodState {
 
   DailyMoodState copyWith({
     DailyMoodStatus? status,
-    DailyMoodModel? todayMood,
+
+    /// IMPORTANT: allows passing `todayMood: null` to clear it.
+    Object? todayMood = _unset,
+
     bool clearMood = false,
     String? error,
     bool clearError = false,
   }) {
     return DailyMoodState(
       status: status ?? this.status,
-      todayMood: clearMood ? null : (todayMood ?? this.todayMood),
+
+      // ✅ if clearMood => null
+      // ✅ else if todayMood not provided => keep old
+      // ✅ else (provided including null) => set it
+      todayMood: clearMood
+          ? null
+          : (todayMood == _unset ? this.todayMood : todayMood as DailyMoodModel?),
+
       error: clearError ? null : (error ?? this.error),
     );
   }

@@ -19,6 +19,7 @@ class VoiceNotePlayer extends StatefulWidget {
 class _VoiceNotePlayerState extends State<VoiceNotePlayer> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool _isPlaying = false;
+  bool _isInteracting = false; // Track if user is touching
   Duration _duration = Duration.zero;
   Duration _position = Duration.zero;
 
@@ -86,110 +87,154 @@ class _VoiceNotePlayerState extends State<VoiceNotePlayer> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(top: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.accentBlue.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: AppColors.accentBlue.withOpacity(0.3),
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _isInteracting = true;
+        });
+        
+        // Hide delete button after 3 seconds
+        Future.delayed(const Duration(seconds: 3), () {
+          if (mounted) {
+            setState(() {
+              _isInteracting = false;
+            });
+          }
+        });
+      },
+      child: Container(
+        margin: const EdgeInsets.only(top: 12),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.accentBlue.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: _isInteracting 
+                ? AppColors.accentBlue.withOpacity(0.5)
+                : AppColors.accentBlue.withOpacity(0.3),
+            width: _isInteracting ? 2 : 1,
+          ),
         ),
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              // Play/Pause button
-              GestureDetector(
-                onTap: _togglePlayPause,
-                child: Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.accentBlue,
-                  ),
-                  child: Icon(
-                    _isPlaying ? Icons.pause : Icons.play_arrow,
-                    color: AppColors.card,
-                    size: 24,
-                  ),
-                ),
-              ),
-
-              const SizedBox(width: 12),
-
-              // Progress and time
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Column(
+              children: [
+                Row(
                   children: [
-                    // Progress bar
-                    SliderTheme(
-                      data: SliderThemeData(
-                        trackHeight: 2,
-                        thumbShape: const RoundSliderThumbShape(
-                          enabledThumbRadius: 6,
+                    // Play/Pause button
+                    GestureDetector(
+                      onTap: _togglePlayPause,
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.accentBlue,
                         ),
-                        overlayShape: const RoundSliderOverlayShape(
-                          overlayRadius: 12,
+                        child: Icon(
+                          _isPlaying ? Icons.pause : Icons.play_arrow,
+                          color: AppColors.card,
+                          size: 24,
                         ),
-                      ),
-                      child: Slider(
-                        value: _position.inSeconds.toDouble(),
-                        max: _duration.inSeconds.toDouble() > 0
-                            ? _duration.inSeconds.toDouble()
-                            : 1,
-                        activeColor: AppColors.accentBlue,
-                        inactiveColor:
-                            AppColors.textSecondary.withOpacity(0.2),
-                        onChanged: (value) async {
-                          final position = Duration(seconds: value.toInt());
-                          await _audioPlayer.seek(position);
-                        },
                       ),
                     ),
 
-                    // Time display
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    const SizedBox(width: 12),
+
+                    // Progress and time
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            _formatDuration(_position),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textSecondary,
+                          // Progress bar
+                          SliderTheme(
+                            data: SliderThemeData(
+                              trackHeight: 2,
+                              thumbShape: const RoundSliderThumbShape(
+                                enabledThumbRadius: 6,
+                              ),
+                              overlayShape: const RoundSliderOverlayShape(
+                                overlayRadius: 12,
+                              ),
+                            ),
+                            child: Slider(
+                              value: _position.inSeconds.toDouble(),
+                              max: _duration.inSeconds.toDouble() > 0
+                                  ? _duration.inSeconds.toDouble()
+                                  : 1,
+                              activeColor: AppColors.accentBlue,
+                              inactiveColor:
+                                  AppColors.textSecondary.withOpacity(0.2),
+                              onChanged: (value) async {
+                                final position = Duration(seconds: value.toInt());
+                                await _audioPlayer.seek(position);
+                              },
                             ),
                           ),
-                          Text(
-                            _formatDuration(_duration),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textSecondary,
+
+                          // Time display
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  _formatDuration(_position),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                                Text(
+                                  _formatDuration(_duration),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
                     ),
+
+                    const SizedBox(width: 8),
                   ],
                 ),
-              ),
+              ],
+            ),
 
-              const SizedBox(width: 8),
-
-              // Delete button
-              IconButton(
-                onPressed: widget.onDelete,
-                icon: const Icon(Icons.delete),
-                color: AppColors.error,
-                iconSize: 20,
+            // Delete button (only when interacting)
+            if (_isInteracting)
+              Positioned(
+                top: -8,
+                right: -8,
+                child: GestureDetector(
+                  onTap: widget.onDelete,
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: AppColors.error,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.3),
+                          blurRadius: 4,
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.close,
+                      color: AppColors.card,
+                      size: 18,
+                    ),
+                  ),
+                ),
               ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

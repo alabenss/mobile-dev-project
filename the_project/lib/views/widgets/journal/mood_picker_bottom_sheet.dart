@@ -41,7 +41,7 @@ class MoodPickerBottomSheet extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'How do you feel?',
+                  'How do you feel today?',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -57,69 +57,82 @@ class MoodPickerBottomSheet extends StatelessWidget {
 
           const Divider(height: 1),
 
-          // Mood Grid
+          // Mood Selector - Changed from GridView to horizontal ListView like in mood_card.dart
           Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.all(16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 5,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-                childAspectRatio: 0.85,
-              ),
-              itemCount: _moods.length,
-              itemBuilder: (context, index) {
-                final mood = _moods[index];
-                final isSelected = currentMood == mood['image'];
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  
+                  Expanded(
+                    child: SizedBox(
+                      height: 100,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _moods.length,
+                        itemBuilder: (context, index) {
+                          final mood = _moods[index];
+                          final isSelected = currentMood == mood['image'];
 
-                return GestureDetector(
-                  onTap: () {
-                    onMoodSelected(mood['image']!, mood['label']!);
-                    Navigator.pop(context);
-                  },
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? AppColors.accentBlue.withOpacity(0.2)
-                              : Colors.transparent,
-                          shape: BoxShape.circle,
-                          border: isSelected
-                              ? Border.all(
-                                  color: AppColors.accentBlue,
-                                  width: 2,
-                                )
-                              : null,
-                        ),
-                        child: Image.asset(
-                          mood['image']!,
-                          width: 40,
-                          height: 40,
-                          fit: BoxFit.contain,
-                        ),
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 16.0),
+                            child: GestureDetector(
+                              onTap: () {
+                                onMoodSelected(mood['image']!, mood['label']!);
+                                Navigator.pop(context);
+                              },
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  // Mood image with selection indicator
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? AppColors.accentBlue.withOpacity(0.2)
+                                          : Colors.transparent,
+                                      shape: BoxShape.circle,
+                                      border: isSelected
+                                          ? Border.all(
+                                              color: AppColors.accentBlue,
+                                              width: 2,
+                                            )
+                                          : null,
+                                    ),
+                                    child: Image.asset(
+                                      mood['image']!,
+                                      width: 50,
+                                      height: 50,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    mood['label']!,
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: isSelected
+                                          ? AppColors.accentBlue
+                                          : AppColors.textSecondary,
+                                      fontWeight: isSelected 
+                                          ? FontWeight.bold 
+                                          : FontWeight.normal,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        mood['label']!,
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: isSelected
-                              ? AppColors.accentBlue
-                              : AppColors.textSecondary,
-                          fontWeight:
-                              isSelected ? FontWeight.bold : FontWeight.normal,
-                        ),
-                        textAlign: TextAlign.center,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
+                    ),
                   ),
-                );
-              },
+                  
+                  // Spacer to push content up
+                  const SizedBox(height: 10),
+                ],
+              ),
             ),
           ),
         ],

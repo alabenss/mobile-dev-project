@@ -1,5 +1,5 @@
 class JournalEntryModel {
-  final int? id; // Added ID for tracking in database
+  final int? id;
   final String dateLabel;
   final DateTime date;
   final String moodImage;
@@ -11,8 +11,8 @@ class JournalEntryModel {
   final String? fontFamily;
   final String? textColor;
   final double? fontSize;
-  final List<String>? attachedImages;
-  final String? voicePath; // NEW: Voice note path
+  final List<ImageData>? attachedImages; // Changed from List<String>?
+  final String? voicePath;
   
   final List<StickerData>? stickers;
 
@@ -28,7 +28,7 @@ class JournalEntryModel {
     this.textColor,
     this.fontSize,
     this.attachedImages,
-    this.voicePath, // NEW
+    this.voicePath,
     this.stickers,
   }) : isEmpty = false;
 
@@ -45,10 +45,9 @@ class JournalEntryModel {
         textColor = null,
         fontSize = null,
         attachedImages = null,
-        voicePath = null, // NEW
+        voicePath = null,
         stickers = null;
 
-  // Copy with method for updates
   JournalEntryModel copyWith({
     int? id,
     String? dateLabel,
@@ -60,8 +59,8 @@ class JournalEntryModel {
     String? fontFamily,
     String? textColor,
     double? fontSize,
-    List<String>? attachedImages,
-    String? voicePath, // NEW
+    List<ImageData>? attachedImages,
+    String? voicePath,
     List<StickerData>? stickers,
   }) {
     return JournalEntryModel(
@@ -76,18 +75,19 @@ class JournalEntryModel {
       textColor: textColor ?? this.textColor,
       fontSize: fontSize ?? this.fontSize,
       attachedImages: attachedImages ?? this.attachedImages,
-      voicePath: voicePath ?? this.voicePath, // NEW
+      voicePath: voicePath ?? this.voicePath,
       stickers: stickers ?? this.stickers,
     );
   }
 }
 
-class StickerData {
+// NEW: ImageData class to store image path and position
+class ImageData {
   final String path;
   final double x;
   final double y;
 
-  StickerData({
+  ImageData({
     required this.path,
     required this.x,
     required this.y,
@@ -99,9 +99,37 @@ class StickerData {
     'y': y,
   };
 
+  factory ImageData.fromJson(Map<String, dynamic> json) => ImageData(
+    path: json['path'] as String,
+    x: (json['x'] as num).toDouble(),
+    y: (json['y'] as num).toDouble(),
+  );
+}
+
+class StickerData {
+  final String path;
+  final double x;
+  final double y;
+  final double scale;
+
+  StickerData({
+    required this.path,
+    required this.x,
+    required this.y,
+    this.scale = 1.0,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'path': path,
+    'x': x,
+    'y': y,
+    'scale': scale,
+  };
+
   factory StickerData.fromJson(Map<String, dynamic> json) => StickerData(
-    path: json['path'],
-    x: json['x'].toDouble(),
-    y: json['y'].toDouble(),
+    path: json['path'] as String,
+    x: (json['x'] as num).toDouble(),
+    y: (json['y'] as num).toDouble(),
+    scale: json['scale'] != null ? (json['scale'] as num).toDouble() : 1.0,
   );
 }

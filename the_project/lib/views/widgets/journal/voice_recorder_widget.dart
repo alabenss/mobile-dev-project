@@ -20,8 +20,7 @@ class VoiceRecorderWidget extends StatefulWidget {
 }
 
 class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget> {
-final AudioRecorder _audioRecorder = AudioRecorder();
-
+  final AudioRecorder _audioRecorder = AudioRecorder();
   final AudioPlayer _audioPlayer = AudioPlayer();
   
   bool _isRecording = false;
@@ -143,196 +142,204 @@ final AudioRecorder _audioRecorder = AudioRecorder();
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 350,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85, // Use percentage of screen height
+      ),
       decoration: const BoxDecoration(
         color: AppColors.card,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      child: Column(
-        children: [
-          // Header
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Voice Note',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ],
-            ),
-          ),
-
-          const Divider(height: 1),
-
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+      child: SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min, // Use min to avoid overflow
+          children: [
+            // Header
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Recording indicator
-                  if (_isRecording)
-                    Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppColors.error.withOpacity(0.1),
-                        border: Border.all(
-                          color: AppColors.error,
-                          width: 3,
-                        ),
-                      ),
-                      child: Center(
-                        child: Icon(
-                          Icons.mic,
-                          size: 60,
-                          color: AppColors.error,
-                        ),
-                      ),
-                    )
-                  else if (_recordedFilePath != null)
-                    Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppColors.accentGreen.withOpacity(0.1),
-                        border: Border.all(
-                          color: AppColors.accentGreen,
-                          width: 3,
-                        ),
-                      ),
-                      child: Center(
-                        child: Icon(
-                          Icons.check_circle,
-                          size: 60,
-                          color: AppColors.accentGreen,
-                        ),
-                      ),
-                    )
-                  else
-                    Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppColors.icon.withOpacity(0.1),
-                      ),
-                      child: const Center(
-                        child: Icon(
-                          Icons.mic_none,
-                          size: 60,
-                          color: AppColors.icon,
-                        ),
-                      ),
-                    ),
-
-                  const SizedBox(height: 24),
-
-                  // Timer
-                  Text(
-                    _formatDuration(_recordDuration),
-                    style: const TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'monospace',
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Status text
-                  Text(
-                    _isRecording
-                        ? 'Recording...'
-                        : _recordedFilePath != null
-                            ? 'Recording saved'
-                            : 'Tap to start recording',
+                  const Text(
+                    'Voice Note',
                     style: TextStyle(
-                      fontSize: 16,
-                      color: AppColors.textSecondary,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-
-                  const SizedBox(height: 32),
-
-                  // Control buttons
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      // Delete button (if recorded)
-                      if (_recordedFilePath != null && !_isRecording)
-                        IconButton(
-                          onPressed: _deleteRecording,
-                          icon: const Icon(Icons.delete),
-                          iconSize: 32,
-                          color: AppColors.error,
-                        ),
-
-                      const SizedBox(width: 24),
-
-                      // Main button (record/stop)
-                      GestureDetector(
-                        onTap: _isRecording ? _stopRecording : _startRecording,
-                        child: Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: _isRecording
-                                ? AppColors.error
-                                : AppColors.icon,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
-                                blurRadius: 8,
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            _isRecording ? Icons.stop : Icons.mic,
-                            size: 40,
-                            color: AppColors.card,
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(width: 24),
-
-                      // Play/Pause button (if recorded)
-                      if (_recordedFilePath != null && !_isRecording)
-                        IconButton(
-                          onPressed:
-                              _isPlaying ? _stopPlaying : _playRecording,
-                          icon: Icon(
-                            _isPlaying ? Icons.pause : Icons.play_arrow,
-                          ),
-                          iconSize: 32,
-                          color: AppColors.accentBlue,
-                        ),
-                    ],
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
                   ),
                 ],
               ),
             ),
-          ),
 
-          // Save button
-          if (_recordedFilePath != null && !_isRecording)
-            SafeArea(
-              top: false,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
+            const Divider(height: 1),
+
+            Flexible( // Use Flexible to allow content to shrink if needed
+              child: SingleChildScrollView( // Wrap in SingleChildScrollView for safety
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Recording indicator
+                      const SizedBox(height: 10),
+                      if (_isRecording)
+                        Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppColors.error.withOpacity(0.1),
+                            border: Border.all(
+                              color: AppColors.error,
+                              width: 3,
+                            ),
+                          ),
+                          child: Center(
+                            child: Icon(
+                              Icons.mic,
+                              size: 50,
+                              color: AppColors.error,
+                            ),
+                          ),
+                        )
+                      else if (_recordedFilePath != null)
+                        Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppColors.accentGreen.withOpacity(0.1),
+                            border: Border.all(
+                              color: AppColors.accentGreen,
+                              width: 3,
+                            ),
+                          ),
+                          child: Center(
+                            child: Icon(
+                              Icons.check_circle,
+                              size: 50,
+                              color: AppColors.accentGreen,
+                            ),
+                          ),
+                        )
+                      else
+                        Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppColors.icon.withOpacity(0.1),
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.mic_none,
+                              size: 50,
+                              color: AppColors.icon,
+                            ),
+                          ),
+                        ),
+
+                      const SizedBox(height: 20),
+
+                      // Timer
+                      Text(
+                        _formatDuration(_recordDuration),
+                        style: const TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'monospace',
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Status text
+                      Text(
+                        _isRecording
+                            ? 'Recording...'
+                            : _recordedFilePath != null
+                                ? 'Recording saved'
+                                : 'Tap to start recording',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+
+                      const SizedBox(height: 25),
+
+                      // Control buttons
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Delete button (if recorded)
+                          if (_recordedFilePath != null && !_isRecording)
+                            IconButton(
+                              onPressed: _deleteRecording,
+                              icon: const Icon(Icons.delete),
+                              iconSize: 25,
+                              color: AppColors.error,
+                            ),
+
+                          const SizedBox(width: 20),
+
+                          // Main button (record/stop)
+                          GestureDetector(
+                            onTap: _isRecording ? _stopRecording : _startRecording,
+                            child: Container(
+                              width: 80,
+                              height: 80,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: _isRecording
+                                    ? AppColors.error
+                                    : AppColors.icon,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),
+                                    blurRadius: 8,
+                                  ),
+                                ],
+                              ),
+                              child: Icon(
+                                _isRecording ? Icons.stop : Icons.mic,
+                                size: 40,
+                                color: AppColors.card,
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(width: 20),
+
+                          // Play/Pause button (if recorded)
+                          if (_recordedFilePath != null && !_isRecording)
+                            IconButton(
+                              onPressed:
+                                  _isPlaying ? _stopPlaying : _playRecording,
+                              icon: Icon(
+                                _isPlaying ? Icons.pause : Icons.play_arrow,
+                              ),
+                              iconSize: 32,
+                              color: AppColors.accentBlue,
+                            ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            // Save button
+            if (_recordedFilePath != null && !_isRecording)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
                 child: SizedBox(
                   width: double.infinity,
                   height: 50,
@@ -355,8 +362,8 @@ final AudioRecorder _audioRecorder = AudioRecorder();
                   ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
