@@ -78,24 +78,24 @@ class WaterStatsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context)!;
+    final t = AppLocalizations.of(context);
 
     String headline;
     if (waterData.isEmpty) {
-      headline = t.glassesToday(0);
+      headline = t?.glassesToday(0) ?? '0 glasses today';
     } else if (selectedRange == StatsRange.today) {
-      headline = t.glassesToday(waterData.first.toInt());
+      headline = t?.glassesToday(waterData.first.toInt()) ?? '${waterData.first.toInt()} glasses today';
     } else if (selectedRange == StatsRange.weekly) {
       final avg =
           (waterData.reduce((a, b) => a + b) / waterData.length).round();
-      headline = t.avgPerDay(avg);
+      headline = t?.avgPerDay(avg) ?? '$avg avg/day';
     } else if (selectedRange == StatsRange.monthly) {
       final avg =
           (waterData.reduce((a, b) => a + b) / waterData.length);
-      headline = t.monthlyAvg(avg.toStringAsFixed(1));
+      headline = t?.monthlyAvg(avg.toStringAsFixed(1)) ?? '${avg.toStringAsFixed(1)} monthly avg';
     } else {
       final avg = waterData.reduce((a, b) => a + b) / waterData.length;
-      headline = t.yearlyAvg(avg.toStringAsFixed(1));
+      headline = t?.yearlyAvg(avg.toStringAsFixed(1)) ?? '${avg.toStringAsFixed(1)} yearly avg';
     }
 
     return AnimatedContainer(
@@ -104,7 +104,12 @@ class WaterStatsWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(t.waterStats, style: GoogleFonts.poppins(fontSize: 12)),
+          Text(t?.waterStats ?? 'Water Stats', 
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              color: AppColors.textPrimary.withOpacity(0.6)
+            )
+          ),
           const SizedBox(height: 8),
           Text(headline,
               style:

@@ -77,16 +77,73 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get noData => 'Aucune donnée';
+
+  @override
+  String get noMoodData => 'Aucune donnée d’humeur disponible';
+
+  @override
+  String get noWaterData => 'Aucune donnée d’eau disponible';
+
+  @override
+  String get noScreenTimeData => 'Aucune donnée du temps d’écran';
+
+  @override
+  String get moodCalm => 'Calme';
+
+  @override
+  String get moodBalanced => 'Équilibré';
+
+  @override
+  String get moodLow => 'Humeur basse';
+
+  @override
   String get moodFeelingGreat => 'Vous vous sentez très bien';
 
   @override
   String get moodNice => 'Bien';
 
   @override
-  String get moodOk => 'Moyen';
+  String get moodOkay => 'Correct';
 
   @override
-  String get moodLow => 'Humeur basse';
+  String get moodFeelingLow => 'Mauvaise humeur';
+
+  @override
+  String get statsNoData => 'Aucune donnée';
+
+  @override
+  String get statsNoMoodData => 'Aucune donnée d’humeur disponible';
+
+  @override
+  String get statsRefreshingData => 'Actualisation des données...';
+
+  @override
+  String get statsLoading => 'Chargement des statistiques...';
+
+  @override
+  String get statsErrorTitle => 'Une erreur est survenue';
+
+  @override
+  String get commonTryAgain => 'Réessayer';
+
+  @override
+  String get statsEmptyTitle => 'Aucune donnée';
+
+  @override
+  String get statsEmptySubtitle => 'Commencez à utiliser l\'application pour voir vos statistiques';
+
+  @override
+  String get statsEmptyTrackMood => 'Suivez votre humeur chaque jour';
+
+  @override
+  String get statsEmptyLogWater => 'Enregistrez votre consommation d\'eau';
+
+  @override
+  String get statsEmptyWriteJournal => 'Écrivez dans votre journal';
+
+  @override
+  String get moodOk => 'Moyen';
 
   @override
   String get calm => 'Calme';

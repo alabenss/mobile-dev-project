@@ -22,11 +22,13 @@ class MoodStatsWidget extends StatelessWidget {
     this.animationCurve = Curves.easeInOutCubic,
   });
 
-  Widget _buildDonutChart() {
+  Widget _buildDonutChart(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     if (moodData.isEmpty || moodData.every((m) => m == 0.0 || m == 0.5)) {
       return Center(
         child: Text(
-          'No data',
+          t.statsNoData,
           style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
         ),
       );
@@ -67,11 +69,13 @@ class MoodStatsWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildLineChart() {
+  Widget _buildLineChart(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+
     if (moodData.isEmpty) {
       return Center(
         child: Text(
-          'No mood data available',
+          t.statsNoMoodData,
           style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
         ),
       );
@@ -163,21 +167,21 @@ class MoodStatsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context);
+    final t = AppLocalizations.of(context)!;
 
     String headline;
     if (moodData.isEmpty || moodData.every((m) => m == 0.0 || m == 0.5)) {
-      headline = t?.moodOk ?? 'Okay';
+      headline = t.moodOk;
     } else {
       final mean = (moodData.reduce((a, b) => a + b) / moodData.length);
       if (mean >= 0.75) {
-        headline = t?.moodFeelingGreat ?? 'Feeling Great!';
+        headline = t.moodFeelingGreat;
       } else if (mean >= 0.6) {
-        headline = t?.moodNice ?? 'Nice Mood';
+        headline = t.moodNice;
       } else if (mean >= 0.45) {
-        headline = t?.moodOk ?? 'Okay';
+        headline = t.moodOk;
       } else {
-        headline = t?.moodLow ?? 'Feeling Low';
+        headline = t.moodLow;
       }
     }
 
@@ -187,7 +191,7 @@ class MoodStatsWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(t?.moodTracking ?? 'Mood Tracking', 
+          Text(t.moodTracking, 
             style: GoogleFonts.poppins(
               fontSize: 12,
               color: AppColors.textPrimary.withOpacity(0.6)
@@ -200,7 +204,7 @@ class MoodStatsWidget extends StatelessWidget {
               SizedBox(
                 width: 120, 
                 height: 120, 
-                child: _buildDonutChart()
+                child: _buildDonutChart(context)
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -219,9 +223,9 @@ class MoodStatsWidget extends StatelessWidget {
                       spacing: 8,
                       runSpacing: 4,
                       children: [
-                        _smallLegendDot(AppColors.mint, t?.calm ?? 'Calm'),
-                        _smallLegendDot(AppColors.peach, t?.balanced ?? 'Balanced'),
-                        _smallLegendDot(AppColors.coral, t?.low ?? 'Low'),
+                        _smallLegendDot(AppColors.mint, t.calm),
+                        _smallLegendDot(AppColors.peach, t.balanced),
+                        _smallLegendDot(AppColors.coral, t.low),
                       ],
                     ),
                   ],
@@ -236,7 +240,7 @@ class MoodStatsWidget extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               color: AppColors.card.withOpacity(0.3),
             ),
-            child: _buildLineChart(),
+            child: _buildLineChart(context),
           ),
           const SizedBox(height: 6),
           _buildChartLabels(),

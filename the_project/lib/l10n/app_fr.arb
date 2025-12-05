@@ -20,6 +20,28 @@
       }
     }
   },
+  "statsRefreshingData": "Actualisation des données...",
+  "statsLoading": "Chargement des statistiques...",
+  "statsErrorTitle": "Une erreur est survenue",
+  "commonTryAgain": "Réessayer",
+
+  "statsEmptyTitle": "Aucune donnée",
+  "statsEmptySubtitle": "Commencez à utiliser l'application pour voir vos statistiques",
+  "statsEmptyTrackMood": "Suivez votre humeur chaque jour",
+  "statsEmptyLogWater": "Enregistrez votre consommation d'eau",
+  "statsEmptyWriteJournal": "Écrivez dans votre journal",
+  "noData": "Aucune donnée",
+  "noMoodData": "Aucune donnée d’humeur disponible",
+  "noWaterData": "Aucune donnée d’eau disponible",
+  "noScreenTimeData": "Aucune donnée du temps d’écran",
+
+  "moodCalm": "Calme",
+  "moodBalanced": "Équilibré",
+  "moodLow": "Bas",
+  "moodFeelingGreat": "Très bien",
+  "moodNice": "Bonne humeur",
+  "moodOkay": "Correct",
+  "moodFeelingLow": "Mauvaise humeur",
 
   "avgPerDay": "Moy. {count} verres / jour",
   "@avgPerDay": {
@@ -29,6 +51,8 @@
       }
     }
   },
+  "statsNoData": "Aucune donnée",
+"statsNoMoodData": "Aucune donnée d’humeur disponible",
 
   "monthlyAvg": "Moyenne mensuelle {count} verres",
   "@monthlyAvg": {

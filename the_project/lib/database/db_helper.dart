@@ -9,7 +9,6 @@ class DBHelper {
     _database = await _initDB('rise_app.db');
     return _database!;
   }
-
   // Initialize and open the database
   static Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
@@ -174,6 +173,102 @@ class DBHelper {
     if (result.isEmpty) return null;
     return result.first;
   }
+  /// Check if a user with this email already exists
+  static Future<bool> userExists(String email) async {
+    final db = await database;
+
+    final result = await db.query(
+      'users',
+      columns: ['id'],
+      where: 'email = ?',
+      whereArgs: [email],
+      limit: 1,
+    );
+
+    return result.isNotEmpty;
+  }
+
+  /// Login using email
+  static Future<Map<String, dynamic>?> loginUserByEmail(
+      String email, String password) async {
+    // You already have loginUser(email, password), so reuse it:
+    return await loginUser(email, password);
+  }
+
+  /// Login using username (we will use the "name" column as username)
+  static Future<Map<String, dynamic>?> loginUserByUsername(
+      String username, String password) async {
+    final db = await database;
+
+    final result = await db.query(
+      'users',
+      where: 'name = ? AND password = ?',
+      whereArgs: [username, password],
+      limit: 1,
+    );
+
+    if (result.isEmpty) return null;
+    return result.first;
+  }
+
+  /// Update user name
+  static Future<void> updateUserName(int userId, String newName) async {
+    final db = await database;
+
+    await db.update(
+      'users',
+      {'name': newName},
+      where: 'id = ?',
+      whereArgs: [userId],
+    );
+  }
+
+  /// Update user email
+  static Future<void> updateUserEmail(int userId, String newEmail) async {
+    final db = await database;
+
+    await db.update(
+      'users',
+      {'email': newEmail},
+      where: 'id = ?',
+      whereArgs: [userId],
+    );
+  }
+
+    // ------------------ Stars Methods ------------------
+
+  /// Get current number of stars for a specific user
+  static Future<int> getUserStars(int userId) async {
+    final db = await database;
+
+    final result = await db.query(
+      'users',
+      columns: ['stars'],
+      where: 'id = ?',
+      whereArgs: [userId],
+      limit: 1,
+    );
+
+    if (result.isNotEmpty) {
+      final value = result.first['stars'];
+      if (value is int) return value;
+      if (value is num) return value.toInt();
+    }
+    return 0;
+  }
+
+  /// Update the number of stars for a specific user
+  static Future<void> updateUserStars(int userId, int stars) async {
+    final db = await database;
+
+    await db.update(
+      'users',
+      {'stars': stars},
+      where: 'id = ?',
+      whereArgs: [userId],
+    );
+  }
+
 
   /// Get user by ID
   static Future<Map<String, dynamic>?> getUserById(int id) async {

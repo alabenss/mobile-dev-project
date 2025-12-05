@@ -203,6 +203,48 @@ abstract class AppLocalizations {
   /// **'{count} entries total'**
   String totalEntries(int count);
 
+  /// No description provided for @noData.
+  ///
+  /// In en, this message translates to:
+  /// **'No data'**
+  String get noData;
+
+  /// No description provided for @noMoodData.
+  ///
+  /// In en, this message translates to:
+  /// **'No mood data available'**
+  String get noMoodData;
+
+  /// No description provided for @noWaterData.
+  ///
+  /// In en, this message translates to:
+  /// **'No water data available'**
+  String get noWaterData;
+
+  /// No description provided for @noScreenTimeData.
+  ///
+  /// In en, this message translates to:
+  /// **'No screen time data available'**
+  String get noScreenTimeData;
+
+  /// No description provided for @moodCalm.
+  ///
+  /// In en, this message translates to:
+  /// **'Calm'**
+  String get moodCalm;
+
+  /// No description provided for @moodBalanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Balanced'**
+  String get moodBalanced;
+
+  /// No description provided for @moodLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Low'**
+  String get moodLow;
+
   /// No description provided for @moodFeelingGreat.
   ///
   /// In en, this message translates to:
@@ -215,17 +257,89 @@ abstract class AppLocalizations {
   /// **'Nice'**
   String get moodNice;
 
+  /// No description provided for @moodOkay.
+  ///
+  /// In en, this message translates to:
+  /// **'Okay'**
+  String get moodOkay;
+
+  /// No description provided for @moodFeelingLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Feeling low'**
+  String get moodFeelingLow;
+
+  /// No description provided for @statsNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No data'**
+  String get statsNoData;
+
+  /// No description provided for @statsNoMoodData.
+  ///
+  /// In en, this message translates to:
+  /// **'No mood data available'**
+  String get statsNoMoodData;
+
+  /// No description provided for @statsRefreshingData.
+  ///
+  /// In en, this message translates to:
+  /// **'Refreshing data...'**
+  String get statsRefreshingData;
+
+  /// No description provided for @statsLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading statistics...'**
+  String get statsLoading;
+
+  /// No description provided for @statsErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Oops! Something went wrong'**
+  String get statsErrorTitle;
+
+  /// No description provided for @commonTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try Again'**
+  String get commonTryAgain;
+
+  /// No description provided for @statsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No Data Yet'**
+  String get statsEmptyTitle;
+
+  /// No description provided for @statsEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Start using the app to see your statistics here'**
+  String get statsEmptySubtitle;
+
+  /// No description provided for @statsEmptyTrackMood.
+  ///
+  /// In en, this message translates to:
+  /// **'Track your mood daily'**
+  String get statsEmptyTrackMood;
+
+  /// No description provided for @statsEmptyLogWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Log your water intake'**
+  String get statsEmptyLogWater;
+
+  /// No description provided for @statsEmptyWriteJournal.
+  ///
+  /// In en, this message translates to:
+  /// **'Write journal entries'**
+  String get statsEmptyWriteJournal;
+
   /// No description provided for @moodOk.
   ///
   /// In en, this message translates to:
   /// **'Okay'**
   String get moodOk;
-
-  /// No description provided for @moodLow.
-  ///
-  /// In en, this message translates to:
-  /// **'Low'**
-  String get moodLow;
 
   /// No description provided for @calm.
   ///

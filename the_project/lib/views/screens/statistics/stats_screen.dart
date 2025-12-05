@@ -41,7 +41,7 @@ class StatsScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        t.statistics ?? 'Statistics',
+                        t.statistics,
                         style: GoogleFonts.poppins(
                           fontSize: 20,
                           fontWeight: FontWeight.w700,
@@ -59,8 +59,8 @@ class StatsScreen extends StatelessWidget {
                               context.read<StatsCubit>().refresh();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text('Refreshing data...'),
-                                  duration: Duration(seconds: 1),
+                                  content: Text(t.statsRefreshingData),
+                                  duration: const Duration(seconds: 1),
                                 ),
                               );
                             },
@@ -115,14 +115,14 @@ class StatsScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(
+            const CircularProgressIndicator(
               color: AppColors.accentPurple,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
-              'Loading statistics...',
+              t.statsLoading,
               style: GoogleFonts.poppins(
-                color: AppColors.textPrimary.withOpacity(0.6)
+                color: AppColors.textPrimary.withOpacity(0.6),
               ),
             ),
           ],
@@ -133,29 +133,29 @@ class StatsScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.error_outline,
               size: 50,
               color: AppColors.coral,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
-              'Oops! Something went wrong',
+              t.statsErrorTitle,
               style: GoogleFonts.poppins(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
-              state.message,
+              state.message, // you can localize this where it's created if needed
               style: GoogleFonts.poppins(
                 fontSize: 14,
-                color: AppColors.textPrimary.withOpacity(0.6)
+                color: AppColors.textPrimary.withOpacity(0.6),
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => context.read<StatsCubit>().refresh(),
               style: ElevatedButton.styleFrom(
@@ -165,7 +165,7 @@ class StatsScreen extends StatelessWidget {
                 ),
               ),
               child: Text(
-                'Try Again',
+                t.commonTryAgain,
                 style: GoogleFonts.poppins(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
@@ -182,8 +182,9 @@ class StatsScreen extends StatelessWidget {
         switchOutCurve: animCurve,
         transitionBuilder: (child, animation) {
           final offsetAnim = Tween<Offset>(
-                  begin: const Offset(0, 0.07), end: Offset.zero)
-              .animate(animation);
+            begin: const Offset(0, 0.07),
+            end: Offset.zero,
+          ).animate(animation);
           return FadeTransition(
             opacity: animation,
             child: SlideTransition(position: offsetAnim, child: child),
@@ -198,7 +199,7 @@ class StatsScreen extends StatelessWidget {
     }
 
     // Initial state
-    return Center(
+    return const Center(
       child: CircularProgressIndicator(
         color: AppColors.accentPurple,
       ),
@@ -210,10 +211,10 @@ class StatsScreen extends StatelessWidget {
     required StatsLoaded state,
     required AppLocalizations t,
   }) {
-    final hasData = state.waterData.isNotEmpty || 
-                    state.moodData.isNotEmpty || 
-                    state.journalingCount > 0;
-    
+    final hasData = state.waterData.isNotEmpty ||
+        state.moodData.isNotEmpty ||
+        state.journalingCount > 0;
+
     return SingleChildScrollView(
       key: key,
       physics: const BouncingScrollPhysics(),
@@ -221,9 +222,9 @@ class StatsScreen extends StatelessWidget {
         children: [
           if (!hasData) ...[
             _buildEmptyState(t),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
           ],
-          
+
           StatsCardWidget(
             padding: const EdgeInsets.all(14),
             child: WaterStatsWidget(
@@ -273,7 +274,7 @@ class StatsScreen extends StatelessWidget {
 
   Widget _buildEmptyState(AppLocalizations t) {
     return StatsCardWidget(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       child: Column(
         children: [
           Icon(
@@ -281,48 +282,48 @@ class StatsScreen extends StatelessWidget {
             size: 50,
             color: AppColors.accentPurple.withOpacity(0.5),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Text(
-            'No Data Yet',
+            t.statsEmptyTitle,
             style: GoogleFonts.poppins(
               fontSize: 18,
               fontWeight: FontWeight.w600,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
-            'Start using the app to see your statistics here',
+            t.statsEmptySubtitle,
             textAlign: TextAlign.center,
             style: GoogleFonts.poppins(
               fontSize: 14,
               color: AppColors.textPrimary.withOpacity(0.6),
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.check_circle, color: AppColors.mint, size: 16),
-              SizedBox(width: 8),
-              Text('Track your mood daily'),
+              const Icon(Icons.check_circle, color: AppColors.mint, size: 16),
+              const SizedBox(width: 8),
+              Text(t.statsEmptyTrackMood),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.check_circle, color: AppColors.mint, size: 16),
-              SizedBox(width: 8),
-              Text('Log your water intake'),
+              const Icon(Icons.check_circle, color: AppColors.mint, size: 16),
+              const SizedBox(width: 8),
+              Text(t.statsEmptyLogWater),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.check_circle, color: AppColors.mint, size: 16),
-              SizedBox(width: 8),
-              Text('Write journal entries'),
+              const Icon(Icons.check_circle, color: AppColors.mint, size: 16),
+              const SizedBox(width: 8),
+              Text(t.statsEmptyWriteJournal),
             ],
           ),
         ],

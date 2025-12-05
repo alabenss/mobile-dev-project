@@ -77,16 +77,73 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get noData => 'No data';
+
+  @override
+  String get noMoodData => 'No mood data available';
+
+  @override
+  String get noWaterData => 'No water data available';
+
+  @override
+  String get noScreenTimeData => 'No screen time data available';
+
+  @override
+  String get moodCalm => 'Calm';
+
+  @override
+  String get moodBalanced => 'Balanced';
+
+  @override
+  String get moodLow => 'Low';
+
+  @override
   String get moodFeelingGreat => 'Feeling great';
 
   @override
   String get moodNice => 'Nice';
 
   @override
-  String get moodOk => 'Okay';
+  String get moodOkay => 'Okay';
 
   @override
-  String get moodLow => 'Low';
+  String get moodFeelingLow => 'Feeling low';
+
+  @override
+  String get statsNoData => 'No data';
+
+  @override
+  String get statsNoMoodData => 'No mood data available';
+
+  @override
+  String get statsRefreshingData => 'Refreshing data...';
+
+  @override
+  String get statsLoading => 'Loading statistics...';
+
+  @override
+  String get statsErrorTitle => 'Oops! Something went wrong';
+
+  @override
+  String get commonTryAgain => 'Try Again';
+
+  @override
+  String get statsEmptyTitle => 'No Data Yet';
+
+  @override
+  String get statsEmptySubtitle => 'Start using the app to see your statistics here';
+
+  @override
+  String get statsEmptyTrackMood => 'Track your mood daily';
+
+  @override
+  String get statsEmptyLogWater => 'Log your water intake';
+
+  @override
+  String get statsEmptyWriteJournal => 'Write journal entries';
+
+  @override
+  String get moodOk => 'Okay';
 
   @override
   String get calm => 'Calm';
