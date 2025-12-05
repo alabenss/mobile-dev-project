@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
+import 'app_localizations_ar.dart';
 import 'app_localizations_en.dart';
 import 'app_localizations_fr.dart';
 
@@ -91,6 +92,7 @@ abstract class AppLocalizations {
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
+    Locale('ar'),
     Locale('en'),
     Locale('fr')
   ];
@@ -254,7 +256,7 @@ abstract class AppLocalizations {
   /// No description provided for @moodNice.
   ///
   /// In en, this message translates to:
-  /// **'Nice'**
+  /// **'Nice mood'**
   String get moodNice;
 
   /// No description provided for @moodOkay.
@@ -335,12 +337,6 @@ abstract class AppLocalizations {
   /// **'Write journal entries'**
   String get statsEmptyWriteJournal;
 
-  /// No description provided for @moodOk.
-  ///
-  /// In en, this message translates to:
-  /// **'Okay'**
-  String get moodOk;
-
   /// No description provided for @calm.
   ///
   /// In en, this message translates to:
@@ -382,6 +378,252 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} h/day'**
   String hoursPerDay(Object count);
+
+  /// No description provided for @addNewHabit.
+  ///
+  /// In en, this message translates to:
+  /// **'Add New Habit'**
+  String get addNewHabit;
+
+  /// No description provided for @selectHabit.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Habit'**
+  String get selectHabit;
+
+  /// No description provided for @customHabitName.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom Habit Name'**
+  String get customHabitName;
+
+  /// No description provided for @customHabit.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom Habit'**
+  String get customHabit;
+
+  /// No description provided for @frequency.
+  ///
+  /// In en, this message translates to:
+  /// **'Frequency'**
+  String get frequency;
+
+  /// No description provided for @rewardPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Reward Points'**
+  String get rewardPoints;
+
+  /// No description provided for @pointsEarnedOnCompletion.
+  ///
+  /// In en, this message translates to:
+  /// **'Points earned on completion'**
+  String get pointsEarnedOnCompletion;
+
+  /// No description provided for @customizeReward.
+  ///
+  /// In en, this message translates to:
+  /// **'Customize the reward for this habit'**
+  String get customizeReward;
+
+  /// No description provided for @time.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get time;
+
+  /// No description provided for @selectTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Select time'**
+  String get selectTime;
+
+  /// No description provided for @setReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Set Reminder'**
+  String get setReminder;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @add.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get add;
+
+  /// No description provided for @habitAlreadyExists.
+  ///
+  /// In en, this message translates to:
+  /// **'This habit already exists with {frequency} frequency!'**
+  String habitAlreadyExists(String frequency);
+
+  /// No description provided for @pointsMustBeGreaterThanZero.
+  ///
+  /// In en, this message translates to:
+  /// **'Points must be greater than 0!'**
+  String get pointsMustBeGreaterThanZero;
+
+  /// No description provided for @habitDrinkWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Drink Water'**
+  String get habitDrinkWater;
+
+  /// No description provided for @habitExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercise'**
+  String get habitExercise;
+
+  /// No description provided for @habitMeditate.
+  ///
+  /// In en, this message translates to:
+  /// **'Meditate'**
+  String get habitMeditate;
+
+  /// No description provided for @habitRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Read'**
+  String get habitRead;
+
+  /// No description provided for @habitSleepEarly.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleep Early'**
+  String get habitSleepEarly;
+
+  /// No description provided for @habitStudy.
+  ///
+  /// In en, this message translates to:
+  /// **'Study'**
+  String get habitStudy;
+
+  /// No description provided for @habitWalk.
+  ///
+  /// In en, this message translates to:
+  /// **'Walk'**
+  String get habitWalk;
+
+  /// No description provided for @habitOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get habitOther;
+
+  /// No description provided for @noHabitsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No habits yet!\nTap + to add your first habit'**
+  String get noHabitsYet;
+
+  /// No description provided for @todaysHabits.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s Habits'**
+  String get todaysHabits;
+
+  /// No description provided for @completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get completed;
+
+  /// No description provided for @skipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped'**
+  String get skipped;
+
+  /// No description provided for @skipHabit.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip Habit?'**
+  String get skipHabit;
+
+  /// No description provided for @skipHabitConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to skip \"{habit}\"?'**
+  String skipHabitConfirmation(String habit);
+
+  /// No description provided for @skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get skip;
+
+  /// No description provided for @deleteHabit.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Habit?'**
+  String get deleteHabit;
+
+  /// No description provided for @deleteHabitConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to permanently delete \"{habit}\"?'**
+  String deleteHabitConfirmation(String habit);
+
+  /// No description provided for @actionCannotBeUndone.
+  ///
+  /// In en, this message translates to:
+  /// **'This action cannot be undone.'**
+  String get actionCannotBeUndone;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @habitCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'{habit} completed!'**
+  String habitCompleted(String habit);
+
+  /// No description provided for @habitSkipped.
+  ///
+  /// In en, this message translates to:
+  /// **'{habit} skipped'**
+  String habitSkipped(String habit);
+
+  /// No description provided for @habitDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'🗑️ {habit} deleted'**
+  String habitDeleted(String habit);
+
+  /// No description provided for @noDailyHabits.
+  ///
+  /// In en, this message translates to:
+  /// **'No daily habits yet'**
+  String get noDailyHabits;
+
+  /// No description provided for @noWeeklyHabits.
+  ///
+  /// In en, this message translates to:
+  /// **'No weekly habits yet'**
+  String get noWeeklyHabits;
+
+  /// No description provided for @noMonthlyHabits.
+  ///
+  /// In en, this message translates to:
+  /// **'No monthly habits yet'**
+  String get noMonthlyHabits;
+
+  /// No description provided for @tapToAddHabit.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap + button to add a habit'**
+  String get tapToAddHabit;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
@@ -393,7 +635,7 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['en', 'fr'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['ar', 'en', 'fr'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -404,6 +646,7 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
 
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
+    case 'ar': return AppLocalizationsAr();
     case 'en': return AppLocalizationsEn();
     case 'fr': return AppLocalizationsFr();
   }

@@ -171,7 +171,7 @@ class MoodStatsWidget extends StatelessWidget {
 
     String headline;
     if (moodData.isEmpty || moodData.every((m) => m == 0.0 || m == 0.5)) {
-      headline = t.moodOk;
+      headline = t.moodOkay;
     } else {
       final mean = (moodData.reduce((a, b) => a + b) / moodData.length);
       if (mean >= 0.75) {
@@ -179,7 +179,7 @@ class MoodStatsWidget extends StatelessWidget {
       } else if (mean >= 0.6) {
         headline = t.moodNice;
       } else if (mean >= 0.45) {
-        headline = t.moodOk;
+        headline = t.moodOkay;
       } else {
         headline = t.moodLow;
       }

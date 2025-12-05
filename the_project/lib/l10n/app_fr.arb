@@ -31,9 +31,9 @@
   "statsEmptyLogWater": "Enregistrez votre consommation d'eau",
   "statsEmptyWriteJournal": "Écrivez dans votre journal",
   "noData": "Aucune donnée",
-  "noMoodData": "Aucune donnée d’humeur disponible",
-  "noWaterData": "Aucune donnée d’eau disponible",
-  "noScreenTimeData": "Aucune donnée du temps d’écran",
+  "noMoodData": "Aucune donnée d'humeur disponible",
+  "noWaterData": "Aucune donnée d'eau disponible",
+  "noScreenTimeData": "Aucune donnée du temps d'écran",
 
   "moodCalm": "Calme",
   "moodBalanced": "Équilibré",
@@ -52,7 +52,7 @@
     }
   },
   "statsNoData": "Aucune donnée",
-"statsNoMoodData": "Aucune donnée d’humeur disponible",
+  "statsNoMoodData": "Aucune donnée d'humeur disponible",
 
   "monthlyAvg": "Moyenne mensuelle {count} verres",
   "@monthlyAvg": {
@@ -95,11 +95,6 @@
     }
   },
 
-  "moodFeelingGreat": "Vous vous sentez très bien",
-  "moodNice": "Bien",
-  "moodOk": "Moyen",
-  "moodLow": "Humeur basse",
-
   "calm": "Calme",
   "balanced": "Équilibré",
   "low": "Basse",
@@ -113,5 +108,95 @@
     "placeholders": {
       "count": {}
     }
-  }
+  },
+
+  "addNewHabit": "Ajouter une nouvelle habitude",
+  "selectHabit": "Sélectionner une habitude",
+  "customHabitName": "Nom personnalisé de l'habitude",
+  "customHabit": "Habitude personnalisée",
+  "frequency": "Fréquence",
+  "rewardPoints": "Points de récompense",
+  "pointsEarnedOnCompletion": "Points gagnés à la complétion",
+  "customizeReward": "Personnalisez la récompense pour cette habitude",
+  "time": "Heure",
+  "selectTime": "Sélectionner l'heure",
+  "setReminder": "Définir un rappel",
+  "cancel": "Annuler",
+  "add": "Ajouter",
+  "habitAlreadyExists": "Cette habitude existe déjà avec une fréquence {frequency} !",
+  "@habitAlreadyExists": {
+    "placeholders": {
+      "frequency": {
+        "type": "String"
+      }
+    }
+  },
+  "pointsMustBeGreaterThanZero": "Les points doivent être supérieurs à 0 !",
+  
+  "habitDrinkWater": "Boire de l'eau",
+  "habitExercise": "Exercice",
+  "habitMeditate": "Méditer",
+  "habitRead": "Lire",
+  "habitSleepEarly": "Dormir tôt",
+  "habitStudy": "Étudier",
+  "habitWalk": "Marcher",
+  "habitOther": "Autre",
+  
+  "noHabitsYet": "Aucune habitude pour l'instant !\nAppuyez sur + pour ajouter votre première habitude",
+  "todaysHabits": "Habitudes d'aujourd'hui",
+  "completed": "Terminé",
+  "skipped": "Ignoré",
+  
+  "skipHabit": "Ignorer l'habitude ?",
+  "skipHabitConfirmation": "Voulez-vous vraiment ignorer \"{habit}\" ?",
+  "@skipHabitConfirmation": {
+    "placeholders": {
+      "habit": {
+        "type": "String"
+      }
+    }
+  },
+  "skip": "Ignorer",
+  
+  "deleteHabit": "Supprimer l'habitude ?",
+  "deleteHabitConfirmation": "Voulez-vous vraiment supprimer définitivement \"{habit}\" ?",
+  "@deleteHabitConfirmation": {
+    "placeholders": {
+      "habit": {
+        "type": "String"
+      }
+    }
+  },
+  "actionCannotBeUndone": "Cette action ne peut pas être annulée.",
+  "delete": "Supprimer",
+  
+  "habitCompleted": "{habit} terminé !",
+  "@habitCompleted": {
+    "placeholders": {
+      "habit": {
+        "type": "String"
+      }
+    }
+  },
+  "habitSkipped": "{habit} ignoré",
+  "@habitSkipped": {
+    "placeholders": {
+      "habit": {
+        "type": "String"
+      }
+    }
+  },
+  "habitDeleted": "🗑️ {habit} supprimé",
+  "@habitDeleted": {
+    "placeholders": {
+      "habit": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "noDailyHabits": "Aucune habitude quotidienne pour l'instant",
+  "noWeeklyHabits": "Aucune habitude hebdomadaire pour l'instant",
+  "noMonthlyHabits": "Aucune habitude mensuelle pour l'instant",
+  "tapToAddHabit": "Appuyez sur le bouton + pour ajouter une habitude"
 }

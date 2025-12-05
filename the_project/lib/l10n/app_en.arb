@@ -75,8 +75,8 @@
   "moodNice": "Nice mood",
   "moodOkay": "Okay",
   "moodFeelingLow": "Feeling low",
-"statsNoData": "No data",
-"statsNoMoodData": "No mood data available",
+  "statsNoData": "No data",
+  "statsNoMoodData": "No mood data available",
 
   "statsRefreshingData": "Refreshing data...",
   "statsLoading": "Loading statistics...",
@@ -87,10 +87,6 @@
   "statsEmptyTrackMood": "Track your mood daily",
   "statsEmptyLogWater": "Log your water intake",
   "statsEmptyWriteJournal": "Write journal entries",
-  "moodFeelingGreat": "Feeling great",
-  "moodNice": "Nice",
-  "moodOk": "Okay",
-  "moodLow": "Low",
   "calm": "Calm",
   "balanced": "Balanced",
   "low": "Low",
@@ -102,5 +98,95 @@
     "placeholders": {
       "count": {}
     }
-  }
+  },
+
+  "addNewHabit": "Add New Habit",
+  "selectHabit": "Select Habit",
+  "customHabitName": "Custom Habit Name",
+  "customHabit": "Custom Habit",
+  "frequency": "Frequency",
+  "rewardPoints": "Reward Points",
+  "pointsEarnedOnCompletion": "Points earned on completion",
+  "customizeReward": "Customize the reward for this habit",
+  "time": "Time",
+  "selectTime": "Select time",
+  "setReminder": "Set Reminder",
+  "cancel": "Cancel",
+  "add": "Add",
+  "habitAlreadyExists": "This habit already exists with {frequency} frequency!",
+  "@habitAlreadyExists": {
+    "placeholders": {
+      "frequency": {
+        "type": "String"
+      }
+    }
+  },
+  "pointsMustBeGreaterThanZero": "Points must be greater than 0!",
+  
+  "habitDrinkWater": "Drink Water",
+  "habitExercise": "Exercise",
+  "habitMeditate": "Meditate",
+  "habitRead": "Read",
+  "habitSleepEarly": "Sleep Early",
+  "habitStudy": "Study",
+  "habitWalk": "Walk",
+  "habitOther": "Other",
+  
+  "noHabitsYet": "No habits yet!\nTap + to add your first habit",
+  "todaysHabits": "Today's Habits",
+  "completed": "Completed",
+  "skipped": "Skipped",
+  
+  "skipHabit": "Skip Habit?",
+  "skipHabitConfirmation": "Are you sure you want to skip \"{habit}\"?",
+  "@skipHabitConfirmation": {
+    "placeholders": {
+      "habit": {
+        "type": "String"
+      }
+    }
+  },
+  "skip": "Skip",
+  
+  "deleteHabit": "Delete Habit?",
+  "deleteHabitConfirmation": "Are you sure you want to permanently delete \"{habit}\"?",
+  "@deleteHabitConfirmation": {
+    "placeholders": {
+      "habit": {
+        "type": "String"
+      }
+    }
+  },
+  "actionCannotBeUndone": "This action cannot be undone.",
+  "delete": "Delete",
+  
+  "habitCompleted": "{habit} completed!",
+  "@habitCompleted": {
+    "placeholders": {
+      "habit": {
+        "type": "String"
+      }
+    }
+  },
+  "habitSkipped": "{habit} skipped",
+  "@habitSkipped": {
+    "placeholders": {
+      "habit": {
+        "type": "String"
+      }
+    }
+  },
+  "habitDeleted": "🗑️ {habit} deleted",
+  "@habitDeleted": {
+    "placeholders": {
+      "habit": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "noDailyHabits": "No daily habits yet",
+  "noWeeklyHabits": "No weekly habits yet",
+  "noMonthlyHabits": "No monthly habits yet",
+  "tapToAddHabit": "Tap + button to add a habit"
 }

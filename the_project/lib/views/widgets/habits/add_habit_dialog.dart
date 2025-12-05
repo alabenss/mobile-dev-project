@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../themes/style_simple/colors.dart';
 import '../../../models/habit_model.dart';
 
@@ -19,16 +20,7 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
   TimeOfDay? _time;
   bool _reminder = false;
 
-  final Map<String, IconData> _habitOptions = {
-    'Drink Water': Icons.local_drink,
-    'Exercise': Icons.fitness_center,
-    'Meditate': Icons.self_improvement,
-    'Read': Icons.book,
-    'Sleep Early': Icons.bedtime,
-    'Study': Icons.school,
-    'Walk': Icons.directions_walk,
-    'Other': Icons.star_border,
-  };
+  late Map<String, IconData> _habitOptions;
 
   String _selectedHabit = 'Drink Water';
 
@@ -37,6 +29,25 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
     super.initState();
     // Set default points based on frequency
     _updateDefaultPoints();
+  }
+
+  void _initializeHabitOptions(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    _habitOptions = {
+      l10n.habitDrinkWater: Icons.local_drink,
+      l10n.habitExercise: Icons.fitness_center,
+      l10n.habitMeditate: Icons.self_improvement,
+      l10n.habitRead: Icons.book,
+      l10n.habitSleepEarly: Icons.bedtime,
+      l10n.habitStudy: Icons.school,
+      l10n.habitWalk: Icons.directions_walk,
+      l10n.habitOther: Icons.star_border,
+    };
+    
+    // Set default selected habit to first option
+    if (_selectedHabit == 'Drink Water') {
+      _selectedHabit = l10n.habitDrinkWater;
+    }
   }
 
   void _updateDefaultPoints() {
@@ -62,10 +73,13 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
 
   @override
   Widget build(BuildContext context) {
-    bool isCustom = _selectedHabit == 'Other';
+    final l10n = AppLocalizations.of(context)!;
+    _initializeHabitOptions(context);
+    
+    bool isCustom = _selectedHabit == l10n.habitOther;
 
     return AlertDialog(
-      title: const Text('Add New Habit'),
+      title: Text(l10n.addNewHabit),
       content: SingleChildScrollView(
         child: Column(
           children: [
@@ -84,24 +98,23 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
                 );
               }).toList(),
               onChanged: (v) => setState(() => _selectedHabit = v!),
-              decoration: const InputDecoration(labelText: 'Select Habit'),
+              decoration: InputDecoration(labelText: l10n.selectHabit),
             ),
             if (isCustom)
               Padding(
                 padding: const EdgeInsets.only(top: 10),
                 child: TextField(
                   controller: _customNameCtrl,
-                  decoration:
-                      const InputDecoration(labelText: 'Custom Habit Name'),
+                  decoration: InputDecoration(labelText: l10n.customHabitName),
                 ),
               ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
               value: _frequency,
-              items: const [
-                DropdownMenuItem(value: 'Daily', child: Text('Daily')),
-                DropdownMenuItem(value: 'Weekly', child: Text('Weekly')),
-                DropdownMenuItem(value: 'Monthly', child: Text('Monthly')),
+              items: [
+                DropdownMenuItem(value: 'Daily', child: Text(l10n.today)),
+                DropdownMenuItem(value: 'Weekly', child: Text(l10n.weekly)),
+                DropdownMenuItem(value: 'Monthly', child: Text(l10n.monthly)),
               ],
               onChanged: (v) {
                 setState(() {
@@ -109,20 +122,20 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
                   _updateDefaultPoints();
                 });
               },
-              decoration: const InputDecoration(labelText: 'Frequency'),
+              decoration: InputDecoration(labelText: l10n.frequency),
             ),
             const SizedBox(height: 12),
 
-            // Points Input Field - NEW
+            // Points Input Field
             TextField(
               controller: _pointsCtrl,
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               decoration: InputDecoration(
-                labelText: 'Reward Points',
+                labelText: l10n.rewardPoints,
                 prefixIcon: const Icon(Icons.stars, color: Colors.amber),
-                hintText: 'Points earned on completion',
-                helperText: 'Customize the reward for this habit',
+                hintText: l10n.pointsEarnedOnCompletion,
+                helperText: l10n.customizeReward,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -132,7 +145,7 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
 
             Row(
               children: [
-                const Text('Time:'),
+                Text(l10n.time),
                 const SizedBox(width: 8),
                 TextButton(
                   onPressed: () async {
@@ -143,14 +156,14 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
                     if (picked != null) setState(() => _time = picked);
                   },
                   child: Text(
-                    _time != null ? _time!.format(context) : 'Select time',
+                    _time != null ? _time!.format(context) : l10n.selectTime,
                     style: const TextStyle(color: AppColors.icon),
                   ),
                 ),
               ],
             ),
             SwitchListTile(
-              title: const Text('Set Reminder'),
+              title: Text(l10n.setReminder),
               activeThumbColor: AppColors.icon,
               value: _reminder,
               onChanged: (v) => setState(() => _reminder = v),
@@ -160,9 +173,9 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
       ),
       actions: [
         TextButton(
-          child: const Text(
-            'Cancel',
-            style: TextStyle(color: AppColors.textPrimary),
+          child: Text(
+            l10n.cancel,
+            style: const TextStyle(color: AppColors.textPrimary),
           ),
           onPressed: () => Navigator.pop(context),
         ),
@@ -173,7 +186,7 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
           onPressed: () {
             String title = isCustom
                 ? (_customNameCtrl.text.trim().isEmpty
-                    ? 'Custom Habit'
+                    ? l10n.customHabit
                     : _customNameCtrl.text.trim())
                 : _selectedHabit;
 
@@ -186,7 +199,7 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
-                    "This habit already exists with $_frequency frequency!",
+                    l10n.habitAlreadyExists(_frequency),
                   ),
                   backgroundColor: Colors.redAccent,
                 ),
@@ -198,8 +211,8 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
             int points = int.tryParse(_pointsCtrl.text) ?? 10;
             if (points <= 0) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Points must be greater than 0!'),
+                SnackBar(
+                  content: Text(l10n.pointsMustBeGreaterThanZero),
                   backgroundColor: Colors.redAccent,
                 ),
               );
@@ -218,13 +231,13 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
                 frequency: _frequency,
                 time: _time,
                 reminder: _reminder,
-                points: points, // Pass the custom points
+                points: points,
               ),
             );
           },
-          child: const Text(
-            'Add',
-            style: TextStyle(color: Colors.white),
+          child: Text(
+            l10n.add,
+            style: const TextStyle(color: Colors.white),
           ),
         ),
       ],

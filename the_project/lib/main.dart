@@ -127,7 +127,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
   debugShowCheckedModeBanner: false,
 
-  locale: const Locale('fr'), // ✅ FORCE FRENCH
+  locale: const Locale('ar'), // ✅ FORCE FRENCH
 
   localizationsDelegates: const [
     AppLocalizations.delegate,
@@ -138,6 +138,7 @@ class MyApp extends StatelessWidget {
   supportedLocales: const [
     Locale('en'),
     Locale('fr'),
+    Locale('ar'),
   ],
 
       home: BlocListener<AuthCubit, AuthState>(

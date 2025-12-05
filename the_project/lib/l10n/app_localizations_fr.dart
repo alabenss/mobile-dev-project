@@ -80,13 +80,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get noData => 'Aucune donnée';
 
   @override
-  String get noMoodData => 'Aucune donnée d’humeur disponible';
+  String get noMoodData => 'Aucune donnée d\'humeur disponible';
 
   @override
-  String get noWaterData => 'Aucune donnée d’eau disponible';
+  String get noWaterData => 'Aucune donnée d\'eau disponible';
 
   @override
-  String get noScreenTimeData => 'Aucune donnée du temps d’écran';
+  String get noScreenTimeData => 'Aucune donnée du temps d\'écran';
 
   @override
   String get moodCalm => 'Calme';
@@ -95,13 +95,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get moodBalanced => 'Équilibré';
 
   @override
-  String get moodLow => 'Humeur basse';
+  String get moodLow => 'Bas';
 
   @override
-  String get moodFeelingGreat => 'Vous vous sentez très bien';
+  String get moodFeelingGreat => 'Très bien';
 
   @override
-  String get moodNice => 'Bien';
+  String get moodNice => 'Bonne humeur';
 
   @override
   String get moodOkay => 'Correct';
@@ -113,7 +113,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get statsNoData => 'Aucune donnée';
 
   @override
-  String get statsNoMoodData => 'Aucune donnée d’humeur disponible';
+  String get statsNoMoodData => 'Aucune donnée d\'humeur disponible';
 
   @override
   String get statsRefreshingData => 'Actualisation des données...';
@@ -143,9 +143,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get statsEmptyWriteJournal => 'Écrivez dans votre journal';
 
   @override
-  String get moodOk => 'Moyen';
-
-  @override
   String get calm => 'Calme';
 
   @override
@@ -167,4 +164,139 @@ class AppLocalizationsFr extends AppLocalizations {
   String hoursPerDay(Object count) {
     return '$count h/jour';
   }
+
+  @override
+  String get addNewHabit => 'Ajouter une nouvelle habitude';
+
+  @override
+  String get selectHabit => 'Sélectionner une habitude';
+
+  @override
+  String get customHabitName => 'Nom personnalisé de l\'habitude';
+
+  @override
+  String get customHabit => 'Habitude personnalisée';
+
+  @override
+  String get frequency => 'Fréquence';
+
+  @override
+  String get rewardPoints => 'Points de récompense';
+
+  @override
+  String get pointsEarnedOnCompletion => 'Points gagnés à la complétion';
+
+  @override
+  String get customizeReward => 'Personnalisez la récompense pour cette habitude';
+
+  @override
+  String get time => 'Heure';
+
+  @override
+  String get selectTime => 'Sélectionner l\'heure';
+
+  @override
+  String get setReminder => 'Définir un rappel';
+
+  @override
+  String get cancel => 'Annuler';
+
+  @override
+  String get add => 'Ajouter';
+
+  @override
+  String habitAlreadyExists(String frequency) {
+    return 'Cette habitude existe déjà avec une fréquence $frequency !';
+  }
+
+  @override
+  String get pointsMustBeGreaterThanZero => 'Les points doivent être supérieurs à 0 !';
+
+  @override
+  String get habitDrinkWater => 'Boire de l\'eau';
+
+  @override
+  String get habitExercise => 'Exercice';
+
+  @override
+  String get habitMeditate => 'Méditer';
+
+  @override
+  String get habitRead => 'Lire';
+
+  @override
+  String get habitSleepEarly => 'Dormir tôt';
+
+  @override
+  String get habitStudy => 'Étudier';
+
+  @override
+  String get habitWalk => 'Marcher';
+
+  @override
+  String get habitOther => 'Autre';
+
+  @override
+  String get noHabitsYet => 'Aucune habitude pour l\'instant !\nAppuyez sur + pour ajouter votre première habitude';
+
+  @override
+  String get todaysHabits => 'Habitudes d\'aujourd\'hui';
+
+  @override
+  String get completed => 'Terminé';
+
+  @override
+  String get skipped => 'Ignoré';
+
+  @override
+  String get skipHabit => 'Ignorer l\'habitude ?';
+
+  @override
+  String skipHabitConfirmation(String habit) {
+    return 'Voulez-vous vraiment ignorer \"$habit\" ?';
+  }
+
+  @override
+  String get skip => 'Ignorer';
+
+  @override
+  String get deleteHabit => 'Supprimer l\'habitude ?';
+
+  @override
+  String deleteHabitConfirmation(String habit) {
+    return 'Voulez-vous vraiment supprimer définitivement \"$habit\" ?';
+  }
+
+  @override
+  String get actionCannotBeUndone => 'Cette action ne peut pas être annulée.';
+
+  @override
+  String get delete => 'Supprimer';
+
+  @override
+  String habitCompleted(String habit) {
+    return '$habit terminé !';
+  }
+
+  @override
+  String habitSkipped(String habit) {
+    return '$habit ignoré';
+  }
+
+  @override
+  String habitDeleted(String habit) {
+    return '🗑️ $habit supprimé';
+  }
+
+  @override
+  String get noDailyHabits => 'Aucune habitude quotidienne pour l\'instant';
+
+  @override
+  String get noWeeklyHabits => 'Aucune habitude hebdomadaire pour l\'instant';
+
+  @override
+  String get noMonthlyHabits => 'Aucune habitude mensuelle pour l\'instant';
+
+  @override
+  String get tapToAddHabit => 'Appuyez sur le bouton + pour ajouter une habitude';
 }
