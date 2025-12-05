@@ -12,6 +12,7 @@ class JournalEntryModel {
   final String? textColor;
   final double? fontSize;
   final List<String>? attachedImages;
+  final String? voicePath; // NEW: Voice note path
   
   final List<StickerData>? stickers;
 
@@ -27,6 +28,7 @@ class JournalEntryModel {
     this.textColor,
     this.fontSize,
     this.attachedImages,
+    this.voicePath, // NEW
     this.stickers,
   }) : isEmpty = false;
 
@@ -43,6 +45,7 @@ class JournalEntryModel {
         textColor = null,
         fontSize = null,
         attachedImages = null,
+        voicePath = null, // NEW
         stickers = null;
 
   // Copy with method for updates
@@ -58,6 +61,7 @@ class JournalEntryModel {
     String? textColor,
     double? fontSize,
     List<String>? attachedImages,
+    String? voicePath, // NEW
     List<StickerData>? stickers,
   }) {
     return JournalEntryModel(
@@ -72,6 +76,7 @@ class JournalEntryModel {
       textColor: textColor ?? this.textColor,
       fontSize: fontSize ?? this.fontSize,
       attachedImages: attachedImages ?? this.attachedImages,
+      voicePath: voicePath ?? this.voicePath, // NEW
       stickers: stickers ?? this.stickers,
     );
   }

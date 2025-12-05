@@ -24,6 +24,7 @@ class JournalRepository {
       'mood': entry.moodImage,
       'title': entry.title,
       'text': entry.fullText,
+      'voicePath': entry.voicePath, // NEW: Save voice path
       'backgroundImage': entry.backgroundImage,
       'fontFamily': entry.fontFamily,
       'textColor': entry.textColor,
@@ -54,6 +55,7 @@ class JournalRepository {
       'mood': entry.moodImage,
       'title': entry.title,
       'text': entry.fullText,
+      'voicePath': entry.voicePath, // NEW: Save voice path
       'backgroundImage': entry.backgroundImage,
       'fontFamily': entry.fontFamily,
       'textColor': entry.textColor,
@@ -158,12 +160,12 @@ class JournalRepository {
     }
 
     return JournalEntryModel(
-      id: row['id'] as int?, // IMPORTANT: Include the ID
       dateLabel: dateLabel,
       date: date,
       moodImage: row['mood'] as String,
       title: row['title'] as String? ?? '',
       fullText: row['text'] as String? ?? '',
+      voicePath: row['voicePath'] as String?, // NEW: Load voice path
       backgroundImage: row['backgroundImage'] as String?,
       fontFamily: row['fontFamily'] as String?,
       textColor: row['textColor'] as String?,

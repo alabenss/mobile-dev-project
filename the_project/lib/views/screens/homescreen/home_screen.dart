@@ -19,7 +19,6 @@ import '../../widgets/home/explore_card.dart';
 import '../../../logic/home/home_cubit.dart';
 import '../../../logic/home/home_state.dart';
 import '../../../logic/auth/auth_cubit.dart';
-import '../../../logic/auth/auth_state.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback? onViewAllHabits;

@@ -5,6 +5,8 @@ import '../../widgets/journal/journal_entry_model.dart';
 import '../../widgets/journal/sticker_picker_bottom_sheet.dart';
 import '../../widgets/journal/background_picker_bottom_sheet.dart';
 import '../../widgets/journal/mood_picker_bottom_sheet.dart';
+import '../../widgets/journal/voice_recorder_widget.dart';
+import '../../widgets/journal/voice_note_player.dart';
 import '../../themes/style_simple/app_background.dart';
 import '../../widgets/journal/font_style_bottom_sheet.dart';
 import '../../widgets/journal/journal_top_bar.dart';
@@ -50,6 +52,7 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
 
   final List<String> _attachedImagePaths = [];
   final List<String> _stickerPaths = [];
+  String? _voiceNotePath; // NEW: Voice note path
   final ImagePicker _imagePicker = ImagePicker();
 
   @override
@@ -74,6 +77,9 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
       if (widget.existingEntry!.attachedImages != null) {
         _attachedImagePaths.addAll(widget.existingEntry!.attachedImages!);
       }
+      
+      // Load voice note if exists
+      _voiceNotePath = widget.existingEntry!.voicePath;
     } else {
       final now = DateTime.now();
       _selectedDate = widget.initialMonth != null && widget.initialYear != null
@@ -192,6 +198,19 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
                           ),
 
                           const SizedBox(height: 16),
+
+                          // Voice note player (if exists)
+                          if (_voiceNotePath != null)
+                            VoiceNotePlayer(
+                              voicePath: _voiceNotePath!,
+                              onDelete: () {
+                                setState(() {
+                                  _voiceNotePath = null;
+                                });
+                              },
+                            ),
+
+                          const SizedBox(height: 16),
                         ],
                       ),
                     ),
@@ -203,6 +222,7 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
                     onPickImage: _pickImage,
                     onStickers: _showStickerPicker,
                     onTextStyle: _showFontStylePicker,
+                    onVoiceNote: _showVoiceRecorder, // NEW: Voice note handler
                   ),
                 ],
               ),
@@ -290,6 +310,21 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
     }
   }
 
+  // NEW: Show voice recorder
+  void _showVoiceRecorder() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => VoiceRecorderWidget(
+        onRecordingComplete: (audioPath) {
+          setState(() {
+            _voiceNotePath = audioPath;
+          });
+        },
+      ),
+    );
+  }
+
   void _save() {
     final title = _titleCtrl.text.trim();
     final body = _bodyCtrl.text.trim();
@@ -301,34 +336,24 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
       return;
     }
 
-    // Determine if we're editing or creating
-    final isEditing = widget.existingEntry != null;
-
-    // Create entry
+    // Create entry with current date and time (allows multiple journals per day)
     final entry = JournalEntryModel(
-      id: widget.existingEntry?.id, // PRESERVE ID when editing
       dateLabel: _dateLabel,
-      date: isEditing 
-          ? widget.existingEntry!.date  // Keep original date when editing
-          : DateTime.now(),              // Use current time when creating new
-      moodImage: _selectedMood,
+      date: DateTime.now(), // Use current time to allow multiple journals per day
+      moodImage: _selectedMood, // Save the selected mood
       title: title,
       fullText: body,
-      backgroundImage: _backgroundImage.isEmpty ? null : _backgroundImage,
+      backgroundImage:
+          _backgroundImage.isEmpty ? null : _backgroundImage,
       fontFamily: _fontFamily,
       textColor: _colorToHex(_textColor),
       fontSize: _fontSize,
-      attachedImages: _attachedImagePaths.isEmpty ? null : _attachedImagePaths,
+      attachedImages:
+          _attachedImagePaths.isEmpty ? null : _attachedImagePaths,
+      voicePath: _voiceNotePath, // NEW: Save voice note path
     );
 
     Navigator.of(context).pop(entry);
-  }
-
-  @override
-  void dispose() {
-    _titleCtrl.dispose();
-    _bodyCtrl.dispose();
-    super.dispose();
   }
 }
 

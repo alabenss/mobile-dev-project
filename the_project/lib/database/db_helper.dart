@@ -266,7 +266,7 @@ class DBHelper {
   }
 
 static Future<int> getUserStars(int userId) async {
-  final db = await DBHelper.database;;
+  final db = await DBHelper.database;
   final result = await db.query(
     'users',
     columns: ['stars'],
