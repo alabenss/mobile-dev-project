@@ -3,11 +3,10 @@ import 'package:sqflite/sqflite.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:the_project/database/db_helper.dart';
 import 'package:the_project/views/widgets/stats/range_selector_widget.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class StatsData {
   final List<double> waterData;
-  final List<double> moodData;
+  final List<double> moodData; // 0..1
   final int journalingCount;
   final Map<String, double> screenTime;
   final List<String> labels;
@@ -164,6 +163,7 @@ class StatsRepo {
     }
   }
 
+  /// Generate empty placeholder data based on range
   StatsData _generateEmptyData(StatsRange range) {
     final today = DateTime.now();
 
@@ -191,8 +191,6 @@ class StatsRepo {
         );
       case StatsRange.monthly:
         return StatsData(
-          waterData: List.filled(4, 0.0),
-          moodData: List.filled(4, 0.5),
           waterData: List.filled(4, 0.0),
           moodData: List.filled(4, 0.5),
           journalingCount: 0,

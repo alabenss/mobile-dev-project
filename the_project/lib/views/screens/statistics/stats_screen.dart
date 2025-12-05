@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:the_project/l10n/app_localizations.dart';
@@ -19,14 +18,8 @@ import 'package:the_project/logic/statistics/stats_state.dart';
 import 'package:the_project/database/db_helper.dart';
 
 class StatsScreen extends StatefulWidget {
-class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});
 
-  @override
-  State<StatsScreen> createState() => _StatsScreenState();
-}
-
-class _StatsScreenState extends State<StatsScreen> {
   @override
   State<StatsScreen> createState() => _StatsScreenState();
 }
@@ -196,7 +189,6 @@ class _StatsScreenState extends State<StatsScreen> {
             const SizedBox(height: 8),
             Text(
               state.message,
-              state.message,
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 color: AppColors.textPrimary.withOpacity(0.6),
@@ -259,8 +251,8 @@ class _StatsScreenState extends State<StatsScreen> {
     required StatsLoaded state,
     required AppLocalizations t,
   }) {
-    final hasData = state.waterData.any((w) => w > 0) ||
-        state.moodData.any((m) => m != 0.5) ||
+    final hasData = state.waterData.isNotEmpty ||
+        state.moodData.isNotEmpty ||
         state.journalingCount > 0;
 
     return SingleChildScrollView(
