@@ -7,38 +7,45 @@ import 'plant_state.dart';
 class PlantCubit extends Cubit<PlantState> {
   PlantCubit() : super(const PlantState());
 
-  // Load initial points and plant progress from storage
+  static const int _waterCost = 30;
+  static const int _sunCost = 25;
+  static const double _step = 0.2;   // 20% per action
+  static const int _maxStage = 3;    // After this → reset + give star
+
+  // Load user progress
   Future<void> loadInitial() async {
     final prefs = await SharedPreferences.getInstance();
-    
-    // Get current user ID
-    final userId = prefs.getInt('userId') ?? await DBHelper.ensureDefaultUser();
-    
-    // Get points for the logged-in user
+
+    final userId =
+        prefs.getInt('userId') ?? await DBHelper.ensureDefaultUser();
+
+    final stars = await DBHelper.getUserStars(userId);
+
     final points = await _getUserPoints(userId);
-    
-    // Load saved plant progress for this user
+
     final water = prefs.getDouble('plant_water_$userId') ?? 0.0;
     final sunlight = prefs.getDouble('plant_sunlight_$userId') ?? 0.0;
     final stage = prefs.getInt('plant_stage_$userId') ?? 0;
-    
+
     emit(state.copyWith(
       availablePoints: points,
       water: water,
       sunlight: sunlight,
       stage: stage,
+      stars: stars,
     ));
   }
 
-  static const int _waterCost = 5;
-  static const int _sunCost = 4;
-  static const double _step = 0.2; // each action adds 20%
+  // -------------------------------------------------------
+  // ACTIONS
+  // -------------------------------------------------------
 
   Future<void> spendWater() async {
     if (state.availablePoints < _waterCost || state.water >= 1.0) return;
 
     final newPoints = state.availablePoints - _waterCost;
     final newWater = (state.water + _step).clamp(0.0, 1.0);
+
     await _applyProgress(newPoints, newWater, state.sunlight);
   }
 
@@ -47,23 +54,39 @@ class PlantCubit extends Cubit<PlantState> {
 
     final newPoints = state.availablePoints - _sunCost;
     final newSun = (state.sunlight + _step).clamp(0.0, 1.0);
+
     await _applyProgress(newPoints, state.water, newSun);
   }
 
-  Future<void> _applyProgress(
-    int newPoints,
-    double water,
-    double sunlight,
-  ) async {
-    var stage = state.stage;
-    var w = water;
-    var s = sunlight;
+  // -------------------------------------------------------
+  // CORE PROGRESS LOGIC
+  // -------------------------------------------------------
 
-    // If both full → grow stage, reset meters
+  Future<void> _applyProgress(
+      int newPoints, double water, double sunlight) async {
+    int stage = state.stage;
+    int stars = state.stars;
+    double w = water;
+    double s = sunlight;
+    final prefs = await SharedPreferences.getInstance();
+    final userId =
+        prefs.getInt('userId') ?? await DBHelper.ensureDefaultUser();
+
+    // When both bars full → stage up
     if (w >= 1.0 && s >= 1.0) {
-      stage = stage + 1;
-      w = 0.0;
-      s = 0.0;
+      // If not max stage → normal growth
+      if (stage < _maxStage) {
+        stage += 1;
+        w = 0.0;
+        s = 0.0;
+      } else {
+        // Max stage reached → reward + reset
+        stars += 1;       // ⭐ Give user a star
+        await DBHelper.updateUserStars(userId, stars);
+        stage = 0;        // Reset plant to start
+        w = 0.0;
+        s = 0.0;
+      }
     }
 
     emit(state.copyWith(
@@ -71,12 +94,18 @@ class PlantCubit extends Cubit<PlantState> {
       water: w,
       sunlight: s,
       stage: stage,
+      stars: stars,
     ));
 
-    // Persist everything
+    // Persist
     await _setUserPoints(newPoints);
-    await _savePlantProgress(w, s, stage);
+    await _savePlantProgress(w, s, stage, stars);
+    
   }
+
+  // -------------------------------------------------------
+  // DATABASE / STORAGE
+  // -------------------------------------------------------
 
   Future<int> _getUserPoints(int userId) async {
     final db = await DBHelper.database;
@@ -87,7 +116,7 @@ class PlantCubit extends Cubit<PlantState> {
       whereArgs: [userId],
       limit: 1,
     );
-    
+
     if (result.isNotEmpty) {
       final value = result.first['totalPoints'];
       if (value is int) return value;
@@ -98,8 +127,9 @@ class PlantCubit extends Cubit<PlantState> {
 
   Future<void> _setUserPoints(int points) async {
     final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getInt('userId') ?? await DBHelper.ensureDefaultUser();
-    
+    final userId =
+        prefs.getInt('userId') ?? await DBHelper.ensureDefaultUser();
+
     final db = await DBHelper.database;
     await db.update(
       'users',
@@ -109,12 +139,15 @@ class PlantCubit extends Cubit<PlantState> {
     );
   }
 
-  Future<void> _savePlantProgress(double water, double sunlight, int stage) async {
+  Future<void> _savePlantProgress(
+      double water, double sunlight, int stage, int stars) async {
     final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getInt('userId') ?? await DBHelper.ensureDefaultUser();
-    
+    final userId =
+        prefs.getInt('userId') ?? await DBHelper.ensureDefaultUser();
+
     await prefs.setDouble('plant_water_$userId', water);
     await prefs.setDouble('plant_sunlight_$userId', sunlight);
     await prefs.setInt('plant_stage_$userId', stage);
+    await prefs.setInt('plant_stars_$userId', stars);
   }
 }

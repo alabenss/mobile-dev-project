@@ -27,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
       final success = await context.read<AuthCubit>().login(
-        _emailController.text.trim(),
+        _emailController.text.trim(), // email or username
         _passwordController.text,
       );
 
@@ -95,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 48),
 
-                        // Email Field
+                        // Email or Username Field
                         Container(
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.9),
@@ -103,18 +103,19 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           child: TextFormField(
                             controller: _emailController,
-                            keyboardType: TextInputType.emailAddress,
+                            keyboardType: TextInputType.text,
                             decoration: const InputDecoration(
-                              labelText: 'Email',
-                              prefixIcon: Icon(Icons.email_outlined),
+                              labelText: 'Email or Username',
+                              prefixIcon: Icon(Icons.person_outline),
                               border: InputBorder.none,
                               contentPadding: EdgeInsets.all(16),
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Please enter your email';
+                                return 'Please enter your email or username';
                               }
-                              if (!value.contains('@')) {
+                              // Optional email validation
+                              if (value.contains('@') && !value.contains('.')) {
                                 return 'Please enter a valid email';
                               }
                               return null;

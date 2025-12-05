@@ -18,6 +18,7 @@ import 'database/repo/journal_repository.dart';
 import 'database/repo/daily_mood_repository.dart';
 
 import 'views/widgets/common/bottom_nav_wrapper.dart';
+import 'views/widgets/home/phone_lock_wrapper.dart'; // Add this import
 import 'views/screens/settings/profile.dart';
 import 'views/screens/settings/app_lock_screen.dart';
 import 'views/screens/auth/login_screen.dart';
@@ -88,8 +89,10 @@ class MyApp extends StatelessWidget {
               return const LoginScreen();
             }
             
-            // Show main app if authenticated
-            return const BottomNavWrapper();
+            // Wrap main app with PhoneLockWrapper when authenticated
+            return const PhoneLockWrapper(
+              child: BottomNavWrapper(),
+            );
           },
         ),
       ),

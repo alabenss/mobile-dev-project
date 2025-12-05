@@ -11,6 +11,13 @@ class HomeState {
   final String? selectedMoodImage;
   final String? selectedMoodLabel;
   final DateTime? selectedMoodTime;
+  
+  // Timer fields
+  final bool isPhoneLocked;
+  final DateTime? lockEndTime;
+  
+  // Permission tracking
+  final bool permissionDenied;
 
   const HomeState({
     this.waterCount = 4,
@@ -21,6 +28,9 @@ class HomeState {
     this.selectedMoodImage,
     this.selectedMoodLabel,
     this.selectedMoodTime,
+    this.isPhoneLocked = false,
+    this.lockEndTime,
+    this.permissionDenied = false,
   });
 
   HomeState copyWith({
@@ -33,6 +43,10 @@ class HomeState {
     String? selectedMoodLabel,
     DateTime? selectedMoodTime,
     bool clearMood = false,
+    bool? isPhoneLocked,
+    DateTime? lockEndTime,
+    bool clearLock = false,
+    bool? permissionDenied,
   }) {
     return HomeState(
       waterCount: waterCount ?? this.waterCount,
@@ -46,6 +60,9 @@ class HomeState {
           clearMood ? null : (selectedMoodLabel ?? this.selectedMoodLabel),
       selectedMoodTime:
           clearMood ? null : (selectedMoodTime ?? this.selectedMoodTime),
+      isPhoneLocked: clearLock ? false : (isPhoneLocked ?? this.isPhoneLocked),
+      lockEndTime: clearLock ? null : (lockEndTime ?? this.lockEndTime),
+      permissionDenied: permissionDenied ?? this.permissionDenied,
     );
   }
 }

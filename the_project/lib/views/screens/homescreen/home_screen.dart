@@ -32,6 +32,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   // Access widget properties through widget.propertyName
   VoidCallback? get onViewAllHabits => widget.onViewAllHabits;
+  
   @override
   void initState() {
     super.initState();
@@ -115,6 +116,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           progress: state.detoxProgress,
                           onLockPhone: homeCubit.increaseDetox,
                           onReset: homeCubit.resetDetox,
+                          isLocked: state.isPhoneLocked,
+                          lockEndTime: state.lockEndTime,
+                          onDisableLock: homeCubit.disableLock,
+                          permissionDenied: state.permissionDenied,
+                          onPermissionDeniedDismiss: homeCubit.clearPermissionDenied,
                         ),
                       ),
                     ],

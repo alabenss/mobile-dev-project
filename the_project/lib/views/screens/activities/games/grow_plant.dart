@@ -55,6 +55,26 @@ class _GrowPlantView extends StatelessWidget {
                 ),
                 const SizedBox(height: 14),
 
+                _SoftCard(
+  child: Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      const Icon(Icons.star, color: AppColors.accentOrange, size: 28),
+      const SizedBox(width: 8),
+      Text(
+        'Stars: ${state.stars}',
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          color: AppColors.textPrimary,
+        ),
+      ),
+    ],
+  ),
+),
+const SizedBox(height: 14),
+
+
                 // Plant preview - RIVE ANIMATION
                 _SoftCard(
                   padding: const EdgeInsets.fromLTRB(18, 18, 18, 22),
@@ -141,10 +161,10 @@ class _GrowPlantView extends StatelessWidget {
                         icon: Icons.water_drop_rounded,
                         color: AppColors.accentBlue,
                         value: state.water,
-                        actionLabel: 'Water (5)',
-                        helper: 'Spend 5 pts',
+                        actionLabel: 'Water (30)',
+                        helper: 'Spend 30 pts',
                         enabled:
-                            state.availablePoints >= 5 && state.water < 1.0,
+                            state.availablePoints >= 30 && state.water < 1.0,
                         onPressed: () => cubit.spendWater(),
                       ),
                       const SizedBox(height: 12),
@@ -153,10 +173,10 @@ class _GrowPlantView extends StatelessWidget {
                         icon: Icons.wb_sunny_rounded,
                         color: AppColors.accentOrange,
                         value: state.sunlight,
-                        actionLabel: 'Sun (4)',
-                        helper: 'Spend 4 pts',
+                        actionLabel: 'Sun (25)',
+                        helper: 'Spend 25 pts',
                         enabled:
-                            state.availablePoints >= 4 && state.sunlight < 1.0,
+                            state.availablePoints >= 25 && state.sunlight < 1.0,
                         onPressed: () => cubit.spendSun(),
                       ),
                     ],
