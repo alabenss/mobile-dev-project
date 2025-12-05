@@ -41,6 +41,15 @@ class JournalingStatsWidget extends StatelessWidget {
         list.add(Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            Text(
+              '0',
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary.withOpacity(0.3),
+              ),
+            ),
+            const SizedBox(height: 4),
             Container(
               width: 44,
               height: 44,
@@ -49,12 +58,10 @@ class JournalingStatsWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Center(
-                child: Text(
-                  '',
-                  style: GoogleFonts.poppins(
-                      fontSize: 14, 
-                      fontWeight: FontWeight.w700,
-                      color: Colors.transparent),
+                child: Icon(
+                  Icons.circle_outlined,
+                  size: 20,
+                  color: AppColors.textPrimary.withOpacity(0.2),
                 ),
               ),
             ),
@@ -81,19 +88,18 @@ class JournalingStatsWidget extends StatelessWidget {
       list.add(Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Show count above bubble if there are entries
-          if (hasEntry) ...[
-            Text(
-              '$entryCount',
-              style: GoogleFonts.poppins(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: AppColors.peach,
-              ),
+          // Always show count above bubble
+          Text(
+            '$entryCount',
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: hasEntry 
+                  ? AppColors.peach 
+                  : AppColors.textPrimary.withOpacity(0.3),
             ),
-            const SizedBox(height: 4),
-          ] else
-            const SizedBox(height: 20), // Spacing when no entry
+          ),
+          const SizedBox(height: 4),
           
           Container(
             width: 44,
