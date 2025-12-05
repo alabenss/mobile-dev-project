@@ -693,4 +693,162 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sportArticleStartActivityCta => 'Start an activity';
+
+  @override
+  String get journalSelectDay => 'Select a day to view journals';
+
+  @override
+  String get journalNoEntries => 'No journals for this day';
+
+  @override
+  String get journalDeleteTitle => 'Delete Journal';
+
+  @override
+  String get journalDeleteMessage => 'Are you sure you want to delete this journal entry?';
+
+  @override
+  String get journalDeleteSuccess => 'Journal deleted successfully';
+
+  @override
+  String get journalDeletedSuccessfully => 'Journal deleted successfully';
+
+  @override
+  String get journalUpdatedSuccessfully => 'Journal updated successfully';
+
+  @override
+  String get journalCannotCreateFuture => 'Cannot create journal for future dates';
+
+  @override
+  String get journalWriteTitle => 'Write Journal';
+
+  @override
+  String get journalSave => 'Save';
+
+  @override
+  String get journalTitle => 'Title';
+
+  @override
+  String get journalWriteMore => 'Write more here...';
+
+  @override
+  String get journalAddTitle => 'Please add a title';
+
+  @override
+  String get journalMoodTitle => 'How do you feel today?';
+
+  @override
+  String get journalSelectBackground => 'Select Background';
+
+  @override
+  String get journalNoBackground => 'No Background';
+
+  @override
+  String get journalSelectSticker => 'Select Sticker';
+
+  @override
+  String get journalTextStyle => 'Text Style';
+
+  @override
+  String get journalFontFamily => 'Font Family';
+
+  @override
+  String get journalTextColor => 'Text Color';
+
+  @override
+  String get journalFontSize => 'Font Size';
+
+  @override
+  String get journalApply => 'Apply';
+
+  @override
+  String get journalVoiceNote => 'Voice Note';
+
+  @override
+  String get journalVoiceRecording => 'Recording...';
+
+  @override
+  String get journalVoiceSaved => 'Recording saved';
+
+  @override
+  String get journalVoiceTapToStart => 'Tap to start recording';
+
+  @override
+  String get journalVoiceAddNote => 'Add Voice Note';
+
+  @override
+  String get journalVoicePermissionDenied => 'Microphone permission denied';
+
+  @override
+  String journalVoiceStartFailed(String error) {
+    return 'Failed to start recording: $error';
+  }
+
+  @override
+  String journalVoiceStopFailed(String error) {
+    return 'Failed to stop recording: $error';
+  }
+
+  @override
+  String journalVoicePlayFailed(String error) {
+    return 'Failed to play recording: $error';
+  }
+
+  @override
+  String get journalToolbarBackground => 'Background';
+
+  @override
+  String get journalToolbarAddImage => 'Add Image';
+
+  @override
+  String get journalToolbarStickers => 'Stickers';
+
+  @override
+  String get journalToolbarTextStyle => 'Text Style';
+
+  @override
+  String get journalToolbarVoiceNote => 'Voice note';
+
+  @override
+  String journalErrorPickingImage(String error) {
+    return 'Error picking image: $error';
+  }
+
+  @override
+  String get journalMoodHappy => 'Happy';
+
+  @override
+  String get journalMoodGood => 'Good';
+
+  @override
+  String get journalMoodExcited => 'Excited';
+
+  @override
+  String get journalMoodCalm => 'Calm';
+
+  @override
+  String get journalMoodSad => 'Sad';
+
+  @override
+  String get journalMoodTired => 'Tired';
+
+  @override
+  String get journalMoodAnxious => 'Anxious';
+
+  @override
+  String get journalMoodAngry => 'Angry';
+
+  @override
+  String get journalMoodConfused => 'Confused';
+
+  @override
+  String get journalMoodGrateful => 'Grateful';
+
+  @override
+  String get commonCancel => 'Cancel';
+
+  @override
+  String get commonDelete => 'Delete';
+
+  @override
+  String get commonClose => 'Close';
 }

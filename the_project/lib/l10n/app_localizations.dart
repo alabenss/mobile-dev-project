@@ -1344,6 +1344,306 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Start an activity'**
   String get sportArticleStartActivityCta;
+
+  /// No description provided for @journalSelectDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a day to view journals'**
+  String get journalSelectDay;
+
+  /// No description provided for @journalNoEntries.
+  ///
+  /// In en, this message translates to:
+  /// **'No journals for this day'**
+  String get journalNoEntries;
+
+  /// No description provided for @journalDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Journal'**
+  String get journalDeleteTitle;
+
+  /// No description provided for @journalDeleteMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this journal entry?'**
+  String get journalDeleteMessage;
+
+  /// No description provided for @journalDeleteSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Journal deleted successfully'**
+  String get journalDeleteSuccess;
+
+  /// No description provided for @journalDeletedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Journal deleted successfully'**
+  String get journalDeletedSuccessfully;
+
+  /// No description provided for @journalUpdatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Journal updated successfully'**
+  String get journalUpdatedSuccessfully;
+
+  /// No description provided for @journalCannotCreateFuture.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot create journal for future dates'**
+  String get journalCannotCreateFuture;
+
+  /// No description provided for @journalWriteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Write Journal'**
+  String get journalWriteTitle;
+
+  /// No description provided for @journalSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get journalSave;
+
+  /// No description provided for @journalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get journalTitle;
+
+  /// No description provided for @journalWriteMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Write more here...'**
+  String get journalWriteMore;
+
+  /// No description provided for @journalAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Please add a title'**
+  String get journalAddTitle;
+
+  /// No description provided for @journalMoodTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How do you feel today?'**
+  String get journalMoodTitle;
+
+  /// No description provided for @journalSelectBackground.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Background'**
+  String get journalSelectBackground;
+
+  /// No description provided for @journalNoBackground.
+  ///
+  /// In en, this message translates to:
+  /// **'No Background'**
+  String get journalNoBackground;
+
+  /// No description provided for @journalSelectSticker.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Sticker'**
+  String get journalSelectSticker;
+
+  /// No description provided for @journalTextStyle.
+  ///
+  /// In en, this message translates to:
+  /// **'Text Style'**
+  String get journalTextStyle;
+
+  /// No description provided for @journalFontFamily.
+  ///
+  /// In en, this message translates to:
+  /// **'Font Family'**
+  String get journalFontFamily;
+
+  /// No description provided for @journalTextColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Text Color'**
+  String get journalTextColor;
+
+  /// No description provided for @journalFontSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Font Size'**
+  String get journalFontSize;
+
+  /// No description provided for @journalApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get journalApply;
+
+  /// No description provided for @journalVoiceNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice Note'**
+  String get journalVoiceNote;
+
+  /// No description provided for @journalVoiceRecording.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording...'**
+  String get journalVoiceRecording;
+
+  /// No description provided for @journalVoiceSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording saved'**
+  String get journalVoiceSaved;
+
+  /// No description provided for @journalVoiceTapToStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to start recording'**
+  String get journalVoiceTapToStart;
+
+  /// No description provided for @journalVoiceAddNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Voice Note'**
+  String get journalVoiceAddNote;
+
+  /// No description provided for @journalVoicePermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Microphone permission denied'**
+  String get journalVoicePermissionDenied;
+
+  /// No description provided for @journalVoiceStartFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to start recording: {error}'**
+  String journalVoiceStartFailed(String error);
+
+  /// No description provided for @journalVoiceStopFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to stop recording: {error}'**
+  String journalVoiceStopFailed(String error);
+
+  /// No description provided for @journalVoicePlayFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to play recording: {error}'**
+  String journalVoicePlayFailed(String error);
+
+  /// No description provided for @journalToolbarBackground.
+  ///
+  /// In en, this message translates to:
+  /// **'Background'**
+  String get journalToolbarBackground;
+
+  /// No description provided for @journalToolbarAddImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Image'**
+  String get journalToolbarAddImage;
+
+  /// No description provided for @journalToolbarStickers.
+  ///
+  /// In en, this message translates to:
+  /// **'Stickers'**
+  String get journalToolbarStickers;
+
+  /// No description provided for @journalToolbarTextStyle.
+  ///
+  /// In en, this message translates to:
+  /// **'Text Style'**
+  String get journalToolbarTextStyle;
+
+  /// No description provided for @journalToolbarVoiceNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice note'**
+  String get journalToolbarVoiceNote;
+
+  /// No description provided for @journalErrorPickingImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Error picking image: {error}'**
+  String journalErrorPickingImage(String error);
+
+  /// No description provided for @journalMoodHappy.
+  ///
+  /// In en, this message translates to:
+  /// **'Happy'**
+  String get journalMoodHappy;
+
+  /// No description provided for @journalMoodGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Good'**
+  String get journalMoodGood;
+
+  /// No description provided for @journalMoodExcited.
+  ///
+  /// In en, this message translates to:
+  /// **'Excited'**
+  String get journalMoodExcited;
+
+  /// No description provided for @journalMoodCalm.
+  ///
+  /// In en, this message translates to:
+  /// **'Calm'**
+  String get journalMoodCalm;
+
+  /// No description provided for @journalMoodSad.
+  ///
+  /// In en, this message translates to:
+  /// **'Sad'**
+  String get journalMoodSad;
+
+  /// No description provided for @journalMoodTired.
+  ///
+  /// In en, this message translates to:
+  /// **'Tired'**
+  String get journalMoodTired;
+
+  /// No description provided for @journalMoodAnxious.
+  ///
+  /// In en, this message translates to:
+  /// **'Anxious'**
+  String get journalMoodAnxious;
+
+  /// No description provided for @journalMoodAngry.
+  ///
+  /// In en, this message translates to:
+  /// **'Angry'**
+  String get journalMoodAngry;
+
+  /// No description provided for @journalMoodConfused.
+  ///
+  /// In en, this message translates to:
+  /// **'Confused'**
+  String get journalMoodConfused;
+
+  /// No description provided for @journalMoodGrateful.
+  ///
+  /// In en, this message translates to:
+  /// **'Grateful'**
+  String get journalMoodGrateful;
+
+  /// No description provided for @commonCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get commonCancel;
+
+  /// No description provided for @commonDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get commonDelete;
+
+  /// No description provided for @commonClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get commonClose;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:the_project/l10n/app_localizations.dart';
 import 'package:the_project/views/themes/style_simple/colors.dart';
 import '../../themes/style_simple/app_background.dart';
 import '../../widgets/journal/journal_entry_model.dart';
@@ -22,12 +23,10 @@ class _JournalingScreenState extends State<JournalingScreen> {
   @override
   void initState() {
     super.initState();
-    // Load journals for current month and auto-select today's date
     final now = DateTime.now();
     final cubit = context.read<JournalCubit>();
     
     cubit.loadJournalsByMonth(now.month, now.year).then((_) {
-      // After loading, auto-select today's date
       final todayLabel = _formatDate(now);
       cubit.filterByDateLabel(todayLabel);
     });
@@ -63,6 +62,8 @@ class _JournalingScreenState extends State<JournalingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       backgroundColor: Colors.transparent,
       floatingActionButton: FloatingActionButton(
@@ -74,7 +75,6 @@ class _JournalingScreenState extends State<JournalingScreen> {
       body: AppBackground(
         child: BlocConsumer<JournalCubit, JournalState>(
           listener: (context, state) {
-            // Show error if any
             if (state.error != null) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -120,7 +120,7 @@ class _JournalingScreenState extends State<JournalingScreen> {
                   const SizedBox(height: 20),
                   
                   Expanded(
-                    child: _buildJournalList(state),
+                    child: _buildJournalList(state, l10n),
                   ),
                 ],
               ),
@@ -131,7 +131,7 @@ class _JournalingScreenState extends State<JournalingScreen> {
     );
   }
 
-  Widget _buildJournalList(JournalState state) {
+  Widget _buildJournalList(JournalState state, AppLocalizations l10n) {
     if (state.status == JournalStatus.loading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -139,7 +139,7 @@ class _JournalingScreenState extends State<JournalingScreen> {
     if (state.selectedDateLabel == null) {
       return Center(
         child: Text(
-          'Select a day to view journals',
+          l10n.journalSelectDay,
           style: TextStyle(
             color: AppColors.textSecondary,
             fontSize: 16,
@@ -151,7 +151,7 @@ class _JournalingScreenState extends State<JournalingScreen> {
     if (state.filteredJournals.isEmpty) {
       return Center(
         child: Text(
-          'No journals for this day',
+          l10n.journalNoEntries,
           style: TextStyle(
             color: AppColors.textSecondary,
             fontSize: 16,
@@ -187,21 +187,19 @@ class _JournalingScreenState extends State<JournalingScreen> {
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: const Text('Delete Journal'),
-                    content: const Text(
-                      'Are you sure you want to delete this journal entry?',
-                    ),
+                    title: Text(l10n.journalDeleteTitle),
+                    content: Text(l10n.journalDeleteMessage),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.of(context).pop(false),
-                        child: const Text('Cancel'),
+                        child: Text(l10n.commonCancel),
                       ),
                       TextButton(
                         onPressed: () => Navigator.of(context).pop(true),
                         style: TextButton.styleFrom(
                           foregroundColor: AppColors.error,
                         ),
-                        child: const Text('Delete'),
+                        child: Text(l10n.commonDelete),
                       ),
                     ],
                   );
@@ -216,8 +214,8 @@ class _JournalingScreenState extends State<JournalingScreen> {
                 
                 if (success && mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Journal deleted successfully'),
+                    SnackBar(
+                      content: Text(l10n.journalDeletedSuccessfully),
                       backgroundColor: AppColors.accentGreen,
                     ),
                   );
@@ -244,9 +242,9 @@ class _JournalingScreenState extends State<JournalingScreen> {
   }
 
   Future<void> _openWritePage({String? initialDateLabel}) async {
+    final l10n = AppLocalizations.of(context)!;
     final cubit = context.read<JournalCubit>();
     
-    // Verify the date is not in the future
     if (initialDateLabel != null) {
       final selectedDate = _parseDateLabel(
         initialDateLabel,
@@ -257,8 +255,8 @@ class _JournalingScreenState extends State<JournalingScreen> {
       
       if (selectedDate.isAfter(today)) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Cannot create journal for future dates'),
+          SnackBar(
+            content: Text(l10n.journalCannotCreateFuture),
             backgroundColor: AppColors.error,
           ),
         );
@@ -299,6 +297,7 @@ class _JournalingScreenState extends State<JournalingScreen> {
   }
 
   Future<void> _openEditPage(JournalEntryModel entry) async {
+    final l10n = AppLocalizations.of(context)!;
     final result = await Navigator.of(context).push<JournalEntryModel>(
       MaterialPageRoute(
         builder: (_) => WriteJournalScreen.edit(existingEntry: entry),
@@ -310,8 +309,8 @@ class _JournalingScreenState extends State<JournalingScreen> {
         final success = await context.read<JournalCubit>().updateJournal(entry.id!, result);
         if (success && mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Journal updated successfully'),
+            SnackBar(
+              content: Text(l10n.journalUpdatedSuccessfully),
               backgroundColor: AppColors.accentGreen,
             ),
           );

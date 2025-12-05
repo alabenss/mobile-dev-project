@@ -343,7 +343,92 @@
   "sportArticleQuote": "احضر فقط لمدة 5 دقائق. في أغلب الأيام، هذا يكفي للبدء.",
   "sportArticleRememberTitle": "تذكّر",
   "sportArticleRememberBody": "اختر حركة تجعلك تبتسم — ليس فقط تتعرّق. المتعة تصنع الاستمرارية، والاستمرارية ترفع المزاج.",
-  "sportArticleStartActivityCta": "ابدأ نشاطًا"
+  "sportArticleStartActivityCta": "ابدأ نشاطًا",
+  "journalSelectDay": "اختر يومًا لعرض اليوميات",
+  "journalNoEntries": "لا توجد يوميات لهذا اليوم",
+  "journalDeleteTitle": "حذف اليومية",
+  "journalDeleteMessage": "هل أنت متأكد أنك تريد حذف هذه اليومية؟",
+  "journalDeleteSuccess": "تم حذف اليومية بنجاح",
+  "journalDeletedSuccessfully": "تم حذف اليومية بنجاح",
+  "journalUpdatedSuccessfully": "تم تحديث اليومية بنجاح",
+  "journalCannotCreateFuture": "لا يمكن إنشاء يومية لتواريخ مستقبلية",
+  
+  "journalWriteTitle": "كتابة يومية",
+  "journalSave": "حفظ",
+  "journalTitle": "العنوان",
+  "journalWriteMore": "اكتب المزيد هنا...",
+  "journalAddTitle": "الرجاء إضافة عنوان",
+  
+  "journalMoodTitle": "كيف تشعر اليوم؟",
+  "journalSelectBackground": "اختر الخلفية",
+  "journalNoBackground": "بدون خلفية",
+  "journalSelectSticker": "اختر ملصق",
+  "journalTextStyle": "نمط النص",
+  "journalFontFamily": "نوع الخط",
+  "journalTextColor": "لون النص",
+  "journalFontSize": "حجم الخط",
+  "journalApply": "تطبيق",
+  
+  "journalVoiceNote": "مذكرة صوتية",
+  "journalVoiceRecording": "جارٍ التسجيل...",
+  "journalVoiceSaved": "تم حفظ التسجيل",
+  "journalVoiceTapToStart": "اضغط لبدء التسجيل",
+  "journalVoiceAddNote": "إضافة مذكرة صوتية",
+  "journalVoicePermissionDenied": "تم رفض إذن الميكروفون",
+  "journalVoiceStartFailed": "فشل بدء التسجيل: {error}",
+  "@journalVoiceStartFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "journalVoiceStopFailed": "فشل إيقاف التسجيل: {error}",
+  "@journalVoiceStopFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "journalVoicePlayFailed": "فشل تشغيل التسجيل: {error}",
+  "@journalVoicePlayFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "journalToolbarBackground": "الخلفية",
+  "journalToolbarAddImage": "إضافة صورة",
+  "journalToolbarStickers": "الملصقات",
+  "journalToolbarTextStyle": "نمط النص",
+  "journalToolbarVoiceNote": "مذكرة صوتية",
+  
+  "journalErrorPickingImage": "خطأ في اختيار الصورة: {error}",
+  "@journalErrorPickingImage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "journalMoodHappy": "سعيد",
+  "journalMoodGood": "جيد",
+  "journalMoodExcited": "متحمس",
+  "journalMoodCalm": "هادئ",
+  "journalMoodSad": "حزين",
+  "journalMoodTired": "متعب",
+  "journalMoodAnxious": "قلق",
+  "journalMoodAngry": "غاضب",
+  "journalMoodConfused": "مرتبك",
+  "journalMoodGrateful": "ممتن",
+  
+  "commonCancel": "إلغاء",
+  "commonDelete": "حذف",
+  "commonClose": "إغلاق"
 
 
 }

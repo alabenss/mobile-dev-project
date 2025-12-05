@@ -403,7 +403,92 @@
   "sportArticleQuote": "Présentez-vous pendant 5 minutes. La plupart du temps, c’est tout ce qu’il faut pour démarrer.",
   "sportArticleRememberTitle": "À retenir",
   "sportArticleRememberBody": "Choisissez un mouvement qui vous fait sourire — pas seulement transpirer. La joie crée la régularité, et la régularité améliore l’humeur.",
-  "sportArticleStartActivityCta": "Commencer une activité"
+  "sportArticleStartActivityCta": "Commencer une activité",
+  "journalSelectDay": "Sélectionnez un jour pour voir les journaux",
+  "journalNoEntries": "Aucun journal pour ce jour",
+  "journalDeleteTitle": "Supprimer le journal",
+  "journalDeleteMessage": "Voulez-vous vraiment supprimer cette entrée de journal ?",
+  "journalDeleteSuccess": "Journal supprimé avec succès",
+  "journalDeletedSuccessfully": "Journal supprimé avec succès",
+  "journalUpdatedSuccessfully": "Journal mis à jour avec succès",
+  "journalCannotCreateFuture": "Impossible de créer un journal pour des dates futures",
+  
+  "journalWriteTitle": "Écrire un journal",
+  "journalSave": "Enregistrer",
+  "journalTitle": "Titre",
+  "journalWriteMore": "Écrivez plus ici...",
+  "journalAddTitle": "Veuillez ajouter un titre",
+  
+  "journalMoodTitle": "Comment vous sentez-vous aujourd'hui ?",
+  "journalSelectBackground": "Sélectionner l'arrière-plan",
+  "journalNoBackground": "Pas d'arrière-plan",
+  "journalSelectSticker": "Sélectionner un autocollant",
+  "journalTextStyle": "Style de texte",
+  "journalFontFamily": "Police",
+  "journalTextColor": "Couleur du texte",
+  "journalFontSize": "Taille de police",
+  "journalApply": "Appliquer",
+  
+  "journalVoiceNote": "Note vocale",
+  "journalVoiceRecording": "Enregistrement...",
+  "journalVoiceSaved": "Enregistrement sauvegardé",
+  "journalVoiceTapToStart": "Appuyez pour commencer l'enregistrement",
+  "journalVoiceAddNote": "Ajouter une note vocale",
+  "journalVoicePermissionDenied": "Permission du microphone refusée",
+  "journalVoiceStartFailed": "Échec du démarrage de l'enregistrement : {error}",
+  "@journalVoiceStartFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "journalVoiceStopFailed": "Échec de l'arrêt de l'enregistrement : {error}",
+  "@journalVoiceStopFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "journalVoicePlayFailed": "Échec de la lecture de l'enregistrement : {error}",
+  "@journalVoicePlayFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "journalToolbarBackground": "Arrière-plan",
+  "journalToolbarAddImage": "Ajouter une image",
+  "journalToolbarStickers": "Autocollants",
+  "journalToolbarTextStyle": "Style de texte",
+  "journalToolbarVoiceNote": "Note vocale",
+  
+  "journalErrorPickingImage": "Erreur lors de la sélection de l'image : {error}",
+  "@journalErrorPickingImage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "journalMoodHappy": "Heureux",
+  "journalMoodGood": "Bien",
+  "journalMoodExcited": "Excité",
+  "journalMoodCalm": "Calme",
+  "journalMoodSad": "Triste",
+  "journalMoodTired": "Fatigué",
+  "journalMoodAnxious": "Anxieux",
+  "journalMoodAngry": "En colère",
+  "journalMoodConfused": "Confus",
+  "journalMoodGrateful": "Reconnaissant",
+  
+  "commonCancel": "Annuler",
+  "commonDelete": "Supprimer",
+  "commonClose": "Fermer"
 
 
 }
