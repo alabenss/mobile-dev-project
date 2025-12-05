@@ -198,5 +198,13 @@
   "noDailyHabits": "Aucune habitude quotidienne pour l'instant",
   "noWeeklyHabits": "Aucune habitude hebdomadaire pour l'instant",
   "noMonthlyHabits": "Aucune habitude mensuelle pour l'instant",
-  "tapToAddHabit": "Appuyez sur le bouton + pour ajouter une habitude"
+  "tapToAddHabit": "Appuyez sur le bouton + pour ajouter une habitude",
+
+  "detoxProgress": "Progrès de détox",
+"detoxExcellent": "Excellent progrès !",
+"detoxGood": "Bon progrès",
+"detoxModerate": "Progrès modéré",
+"detoxLow": "Continuez",
+"detoxStart": "Début",
+"detoxInfo": "Progrès moyen de détox pour la période sélectionnée"
 }

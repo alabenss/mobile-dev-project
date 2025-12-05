@@ -299,4 +299,25 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get tapToAddHabit => 'Appuyez sur le bouton + pour ajouter une habitude';
+
+  @override
+  String get detoxProgress => 'Progrès de détox';
+
+  @override
+  String get detoxExcellent => 'Excellent progrès !';
+
+  @override
+  String get detoxGood => 'Bon progrès';
+
+  @override
+  String get detoxModerate => 'Progrès modéré';
+
+  @override
+  String get detoxLow => 'Continuez';
+
+  @override
+  String get detoxStart => 'Début';
+
+  @override
+  String get detoxInfo => 'Progrès moyen de détox pour la période sélectionnée';
 }

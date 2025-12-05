@@ -188,5 +188,13 @@
   "noDailyHabits": "No daily habits yet",
   "noWeeklyHabits": "No weekly habits yet",
   "noMonthlyHabits": "No monthly habits yet",
-  "tapToAddHabit": "Tap + button to add a habit"
+  "tapToAddHabit": "Tap + button to add a habit",
+
+  "detoxProgress": "Detox Progress",
+"detoxExcellent": "Excellent Progress!",
+"detoxGood": "Good Progress",
+"detoxModerate": "Moderate Progress",
+"detoxLow": "Keep Going",
+"detoxStart": "Just Starting",
+"detoxInfo": "Average detox progress for the selected period"
 }

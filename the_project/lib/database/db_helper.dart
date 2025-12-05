@@ -1,6 +1,8 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
+
 class DBHelper {
   static Database? _database;
 
@@ -9,6 +11,7 @@ class DBHelper {
     _database = await _initDB('rise_app.db');
     return _database!;
   }
+
   // Initialize and open the database
   static Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
@@ -176,8 +179,6 @@ class DBHelper {
 
   // ------------------ Auth Methods ------------------
 
-
-
   /// Create a new user and return their ID
   static Future<int> createUser(String name, String email, String password) async {
     final db = await database;
@@ -202,6 +203,7 @@ class DBHelper {
     if (result.isEmpty) return null;
     return result.first;
   }
+
   /// Check if a user with this email already exists
   static Future<bool> userExists(String email) async {
     final db = await database;
@@ -264,7 +266,7 @@ class DBHelper {
     );
   }
 
-    // ------------------ Stars Methods ------------------
+  // ------------------ Stars Methods ------------------
 
   /// Get current number of stars for a specific user
   static Future<int> getUserStars(int userId) async {
@@ -297,7 +299,6 @@ class DBHelper {
       whereArgs: [userId],
     );
   }
-
 
   /// Get user by ID
   static Future<Map<String, dynamic>?> getUserById(int id) async {
@@ -370,6 +371,167 @@ class DBHelper {
     );
   }
 
+  // ------------------ Journal Methods ------------------
+
+  /// Get journal count for a date range
+  static Future<int> getJournalCountForRange(
+    int userId, 
+    String startDate, 
+    String endDate
+  ) async {
+    final db = await database;
+    
+    print('DBHelper: Getting journal count for userId=$userId, startDate=$startDate, endDate=$endDate');
+    
+    final result = await db.rawQuery(
+      '''SELECT COUNT(*) as c FROM journals 
+         WHERE userId = ? 
+         AND substr(date, 1, 10) >= ? 
+         AND substr(date, 1, 10) <= ?''',
+      [userId, startDate, endDate],
+    );
+    
+    final count = Sqflite.firstIntValue(result) ?? 0;
+    print('DBHelper: Journal count result: $count');
+    
+    return count;
+  }
+
+  /// Get all journals for a specific date (for debugging)
+  static Future<List<Map<String, dynamic>>> getJournalsForDate(
+    int userId,
+    String date
+  ) async {
+    final db = await database;
+    
+    return await db.query(
+      'journals',
+      where: 'userId = ? AND substr(date, 1, 10) = ?',
+      whereArgs: [userId, date],
+    );
+  }
+
+  // ------------------ SharedPreferences Methods ------------------
+
+  /// Get current logged-in user ID from SharedPreferences
+  static Future<int?> getCurrentUserId() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userId = prefs.getInt('userId');
+      print('DBHelper: Current userId from SharedPreferences: $userId');
+      return userId;
+    } catch (e) {
+      print('DBHelper: Error getting userId: $e');
+      return null;
+    }
+  }
+
+  // ------------------ Debug Methods ------------------
+
+  /// Print all tables for debugging
+  static Future<void> debugPrintAllTables() async {
+    final db = await database;
+    
+    print('\n========== DATABASE DEBUG ==========');
+    
+    // Print Users
+    print('\n--- USERS TABLE ---');
+    final users = await db.query('users');
+    for (var user in users) {
+      print('User: id=${user['id']}, name=${user['name']}, email=${user['email']}, points=${user['totalPoints']}, stars=${user['stars']}');
+    }
+    
+    // Print Home Status
+    print('\n--- HOME_STATUS TABLE ---');
+    final homeStatus = await db.query('home_status', orderBy: 'date DESC', limit: 20);
+    for (var status in homeStatus) {
+      print('HomeStatus: date=${status['date']}, userId=${status['userId']}, water=${status['water_count']}, detox=${status['detox_progress']}');
+    }
+    
+    // Print Daily Moods
+    print('\n--- DAILY_MOODS TABLE ---');
+    final moods = await db.query('daily_moods', orderBy: 'date DESC', limit: 20);
+    for (var mood in moods) {
+      print('Mood: date=${mood['date']}, userId=${mood['userId']}, label=${mood['moodLabel']}, image=${mood['moodImage']}');
+    }
+    
+    // Print Journals
+    print('\n--- JOURNALS TABLE ---');
+    final journals = await db.query('journals', orderBy: 'date DESC', limit: 20);
+    for (var journal in journals) {
+      final textPreview = journal['text']?.toString();
+      final preview = textPreview != null && textPreview.isNotEmpty 
+          ? textPreview.substring(0, min(50, textPreview.length))
+          : 'no text';
+      print('Journal: id=${journal['id']}, date=${journal['date']}, userId=${journal['userId']}, mood=${journal['mood']}, text=$preview...');
+    }
+    
+    // Print Habits
+    print('\n--- HABITS TABLE ---');
+    final habits = await db.query('habits', limit: 20);
+    for (var habit in habits) {
+      print('Habit: id=${habit['id']}, userId=${habit['userId']}, title=${habit['title']}, status=${habit['status']}');
+    }
+    
+    print('\n====================================\n');
+  }
+
+  /// Debug: Print data for specific user
+  static Future<void> debugPrintUserData(int userId) async {
+    final db = await database;
+    
+    print('\n========== USER DATA DEBUG (userId: $userId) ==========');
+    
+    // User info
+    final user = await getUserById(userId);
+    print('User: $user');
+    
+    // Home status
+    print('\n--- Home Status (last 7 days) ---');
+    final homeStatus = await db.query(
+      'home_status',
+      where: 'userId = ?',
+      whereArgs: [userId],
+      orderBy: 'date DESC',
+      limit: 7,
+    );
+    for (var row in homeStatus) {
+      print('  ${row['date']}: water=${row['water_count']}, detox=${row['detox_progress']}');
+    }
+    
+    // Moods
+    print('\n--- Moods (last 7 days) ---');
+    final moods = await db.query(
+      'daily_moods',
+      where: 'userId = ?',
+      whereArgs: [userId],
+      orderBy: 'date DESC',
+      limit: 7,
+    );
+    for (var row in moods) {
+      print('  ${row['date']}: ${row['moodLabel']}');
+    }
+    
+    // Journals
+    print('\n--- Journals (last 7 days) ---');
+    final journals = await db.query(
+      'journals',
+      where: 'userId = ?',
+      whereArgs: [userId],
+      orderBy: 'date DESC',
+      limit: 7,
+    );
+    for (var row in journals) {
+      final textStr = row['text']?.toString();
+      final preview = textStr != null && textStr.isNotEmpty
+          ? textStr.substring(0, min(30, textStr.length))
+          : 'no text';
+      print('  ${row['date']}: ${row['mood']} - $preview...');
+    }
+    
+    print('\n====================================\n');
+  }
+
   // ------------------ Utilities ------------------
 
   // clear all tables
@@ -430,11 +592,12 @@ class DBHelper {
         
         // Add mood data to daily_moods table instead (but not for today)
         if (!isToday) {
+          final moodLabels = ['happy', 'good', 'ok', 'low', 'sad'];
           await db.insert('daily_moods', {
             'userId': userId,
             'date': dateStr,
-            'moodImage': 'assets/moods/mood_${i % 3}.png',
-            'moodLabel': ['happy', 'ok', 'sad'][i % 3],
+            'moodImage': 'assets/moods/mood_${i % 5}.png',
+            'moodLabel': moodLabels[i % 5],
             'createdAt': DateTime.now().toIso8601String(),
             'updatedAt': DateTime.now().toIso8601String(),
           });
@@ -493,5 +656,4 @@ class DBHelper {
       });
     }
   }
-  
 }

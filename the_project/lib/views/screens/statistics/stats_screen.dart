@@ -15,12 +15,30 @@ import 'package:the_project/views/themes/style_simple/colors.dart';
 import 'package:the_project/database/repo/stats_repo.dart';
 import 'package:the_project/logic/statistics/stats_cubit.dart';
 import 'package:the_project/logic/statistics/stats_state.dart';
+import 'package:the_project/database/db_helper.dart';
 
-class StatsScreen extends StatelessWidget {
+class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});
 
+  @override
+  State<StatsScreen> createState() => _StatsScreenState();
+}
+
+class _StatsScreenState extends State<StatsScreen> {
   static const Duration animDur = Duration(milliseconds: 420);
   static const Curve animCurve = Curves.easeInOutCubic;
+
+  @override
+  void initState() {
+    super.initState();
+    // Debug: Print all tables when stats screen opens
+    _debugPrintTables();
+  }
+
+  Future<void> _debugPrintTables() async {
+    print('\n🔍 Stats Screen Opened - Printing Database Tables...');
+    await DBHelper.debugPrintAllTables();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,20 +68,42 @@ class StatsScreen extends StatelessWidget {
                       ),
                       BlocBuilder<StatsCubit, StatsState>(
                         builder: (context, state) {
-                          return IconButton(
-                            icon: Icon(
-                              Icons.refresh,
-                              color: AppColors.accentPurple,
-                            ),
-                            onPressed: () {
-                              context.read<StatsCubit>().refresh();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(t.statsRefreshingData),
-                                  duration: const Duration(seconds: 1),
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Debug button
+                              IconButton(
+                                icon: Icon(
+                                  Icons.bug_report,
+                                  color: AppColors.coral,
                                 ),
-                              );
-                            },
+                                onPressed: () async {
+                                  await DBHelper.debugPrintAllTables();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Database tables printed to console'),
+                                      duration: Duration(seconds: 1),
+                                    ),
+                                  );
+                                },
+                              ),
+                              // Refresh button
+                              IconButton(
+                                icon: Icon(
+                                  Icons.refresh,
+                                  color: AppColors.accentPurple,
+                                ),
+                                onPressed: () {
+                                  context.read<StatsCubit>().refresh();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(t.statsRefreshingData),
+                                      duration: const Duration(seconds: 1),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
                           );
                         },
                       ),
@@ -148,7 +188,7 @@ class StatsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              state.message, // you can localize this where it's created if needed
+              state.message,
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 color: AppColors.textPrimary.withOpacity(0.6),
@@ -236,6 +276,7 @@ class StatsScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
+          
           StatsCardWidget(
             padding: const EdgeInsets.all(14),
             child: MoodStatsWidget(
@@ -247,6 +288,7 @@ class StatsScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
+          
           StatsCardWidget(
             padding: const EdgeInsets.all(14),
             child: JournalingStatsWidget(
@@ -258,6 +300,7 @@ class StatsScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
+          
           StatsCardWidget(
             padding: const EdgeInsets.all(14),
             child: ScreenTimeWidget(

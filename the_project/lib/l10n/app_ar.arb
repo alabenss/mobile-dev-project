@@ -200,5 +200,13 @@
   "noDailyHabits": "لا توجد عادات يومية بعد",
   "noWeeklyHabits": "لا توجد عادات أسبوعية بعد",
   "noMonthlyHabits": "لا توجد عادات شهرية بعد",
-  "tapToAddHabit": "اضغط على زر + لإضافة عادة"
+  "tapToAddHabit": "اضغط على زر + لإضافة عادة",
+
+  "detoxProgress": "تقدم التخلص من السموم",
+"detoxExcellent": "تقدم ممتاز!",
+"detoxGood": "تقدم جيد",
+"detoxModerate": "تقدم متوسط",
+"detoxLow": "استمر",
+"detoxStart": "البداية فقط",
+"detoxInfo": "متوسط تقدم التخلص من السموم للفترة المحددة"
 }

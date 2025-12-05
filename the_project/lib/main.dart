@@ -127,7 +127,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
   debugShowCheckedModeBanner: false,
 
-  locale: const Locale('ar'), // ✅ FORCE FRENCH
+  locale: const Locale('fr'), // ✅ FORCE FRENCH
 
   localizationsDelegates: const [
     AppLocalizations.delegate,

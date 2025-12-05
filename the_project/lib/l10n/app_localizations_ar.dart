@@ -299,4 +299,25 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get tapToAddHabit => 'اضغط على زر + لإضافة عادة';
+
+  @override
+  String get detoxProgress => 'تقدم التخلص من السموم';
+
+  @override
+  String get detoxExcellent => 'تقدم ممتاز!';
+
+  @override
+  String get detoxGood => 'تقدم جيد';
+
+  @override
+  String get detoxModerate => 'تقدم متوسط';
+
+  @override
+  String get detoxLow => 'استمر';
+
+  @override
+  String get detoxStart => 'البداية فقط';
+
+  @override
+  String get detoxInfo => 'متوسط تقدم التخلص من السموم للفترة المحددة';
 }

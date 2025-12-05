@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:the_project/l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:the_project/views/themes/style_simple/colors.dart';
-import 'package:the_project/views/widgets/stats/range_selector_widget.dart';
+import 'range_selector_widget.dart';
 
 class JournalingStatsWidget extends StatelessWidget {
   final int journalingCount;
@@ -21,43 +21,35 @@ class JournalingStatsWidget extends StatelessWidget {
     this.animationCurve = Curves.easeInOutCubic,
   });
 
-  String _journalLabelForIndex(int i) {
-    if (selectedRange == StatsRange.today) return 'Aujourd\'hui';
-    if (selectedRange == StatsRange.weekly) {
-      const days = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
-      return days[i % 7];
-    }
-    if (selectedRange == StatsRange.monthly) return 'S${(i % 4) + 1}';
-    return [
-      'Jan',
-      'Fév',
-      'Mar',
-      'Avr',
-      'Mai',
-      'Juin',
-      'Juil',
-      'Août',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Déc'
-    ][i % 12];
-  }
-
+  /// Build day bubbles that show journal entries per day/period
   List<Widget> _buildDayBubbles(AppLocalizations t) {
     final list = <Widget>[];
+    
+    // Number of periods to show based on range
     final totalSlots = selectedRange == StatsRange.today
         ? 1
         : (selectedRange == StatsRange.weekly
             ? 7
-            : (selectedRange == StatsRange.monthly ? 12 : 12));
-    final rnd = Random(journalingCount + labels.length);
-    final filledIndices = <int>{};
-    for (var i = 0; i < min(totalSlots, journalingCount); i++) {
-      filledIndices.add(rnd.nextInt(totalSlots));
-    }
+            : (selectedRange == StatsRange.monthly ? 4 : 12));
+    
+    // Distribute journal entries across slots
+    // For weekly: show entries per day
+    // For monthly: show entries per week
+    // For yearly: show entries per month
+    final entriesPerSlot = journalingCount > 0 ? 
+        (journalingCount / totalSlots).ceil() : 0;
+    
     for (var i = 0; i < totalSlots; i++) {
-      final filled = filledIndices.contains(i);
+      // Calculate how many entries for this slot
+      final remainingEntries = journalingCount - (i * entriesPerSlot);
+      final entryCount = remainingEntries > 0 
+          ? min(entriesPerSlot, remainingEntries) 
+          : 0;
+      final hasEntry = entryCount > 0;
+      
+      // Get the label for this slot (matches order from labels list)
+      final label = i < labels.length ? labels[i] : '';
+      
       list.add(Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -65,9 +57,9 @@ class JournalingStatsWidget extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: filled ? AppColors.peach.withOpacity(0.95) : AppColors.card,
+              color: hasEntry ? AppColors.peach.withOpacity(0.95) : AppColors.card,
               borderRadius: BorderRadius.circular(12),
-              boxShadow: filled
+              boxShadow: hasEntry
                   ? [
                       BoxShadow(
                         color: AppColors.textPrimary.withOpacity(0.06),
@@ -79,15 +71,20 @@ class JournalingStatsWidget extends StatelessWidget {
             ),
             child: Center(
               child: Text(
-                filled ? '${rnd.nextInt(3) + 1}' : '',
+                hasEntry ? '$entryCount' : '',
                 style: GoogleFonts.poppins(
-                    fontSize: 14, fontWeight: FontWeight.w700),
+                    fontSize: 14, 
+                    fontWeight: FontWeight.w700,
+                    color: hasEntry ? AppColors.textPrimary : Colors.transparent),
               ),
             ),
           ),
           const SizedBox(height: 6),
-          Text(_journalLabelForIndex(i),
-              style: GoogleFonts.poppins(fontSize: 11)),
+          Text(label,
+              style: GoogleFonts.poppins(
+                fontSize: 11,
+                color: AppColors.textPrimary.withOpacity(0.7),
+              )),
         ],
       ));
     }
@@ -99,16 +96,21 @@ class JournalingStatsWidget extends StatelessWidget {
     final t = AppLocalizations.of(context)!;
 
     String headline;
-    if (selectedRange == StatsRange.today) {
-      headline = journalingCount > 0
-          ? t.youWroteToday
-          : t.noEntryToday;
-    } else if (selectedRange == StatsRange.weekly) {
-      headline = t.daysLogged(journalingCount);
-    } else if (selectedRange == StatsRange.monthly) {
-      headline = t.entriesThisMonth(journalingCount);
-    } else {
-      headline = t.totalEntries(journalingCount);
+    switch (selectedRange) {
+      case StatsRange.today:
+        headline = journalingCount > 0
+            ? t.youWroteToday
+            : t.noEntryToday;
+        break;
+      case StatsRange.weekly:
+        headline = t.daysLogged(journalingCount);
+        break;
+      case StatsRange.monthly:
+        headline = t.entriesThisMonth(journalingCount);
+        break;
+      case StatsRange.yearly:
+        headline = t.totalEntries(journalingCount);
+        break;
     }
 
     return AnimatedContainer(
@@ -116,17 +118,29 @@ class JournalingStatsWidget extends StatelessWidget {
       curve: animationCurve,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Text(t.journaling, style: GoogleFonts.poppins(fontSize: 12)),
+          Text(t.journaling, 
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              color: AppColors.textPrimary.withOpacity(0.6)
+            )
+          ),
           const SizedBox(height: 8),
           Text(headline,
-              style:
-                  GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w700)),
+              style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w700)),
           const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: _buildDayBubbles(t),
+          Flexible(
+            fit: FlexFit.loose,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: _buildDayBubbles(t)
+                    .expand((widget) => [widget, const SizedBox(width: 8)])
+                    .toList()
+                    ..removeLast(), // Remove trailing spacer
+              ),
+            ),
           ),
         ],
       ),

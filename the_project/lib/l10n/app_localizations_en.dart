@@ -299,4 +299,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tapToAddHabit => 'Tap + button to add a habit';
+
+  @override
+  String get detoxProgress => 'Detox Progress';
+
+  @override
+  String get detoxExcellent => 'Excellent Progress!';
+
+  @override
+  String get detoxGood => 'Good Progress';
+
+  @override
+  String get detoxModerate => 'Moderate Progress';
+
+  @override
+  String get detoxLow => 'Keep Going';
+
+  @override
+  String get detoxStart => 'Just Starting';
+
+  @override
+  String get detoxInfo => 'Average detox progress for the selected period';
 }

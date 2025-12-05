@@ -624,6 +624,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tap + button to add a habit'**
   String get tapToAddHabit;
+
+  /// No description provided for @detoxProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Detox Progress'**
+  String get detoxProgress;
+
+  /// No description provided for @detoxExcellent.
+  ///
+  /// In en, this message translates to:
+  /// **'Excellent Progress!'**
+  String get detoxExcellent;
+
+  /// No description provided for @detoxGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Good Progress'**
+  String get detoxGood;
+
+  /// No description provided for @detoxModerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate Progress'**
+  String get detoxModerate;
+
+  /// No description provided for @detoxLow.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep Going'**
+  String get detoxLow;
+
+  /// No description provided for @detoxStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Just Starting'**
+  String get detoxStart;
+
+  /// No description provided for @detoxInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Average detox progress for the selected period'**
+  String get detoxInfo;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

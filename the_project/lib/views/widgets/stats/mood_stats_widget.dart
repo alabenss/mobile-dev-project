@@ -25,7 +25,7 @@ class MoodStatsWidget extends StatelessWidget {
   Widget _buildDonutChart(BuildContext context) {
     final t = AppLocalizations.of(context)!;
 
-    if (moodData.isEmpty || moodData.every((m) => m == 0.0 || m == 0.5)) {
+    if (moodData.isEmpty) {
       return Center(
         child: Text(
           t.statsNoData,
@@ -34,31 +34,64 @@ class MoodStatsWidget extends StatelessWidget {
       );
     }
     
-    final avg = (moodData.reduce((a, b) => a + b) / moodData.length);
-    final high = ((avg - 0.45) / 0.55).clamp(0.0, 1.0);
-    final mid = (1 - high) * 0.6;
-    final low = (1 - high - mid).clamp(0.0, 1.0);
+    // Calculate mood distribution
+    int highCount = 0;
+    int mediumCount = 0;
+    int lowCount = 0;
+    
+    for (final mood in moodData) {
+      if (mood >= 0.7) {
+        highCount++;
+      } else if (mood >= 0.4) {
+        mediumCount++;
+      } else {
+        lowCount++;
+      }
+    }
+    
+    final total = highCount + mediumCount + lowCount;
+    
+    if (total == 0) {
+      return Center(
+        child: Text(
+          t.statsNoMoodData,
+          style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+        ),
+      );
+    }
     
     final sections = [
-      PieChartSectionData(
-        value: (high * 60) + 10,
-        color: AppColors.mint,
-        radius: 28,
-        showTitle: false,
-      ),
-      PieChartSectionData(
-        value: (mid * 30) + 5,
-        color: AppColors.peach,
-        radius: 22,
-        showTitle: false,
-      ),
-      PieChartSectionData(
-        value: (low * 20) + 2,
-        color: AppColors.coral,
-        radius: 18,
-        showTitle: false,
-      ),
+      if (highCount > 0)
+        PieChartSectionData(
+          value: highCount.toDouble(),
+          color: AppColors.mint,
+          radius: 28,
+          showTitle: false,
+        ),
+      if (mediumCount > 0)
+        PieChartSectionData(
+          value: mediumCount.toDouble(),
+          color: AppColors.peach,
+          radius: 22,
+          showTitle: false,
+        ),
+      if (lowCount > 0)
+        PieChartSectionData(
+          value: lowCount.toDouble(),
+          color: AppColors.coral,
+          radius: 18,
+          showTitle: false,
+        ),
     ];
+    
+    if (sections.isEmpty) {
+      return Center(
+        child: Text(
+          t.statsNoData,
+          style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey),
+        ),
+      );
+    }
     
     return PieChart(
       PieChartData(
@@ -102,10 +135,14 @@ class MoodStatsWidget extends StatelessWidget {
             color: AppColors.accentPurple,
             belowBarData: BarAreaData(
               show: true,
-              gradient: LinearGradient(colors: [
-                AppColors.accentPurple.withOpacity(0.08),
-                AppColors.accentPurple.withOpacity(0.0),
-              ]),
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.accentPurple.withOpacity(0.08),
+                  AppColors.accentPurple.withOpacity(0.0),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
             ),
             barWidth: 3,
           )
@@ -121,7 +158,7 @@ class MoodStatsWidget extends StatelessWidget {
       return const SizedBox.shrink();
     }
     
-    final showCount = (count <= 7) ? count : (count <= 12 ? 7 : 8);
+    final showCount = min(count, 7);
     final step = max(1, (count / showCount).floor());
     final chosen = <String>[];
     
@@ -148,6 +185,7 @@ class MoodStatsWidget extends StatelessWidget {
 
   Widget _smallLegendDot(Color c, String label) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           width: 12,
@@ -170,10 +208,10 @@ class MoodStatsWidget extends StatelessWidget {
     final t = AppLocalizations.of(context)!;
 
     String headline;
-    if (moodData.isEmpty || moodData.every((m) => m == 0.0 || m == 0.5)) {
+    if (moodData.isEmpty) {
       headline = t.moodOkay;
     } else {
-      final mean = (moodData.reduce((a, b) => a + b) / moodData.length);
+      final mean = moodData.reduce((a, b) => a + b) / moodData.length;
       if (mean >= 0.75) {
         headline = t.moodFeelingGreat;
       } else if (mean >= 0.6) {
