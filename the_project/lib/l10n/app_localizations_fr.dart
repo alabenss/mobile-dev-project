@@ -116,6 +116,147 @@ class AppLocalizationsFr extends AppLocalizations {
   String get statsNoMoodData => 'Aucune donnée d\'humeur disponible';
 
   @override
+  String get appLockTitle => 'Verrouillage de l\'application';
+
+  @override
+  String get appLockChooseType => 'Choisir le type de verrouillage :';
+
+  @override
+  String get appLockPin => 'PIN';
+
+  @override
+  String get appLockPinSubtitle => 'Sécuriser avec un code PIN numérique';
+
+  @override
+  String get appLockPattern => 'Schéma';
+
+  @override
+  String get appLockPatternSubtitle => 'Dessinez un schéma pour déverrouiller';
+
+  @override
+  String get appLockPassword => 'Mot de passe';
+
+  @override
+  String get appLockPasswordSubtitle => 'Utiliser un mot de passe alphanumérique';
+
+  @override
+  String get appLockRemoveExisting => 'Supprimer le verrouillage existant';
+
+  @override
+  String appLockSetYour(Object type) {
+    return 'Définir votre $type';
+  }
+
+  @override
+  String appLockConfirmYour(Object type) {
+    return 'Confirmer votre $type';
+  }
+
+  @override
+  String appLockCreateLock(Object type) {
+    return 'Créez votre verrou $type';
+  }
+
+  @override
+  String appLockReenterLock(Object type) {
+    return 'Resaisissez votre $type pour confirmer';
+  }
+
+  @override
+  String get appLockEnterPin => 'Entrez un code PIN de 4 à 6 chiffres';
+
+  @override
+  String get appLockConfirmPin => 'Confirmez votre code PIN';
+
+  @override
+  String get appLockDrawPattern => 'Dessinez votre schéma';
+
+  @override
+  String get appLockDrawPatternAgain => 'Dessinez à nouveau votre schéma';
+
+  @override
+  String appLockPointsSelected(Object count) {
+    return 'Points sélectionnés : $count';
+  }
+
+  @override
+  String get appLockRedrawPattern => 'Redessiner le schéma';
+
+  @override
+  String get appLockEnterPassword => 'Entrez le mot de passe';
+
+  @override
+  String get appLockConfirmPassword => 'Confirmez votre mot de passe';
+
+  @override
+  String get appLockMismatch => 'Les valeurs ne correspondent pas.';
+
+  @override
+  String get appLockContinue => 'Continuer';
+
+  @override
+  String get appLockSaveLock => 'Enregistrer le verrouillage';
+
+  @override
+  String get appLockSaved => 'Verrouillage enregistré avec succès.';
+
+  @override
+  String get appLockSaveError => 'Erreur lors de l\'enregistrement du verrouillage.';
+
+  @override
+  String get appLockRemoved => 'Verrouillage supprimé.';
+
+  @override
+  String appLockEnterToUnlock(Object type) {
+    return 'Entrez $type pour déverrouiller';
+  }
+
+  @override
+  String appLockWrongAttempt(Object type) {
+    return 'Le $type est incorrect. Veuillez réessayer.';
+  }
+
+  @override
+  String get appLockUnlock => 'Déverrouiller';
+
+  @override
+  String appLockForgotLock(Object type) {
+    return '$type oublié ?';
+  }
+
+  @override
+  String get appLockVerifyIdentity => 'Vérifiez votre identité pour réinitialiser le verrou';
+
+  @override
+  String appLockCurrentType(Object type) {
+    return 'Verrouillage actuel : $type';
+  }
+
+  @override
+  String get appLockChangeOrRemove => 'Vous pouvez modifier ou supprimer votre verrouillage actuel.';
+
+  @override
+  String get appLockEnabled => 'App Lock Enabled';
+
+  @override
+  String get appLockChangeLock => 'Change Lock';
+
+  @override
+  String get appLockRemove => 'Remove';
+
+  @override
+  String get appLockCurrentSettings => 'Current Settings';
+
+  @override
+  String get appLockRemoveConfirm => 'Remove App Lock?';
+
+  @override
+  String get appLockRemoveMessage => 'Are you sure you want to remove the app lock?';
+
+  @override
+  String get appLockCancel => 'Cancel';
+
+  @override
   String get statsRefreshingData => 'Actualisation des données...';
 
   @override

@@ -116,6 +116,147 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statsNoMoodData => 'No mood data available';
 
   @override
+  String get appLockTitle => 'App Lock';
+
+  @override
+  String get appLockChooseType => 'Choose Lock Type:';
+
+  @override
+  String get appLockPin => 'PIN';
+
+  @override
+  String get appLockPinSubtitle => 'Secure with numeric PIN';
+
+  @override
+  String get appLockPattern => 'Pattern';
+
+  @override
+  String get appLockPatternSubtitle => 'Draw a pattern to unlock';
+
+  @override
+  String get appLockPassword => 'Password';
+
+  @override
+  String get appLockPasswordSubtitle => 'Use alphanumeric password';
+
+  @override
+  String get appLockRemoveExisting => 'Remove Existing Lock';
+
+  @override
+  String appLockSetYour(Object type) {
+    return 'Set Your $type';
+  }
+
+  @override
+  String appLockConfirmYour(Object type) {
+    return 'Confirm Your $type';
+  }
+
+  @override
+  String appLockCreateLock(Object type) {
+    return 'Create your $type lock';
+  }
+
+  @override
+  String appLockReenterLock(Object type) {
+    return 'Re-enter your $type to confirm';
+  }
+
+  @override
+  String get appLockEnterPin => 'Enter 4-6 digit PIN';
+
+  @override
+  String get appLockConfirmPin => 'Confirm your PIN';
+
+  @override
+  String get appLockDrawPattern => 'Draw your pattern';
+
+  @override
+  String get appLockDrawPatternAgain => 'Draw your pattern again';
+
+  @override
+  String appLockPointsSelected(Object count) {
+    return 'Points selected: $count';
+  }
+
+  @override
+  String get appLockRedrawPattern => 'Redraw Pattern';
+
+  @override
+  String get appLockEnterPassword => 'Enter password';
+
+  @override
+  String get appLockConfirmPassword => 'Confirm your password';
+
+  @override
+  String get appLockMismatch => 'Lock values don\'t match!';
+
+  @override
+  String get appLockContinue => 'Continue';
+
+  @override
+  String get appLockSaveLock => 'Save Lock';
+
+  @override
+  String get appLockSaved => 'App lock saved successfully';
+
+  @override
+  String get appLockSaveError => 'Failed to save app lock';
+
+  @override
+  String get appLockRemoved => 'App lock removed';
+
+  @override
+  String appLockEnterToUnlock(Object type) {
+    return 'Enter $type to unlock';
+  }
+
+  @override
+  String appLockWrongAttempt(Object type) {
+    return 'Wrong $type! Try again';
+  }
+
+  @override
+  String get appLockUnlock => 'Unlock';
+
+  @override
+  String appLockForgotLock(Object type) {
+    return 'Forgot $type?';
+  }
+
+  @override
+  String get appLockVerifyIdentity => 'Verify your identity to reset the lock';
+
+  @override
+  String appLockCurrentType(Object type) {
+    return 'Current lock: $type';
+  }
+
+  @override
+  String get appLockChangeOrRemove => 'You can change or remove your current lock.';
+
+  @override
+  String get appLockEnabled => 'App Lock Enabled';
+
+  @override
+  String get appLockChangeLock => 'Change Lock';
+
+  @override
+  String get appLockRemove => 'Remove';
+
+  @override
+  String get appLockCurrentSettings => 'Current Settings';
+
+  @override
+  String get appLockRemoveConfirm => 'Remove App Lock?';
+
+  @override
+  String get appLockRemoveMessage => 'Are you sure you want to remove the app lock?';
+
+  @override
+  String get appLockCancel => 'Cancel';
+
+  @override
   String get statsRefreshingData => 'Refreshing data...';
 
   @override

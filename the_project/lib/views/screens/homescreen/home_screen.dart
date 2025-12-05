@@ -33,16 +33,20 @@ class _HomeScreenState extends State<HomeScreen> {
   // Access widget properties through widget.propertyName
   VoidCallback? get onViewAllHabits => widget.onViewAllHabits;
   
-  @override
-  void initState() {
-    super.initState();
-    // Load initial data when screen is created
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final authState = context.read<AuthCubit>().state;
-      final userName = authState.user?.name ?? 'Guest';
-      context.read<HomeCubit>().loadInitial(userName: userName);
-    });
-  }
+@override
+void initState() {
+  super.initState();
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    final authState = context.read<AuthCubit>().state;
+
+    if (authState.isAuthenticated && authState.user != null) {
+      context.read<HomeCubit>().loadInitial(
+        userName: authState.user!.name,
+      );
+    }
+  });
+}
+
 
   String _getGreeting() {
     final hour = DateTime.now().hour;

@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -19,7 +20,7 @@ import 'database/repo/daily_mood_repository.dart';
 import 'database/db_helper.dart';
 
 import 'views/widgets/common/bottom_nav_wrapper.dart';
-import 'views/widgets/home/phone_lock_wrapper.dart';
+import 'views/wrappers/phone_lock_wrapper.dart';
 import 'views/screens/settings/profile.dart';
 import 'views/screens/settings/app_lock_screen.dart';
 import 'views/screens/auth/login_screen.dart';
@@ -180,6 +181,48 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => const ProfileScreen(),
         '/app-lock': (context) => const AppLockScreen(),
       },
+    );
+  }
+}
+
+class _AppRoot extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<AuthCubit, AuthState>(
+      listener: (context, state) {
+        // Only load data when user is authenticated
+        if (state.isAuthenticated && state.user != null) {
+          print('User authenticated: ${state.user!.name}');
+          context.read<HomeCubit>().loadInitial(
+            userName: state.user!.name,
+          );
+          context.read<HabitCubit>().loadHabits();
+          context.read<ActivitiesCubit>().loadActivities();
+        }
+      },
+      child: BlocBuilder<AuthCubit, AuthState>(
+        builder: (context, state) {
+          print('Auth State: isLoading=${state.isLoading}, isAuthenticated=${state.isAuthenticated}, user=${state.user?.name}');
+          
+          if (state.isLoading) {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+
+          // If NOT logged in → Show Login Screen directly
+          if (!state.isAuthenticated || state.user == null) {
+            print('User not authenticated, showing login screen');
+            return const LoginScreen();
+          }
+
+          // If logged in → Show Phone Lock Wrapper
+          print('User authenticated, checking app lock...');
+          return PhoneLockWrapper(
+            child: const BottomNavWrapper(),
+          );
+        },
+      ),
     );
   }
 }
