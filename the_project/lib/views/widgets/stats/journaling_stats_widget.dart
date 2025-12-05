@@ -43,56 +43,62 @@ class JournalingStatsWidget extends StatelessWidget {
       'Déc'
     ][i % 12];
   }
-
-  List<Widget> _buildDayBubbles(AppLocalizations t) {
-    final list = <Widget>[];
-    final totalSlots = selectedRange == StatsRange.today
-        ? 1
-        : (selectedRange == StatsRange.weekly
-            ? 7
-            : (selectedRange == StatsRange.monthly ? 12 : 12));
+List<Widget> _buildDayBubbles(AppLocalizations t) {
+  final list = <Widget>[];
+  final totalSlots = selectedRange == StatsRange.today
+      ? 1
+      : (selectedRange == StatsRange.weekly
+          ? 7
+          : (selectedRange == StatsRange.monthly ? 4 : 12));
+  
+  // Create a list of indices that should be filled based on journalingCount
+  final filledIndices = <int>{};
+  if (journalingCount > 0) {
     final rnd = Random(journalingCount + labels.length);
-    final filledIndices = <int>{};
-    for (var i = 0; i < min(totalSlots, journalingCount); i++) {
+    final maxFilled = min(totalSlots, journalingCount);
+    while (filledIndices.length < maxFilled) {
       filledIndices.add(rnd.nextInt(totalSlots));
     }
-    for (var i = 0; i < totalSlots; i++) {
-      final filled = filledIndices.contains(i);
-      list.add(Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: filled ? AppColors.peach.withOpacity(0.95) : AppColors.card,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: filled
-                  ? [
-                      BoxShadow(
-                        color: AppColors.textPrimary.withOpacity(0.06),
-                        blurRadius: 6,
-                        offset: const Offset(0, 4),
-                      )
-                    ]
-                  : null,
-            ),
-            child: Center(
-              child: Text(
-                filled ? '${rnd.nextInt(3) + 1}' : '',
-                style: GoogleFonts.poppins(
-                    fontSize: 14, fontWeight: FontWeight.w700),
-              ),
+  }
+  
+  for (var i = 0; i < totalSlots; i++) {
+    final filled = filledIndices.contains(i);
+    list.add(Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: filled ? AppColors.peach.withOpacity(0.95) : AppColors.card,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: filled
+                ? [
+                    BoxShadow(
+                      color: AppColors.textPrimary.withOpacity(0.06),
+                      blurRadius: 6,
+                      offset: const Offset(0, 4),
+                    )
+                  ]
+                : null,
+          ),
+          child: Center(
+            child: Text(
+              filled ? '${Random(i + journalingCount).nextInt(3) + 1}' : '',
+              style: GoogleFonts.poppins(
+                  fontSize: 14, fontWeight: FontWeight.w700),
             ),
           ),
-          const SizedBox(height: 6),
-          Text(_journalLabelForIndex(i),
-              style: GoogleFonts.poppins(fontSize: 11)),
-        ],
-      ));
-    }
-    return list;
+        ),
+        const SizedBox(height: 6),
+        Text(_journalLabelForIndex(i),
+            style: GoogleFonts.poppins(fontSize: 11)),
+      ],
+    ));
   }
+  return list;
+}
+
 
   @override
   Widget build(BuildContext context) {

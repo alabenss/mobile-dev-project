@@ -281,6 +281,252 @@ abstract class AppLocalizations {
   /// **'No mood data available'**
   String get statsNoMoodData;
 
+  /// No description provided for @appLockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'App Lock'**
+  String get appLockTitle;
+
+  /// No description provided for @appLockChooseType.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Lock Type:'**
+  String get appLockChooseType;
+
+  /// No description provided for @appLockPin.
+  ///
+  /// In en, this message translates to:
+  /// **'PIN'**
+  String get appLockPin;
+
+  /// No description provided for @appLockPinSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Secure with numeric PIN'**
+  String get appLockPinSubtitle;
+
+  /// No description provided for @appLockPattern.
+  ///
+  /// In en, this message translates to:
+  /// **'Pattern'**
+  String get appLockPattern;
+
+  /// No description provided for @appLockPatternSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Draw a pattern to unlock'**
+  String get appLockPatternSubtitle;
+
+  /// No description provided for @appLockPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get appLockPassword;
+
+  /// No description provided for @appLockPasswordSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Use alphanumeric password'**
+  String get appLockPasswordSubtitle;
+
+  /// No description provided for @appLockRemoveExisting.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove Existing Lock'**
+  String get appLockRemoveExisting;
+
+  /// No description provided for @appLockSetYour.
+  ///
+  /// In en, this message translates to:
+  /// **'Set Your {type}'**
+  String appLockSetYour(Object type);
+
+  /// No description provided for @appLockConfirmYour.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Your {type}'**
+  String appLockConfirmYour(Object type);
+
+  /// No description provided for @appLockCreateLock.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your {type} lock'**
+  String appLockCreateLock(Object type);
+
+  /// No description provided for @appLockReenterLock.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-enter your {type} to confirm'**
+  String appLockReenterLock(Object type);
+
+  /// No description provided for @appLockEnterPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter 4-6 digit PIN'**
+  String get appLockEnterPin;
+
+  /// No description provided for @appLockConfirmPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm your PIN'**
+  String get appLockConfirmPin;
+
+  /// No description provided for @appLockDrawPattern.
+  ///
+  /// In en, this message translates to:
+  /// **'Draw your pattern'**
+  String get appLockDrawPattern;
+
+  /// No description provided for @appLockDrawPatternAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Draw your pattern again'**
+  String get appLockDrawPatternAgain;
+
+  /// No description provided for @appLockPointsSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'Points selected: {count}'**
+  String appLockPointsSelected(Object count);
+
+  /// No description provided for @appLockRedrawPattern.
+  ///
+  /// In en, this message translates to:
+  /// **'Redraw Pattern'**
+  String get appLockRedrawPattern;
+
+  /// No description provided for @appLockEnterPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter password'**
+  String get appLockEnterPassword;
+
+  /// No description provided for @appLockConfirmPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm your password'**
+  String get appLockConfirmPassword;
+
+  /// No description provided for @appLockMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock values don\'t match!'**
+  String get appLockMismatch;
+
+  /// No description provided for @appLockContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get appLockContinue;
+
+  /// No description provided for @appLockSaveLock.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Lock'**
+  String get appLockSaveLock;
+
+  /// No description provided for @appLockSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'App lock saved successfully'**
+  String get appLockSaved;
+
+  /// No description provided for @appLockSaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to save app lock'**
+  String get appLockSaveError;
+
+  /// No description provided for @appLockRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'App lock removed'**
+  String get appLockRemoved;
+
+  /// No description provided for @appLockEnterToUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter {type} to unlock'**
+  String appLockEnterToUnlock(Object type);
+
+  /// No description provided for @appLockWrongAttempt.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong {type}! Try again'**
+  String appLockWrongAttempt(Object type);
+
+  /// No description provided for @appLockUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock'**
+  String get appLockUnlock;
+
+  /// No description provided for @appLockForgotLock.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot {type}?'**
+  String appLockForgotLock(Object type);
+
+  /// No description provided for @appLockVerifyIdentity.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your identity to reset the lock'**
+  String get appLockVerifyIdentity;
+
+  /// No description provided for @appLockCurrentType.
+  ///
+  /// In en, this message translates to:
+  /// **'Current lock: {type}'**
+  String appLockCurrentType(Object type);
+
+  /// No description provided for @appLockChangeOrRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'You can change or remove your current lock.'**
+  String get appLockChangeOrRemove;
+
+  /// No description provided for @appLockEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'App Lock Enabled'**
+  String get appLockEnabled;
+
+  /// No description provided for @appLockChangeLock.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Lock'**
+  String get appLockChangeLock;
+
+  /// No description provided for @appLockRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get appLockRemove;
+
+  /// No description provided for @appLockCurrentSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Settings'**
+  String get appLockCurrentSettings;
+
+  /// No description provided for @appLockRemoveConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove App Lock?'**
+  String get appLockRemoveConfirm;
+
+  /// No description provided for @appLockRemoveMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to remove the app lock?'**
+  String get appLockRemoveMessage;
+
+  /// No description provided for @appLockCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get appLockCancel;
+
   /// No description provided for @statsRefreshingData.
   ///
   /// In en, this message translates to:

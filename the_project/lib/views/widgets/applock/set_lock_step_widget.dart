@@ -1,5 +1,7 @@
+// ============= set_lock_step_widget.dart =============
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:the_project/l10n/app_localizations.dart';
 import 'package:the_project/views/themes/style_simple/colors.dart';
 import 'pattern_lock_widget.dart';
 
@@ -32,11 +34,13 @@ class SetLockStepWidget extends StatefulWidget {
 class _SetLockStepWidgetState extends State<SetLockStepWidget> {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Set Your ${widget.selectedLockType?.toUpperCase()}",
+          l10n.appLockSetYour(widget.selectedLockType?.toUpperCase() ?? ''),
           style: GoogleFonts.poppins(
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -45,7 +49,7 @@ class _SetLockStepWidgetState extends State<SetLockStepWidget> {
         ),
         const SizedBox(height: 8),
         Text(
-          "Create your ${widget.selectedLockType} lock",
+          l10n.appLockCreateLock( widget.selectedLockType ?? ''),
           style: GoogleFonts.poppins(fontSize: 14, color: AppColors.textSecondary),
         ),
         const SizedBox(height: 32),
@@ -57,7 +61,7 @@ class _SetLockStepWidgetState extends State<SetLockStepWidget> {
             keyboardType: TextInputType.number,
             maxLength: 6,
             decoration: InputDecoration(
-              hintText: "Enter 4-6 digit PIN",
+              hintText: l10n.appLockEnterPin,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
@@ -79,8 +83,8 @@ class _SetLockStepWidgetState extends State<SetLockStepWidget> {
                 const SizedBox(height: 16),
                 Text(
                   widget.patternPoints.isEmpty
-                      ? "Draw your pattern"
-                      : "Points selected: ${widget.patternPoints.length}",
+                      ? l10n.appLockDrawPattern
+                      : l10n.appLockPointsSelected( '${widget.patternPoints.length}'),
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     color: AppColors.textPrimary,
@@ -91,7 +95,7 @@ class _SetLockStepWidgetState extends State<SetLockStepWidget> {
                   TextButton(
                     onPressed: widget.onClearPattern,
                     child: Text(
-                      "Redraw Pattern",
+                      l10n.appLockRedrawPattern,
                       style: GoogleFonts.poppins(color: AppColors.accentPink),
                     ),
                   ),
@@ -104,7 +108,7 @@ class _SetLockStepWidgetState extends State<SetLockStepWidget> {
             controller: widget.passwordController,
             obscureText: true,
             decoration: InputDecoration(
-              hintText: "Enter password",
+              hintText: l10n.appLockEnterPassword,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
@@ -127,7 +131,7 @@ class _SetLockStepWidgetState extends State<SetLockStepWidget> {
               borderRadius: BorderRadius.circular(16),
             ),
           ),
-          child: const Text("Continue"),
+          child: Text(l10n.appLockContinue),
         ),
       ],
     );

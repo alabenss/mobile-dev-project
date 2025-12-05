@@ -1,6 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'dart:math';
+
 class DBHelper {
   static Database? _database;
 
@@ -9,6 +10,7 @@ class DBHelper {
     _database = await _initDB('rise_app.db');
     return _database!;
   }
+
   // Initialize and open the database
   static Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
@@ -16,19 +18,20 @@ class DBHelper {
 
     return await openDatabase(
       path,
-      version: 5, // Increment version to trigger onUpgrade
+      version: 5, // FINAL VERSION = 5
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
   }
 
   // Handle database upgrades
-  static Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+  static Future<void> _onUpgrade(
+      Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       // Add userId column to home_status table
       await db.execute('ALTER TABLE home_status ADD COLUMN userId INTEGER');
     }
-    
+
     if (oldVersion < 3) {
       // Add new columns to journals table for enhanced features
       await db.execute('ALTER TABLE journals ADD COLUMN title TEXT');
@@ -36,7 +39,8 @@ class DBHelper {
       await db.execute('ALTER TABLE journals ADD COLUMN fontFamily TEXT');
       await db.execute('ALTER TABLE journals ADD COLUMN textColor TEXT');
       await db.execute('ALTER TABLE journals ADD COLUMN fontSize REAL');
-      await db.execute('ALTER TABLE journals ADD COLUMN attachedImages TEXT'); // JSON array
+      await db.execute(
+          'ALTER TABLE journals ADD COLUMN attachedImages TEXT'); // JSON array
       await db.execute('ALTER TABLE journals ADD COLUMN stickers TEXT'); // JSON array
       await db.execute('ALTER TABLE journals ADD COLUMN time TEXT'); // Time of journal entry
     }
@@ -59,9 +63,9 @@ class DBHelper {
     }
 
     if (oldVersion < 5) {
-      // Remove mood columns from home_status table
-      // SQLite doesn't support DROP COLUMN directly, so we need to recreate the table
-      
+      // --- Part 1: remove mood columns from home_status (old schema) ---
+      // SQLite doesn't support DROP COLUMN, so recreate the table
+
       // Create new table without mood columns
       await db.execute('''
         CREATE TABLE home_status_new(
@@ -75,23 +79,39 @@ class DBHelper {
           UNIQUE(date, userId)
         );
       ''');
-      
+
       // Copy data from old table (excluding mood columns)
+      // This assumes old home_status had at least these columns:
+      // id, date, userId, water_count, water_goal, detox_progress
       await db.execute('''
         INSERT INTO home_status_new (id, date, userId, water_count, water_goal, detox_progress)
         SELECT id, date, userId, water_count, water_goal, detox_progress
         FROM home_status;
       ''');
-      
+
       // Drop old table
       await db.execute('DROP TABLE home_status;');
-      
+
       // Rename new table to original name
       await db.execute('ALTER TABLE home_status_new RENAME TO home_status;');
+
+      // --- Part 2: create app_lock table ---
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS app_lock (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          userId INTEGER NOT NULL,
+          lockType TEXT NOT NULL,
+          lockValue TEXT NOT NULL,
+          createdAt TEXT NOT NULL,
+          updatedAt TEXT NOT NULL,
+          FOREIGN KEY (userId) REFERENCES users(id),
+          UNIQUE(userId)
+        )
+      ''');
     }
   }
 
-  // Create all the tables
+  // Create all the tables (final schema)
   static Future<void> _onCreate(Database db, int version) async {
     // Users table with password field
     await db.execute('''
@@ -105,7 +125,7 @@ class DBHelper {
       );
     ''');
 
-    // home status table with userId (WITHOUT mood fields)
+    // home_status table WITHOUT mood fields
     await db.execute('''
       CREATE TABLE home_status(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -119,7 +139,7 @@ class DBHelper {
       );
     ''');
 
-    // Habits table (includes createdDate, lastUpdated)
+    // Habits table
     await db.execute('''
       CREATE TABLE habits (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -172,25 +192,40 @@ class DBHelper {
         UNIQUE(userId, date)
       );
     ''');
+
+    // App Lock table
+    await db.execute('''
+      CREATE TABLE app_lock (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        userId INTEGER NOT NULL,
+        lockType TEXT NOT NULL,
+        lockValue TEXT NOT NULL,
+        createdAt TEXT NOT NULL,
+        updatedAt TEXT NOT NULL,
+        FOREIGN KEY (userId) REFERENCES users(id),
+        UNIQUE(userId)
+      )
+    ''');
   }
 
   // ------------------ Auth Methods ------------------
 
-
-
   /// Create a new user and return their ID
-  static Future<int> createUser(String name, String email, String password) async {
+  static Future<int> createUser(
+      String name, String email, String password) async {
     final db = await database;
     return await db.insert('users', {
       'name': name,
       'email': email,
       'password': password,
       'totalPoints': 0,
+      'stars': 0,
     });
   }
 
   /// Login user - verify credentials
-  static Future<Map<String, dynamic>?> loginUser(String email, String password) async {
+  static Future<Map<String, dynamic>?> loginUser(
+      String email, String password) async {
     final db = await database;
     final result = await db.query(
       'users',
@@ -198,10 +233,11 @@ class DBHelper {
       whereArgs: [email, password],
       limit: 1,
     );
-    
+
     if (result.isEmpty) return null;
     return result.first;
   }
+
   /// Check if a user with this email already exists
   static Future<bool> userExists(String email) async {
     final db = await database;
@@ -220,7 +256,6 @@ class DBHelper {
   /// Login using email
   static Future<Map<String, dynamic>?> loginUserByEmail(
       String email, String password) async {
-    // You already have loginUser(email, password), so reuse it:
     return await loginUser(email, password);
   }
 
@@ -264,7 +299,7 @@ class DBHelper {
     );
   }
 
-    // ------------------ Stars Methods ------------------
+  // ------------------ Stars Methods ------------------
 
   /// Get current number of stars for a specific user
   static Future<int> getUserStars(int userId) async {
@@ -298,7 +333,6 @@ class DBHelper {
     );
   }
 
-
   /// Get user by ID
   static Future<Map<String, dynamic>?> getUserById(int id) async {
     final db = await database;
@@ -308,7 +342,7 @@ class DBHelper {
       whereArgs: [id],
       limit: 1,
     );
-    
+
     if (result.isEmpty) return null;
     return result.first;
   }
@@ -332,6 +366,7 @@ class DBHelper {
       'email': 'guest@example.com',
       'password': 'guest123',
       'totalPoints': 0,
+      'stars': 0,
     });
     return id;
   }
@@ -370,19 +405,68 @@ class DBHelper {
     );
   }
 
+  // ------------------ App Lock Methods ------------------
+
+  /// Get app lock settings for a user
+  static Future<Map<String, dynamic>?> getAppLock(int userId) async {
+    final db = await database;
+    final result = await db.query(
+      'app_lock',
+      where: 'userId = ?',
+      whereArgs: [userId],
+      limit: 1,
+    );
+
+    if (result.isEmpty) return null;
+    return result.first;
+  }
+
+  /// Save app lock settings
+  static Future<void> saveAppLock({
+    required int userId,
+    required String lockType,
+    required String lockValue,
+  }) async {
+    final db = await database;
+    final now = DateTime.now().toIso8601String();
+
+    await db.insert(
+      'app_lock',
+      {
+        'userId': userId,
+        'lockType': lockType,
+        'lockValue': lockValue,
+        'createdAt': now,
+        'updatedAt': now,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  /// Remove app lock
+  static Future<void> removeAppLock(int userId) async {
+    final db = await database;
+    await db.delete(
+      'app_lock',
+      where: 'userId = ?',
+      whereArgs: [userId],
+    );
+  }
+
   // ------------------ Utilities ------------------
 
-  // clear all tables
+  /// Clear all tables
   static Future<void> clearAll() async {
     final db = await database;
     await db.delete('journals');
     await db.delete('habits');
     await db.delete('home_status');
     await db.delete('daily_moods');
+    await db.delete('app_lock');
     await db.delete('users');
   }
 
-  // Close the database
+  /// Close the database
   static Future<void> close() async {
     final db = _database;
     db?.close();
@@ -392,12 +476,13 @@ class DBHelper {
   /// Create a demo user with demo data if no users exist
   static Future<void> initializeDemoData() async {
     final db = await database;
-    
+
     // Check if we have any users
     final userCount = Sqflite.firstIntValue(
-      await db.rawQuery('SELECT COUNT(*) as c FROM users')
-    ) ?? 0;
-    
+          await db.rawQuery('SELECT COUNT(*) as c FROM users'),
+        ) ??
+        0;
+
     if (userCount == 0) {
       // Create demo user
       final userId = await db.insert('users', {
@@ -407,18 +492,18 @@ class DBHelper {
         'totalPoints': 0,
         'stars': 0,
       });
-      
+
       // Create demo data for the last 7 days
       final today = DateTime.now();
       final rnd = Random(1234);
-      
+
       for (int i = 6; i >= 0; i--) {
         final date = today.subtract(Duration(days: i));
-        final dateStr = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-        
-        // For today, start with 0 water and 0 detox
+        final dateStr =
+            '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+
         final isToday = i == 0;
-        
+
         // Insert home_status data (WITHOUT mood fields)
         await db.insert('home_status', {
           'date': dateStr,
@@ -427,8 +512,8 @@ class DBHelper {
           'water_goal': 8,
           'detox_progress': isToday ? 0.0 : rnd.nextDouble(),
         });
-        
-        // Add mood data to daily_moods table instead (but not for today)
+
+        // Add mood data to daily_moods table instead (not for today)
         if (!isToday) {
           await db.insert('daily_moods', {
             'userId': userId,
@@ -439,8 +524,8 @@ class DBHelper {
             'updatedAt': DateTime.now().toIso8601String(),
           });
         }
-        
-        // Add some journal entries (but not for today)
+
+        // Add some journal entries (not for today)
         if (i % 2 == 0 && !isToday) {
           await db.insert('journals', {
             'userId': userId,
@@ -452,10 +537,11 @@ class DBHelper {
           });
         }
       }
-      
+
       // Add some habits
-      final createdDateStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
-      
+      final createdDateStr =
+          '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+
       await db.insert('habits', {
         'userId': userId,
         'title': 'Morning Meditation',
@@ -467,7 +553,7 @@ class DBHelper {
         'Doitat': '08:00',
         'points': 10,
       });
-      
+
       await db.insert('habits', {
         'userId': userId,
         'title': 'Read a Book',
@@ -479,7 +565,7 @@ class DBHelper {
         'Doitat': '20:00',
         'points': 10,
       });
-      
+
       await db.insert('habits', {
         'userId': userId,
         'title': 'Weekly Review',
@@ -493,5 +579,4 @@ class DBHelper {
       });
     }
   }
-  
 }

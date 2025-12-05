@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:the_project/l10n/app_localizations.dart';
@@ -15,12 +16,43 @@ import 'package:the_project/views/themes/style_simple/colors.dart';
 import 'package:the_project/database/repo/stats_repo.dart';
 import 'package:the_project/logic/statistics/stats_cubit.dart';
 import 'package:the_project/logic/statistics/stats_state.dart';
+// Import the stats notifier
+import 'package:the_project/logic/statistics/stats_notifier.dart';
 
-class StatsScreen extends StatelessWidget {
+class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});
 
+  @override
+  State<StatsScreen> createState() => _StatsScreenState();
+}
+
+class _StatsScreenState extends State<StatsScreen> {
   static const Duration animDur = Duration(milliseconds: 420);
   static const Curve animCurve = Curves.easeInOutCubic;
+  
+  StreamSubscription? _statsNotifierSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    
+    // Listen to stats notifier for automatic refresh
+    // Uncomment when you add the stats_notifier.dart file
+    
+    _statsNotifierSubscription = StatsNotifier.instance.stream.listen((_) {
+      // Refresh stats when notified
+      if (mounted) {
+        context.read<StatsCubit>().refresh();
+      }
+    });
+    
+  }
+
+  @override
+  void dispose() {
+    _statsNotifierSubscription?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -148,7 +180,7 @@ class StatsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              state.message, // you can localize this where it's created if needed
+              state.message,
               style: GoogleFonts.poppins(
                 fontSize: 14,
                 color: AppColors.textPrimary.withOpacity(0.6),
@@ -211,8 +243,8 @@ class StatsScreen extends StatelessWidget {
     required StatsLoaded state,
     required AppLocalizations t,
   }) {
-    final hasData = state.waterData.isNotEmpty ||
-        state.moodData.isNotEmpty ||
+    final hasData = state.waterData.any((w) => w > 0) ||
+        state.moodData.any((m) => m != 0.5) ||
         state.journalingCount > 0;
 
     return SingleChildScrollView(
