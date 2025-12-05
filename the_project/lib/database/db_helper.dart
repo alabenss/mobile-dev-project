@@ -276,4 +276,39 @@ static Future<Map<String, dynamic>?> loginUserByEmail(
     return result.isNotEmpty;
   }
 
+  // Add these methods to your DBHelper class in db_helper.dart
+
+/// Update user name
+static Future<void> updateUserName(int userId, String newName) async {
+  final db = await database;
+  await db.update(
+    'users',
+    {'name': newName},
+    where: 'id = ?',
+    whereArgs: [userId],
+  );
+}
+
+/// Update user email
+static Future<void> updateUserEmail(int userId, String newEmail) async {
+  final db = await database;
+  await db.update(
+    'users',
+    {'email': newEmail},
+    where: 'id = ?',
+    whereArgs: [userId],
+  );
+}
+
+/// Update user password
+static Future<void> updateUserPassword(int userId, String newPassword) async {
+  final db = await database;
+  await db.update(
+    'users',
+    {'password': newPassword},
+    where: 'id = ?',
+    whereArgs: [userId],
+  );
+}
+
 }

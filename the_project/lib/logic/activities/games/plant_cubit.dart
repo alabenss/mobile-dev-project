@@ -100,6 +100,7 @@ class PlantCubit extends Cubit<PlantState> {
     // Persist
     await _setUserPoints(newPoints);
     await _savePlantProgress(w, s, stage, stars);
+    
   }
 
   // -------------------------------------------------------
