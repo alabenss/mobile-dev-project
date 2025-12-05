@@ -203,10 +203,10 @@ class ProfileScreen extends StatelessWidget {
                           'Edit Email',
                           user.email,
                           (newValue) {
-                            // TODO: Implement email update
+                            context.read<AuthCubit>().updateUserEmail(newValue);
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('Email update coming soon!'),
+                                content: Text('Email updated!'),
                               ),
                             );
                           },
@@ -224,7 +224,6 @@ class ProfileScreen extends StatelessWidget {
                           'Edit Username',
                           user.name,
                           (newValue) {
-                            // TODO: Implement username update
                             context.read<AuthCubit>().updateUserName(newValue);
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
