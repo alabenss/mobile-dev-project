@@ -117,192 +117,101 @@ class _VerifyLockScreenState extends State<VerifyLockScreen> {
     );
   }
 
-  Widget _buildPinInput(AppLockState state) {
-    return Column(
-      children: [
-        TextField(
-          controller: _inputController,
-          obscureText: true,
-          keyboardType: TextInputType.number,
-          maxLength: 6,
-          textAlign: TextAlign.center,
-          style: GoogleFonts.poppins(
-            fontSize: 24,
-            letterSpacing: 8,
-            fontWeight: FontWeight.w600,
-          ),
-          decoration: InputDecoration(
-            hintText: '••••••',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(
-                color: _showError ? AppColors.error : AppColors.textSecondary,
-              ),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(
-                color: _showError ? AppColors.error : AppColors.textSecondary,
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(
-                color: _showError ? AppColors.error : AppColors.accentPink,
-                width: 2,
-              ),
-            ),
-            filled: true,
-            fillColor: AppColors.card,
-            counterText: "",
-          ),
-          onChanged: (value) {
-            if (_showError) setState(() => _showError = false);
-            if (value.length == 6) {
-              // Auto-verify when 6 digits entered
-              _verifyLock(context, state);
-            }
-          },
-          autofocus: true,
-        ),
-        const SizedBox(height: 16),
-        ElevatedButton.icon(
-          onPressed: () => _verifyLock(context, state),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.accentPink,
-            foregroundColor: AppColors.kLight,
-            minimumSize: const Size(double.infinity, 56),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-          ),
-          icon: const Icon(Icons.check, size: 24),
-          label: Text(
-            'Verify PIN',
-            style: GoogleFonts.poppins(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildPatternInput(AppLockState state) {
-    return Container(
-      alignment: Alignment.center,
-      child: Column(
-        children: [
-          PatternLockWidget(
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // Pattern Widget - Centered with proper sizing
+        Container(
+          width: 300,
+          height: 300,
+          alignment: Alignment.center,
+          child: PatternLockWidget(
             points: _patternPoints,
             onPatternDraw: (points) {
               setState(() {
                 _patternPoints = points;
                 _showError = false;
               });
-              
-              // Auto-submit when pattern has at least 4 points
-              if (_patternPoints.length >= 4) {
-                _verifyLock(context, state);
-              }
             },
           ),
-          const SizedBox(height: 16),
-          if (_patternPoints.isNotEmpty) ...[
-            ElevatedButton.icon(
-              onPressed: () => _verifyLock(context, state),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.accentPink,
-                foregroundColor: AppColors.kLight,
-                minimumSize: const Size(double.infinity, 56),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+        ),
+        
+        // Buttons - Centered below pattern
+        const SizedBox(height: 32),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Redraw Button
+            if (_patternPoints.isNotEmpty)
+              SizedBox(
+                width: 140,
+                child: ElevatedButton(
+                  onPressed: _clearPattern,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.card,
+                    foregroundColor: AppColors.textPrimary,
+                    minimumSize: const Size(0, 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(color: AppColors.textSecondary.withOpacity(0.2)),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.refresh, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Redraw',
+                        style: GoogleFonts.poppins(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              icon: const Icon(Icons.check, size: 24),
-              label: Text(
-                'Verify Pattern',
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
+            
+            if (_patternPoints.isNotEmpty) const SizedBox(width: 16),
+            
+            // Verify Button for Pattern
+            SizedBox(
+              width: _patternPoints.isNotEmpty ? 140 : 200,
+              child: ElevatedButton(
+                onPressed: _patternPoints.isNotEmpty
+                    ? () => _verifyLock(context, state)
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _patternPoints.isNotEmpty
+                      ? AppColors.accentPink
+                      : AppColors.textSecondary.withOpacity(0.3),
+                  foregroundColor: AppColors.kLight,
+                  minimumSize: const Size(0, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 2,
+                  shadowColor: AppColors.accentPink.withOpacity(0.3),
                 ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            TextButton.icon(
-              onPressed: _clearPattern,
-              icon: const Icon(Icons.refresh, size: 20),
-              label: Text(
-                'Redraw Pattern',
-                style: GoogleFonts.poppins(
-                  color: AppColors.accentPink,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.check, size: 22),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Verify',
+                      style: GoogleFonts.poppins(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
           ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPasswordInput(AppLockState state) {
-    return Column(
-      children: [
-        TextField(
-          controller: _inputController,
-          obscureText: true,
-          textAlign: TextAlign.center,
-          style: GoogleFonts.poppins(fontSize: 18),
-          decoration: InputDecoration(
-            hintText: 'Enter password',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(
-                color: _showError ? AppColors.error : AppColors.textSecondary,
-              ),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(
-                color: _showError ? AppColors.error : AppColors.textSecondary,
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide(
-                color: _showError ? AppColors.error : AppColors.accentPink,
-                width: 2,
-              ),
-            ),
-            filled: true,
-            fillColor: AppColors.card,
-          ),
-          onChanged: (value) {
-            if (_showError) setState(() => _showError = false);
-          },
-          onSubmitted: (value) => _verifyLock(context, state),
-          autofocus: true,
-        ),
-        const SizedBox(height: 16),
-        ElevatedButton.icon(
-          onPressed: () => _verifyLock(context, state),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.accentPink,
-            foregroundColor: AppColors.kLight,
-            minimumSize: const Size(double.infinity, 56),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-          ),
-          icon: const Icon(Icons.check, size: 24),
-          label: Text(
-            'Verify Password',
-            style: GoogleFonts.poppins(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
         ),
       ],
     );
@@ -354,40 +263,45 @@ class _VerifyLockScreenState extends State<VerifyLockScreen> {
                   children: [
                     // Lock Icon
                     Container(
-                      padding: const EdgeInsets.all(24),
+                      padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
                         color: AppColors.accentPink.withOpacity(0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         Icons.lock_outline,
-                        size: 80,
+                        size: 60,
                         color: AppColors.accentPink,
                       ),
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 24),
 
                     // Title
                     Text(
                       'Enter ${_getLockTypeLabel(state.lockType, l10n).toLowerCase()} to unlock',
                       style: GoogleFonts.poppins(
-                        fontSize: 24,
+                        fontSize: 22,
                         fontWeight: FontWeight.w600,
                         color: AppColors.textPrimary,
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 48),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Welcome back!',
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
 
-                    // Input field based on lock type
-                    if (state.lockType == 'pin') 
-                      _buildPinInput(state)
-                    else if (state.lockType == 'pattern') 
-                      _buildPatternInput(state)
-                    else if (state.lockType == 'password') 
-                      _buildPasswordInput(state),
+                    const SizedBox(height: 40),
 
-                    const SizedBox(height: 32),
+                    // Pattern input - only show for pattern lock type
+                    if (state.lockType == 'pattern') 
+                      _buildPatternInput(state),
+
+                    const SizedBox(height: 40),
 
                     // Forgot lock option
                     TextButton(
