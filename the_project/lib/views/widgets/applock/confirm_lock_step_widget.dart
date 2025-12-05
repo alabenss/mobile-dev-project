@@ -1,5 +1,7 @@
+// ============= confirm_lock_step_widget.dart =============
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:the_project/l10n/app_localizations.dart';
 import 'package:the_project/views/themes/style_simple/colors.dart';
 import 'pattern_lock_widget.dart';
 
@@ -32,11 +34,13 @@ class ConfirmLockStepWidget extends StatefulWidget {
 class _ConfirmLockStepWidgetState extends State<ConfirmLockStepWidget> {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Confirm Your ${widget.selectedLockType?.toUpperCase()}",
+          l10n.appLockConfirmYour( widget.selectedLockType?.toUpperCase() ?? ''),
           style: GoogleFonts.poppins(
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -45,7 +49,7 @@ class _ConfirmLockStepWidgetState extends State<ConfirmLockStepWidget> {
         ),
         const SizedBox(height: 8),
         Text(
-          "Re-enter your ${widget.selectedLockType} to confirm",
+          l10n.appLockReenterLock( widget.selectedLockType ?? ''),
           style: GoogleFonts.poppins(fontSize: 14, color: AppColors.textSecondary),
         ),
         const SizedBox(height: 32),
@@ -57,7 +61,7 @@ class _ConfirmLockStepWidgetState extends State<ConfirmLockStepWidget> {
             keyboardType: TextInputType.number,
             maxLength: 6,
             decoration: InputDecoration(
-              hintText: "Confirm your PIN",
+              hintText: l10n.appLockConfirmPin,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
@@ -79,8 +83,8 @@ class _ConfirmLockStepWidgetState extends State<ConfirmLockStepWidget> {
                 const SizedBox(height: 16),
                 Text(
                   widget.confirmPatternPoints.isEmpty
-                      ? "Draw your pattern again"
-                      : "Points selected: ${widget.confirmPatternPoints.length}",
+                      ? l10n.appLockDrawPatternAgain
+                      : l10n.appLockPointsSelected( '${widget.confirmPatternPoints.length}'),
                   style: GoogleFonts.poppins(
                     fontSize: 14,
                     color: AppColors.textPrimary,
@@ -91,7 +95,7 @@ class _ConfirmLockStepWidgetState extends State<ConfirmLockStepWidget> {
                   TextButton(
                     onPressed: widget.onClearPattern,
                     child: Text(
-                      "Redraw Pattern",
+                      l10n.appLockRedrawPattern,
                       style: GoogleFonts.poppins(color: AppColors.accentPink),
                     ),
                   ),
@@ -104,7 +108,7 @@ class _ConfirmLockStepWidgetState extends State<ConfirmLockStepWidget> {
             controller: widget.confirmPasswordController,
             obscureText: true,
             decoration: InputDecoration(
-              hintText: "Confirm your password",
+              hintText: l10n.appLockConfirmPassword,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
               ),
@@ -119,7 +123,7 @@ class _ConfirmLockStepWidgetState extends State<ConfirmLockStepWidget> {
 
         if (!widget.validateStep()) ...[
           Text(
-            "Lock values don't match!",
+            l10n.appLockMismatch,
             style: GoogleFonts.poppins(fontSize: 14, color: AppColors.error),
           ),
           const SizedBox(height: 8),
@@ -135,7 +139,7 @@ class _ConfirmLockStepWidgetState extends State<ConfirmLockStepWidget> {
               borderRadius: BorderRadius.circular(16),
             ),
           ),
-          child: const Text("Save Lock"),
+          child: Text(l10n.appLockSaveLock),
         ),
       ],
     );

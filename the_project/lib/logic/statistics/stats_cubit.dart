@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:the_project/database/repo/stats_repo.dart';
 import 'package:the_project/views/widgets/stats/range_selector_widget.dart';
@@ -5,9 +6,51 @@ import 'stats_state.dart';
 
 class StatsCubit extends Cubit<StatsState> {
   final StatsRepo repo;
+  Timer? _refreshTimer;
 
   StatsCubit({required this.repo}) : super(const StatsInitial());
 
+  @override
+  Future<void> close() {
+    _refreshTimer?.cancel();
+    return super.close();
+  }
+
+  /// Initialize with default range and set up auto-refresh
+  Future<void> init() async {
+    await loadForRange(StatsRange.weekly);
+    
+    // Set up periodic refresh every 30 seconds to catch external changes
+    _refreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (state is StatsLoaded) {
+        _silentRefresh();
+      }
+    });
+  }
+
+  /// Silent refresh without showing loading state (for background updates)
+  Future<void> _silentRefresh() async {
+    if (state is! StatsLoaded) return;
+    
+    try {
+      final currentRange = (state as StatsLoaded).range;
+      final data = await repo.loadForRange(currentRange);
+      
+      emit(StatsLoaded(
+        range: currentRange,
+        waterData: data.waterData,
+        moodData: data.moodData,
+        journalingCount: data.journalingCount,
+        screenTime: data.screenTime,
+        labels: data.labels,
+      ));
+    } catch (e) {
+      print('Silent refresh failed: $e');
+      // Don't emit error state for silent refresh
+    }
+  }
+
+  /// Load data for a specific range
   Future<void> loadForRange(StatsRange range) async {
     try {
       // Emit loading state
@@ -33,7 +76,7 @@ class StatsCubit extends Cubit<StatsState> {
       print('StatsCubit Error: $e');
       emit(StatsError(range, 'Failed to load statistics. Please try again.'));
       
-      // After error, still try to show some data after a delay
+      // After error, try to load fallback data
       await Future.delayed(const Duration(seconds: 2));
       try {
         final fallbackData = await _loadFallbackData(range);
@@ -53,7 +96,6 @@ class StatsCubit extends Cubit<StatsState> {
 
   /// Load fallback demo data
   Future<StatsData> _loadFallbackData(StatsRange range) async {
-    // Simple fallback data
     switch (range) {
       case StatsRange.today:
         return StatsData(
@@ -73,11 +115,11 @@ class StatsCubit extends Cubit<StatsState> {
         );
       case StatsRange.monthly:
         return StatsData(
-          waterData: List.filled(12, 6.5),
-          moodData: List.filled(12, 0.65),
+          waterData: List.filled(4, 6.5),
+          moodData: List.filled(4, 0.65),
           journalingCount: 15,
           screenTime: {'social': 1.5, 'entertainment': 2.5, 'productivity': 4.0},
-          labels: ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8', 'W9', 'W10', 'W11', 'W12'],
+          labels: ['W1', 'W2', 'W3', 'W4'],
         );
       case StatsRange.yearly:
         return StatsData(
@@ -90,13 +132,12 @@ class StatsCubit extends Cubit<StatsState> {
     }
   }
 
-  // Convenience method for initialization
-  Future<void> init() => loadForRange(StatsRange.weekly);
-  
-  // Refresh current data
+  /// Refresh current data (user-initiated)
   Future<void> refresh() async {
     if (state is StatsLoaded) {
       await loadForRange((state as StatsLoaded).range);
+    } else if (state is StatsError) {
+      await loadForRange((state as StatsError).range);
     } else {
       await loadForRange(StatsRange.weekly);
     }

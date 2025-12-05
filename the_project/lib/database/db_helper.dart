@@ -1,6 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'dart:math';
+
 class DBHelper {
   static Database? _database;
 
@@ -9,6 +10,7 @@ class DBHelper {
     _database = await _initDB('rise_app.db');
     return _database!;
   }
+
   // Initialize and open the database
   static Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
@@ -16,7 +18,7 @@ class DBHelper {
 
     return await openDatabase(
       path,
-      version: 4, // Increment version to trigger onUpgrade
+      version: 5, // ✅ UPDATED from 4 to 5
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -54,6 +56,22 @@ class DBHelper {
           updatedAt TEXT NOT NULL,
           FOREIGN KEY (userId) REFERENCES users(id),
           UNIQUE(userId, date)
+        )
+      ''');
+    }
+
+    if (oldVersion < 5) {
+      // ✅ NEW: Create app_lock table
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS app_lock (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          userId INTEGER NOT NULL,
+          lockType TEXT NOT NULL,
+          lockValue TEXT NOT NULL,
+          createdAt TEXT NOT NULL,
+          updatedAt TEXT NOT NULL,
+          FOREIGN KEY (userId) REFERENCES users(id),
+          UNIQUE(userId)
         )
       ''');
     }
@@ -143,11 +161,23 @@ class DBHelper {
         UNIQUE(userId, date)
       );
     ''');
+
+    // ✅ NEW: App Lock table
+    await db.execute('''
+      CREATE TABLE app_lock (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        userId INTEGER NOT NULL,
+        lockType TEXT NOT NULL,
+        lockValue TEXT NOT NULL,
+        createdAt TEXT NOT NULL,
+        updatedAt TEXT NOT NULL,
+        FOREIGN KEY (userId) REFERENCES users(id),
+        UNIQUE(userId)
+      )
+    ''');
   }
 
   // ------------------ Auth Methods ------------------
-
-
 
   /// Create a new user and return their ID
   static Future<int> createUser(String name, String email, String password) async {
@@ -157,6 +187,7 @@ class DBHelper {
       'email': email,
       'password': password,
       'totalPoints': 0,
+      'stars': 0,
     });
   }
 
@@ -173,6 +204,7 @@ class DBHelper {
     if (result.isEmpty) return null;
     return result.first;
   }
+
   /// Check if a user with this email already exists
   static Future<bool> userExists(String email) async {
     final db = await database;
@@ -191,7 +223,6 @@ class DBHelper {
   /// Login using email
   static Future<Map<String, dynamic>?> loginUserByEmail(
       String email, String password) async {
-    // You already have loginUser(email, password), so reuse it:
     return await loginUser(email, password);
   }
 
@@ -235,7 +266,7 @@ class DBHelper {
     );
   }
 
-    // ------------------ Stars Methods ------------------
+  // ------------------ Stars Methods ------------------
 
   /// Get current number of stars for a specific user
   static Future<int> getUserStars(int userId) async {
@@ -268,7 +299,6 @@ class DBHelper {
       whereArgs: [userId],
     );
   }
-
 
   /// Get user by ID
   static Future<Map<String, dynamic>?> getUserById(int id) async {
@@ -303,6 +333,7 @@ class DBHelper {
       'email': 'guest@example.com',
       'password': 'guest123',
       'totalPoints': 0,
+      'stars': 0,
     });
     return id;
   }
@@ -341,96 +372,151 @@ class DBHelper {
     );
   }
 
+  // ------------------ App Lock Methods ------------------
+
+  /// Get app lock settings for a user
+  static Future<Map<String, dynamic>?> getAppLock(int userId) async {
+    final db = await database;
+    final result = await db.query(
+      'app_lock',
+      where: 'userId = ?',
+      whereArgs: [userId],
+      limit: 1,
+    );
+    
+    if (result.isEmpty) return null;
+    return result.first;
+  }
+
+  /// Save app lock settings
+  static Future<void> saveAppLock({
+    required int userId,
+    required String lockType,
+    required String lockValue,
+  }) async {
+    final db = await database;
+    final now = DateTime.now().toIso8601String();
+    
+    await db.insert(
+      'app_lock',
+      {
+        'userId': userId,
+        'lockType': lockType,
+        'lockValue': lockValue,
+        'createdAt': now,
+        'updatedAt': now,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  /// Remove app lock
+  static Future<void> removeAppLock(int userId) async {
+    final db = await database;
+    await db.delete(
+      'app_lock',
+      where: 'userId = ?',
+      whereArgs: [userId],
+    );
+  }
+
   // ------------------ Utilities ------------------
 
-  // clear all tables
+  /// Clear all tables
   static Future<void> clearAll() async {
     final db = await database;
     await db.delete('journals');
     await db.delete('habits');
     await db.delete('home_status');
-    await db.delete('daily_moods'); // ADD THIS
+    await db.delete('daily_moods');
+    await db.delete('app_lock'); // ✅ ADDED
     await db.delete('users');
   }
 
-  // Close the database
+  /// Close the database
   static Future<void> close() async {
     final db = _database;
     db?.close();
     _database = null;
   }
-  // In db_helper.dart, add this method:
 
-/// Create a demo user with demo data if no users exist
-static Future<void> initializeDemoData() async {
-  final db = await database;
-  
-  // Check if we have any users
-  final userCount = Sqflite.firstIntValue(
-    await db.rawQuery('SELECT COUNT(*) as c FROM users')
-  ) ?? 0;
-  
-  if (userCount == 0) {
-    // Create demo user
-    final userId = await db.insert('users', {
-      'name': 'Demo User',
-      'email': 'demo@example.com',
-      'password': 'demo123',
-      'totalPoints': 100,
-    });
+  /// Create a demo user with demo data if no users exist
+  static Future<void> initializeDemoData() async {
+    final db = await database;
     
-    // Create demo data for the last 7 days
-    final today = DateTime.now();
-    final rnd = Random(1234);
+    // Check if we have any users
+    final userCount = Sqflite.firstIntValue(
+      await db.rawQuery('SELECT COUNT(*) as c FROM users')
+    ) ?? 0;
     
-    for (int i = 6; i >= 0; i--) {
-      final date = today.subtract(Duration(days: i));
-      final dateStr = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-      
-      // Insert home_status data
-      await db.insert('home_status', {
-        'date': dateStr,
-        'userId': userId,
-        'water_count': (rnd.nextDouble() * 3 + 5).toInt(), // 5-8 glasses
-        'water_goal': 8,
-        'detox_progress': rnd.nextDouble(),
-        'mood_label': ['happy', 'ok', 'sad'][i % 3],
-        'mood_image': '',
-        'mood_time': '${(8 + i % 4)}:00',
+    if (userCount == 0) {
+      // Create demo user
+      final userId = await db.insert('users', {
+        'name': 'Demo User',
+        'email': 'demo@example.com',
+        'password': 'demo123',
+        'totalPoints': 100,
+        'stars': 5,
       });
       
-      // Add some journal entries
-      if (i % 2 == 0) {
-        await db.insert('journals', {
-          'userId': userId,
+      // Create demo data for the last 7 days
+      final today = DateTime.now();
+      final rnd = Random(1234);
+      
+      for (int i = 6; i >= 0; i--) {
+        final date = today.subtract(Duration(days: i));
+        final dateStr = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+        
+        // Insert home_status data
+        await db.insert('home_status', {
           'date': dateStr,
-          'mood': ['happy', 'ok'][i % 2],
-          'text': 'Journal entry for $dateStr. Had a good day!',
-          'imagePath': null,
-          'voicePath': null,
+          'userId': userId,
+          'water_count': (rnd.nextDouble() * 3 + 5).toInt(), // 5-8 glasses
+          'water_goal': 8,
+          'detox_progress': rnd.nextDouble(),
+          'mood_label': ['happy', 'ok', 'sad'][i % 3],
+          'mood_image': '',
+          'mood_time': '${(8 + i % 4)}:00',
         });
+        
+        // Add some journal entries
+        if (i % 2 == 0) {
+          await db.insert('journals', {
+            'userId': userId,
+            'date': dateStr,
+            'mood': ['happy', 'ok'][i % 2],
+            'text': 'Journal entry for $dateStr. Had a good day!',
+            'imagePath': null,
+            'voicePath': null,
+          });
+        }
       }
+      
+      // Add some habits
+      final createdDateStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+      await db.insert('habits', {
+        'userId': userId,
+        'title': 'Morning Meditation',
+        'description': 'Meditate for 10 minutes',
+        'frequency': 'daily',
+        'status': 'active',
+        'createdDate': createdDateStr,
+        'lastUpdated': createdDateStr,
+        'Doitat': '08:00',
+        'points': 10,
+      });
+
+      await db.insert('habits', {
+        'userId': userId,
+        'title': 'Evening Walk',
+        'description': 'Walk for 20 minutes',
+        'frequency': 'daily',
+        'status': 'active',
+        'createdDate': createdDateStr,
+        'lastUpdated': createdDateStr,
+        'Doitat': '18:00',
+        'points': 15,
+      });
     }
-    
-    // Add some habits
-    final createdDateStr = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
-    await db.insert('habits', {
-      'userId': userId,
-      'title': 'Morning Meditation',
-      'description': 'Meditate for 10 minutes',
-      'frequency': 'daily',
-      'status': 'active',
-      'createdDate': createdDateStr,
-      'lastUpdated': createdDateStr,
-      'Doitat': '08:00',
-      'points': 10,
-    });
   }
 }
-  
-}
-
-
-
-
- 
