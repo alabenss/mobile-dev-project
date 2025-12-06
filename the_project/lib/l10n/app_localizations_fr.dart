@@ -1048,4 +1048,25 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get journalMonthDecember => 'Décembre';
+
+  @override
+  String get quote1 => 'La meilleure façon de prédire l\'avenir est de le créer.';
+
+  @override
+  String get quote2 => 'Tu es plus fort que tu ne le penses.';
+
+  @override
+  String get quote3 => 'De petits pas chaque jour mènent à de grands changements.';
+
+  @override
+  String get quote4 => 'Tu n\'as pas besoin d\'être parfait pour être incroyable.';
+
+  @override
+  String get quote5 => 'Crois que tu peux, et tu as déjà fait la moitié du chemin.';
+
+  @override
+  String get quote6 => 'Pour vivre une vie heureuse, attache-la à un objectif, pas à des personnes ou des choses.';
+
+  @override
+  String get quote7 => 'La seule façon de faire du bon travail est d\'aimer ce que tu fais.';
 }

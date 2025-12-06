@@ -2034,6 +2034,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'December'**
   String get journalMonthDecember;
+
+  /// No description provided for @quote1.
+  ///
+  /// In en, this message translates to:
+  /// **'The best way to predict the future is to create it'**
+  String get quote1;
+
+  /// No description provided for @quote2.
+  ///
+  /// In en, this message translates to:
+  /// **'You are stronger than you think.'**
+  String get quote2;
+
+  /// No description provided for @quote3.
+  ///
+  /// In en, this message translates to:
+  /// **'Small steps every day lead to big changes.'**
+  String get quote3;
+
+  /// No description provided for @quote4.
+  ///
+  /// In en, this message translates to:
+  /// **'You don’t have to be perfect to be amazing.'**
+  String get quote4;
+
+  /// No description provided for @quote5.
+  ///
+  /// In en, this message translates to:
+  /// **'Believe you can and you’re halfway there.'**
+  String get quote5;
+
+  /// No description provided for @quote6.
+  ///
+  /// In en, this message translates to:
+  /// **'If you want to live a happy life, tie it to a goal, not to people or things.'**
+  String get quote6;
+
+  /// No description provided for @quote7.
+  ///
+  /// In en, this message translates to:
+  /// **'The only way to do great work is to love what you do.'**
+  String get quote7;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

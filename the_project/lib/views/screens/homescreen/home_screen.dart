@@ -98,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 ImageQuoteCard(
                   imagePath: AppImages.quotes,
-                  quote: AppConfig.quoteOfTheDay,
+                  quote: AppConfig.quoteOfTheDay(context),
                 ),
                 const SizedBox(height: 18),
 

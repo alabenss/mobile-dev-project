@@ -1048,4 +1048,25 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get journalMonthDecember => 'ديسمبر';
+
+  @override
+  String get quote1 => 'أفضل طريقة للتنبؤ بالمستقبل هي صنعه';
+
+  @override
+  String get quote2 => 'أنت أقوى مما تعتقد.';
+
+  @override
+  String get quote3 => 'خطوات صغيرة كل يوم تقود إلى تغييرات كبيرة.';
+
+  @override
+  String get quote4 => 'ليس عليك أن تكون مثالياً لتكون رائعاً.';
+
+  @override
+  String get quote5 => 'آمن بأنك تستطيع، وقد قطعت نصف الطريق.';
+
+  @override
+  String get quote6 => 'إذا أردت أن تعيش حياة سعيدة، فاربطها بهدف وليس بأشخاص أو أشياء.';
+
+  @override
+  String get quote7 => 'الطريقة الوحيدة للقيام بعمل رائع هي أن تحب ما تفعله.';
 }

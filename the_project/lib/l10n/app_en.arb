@@ -565,5 +565,15 @@
   "journalMonthSeptember": "September",
   "journalMonthOctober": "October",
   "journalMonthNovember": "November",
-  "journalMonthDecember": "December"
+  "journalMonthDecember": "December",
+
+  "quote1": "The best way to predict the future is to create it",
+  "quote2": "You are stronger than you think.",
+  "quote3": "Small steps every day lead to big changes.",
+  "quote4": "You don’t have to be perfect to be amazing.",
+  "quote5": "Believe you can and you’re halfway there.",
+  "quote6": "If you want to live a happy life, tie it to a goal, not to people or things.",
+  "quote7": "The only way to do great work is to love what you do."
+
+  
 }
