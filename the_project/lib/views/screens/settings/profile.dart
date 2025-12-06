@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../themes/style_simple/colors.dart';
 import '../../../logic/auth/auth_cubit.dart';
 import '../../../logic/auth/auth_state.dart';
+import '../../../logic/locale/locale_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
@@ -36,10 +37,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  String _getLanguageDisplayName(LocaleState localeState) {
+    if (localeState.isSystemDefault) {
+      return 'System Default';
+    }
+    
+    if (localeState.locale == null) {
+      return 'System Default';
+    }
+    
+    final lang = LocaleCubit.availableLanguages.firstWhere(
+      (l) => l['code'] == localeState.locale!.languageCode,
+      orElse: () => {'name': 'English'},
+    );
+    
+    return lang['name'] ?? 'English';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // 🧭 Custom app bar (no profile picture, with back button)
+      // Custom app bar (no profile picture, with back button)
       appBar: AppBar(
         backgroundColor: Colors.white.withOpacity(0.85),
         elevation: 2,
@@ -61,7 +79,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
 
-      // 🌈 Background gradient
+      // Background gradient
       body: BlocBuilder<AuthCubit, AuthState>(
         builder: (context, authState) {
           final user = authState.user;
@@ -88,7 +106,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // 👤 Profile Picture
+                    // Profile Picture
                     Stack(
                       alignment: Alignment.bottomRight,
                       children: [
@@ -105,14 +123,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                         Container(
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             shape: BoxShape.circle,
                             color: AppColors.accentPink,
                           ),
                           child: IconButton(
                             icon: const Icon(Icons.edit, color: Colors.white, size: 20),
                             onPressed: () {
-                              // TODO: edit profile picture
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text('Profile picture editing coming soon!'),
@@ -127,7 +144,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                     const SizedBox(height: 16),
 
-                    // 📛 Username
+                    // Username
                     Text(
                       user.name,
                       style: GoogleFonts.poppins(
@@ -139,7 +156,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                     const SizedBox(height: 6),
 
-                    // ⭐ Points and Stars
+                    // Points and Stars
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -205,7 +222,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                     const SizedBox(height: 24),
 
-                    // 📋 Editable Info Fields
+                    // Editable Info Fields
                     _ProfileField(
                       label: "Email",
                       value: user.email,
@@ -257,7 +274,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                     const SizedBox(height: 30),
 
-                    // 🔒 App Lock Option
+                    // App Lock Option
                     _OptionTile(
                       icon: Icons.lock_outline,
                       title: "App Lock",
@@ -269,23 +286,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                     const SizedBox(height: 12),
 
-                    // 🌍 Language Option
-                    _OptionTile(
-                      icon: Icons.language_outlined,
-                      title: "Language",
-                      subtitle: "Change app language",
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Language settings coming soon!'),
-                          ),
+                    // Language Option with current language display
+                    BlocBuilder<LocaleCubit, LocaleState>(
+                      builder: (context, localeState) {
+                        return _OptionTile(
+                          icon: Icons.language_outlined,
+                          title: "Language",
+                          subtitle: _getLanguageDisplayName(localeState),
+                          onTap: () {
+                            Navigator.pushNamed(context, '/language');
+                          },
                         );
                       },
                     ),
 
                     const SizedBox(height: 24),
 
-                    // 🚪 Log out
+                    // Log out
                     TextButton.icon(
                       onPressed: () async {
                         // Show confirmation dialog
@@ -397,8 +414,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 }
 
-// ------------------------------------------------------------
-// 🔹 Profile Field Widget
+// Profile Field Widget
 class _ProfileField extends StatelessWidget {
   final String label;
   final String value;
@@ -466,8 +482,7 @@ class _ProfileField extends StatelessWidget {
   }
 }
 
-// ------------------------------------------------------------
-// ⚙️ Option Tile Widget (App Lock, Language, etc.)
+// Option Tile Widget (App Lock, Language, etc.)
 class _OptionTile extends StatelessWidget {
   final IconData icon;
   final String title;

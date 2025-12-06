@@ -20,6 +20,7 @@ import '../../widgets/home/explore_card.dart';
 import '../../../logic/home/home_cubit.dart';
 import '../../../logic/home/home_state.dart';
 import '../../../logic/auth/auth_cubit.dart';
+import '../../../utils/habit_localization.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback? onViewAllHabits;
@@ -61,6 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final l10n = AppLocalizations.of(context)!;
 
     return BlocBuilder<HomeCubit, HomeState>(
@@ -154,9 +156,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   child: habitsToShow.isEmpty
                       ? Padding(
+                      ? Padding(
                           padding: const EdgeInsets.symmetric(vertical: 16.0),
                           child: Center(
                             child: Text(
+                              '${l10n.noDailyHabits}\n${l10n.tapToAddHabit}',
                               '${l10n.noDailyHabits}\n${l10n.tapToAddHabit}',
                               style: const TextStyle(
                                 fontSize: 14,
@@ -171,11 +175,16 @@ class _HomeScreenState extends State<HomeScreen> {
                             for (int i = 0; i < habitsToShow.length; i++) ...[
                               HabitTile(
                                 icon: habitsToShow[i].icon,
-                                title: habitsToShow[i].title,
+                                title: HabitLocalization.getLocalizedTitle(
+                                  context, 
+                                  habitsToShow[i],
+                                ),
+                                habitKey: habitsToShow[i].habitKey,
                                 checked: habitsToShow[i].done,
                                 onToggle: () {
+                                  // Use habitKey instead of title
                                   homeCubit.toggleHabitCompletion(
-                                    habitsToShow[i].title,
+                                    habitsToShow[i].habitKey,
                                     habitsToShow[i].done,
                                   );
                                 },
