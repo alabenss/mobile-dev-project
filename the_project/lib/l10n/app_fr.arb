@@ -580,6 +580,51 @@
   "quote4": "Tu n'as pas besoin d'être parfait pour être incroyable.",
   "quote5": "Crois que tu peux, et tu as déjà fait la moitié du chemin.",
   "quote6": "Pour vivre une vie heureuse, attache-la à un objectif, pas à des personnes ou des choses.",
-  "quote7": "La seule façon de faire du bon travail est d'aimer ce que tu fais."
+  "quote7": "La seule façon de faire du bon travail est d'aimer ce que tu fais.",
  
+
+ 
+  "profileTitle": "Profil",
+  "profileNoUserLoggedIn": "Aucun utilisateur connecté",
+  "profileEditPictureComingSoon": "La modification de la photo de profil arrive bientôt !",
+  "profilePointsLabel": "Points",
+  "profileStarsLabel": "Étoiles",
+  "profileEmailLabel": "E-mail",
+  "profileUsernameLabel": "Nom d'utilisateur",
+  "profileJoinedLabel": "Inscrit depuis",
+  "profileJoinedRecently": "Récemment",
+  "profileAppLockTitle": "Verrouillage de l'application",
+  "profileAppLockSubtitle": "Configurer ou modifier le verrouillage de l'application",
+  "profileLanguageTitle": "Langue",
+  "profileLogoutButton": "Se déconnecter",
+  "profileLogoutDialogTitle": "Se déconnecter",
+  "profileLogoutDialogContent": "Êtes-vous sûr de vouloir vous déconnecter ?",
+  "profileLogoutDialogCancel": "Annuler",
+  "profileLogoutDialogConfirm": "Se déconnecter",
+  "profileEmailUpdated": "E-mail mis à jour !",
+  "profileUsernameUpdated": "Nom d'utilisateur mis à jour !",
+  "profileEditEmailTitle": "Modifier l'e-mail",
+  "profileEditUsernameTitle": "Modifier le nom d'utilisateur",
+  "profileDialogCancel": "Annuler",
+  "profileDialogSave": "Enregistrer",
+
+  "languageScreenTitle": "Langue",
+  "languageSystemDefaultTitle": "Par défaut du système",
+  "languageSystemDefaultSubtitle": "Suivre les paramètres de l'appareil",
+  "languageAvailableLanguagesSectionTitle": "Langues disponibles",
+  "languageSystemDefaultSnack": "Langue définie sur la valeur par défaut du système",
+  "languageChangedSnack": "Langue changée en {language}",
+  "@languageChangedSnack": {
+    "description": "Snackbar quand la langue change",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "languageEnglish": "Anglais",
+  "languageFrench": "Français",
+  "languageArabic": "Arabe"
+
+
 }

@@ -1,34 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:the_project/l10n/app_localizations.dart';
+
 import '../../../logic/locale/locale_cubit.dart';
 import '../../themes/style_simple/colors.dart';
 
 class LanguageSelectionScreen extends StatelessWidget {
   const LanguageSelectionScreen({super.key});
 
-  String _getLanguageName(String code) {
-    switch (code) {
-      case 'en':
-        return 'English';
-      case 'fr':
-        return 'French';
-      case 'ar':
-        return 'Arabic';
-      default:
-        return code;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white.withOpacity(0.85),
         elevation: 2,
         centerTitle: true,
         title: Text(
-          "Language",
+          l10n.languageScreenTitle,
           style: GoogleFonts.poppins(
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -59,20 +50,17 @@ class LanguageSelectionScreen extends StatelessWidget {
                 children: [
                   // System Default Option
                   _LanguageTile(
-                    languageName: 'System Default',
-                    nativeName: 'Follow device settings',
+                    languageName: l10n.languageSystemDefaultTitle,
+                    nativeName: l10n.languageSystemDefaultSubtitle,
                     languageCode: 'system',
                     isSelected: localeState.isSystemDefault,
                     icon: Icons.phone_android,
                     onTap: () async {
                       await context.read<LocaleCubit>().useSystemDefault();
                       if (context.mounted) {
-                        final systemLocale = Localizations.localeOf(context);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(
-                              'Language set to system default ',
-                            ),
+                            content: Text(l10n.languageSystemDefaultSnack),
                             backgroundColor: AppColors.accentGreen,
                             duration: const Duration(seconds: 2),
                           ),
@@ -80,13 +68,14 @@ class LanguageSelectionScreen extends StatelessWidget {
                       }
                     },
                   ),
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 8),
                     child: Text(
-                      'Available Languages',
+                      l10n.languageAvailableLanguagesSectionTitle,
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -94,14 +83,14 @@ class LanguageSelectionScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 8),
 
                   // Language Options
                   ...LocaleCubit.availableLanguages.map((lang) {
                     final isSelected = !localeState.isSystemDefault &&
                         localeState.locale?.languageCode == lang['code'];
-                    
+
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: _LanguageTile(
@@ -110,11 +99,15 @@ class LanguageSelectionScreen extends StatelessWidget {
                         languageCode: lang['code']!,
                         isSelected: isSelected,
                         onTap: () async {
-                          await context.read<LocaleCubit>().changeLocale(lang['code']!);
+                          await context
+                              .read<LocaleCubit>()
+                              .changeLocale(lang['code']!);
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text('Language changed to ${lang['name']}'),
+                                content: Text(
+                                  l10n.languageChangedSnack(lang['name']!),
+                                ),
                                 backgroundColor: AppColors.accentGreen,
                                 duration: const Duration(seconds: 2),
                               ),
@@ -179,7 +172,9 @@ class _LanguageTile extends StatelessWidget {
             if (icon != null)
               Icon(
                 icon,
-                color: isSelected ? AppColors.accentPink : AppColors.textSecondary,
+                color: isSelected
+                    ? AppColors.accentPink
+                    : AppColors.textSecondary,
                 size: 28,
               )
             else

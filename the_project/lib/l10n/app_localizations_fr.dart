@@ -1072,4 +1072,102 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get quote7 => 'La seule façon de faire du bon travail est d\'aimer ce que tu fais.';
+
+  @override
+  String get profileTitle => 'Profil';
+
+  @override
+  String get profileNoUserLoggedIn => 'Aucun utilisateur connecté';
+
+  @override
+  String get profileEditPictureComingSoon => 'La modification de la photo de profil arrive bientôt !';
+
+  @override
+  String get profilePointsLabel => 'Points';
+
+  @override
+  String get profileStarsLabel => 'Étoiles';
+
+  @override
+  String get profileEmailLabel => 'E-mail';
+
+  @override
+  String get profileUsernameLabel => 'Nom d\'utilisateur';
+
+  @override
+  String get profileJoinedLabel => 'Inscrit depuis';
+
+  @override
+  String get profileJoinedRecently => 'Récemment';
+
+  @override
+  String get profileAppLockTitle => 'Verrouillage de l\'application';
+
+  @override
+  String get profileAppLockSubtitle => 'Configurer ou modifier le verrouillage de l\'application';
+
+  @override
+  String get profileLanguageTitle => 'Langue';
+
+  @override
+  String get profileLogoutButton => 'Se déconnecter';
+
+  @override
+  String get profileLogoutDialogTitle => 'Se déconnecter';
+
+  @override
+  String get profileLogoutDialogContent => 'Êtes-vous sûr de vouloir vous déconnecter ?';
+
+  @override
+  String get profileLogoutDialogCancel => 'Annuler';
+
+  @override
+  String get profileLogoutDialogConfirm => 'Se déconnecter';
+
+  @override
+  String get profileEmailUpdated => 'E-mail mis à jour !';
+
+  @override
+  String get profileUsernameUpdated => 'Nom d\'utilisateur mis à jour !';
+
+  @override
+  String get profileEditEmailTitle => 'Modifier l\'e-mail';
+
+  @override
+  String get profileEditUsernameTitle => 'Modifier le nom d\'utilisateur';
+
+  @override
+  String get profileDialogCancel => 'Annuler';
+
+  @override
+  String get profileDialogSave => 'Enregistrer';
+
+  @override
+  String get languageScreenTitle => 'Langue';
+
+  @override
+  String get languageSystemDefaultTitle => 'Par défaut du système';
+
+  @override
+  String get languageSystemDefaultSubtitle => 'Suivre les paramètres de l\'appareil';
+
+  @override
+  String get languageAvailableLanguagesSectionTitle => 'Langues disponibles';
+
+  @override
+  String get languageSystemDefaultSnack => 'Langue définie sur la valeur par défaut du système';
+
+  @override
+  String languageChangedSnack(String language) {
+    return 'Langue changée en $language';
+  }
+
+  @override
+  String get languageEnglish => 'Anglais';
+
+  @override
+  String get languageFrench => 'Français';
+
+  @override
+  String get languageArabic => 'Arabe';
 }

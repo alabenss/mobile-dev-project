@@ -574,7 +574,51 @@
   "quote4": "You don’t have to be perfect to be amazing.",
   "quote5": "Believe you can and you’re halfway there.",
   "quote6": "If you want to live a happy life, tie it to a goal, not to people or things.",
-  "quote7": "The only way to do great work is to love what you do."
+  "quote7": "The only way to do great work is to love what you do.",
+
+
+  "profileTitle": "Profile",
+  "profileNoUserLoggedIn": "No user logged in",
+  "profileEditPictureComingSoon": "Profile picture editing coming soon!",
+  "profilePointsLabel": "Points",
+  "profileStarsLabel": "Stars",
+  "profileEmailLabel": "Email",
+  "profileUsernameLabel": "Username",
+  "profileJoinedLabel": "Joined",
+  "profileJoinedRecently": "Recently",
+  "profileAppLockTitle": "App Lock",
+  "profileAppLockSubtitle": "Set or change your app lock",
+  "profileLanguageTitle": "Language",
+  "profileLogoutButton": "Log Out",
+  "profileLogoutDialogTitle": "Log Out",
+  "profileLogoutDialogContent": "Are you sure you want to log out?",
+  "profileLogoutDialogCancel": "Cancel",
+  "profileLogoutDialogConfirm": "Log Out",
+  "profileEmailUpdated": "Email updated!",
+  "profileUsernameUpdated": "Username updated!",
+  "profileEditEmailTitle": "Edit Email",
+  "profileEditUsernameTitle": "Edit Username",
+  "profileDialogCancel": "Cancel",
+  "profileDialogSave": "Save",
+
+  "languageScreenTitle": "Language",
+  "languageSystemDefaultTitle": "System Default",
+  "languageSystemDefaultSubtitle": "Follow device settings",
+  "languageAvailableLanguagesSectionTitle": "Available Languages",
+  "languageSystemDefaultSnack": "Language set to system default",
+  "languageChangedSnack": "Language changed to {language}",
+  "@languageChangedSnack": {
+    "description": "Snackbar when language is changed",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "languageEnglish": "English",
+  "languageFrench": "French",
+  "languageArabic": "Arabic"
+
 
   
 }

@@ -2082,6 +2082,198 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The only way to do great work is to love what you do.'**
   String get quote7;
+
+  /// No description provided for @profileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profileTitle;
+
+  /// No description provided for @profileNoUserLoggedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'No user logged in'**
+  String get profileNoUserLoggedIn;
+
+  /// No description provided for @profileEditPictureComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile picture editing coming soon!'**
+  String get profileEditPictureComingSoon;
+
+  /// No description provided for @profilePointsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Points'**
+  String get profilePointsLabel;
+
+  /// No description provided for @profileStarsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Stars'**
+  String get profileStarsLabel;
+
+  /// No description provided for @profileEmailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get profileEmailLabel;
+
+  /// No description provided for @profileUsernameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get profileUsernameLabel;
+
+  /// No description provided for @profileJoinedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Joined'**
+  String get profileJoinedLabel;
+
+  /// No description provided for @profileJoinedRecently.
+  ///
+  /// In en, this message translates to:
+  /// **'Recently'**
+  String get profileJoinedRecently;
+
+  /// No description provided for @profileAppLockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'App Lock'**
+  String get profileAppLockTitle;
+
+  /// No description provided for @profileAppLockSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set or change your app lock'**
+  String get profileAppLockSubtitle;
+
+  /// No description provided for @profileLanguageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get profileLanguageTitle;
+
+  /// No description provided for @profileLogoutButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Log Out'**
+  String get profileLogoutButton;
+
+  /// No description provided for @profileLogoutDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log Out'**
+  String get profileLogoutDialogTitle;
+
+  /// No description provided for @profileLogoutDialogContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to log out?'**
+  String get profileLogoutDialogContent;
+
+  /// No description provided for @profileLogoutDialogCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get profileLogoutDialogCancel;
+
+  /// No description provided for @profileLogoutDialogConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Log Out'**
+  String get profileLogoutDialogConfirm;
+
+  /// No description provided for @profileEmailUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Email updated!'**
+  String get profileEmailUpdated;
+
+  /// No description provided for @profileUsernameUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Username updated!'**
+  String get profileUsernameUpdated;
+
+  /// No description provided for @profileEditEmailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Email'**
+  String get profileEditEmailTitle;
+
+  /// No description provided for @profileEditUsernameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Username'**
+  String get profileEditUsernameTitle;
+
+  /// No description provided for @profileDialogCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get profileDialogCancel;
+
+  /// No description provided for @profileDialogSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get profileDialogSave;
+
+  /// No description provided for @languageScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get languageScreenTitle;
+
+  /// No description provided for @languageSystemDefaultTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'System Default'**
+  String get languageSystemDefaultTitle;
+
+  /// No description provided for @languageSystemDefaultSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow device settings'**
+  String get languageSystemDefaultSubtitle;
+
+  /// No description provided for @languageAvailableLanguagesSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Available Languages'**
+  String get languageAvailableLanguagesSectionTitle;
+
+  /// No description provided for @languageSystemDefaultSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Language set to system default'**
+  String get languageSystemDefaultSnack;
+
+  /// Snackbar when language is changed
+  ///
+  /// In en, this message translates to:
+  /// **'Language changed to {language}'**
+  String languageChangedSnack(String language);
+
+  /// No description provided for @languageEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageEnglish;
+
+  /// No description provided for @languageFrench.
+  ///
+  /// In en, this message translates to:
+  /// **'French'**
+  String get languageFrench;
+
+  /// No description provided for @languageArabic.
+  ///
+  /// In en, this message translates to:
+  /// **'Arabic'**
+  String get languageArabic;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

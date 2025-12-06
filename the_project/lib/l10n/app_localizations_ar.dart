@@ -698,153 +698,153 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sportArticleStartActivityCta => 'ابدأ نشاطًا';
 
   @override
-  String get journalSelectDay => 'Select a day to view journals';
+  String get journalSelectDay => 'اختر يومًا لعرض اليوميات';
 
   @override
-  String get journalNoEntries => 'No journals for this day';
+  String get journalNoEntries => 'لا توجد يوميات لهذا اليوم';
 
   @override
-  String get journalDeleteTitle => 'Delete Journal';
+  String get journalDeleteTitle => 'حذف اليومية';
 
   @override
-  String get journalDeleteMessage => 'Are you sure you want to delete this journal entry?';
+  String get journalDeleteMessage => 'هل أنت متأكد أنك تريد حذف هذه اليومية؟';
 
   @override
-  String get journalDeleteSuccess => 'Journal deleted successfully';
+  String get journalDeleteSuccess => 'تم حذف اليومية بنجاح';
 
   @override
-  String get journalDeletedSuccessfully => 'Journal deleted successfully';
+  String get journalDeletedSuccessfully => 'تم حذف اليومية بنجاح';
 
   @override
-  String get journalUpdatedSuccessfully => 'Journal updated successfully';
+  String get journalUpdatedSuccessfully => 'تم تحديث اليومية بنجاح';
 
   @override
-  String get journalCannotCreateFuture => 'Cannot create journal for future dates';
+  String get journalCannotCreateFuture => 'لا يمكن إنشاء يومية لتواريخ مستقبلية';
 
   @override
-  String get journalWriteTitle => 'Write Journal';
+  String get journalWriteTitle => 'كتابة يومية';
 
   @override
-  String get journalSave => 'Save';
+  String get journalSave => 'حفظ';
 
   @override
-  String get journalTitle => 'Title';
+  String get journalTitle => 'العنوان';
 
   @override
-  String get journalWriteMore => 'Write more here...';
+  String get journalWriteMore => 'اكتب المزيد هنا...';
 
   @override
-  String get journalAddTitle => 'Please add a title';
+  String get journalAddTitle => 'الرجاء إضافة عنوان';
 
   @override
-  String get journalMoodTitle => 'How do you feel today?';
+  String get journalMoodTitle => 'كيف تشعر اليوم؟';
 
   @override
-  String get journalSelectBackground => 'Select Background';
+  String get journalSelectBackground => 'اختر الخلفية';
 
   @override
-  String get journalNoBackground => 'No Background';
+  String get journalNoBackground => 'بدون خلفية';
 
   @override
-  String get journalSelectSticker => 'Select Sticker';
+  String get journalSelectSticker => 'اختر ملصق';
 
   @override
-  String get journalTextStyle => 'Text Style';
+  String get journalTextStyle => 'نمط النص';
 
   @override
-  String get journalFontFamily => 'Font Family';
+  String get journalFontFamily => 'نوع الخط';
 
   @override
-  String get journalTextColor => 'Text Color';
+  String get journalTextColor => 'لون النص';
 
   @override
-  String get journalFontSize => 'Font Size';
+  String get journalFontSize => 'حجم الخط';
 
   @override
-  String get journalApply => 'Apply';
+  String get journalApply => 'تطبيق';
 
   @override
-  String get journalVoiceNote => 'Voice Note';
+  String get journalVoiceNote => 'ملاحظة صوتية';
 
   @override
-  String get journalVoiceRecording => 'Recording...';
+  String get journalVoiceRecording => 'جاري التسجيل...';
 
   @override
-  String get journalVoiceSaved => 'Recording saved';
+  String get journalVoiceSaved => 'تم حفظ التسجيل';
 
   @override
-  String get journalVoiceTapToStart => 'Tap to start recording';
+  String get journalVoiceTapToStart => 'اضغط لبدء التسجيل';
 
   @override
-  String get journalVoiceAddNote => 'Add Voice Note';
+  String get journalVoiceAddNote => 'إضافة ملاحظة صوتية';
 
   @override
-  String get journalVoicePermissionDenied => 'Microphone permission denied';
+  String get journalVoicePermissionDenied => 'تم رفض إذن الميكروفون';
 
   @override
   String journalVoiceStartFailed(String error) {
-    return 'Failed to start recording: $error';
+    return 'فشل بدء التسجيل: $error';
   }
 
   @override
   String journalVoiceStopFailed(String error) {
-    return 'Failed to stop recording: $error';
+    return 'فشل إيقاف التسجيل: $error';
   }
 
   @override
   String journalVoicePlayFailed(String error) {
-    return 'Failed to play recording: $error';
+    return 'فشل تشغيل التسجيل: $error';
   }
 
   @override
-  String get journalToolbarBackground => 'Background';
+  String get journalToolbarBackground => 'الخلفية';
 
   @override
-  String get journalToolbarAddImage => 'Add Image';
+  String get journalToolbarAddImage => 'إضافة صورة';
 
   @override
-  String get journalToolbarStickers => 'Stickers';
+  String get journalToolbarStickers => 'ملصقات';
 
   @override
-  String get journalToolbarTextStyle => 'Text Style';
+  String get journalToolbarTextStyle => 'نمط النص';
 
   @override
-  String get journalToolbarVoiceNote => 'Voice note';
+  String get journalToolbarVoiceNote => 'ملاحظة صوتية';
 
   @override
   String journalErrorPickingImage(String error) {
-    return 'Error picking image: $error';
+    return 'خطأ في اختيار الصورة: $error';
   }
 
   @override
-  String get journalMoodHappy => 'Happy';
+  String get journalMoodHappy => 'سعيد';
 
   @override
-  String get journalMoodGood => 'Good';
+  String get journalMoodGood => 'جيد';
 
   @override
-  String get journalMoodExcited => 'Excited';
+  String get journalMoodExcited => 'متحمس';
 
   @override
-  String get journalMoodCalm => 'Calm';
+  String get journalMoodCalm => 'هادئ';
 
   @override
-  String get journalMoodSad => 'Sad';
+  String get journalMoodSad => 'حزين';
 
   @override
-  String get journalMoodTired => 'Tired';
+  String get journalMoodTired => 'متعب';
 
   @override
-  String get journalMoodAnxious => 'Anxious';
+  String get journalMoodAnxious => 'قلق';
 
   @override
-  String get journalMoodAngry => 'Angry';
+  String get journalMoodAngry => 'غاضب';
 
   @override
-  String get journalMoodConfused => 'Confused';
+  String get journalMoodConfused => 'مرتبك';
 
   @override
-  String get journalMoodGrateful => 'Grateful';
+  String get journalMoodGrateful => 'ممتن';
 
   @override
   String get detoxCardTitle => 'التحرر الرقمي:';
@@ -1072,4 +1072,102 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get quote7 => 'الطريقة الوحيدة للقيام بعمل رائع هي أن تحب ما تفعله.';
+
+  @override
+  String get profileTitle => 'الملف الشخصي';
+
+  @override
+  String get profileNoUserLoggedIn => 'لا يوجد مستخدم مسجّل الدخول';
+
+  @override
+  String get profileEditPictureComingSoon => 'تعديل صورة الملف الشخصي سيتوفر قريبًا!';
+
+  @override
+  String get profilePointsLabel => 'نقطة';
+
+  @override
+  String get profileStarsLabel => 'نجمة';
+
+  @override
+  String get profileEmailLabel => 'البريد الإلكتروني';
+
+  @override
+  String get profileUsernameLabel => 'اسم المستخدم';
+
+  @override
+  String get profileJoinedLabel => 'تاريخ الانضمام';
+
+  @override
+  String get profileJoinedRecently => 'مؤخرًا';
+
+  @override
+  String get profileAppLockTitle => 'قفل التطبيق';
+
+  @override
+  String get profileAppLockSubtitle => 'قم بتعيين أو تغيير قفل التطبيق';
+
+  @override
+  String get profileLanguageTitle => 'اللغة';
+
+  @override
+  String get profileLogoutButton => 'تسجيل الخروج';
+
+  @override
+  String get profileLogoutDialogTitle => 'تسجيل الخروج';
+
+  @override
+  String get profileLogoutDialogContent => 'هل أنت متأكد أنك تريد تسجيل الخروج؟';
+
+  @override
+  String get profileLogoutDialogCancel => 'إلغاء';
+
+  @override
+  String get profileLogoutDialogConfirm => 'تسجيل الخروج';
+
+  @override
+  String get profileEmailUpdated => 'تم تحديث البريد الإلكتروني!';
+
+  @override
+  String get profileUsernameUpdated => 'تم تحديث اسم المستخدم!';
+
+  @override
+  String get profileEditEmailTitle => 'تعديل البريد الإلكتروني';
+
+  @override
+  String get profileEditUsernameTitle => 'تعديل اسم المستخدم';
+
+  @override
+  String get profileDialogCancel => 'إلغاء';
+
+  @override
+  String get profileDialogSave => 'حفظ';
+
+  @override
+  String get languageScreenTitle => 'اللغة';
+
+  @override
+  String get languageSystemDefaultTitle => 'افتراضي النظام';
+
+  @override
+  String get languageSystemDefaultSubtitle => 'اتبع إعدادات الجهاز';
+
+  @override
+  String get languageAvailableLanguagesSectionTitle => 'اللغات المتاحة';
+
+  @override
+  String get languageSystemDefaultSnack => 'تم ضبط اللغة على افتراضي النظام';
+
+  @override
+  String languageChangedSnack(String language) {
+    return 'تم تغيير اللغة إلى $language';
+  }
+
+  @override
+  String get languageEnglish => 'الإنجليزية';
+
+  @override
+  String get languageFrench => 'الفرنسية';
+
+  @override
+  String get languageArabic => 'العربية';
 }

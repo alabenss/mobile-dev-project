@@ -417,7 +417,7 @@
 "quote5": "آمن بأنك تستطيع، وقد قطعت نصف الطريق.",  
 "quote6": "إذا أردت أن تعيش حياة سعيدة، فاربطها بهدف وليس بأشخاص أو أشياء.",  
 "quote7": "الطريقة الوحيدة للقيام بعمل رائع هي أن تحب ما تفعله.", 
-,
+
   "journalSelectDay": "اختر يومًا لعرض اليوميات",
   "journalNoEntries": "لا توجد يوميات لهذا اليوم",
   "journalDeleteTitle": "حذف اليومية",
@@ -484,6 +484,51 @@
   "journalMoodAnxious": "قلق",
   "journalMoodAngry": "غاضب",
   "journalMoodConfused": "مرتبك",
-  "journalMoodGrateful": "ممتن"  
+  "journalMoodGrateful": "ممتن"  ,
  
+
+ 
+  "profileTitle": "الملف الشخصي",
+  "profileNoUserLoggedIn": "لا يوجد مستخدم مسجّل الدخول",
+  "profileEditPictureComingSoon": "تعديل صورة الملف الشخصي سيتوفر قريبًا!",
+  "profilePointsLabel": "نقطة",
+  "profileStarsLabel": "نجمة",
+  "profileEmailLabel": "البريد الإلكتروني",
+  "profileUsernameLabel": "اسم المستخدم",
+  "profileJoinedLabel": "تاريخ الانضمام",
+  "profileJoinedRecently": "مؤخرًا",
+  "profileAppLockTitle": "قفل التطبيق",
+  "profileAppLockSubtitle": "قم بتعيين أو تغيير قفل التطبيق",
+  "profileLanguageTitle": "اللغة",
+  "profileLogoutButton": "تسجيل الخروج",
+  "profileLogoutDialogTitle": "تسجيل الخروج",
+  "profileLogoutDialogContent": "هل أنت متأكد أنك تريد تسجيل الخروج؟",
+  "profileLogoutDialogCancel": "إلغاء",
+  "profileLogoutDialogConfirm": "تسجيل الخروج",
+  "profileEmailUpdated": "تم تحديث البريد الإلكتروني!",
+  "profileUsernameUpdated": "تم تحديث اسم المستخدم!",
+  "profileEditEmailTitle": "تعديل البريد الإلكتروني",
+  "profileEditUsernameTitle": "تعديل اسم المستخدم",
+  "profileDialogCancel": "إلغاء",
+  "profileDialogSave": "حفظ",
+
+  "languageScreenTitle": "اللغة",
+  "languageSystemDefaultTitle": "افتراضي النظام",
+  "languageSystemDefaultSubtitle": "اتبع إعدادات الجهاز",
+  "languageAvailableLanguagesSectionTitle": "اللغات المتاحة",
+  "languageSystemDefaultSnack": "تم ضبط اللغة على افتراضي النظام",
+  "languageChangedSnack": "تم تغيير اللغة إلى {language}",
+  "@languageChangedSnack": {
+    "description": "رسالة عند تغيير اللغة",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "languageEnglish": "الإنجليزية",
+  "languageFrench": "الفرنسية",
+  "languageArabic": "العربية"
+
+
 }

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+import 'package:the_project/l10n/app_localizations.dart';
+
 import '../../themes/style_simple/colors.dart';
 import '../../../logic/auth/auth_cubit.dart';
 import '../../../logic/auth/auth_state.dart';
 import '../../../logic/locale/locale_cubit.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -25,45 +27,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   String _formatJoinedDate(String? dateString) {
+    final l10n = AppLocalizations.of(context)!;
+
     if (dateString == null || dateString.isEmpty) {
-      return 'Recently';
+      return l10n.profileJoinedRecently;
     }
-    
+
     try {
       final date = DateTime.parse(dateString);
       return DateFormat('MMMM yyyy').format(date);
     } catch (e) {
-      return 'Recently';
+      return l10n.profileJoinedRecently;
     }
   }
 
   String _getLanguageDisplayName(LocaleState localeState) {
-    if (localeState.isSystemDefault) {
-      return 'System Default';
+    final l10n = AppLocalizations.of(context)!;
+
+    if (localeState.isSystemDefault || localeState.locale == null) {
+      return l10n.languageSystemDefaultTitle;
     }
-    
-    if (localeState.locale == null) {
-      return 'System Default';
+
+    switch (localeState.locale!.languageCode) {
+      case 'en':
+        return l10n.languageEnglish;
+      case 'fr':
+        return l10n.languageFrench;
+      case 'ar':
+        return l10n.languageArabic;
+      default:
+        return l10n.languageEnglish;
     }
-    
-    final lang = LocaleCubit.availableLanguages.firstWhere(
-      (l) => l['code'] == localeState.locale!.languageCode,
-      orElse: () => {'name': 'English'},
-    );
-    
-    return lang['name'] ?? 'English';
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
-      // Custom app bar (no profile picture, with back button)
       appBar: AppBar(
         backgroundColor: Colors.white.withOpacity(0.85),
         elevation: 2,
         centerTitle: true,
         title: Text(
-          "Profile",
+          l10n.profileTitle,
           style: GoogleFonts.poppins(
             fontSize: 20,
             fontWeight: FontWeight.w600,
@@ -78,16 +85,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
         ),
       ),
-
-      // Background gradient
       body: BlocBuilder<AuthCubit, AuthState>(
         builder: (context, authState) {
           final user = authState.user;
-          
-          // If no user logged in, show loading or error
+
           if (user == null) {
-            return const Center(
-              child: Text('No user logged in'),
+            return Center(
+              child: Text(l10n.profileNoUserLoggedIn),
             );
           }
 
@@ -102,7 +106,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: SafeArea(
               child: SingleChildScrollView(
                 physics: const ClampingScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -112,9 +117,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         CircleAvatar(
                           radius: 60,
-                          backgroundColor: AppColors.accentPink.withOpacity(0.2),
+                          backgroundColor:
+                              AppColors.accentPink.withOpacity(0.2),
                           child: Text(
-                            user.name.isNotEmpty ? user.name[0].toUpperCase() : 'U',
+                            user.name.isNotEmpty
+                                ? user.name[0].toUpperCase()
+                                : 'U',
                             style: GoogleFonts.poppins(
                               fontSize: 48,
                               fontWeight: FontWeight.bold,
@@ -128,12 +136,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             color: AppColors.accentPink,
                           ),
                           child: IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.white, size: 20),
+                            icon: const Icon(Icons.edit,
+                                color: Colors.white, size: 20),
                             onPressed: () {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Profile picture editing coming soon!'),
-                                  duration: Duration(seconds: 2),
+                                SnackBar(
+                                  content: Text(
+                                    l10n.profileEditPictureComingSoon,
+                                  ),
+                                  duration: const Duration(seconds: 2),
                                 ),
                               );
                             },
@@ -178,7 +189,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                               const SizedBox(width: 6),
                               Text(
-                                '${user.totalPoints} Points',
+                                '${user.totalPoints} ${l10n.profilePointsLabel}',
                                 style: GoogleFonts.poppins(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -207,7 +218,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                               const SizedBox(width: 6),
                               Text(
-                                '${user.stars} Stars',
+                                '${user.stars} ${l10n.profileStarsLabel}',
                                 style: GoogleFonts.poppins(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -224,20 +235,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                     // Editable Info Fields
                     _ProfileField(
-                      label: "Email",
+                      label: l10n.profileEmailLabel,
                       value: user.email,
                       icon: Icons.email_outlined,
                       editable: true,
                       onEdit: () {
                         _showEditDialog(
                           context,
-                          'Edit Email',
+                          l10n.profileEditEmailTitle,
                           user.email,
                           (newValue) {
-                            context.read<AuthCubit>().updateUserEmail(newValue);
+                            context
+                                .read<AuthCubit>()
+                                .updateUserEmail(newValue);
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Email updated!'),
+                              SnackBar(
+                                content: Text(l10n.profileEmailUpdated),
                               ),
                             );
                           },
@@ -245,20 +258,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       },
                     ),
                     _ProfileField(
-                      label: "Username",
+                      label: l10n.profileUsernameLabel,
                       value: user.name,
                       icon: Icons.person_outline,
                       editable: true,
                       onEdit: () {
                         _showEditDialog(
                           context,
-                          'Edit Username',
+                          l10n.profileEditUsernameTitle,
                           user.name,
                           (newValue) {
-                            context.read<AuthCubit>().updateUserName(newValue);
+                            context
+                                .read<AuthCubit>()
+                                .updateUserName(newValue);
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Username updated!'),
+                              SnackBar(
+                                content: Text(l10n.profileUsernameUpdated),
                               ),
                             );
                           },
@@ -266,7 +281,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       },
                     ),
                     _ProfileField(
-                      label: "Joined",
+                      label: l10n.profileJoinedLabel,
                       value: _formatJoinedDate(user.createdAt),
                       icon: Icons.calendar_today_outlined,
                       editable: false,
@@ -277,8 +292,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     // App Lock Option
                     _OptionTile(
                       icon: Icons.lock_outline,
-                      title: "App Lock",
-                      subtitle: "Set or change your app lock",
+                      title: l10n.profileAppLockTitle,
+                      subtitle: l10n.profileAppLockSubtitle,
                       onTap: () {
                         Navigator.pushNamed(context, '/app-lock');
                       },
@@ -286,12 +301,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                     const SizedBox(height: 12),
 
-                    // Language Option with current language display
+                    // Language Option
                     BlocBuilder<LocaleCubit, LocaleState>(
                       builder: (context, localeState) {
                         return _OptionTile(
                           icon: Icons.language_outlined,
-                          title: "Language",
+                          title: l10n.profileLanguageTitle,
                           subtitle: _getLanguageDisplayName(localeState),
                           onTap: () {
                             Navigator.pushNamed(context, '/language');
@@ -305,48 +320,53 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     // Log out
                     TextButton.icon(
                       onPressed: () async {
-                        // Show confirmation dialog
                         final shouldLogout = await showDialog<bool>(
                           context: context,
-                          builder: (context) => AlertDialog(
-                            backgroundColor: Colors.white,
-                            title: Text(
-                              'Log Out',
-                              style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            content: Text(
-                              'Are you sure you want to log out?',
-                              style: GoogleFonts.poppins(),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context, false),
-                                child: const Text('Cancel'),
-                              ),
-                              TextButton(
-                                onPressed: () => Navigator.pop(context, true),
-                                style: TextButton.styleFrom(
-                                  foregroundColor: Colors.redAccent,
+                          builder: (context) {
+                            final l = AppLocalizations.of(context)!;
+                            return AlertDialog(
+                              backgroundColor: Colors.white,
+                              title: Text(
+                                l.profileLogoutDialogTitle,
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
                                 ),
-                                child: const Text('Log Out'),
                               ),
-                            ],
-                          ),
+                              content: Text(
+                                l.profileLogoutDialogContent,
+                                style: GoogleFonts.poppins(),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, false),
+                                  child: Text(l.profileLogoutDialogCancel),
+                                ),
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, true),
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: Colors.redAccent,
+                                  ),
+                                  child: Text(l.profileLogoutDialogConfirm),
+                                ),
+                              ],
+                            );
+                          },
                         );
 
                         if (shouldLogout == true) {
                           await context.read<AuthCubit>().logout();
                           if (context.mounted) {
-                            Navigator.of(context).pushReplacementNamed('/login');
+                            Navigator.of(context)
+                                .pushReplacementNamed('/login');
                           }
                         }
                       },
                       icon: const Icon(Icons.logout, color: Colors.redAccent),
-                      label: const Text(
-                        "Log Out",
-                        style: TextStyle(
+                      label: Text(
+                        l10n.profileLogoutButton,
+                        style: const TextStyle(
                           color: Colors.redAccent,
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -370,46 +390,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
     Function(String) onSave,
   ) {
     final controller = TextEditingController(text: currentValue);
-    
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
-        title: Text(
-          title,
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-        ),
-        content: TextField(
-          controller: controller,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppColors.accentPink, width: 2),
-            ),
+      builder: (context) {
+        final l10n = AppLocalizations.of(context)!;
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          title: Text(
+            title,
+            style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
           ),
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              onSave(controller.text);
-              Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.accentPink,
-              foregroundColor: Colors.white,
+          content: TextField(
+            controller: controller,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(
+                  color: AppColors.accentPink,
+                  width: 2,
+                ),
+              ),
             ),
-            child: const Text('Save'),
+            autofocus: true,
           ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(l10n.profileDialogCancel),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                onSave(controller.text);
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.accentPink,
+                foregroundColor: Colors.white,
+              ),
+              child: Text(l10n.profileDialogSave),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -454,11 +480,13 @@ class _ProfileField extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label,
-                    style: GoogleFonts.poppins(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    )),
+                Text(
+                  label,
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
                 const SizedBox(height: 2),
                 Text(
                   value,
@@ -482,7 +510,7 @@ class _ProfileField extends StatelessWidget {
   }
 }
 
-// Option Tile Widget (App Lock, Language, etc.)
+// Option Tile Widget
 class _OptionTile extends StatelessWidget {
   final IconData icon;
   final String title;

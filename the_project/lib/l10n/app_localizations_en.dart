@@ -1072,4 +1072,102 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quote7 => 'The only way to do great work is to love what you do.';
+
+  @override
+  String get profileTitle => 'Profile';
+
+  @override
+  String get profileNoUserLoggedIn => 'No user logged in';
+
+  @override
+  String get profileEditPictureComingSoon => 'Profile picture editing coming soon!';
+
+  @override
+  String get profilePointsLabel => 'Points';
+
+  @override
+  String get profileStarsLabel => 'Stars';
+
+  @override
+  String get profileEmailLabel => 'Email';
+
+  @override
+  String get profileUsernameLabel => 'Username';
+
+  @override
+  String get profileJoinedLabel => 'Joined';
+
+  @override
+  String get profileJoinedRecently => 'Recently';
+
+  @override
+  String get profileAppLockTitle => 'App Lock';
+
+  @override
+  String get profileAppLockSubtitle => 'Set or change your app lock';
+
+  @override
+  String get profileLanguageTitle => 'Language';
+
+  @override
+  String get profileLogoutButton => 'Log Out';
+
+  @override
+  String get profileLogoutDialogTitle => 'Log Out';
+
+  @override
+  String get profileLogoutDialogContent => 'Are you sure you want to log out?';
+
+  @override
+  String get profileLogoutDialogCancel => 'Cancel';
+
+  @override
+  String get profileLogoutDialogConfirm => 'Log Out';
+
+  @override
+  String get profileEmailUpdated => 'Email updated!';
+
+  @override
+  String get profileUsernameUpdated => 'Username updated!';
+
+  @override
+  String get profileEditEmailTitle => 'Edit Email';
+
+  @override
+  String get profileEditUsernameTitle => 'Edit Username';
+
+  @override
+  String get profileDialogCancel => 'Cancel';
+
+  @override
+  String get profileDialogSave => 'Save';
+
+  @override
+  String get languageScreenTitle => 'Language';
+
+  @override
+  String get languageSystemDefaultTitle => 'System Default';
+
+  @override
+  String get languageSystemDefaultSubtitle => 'Follow device settings';
+
+  @override
+  String get languageAvailableLanguagesSectionTitle => 'Available Languages';
+
+  @override
+  String get languageSystemDefaultSnack => 'Language set to system default';
+
+  @override
+  String languageChangedSnack(String language) {
+    return 'Language changed to $language';
+  }
+
+  @override
+  String get languageEnglish => 'English';
+
+  @override
+  String get languageFrench => 'French';
+
+  @override
+  String get languageArabic => 'Arabic';
 }
