@@ -18,18 +18,36 @@ class MoodCard extends StatefulWidget {
 class _MoodCardState extends State<MoodCard> {
   int? _lastLoadedUserId;
 
+  // Store mood key (language-independent) instead of label
   List<Map<String, String>> _getMoods(AppLocalizations l10n) => [
-    {'image': 'assets/images/happy.png', 'label': l10n.journalMoodHappy},
-    {'image': 'assets/images/good.png', 'label': l10n.journalMoodGood},
-    {'image': 'assets/images/excited.png', 'label': l10n.journalMoodExcited},
-    {'image': 'assets/images/calm.png', 'label': l10n.journalMoodCalm},
-    {'image': 'assets/images/sad.png', 'label': l10n.journalMoodSad},
-    {'image': 'assets/images/tired.png', 'label': l10n.journalMoodTired},
-    {'image': 'assets/images/anxious.png', 'label': l10n.journalMoodAnxious},
-    {'image': 'assets/images/angry.png', 'label': l10n.journalMoodAngry},
-    {'image': 'assets/images/confused.png', 'label': l10n.journalMoodConfused},
-    {'image': 'assets/images/grateful.png', 'label': l10n.journalMoodGrateful},
+    {'image': 'assets/images/happy.png', 'key': 'happy', 'label': l10n.journalMoodHappy},
+    {'image': 'assets/images/good.png', 'key': 'good', 'label': l10n.journalMoodGood},
+    {'image': 'assets/images/excited.png', 'key': 'excited', 'label': l10n.journalMoodExcited},
+    {'image': 'assets/images/calm.png', 'key': 'calm', 'label': l10n.journalMoodCalm},
+    {'image': 'assets/images/sad.png', 'key': 'sad', 'label': l10n.journalMoodSad},
+    {'image': 'assets/images/tired.png', 'key': 'tired', 'label': l10n.journalMoodTired},
+    {'image': 'assets/images/anxious.png', 'key': 'anxious', 'label': l10n.journalMoodAnxious},
+    {'image': 'assets/images/angry.png', 'key': 'angry', 'label': l10n.journalMoodAngry},
+    {'image': 'assets/images/confused.png', 'key': 'confused', 'label': l10n.journalMoodConfused},
+    {'image': 'assets/images/grateful.png', 'key': 'grateful', 'label': l10n.journalMoodGrateful},
   ];
+
+  // Get localized label from mood key
+  String _getLocalizedMoodLabel(String moodKey, AppLocalizations l10n) {
+    switch (moodKey) {
+      case 'happy': return l10n.journalMoodHappy;
+      case 'good': return l10n.journalMoodGood;
+      case 'excited': return l10n.journalMoodExcited;
+      case 'calm': return l10n.journalMoodCalm;
+      case 'sad': return l10n.journalMoodSad;
+      case 'tired': return l10n.journalMoodTired;
+      case 'anxious': return l10n.journalMoodAnxious;
+      case 'angry': return l10n.journalMoodAngry;
+      case 'confused': return l10n.journalMoodConfused;
+      case 'grateful': return l10n.journalMoodGrateful;
+      default: return moodKey; // Fallback
+    }
+  }
 
   @override
   void initState() {
@@ -169,6 +187,9 @@ class _MoodCardState extends State<MoodCard> {
     final l10n = AppLocalizations.of(context)!;
     final mood = state.todayMood!;
     final formattedTime = _formatDateTime(mood.updatedAt, l10n);
+    
+    // Get localized label from mood key
+    final localizedLabel = _getLocalizedMoodLabel(mood.moodLabel, l10n);
 
     return Row(
       children: [
@@ -179,7 +200,7 @@ class _MoodCardState extends State<MoodCard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                mood.moodLabel,
+                localizedLabel,
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -228,9 +249,10 @@ class _MoodCardState extends State<MoodCard> {
                 padding: const EdgeInsets.only(right: 16.0),
                 child: GestureDetector(
                   onTap: () {
+                    // Save the key (language-independent) not the label
                     context.read<DailyMoodCubit>().setTodayMood(
                           mood['image']!,
-                          mood['label']!,
+                          mood['key']!, // Use key instead of label
                         );
                   },
                   child: Column(
@@ -244,7 +266,7 @@ class _MoodCardState extends State<MoodCard> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        mood['label']!,
+                        mood['label']!, // Display localized label
                         style: const TextStyle(
                           fontSize: 11,
                           color: AppColors.textSecondary,
