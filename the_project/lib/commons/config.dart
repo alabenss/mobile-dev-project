@@ -1,26 +1,25 @@
-class AppConfig {
-  // 1) Put all your quotes here
-  static const List<String> quotes = [
-    'The best way to predict the future is to create it',
-    'You are stronger than you think.',
-    'Small steps every day lead to big changes.',
-    'You don’t have to be perfect to be amazing.',
-    'Believe you can and you’re halfway there.',
-    'If you want to live a happy life, tie it to a goal, not to people or things.',
-    'The only way to do great work is to love what you do.',
-    // add as many as you like
-  ];
+import 'package:flutter/material.dart';
+import 'package:the_project/l10n/app_localizations.dart';
 
-  // 2) Start date for your rotation (can be any fixed day)
+class AppConfig {
   static final DateTime _startDate = DateTime(2024, 1, 1);
 
-  // 3) Public getter used by the UI
-  static String get quoteOfTheDay {
+  static String quoteOfTheDay(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final quotes = [
+      l10n.quote1,
+      l10n.quote2,
+      l10n.quote3,
+      l10n.quote4,
+      l10n.quote5,
+      l10n.quote6,
+      l10n.quote7,
+    ];
+
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
 
     final daysSinceStart = today.difference(_startDate).inDays;
-    // Make sure index stays within the list range
     final index = daysSinceStart % quotes.length;
 
     return quotes[index];

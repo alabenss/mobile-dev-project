@@ -193,6 +193,7 @@
   },
 
   "pointsMustBeGreaterThanZero": "Les points doivent être supérieurs à 0 !",
+  "coloringDescription":"Relaxe-toi grace au coloriage mindful.",
 
   "habitDrinkWater": "Boire de l'eau",
   "habitExercise": "Exercice",
@@ -572,5 +573,13 @@
   "journalMonthSeptember": "Septembre",
   "journalMonthOctober": "Octobre",
   "journalMonthNovember": "Novembre",
-  "journalMonthDecember": "Décembre"
+  "journalMonthDecember": "Décembre",
+  "quote1": "La meilleure façon de prédire l'avenir est de le créer.",
+  "quote2": "Tu es plus fort que tu ne le penses.",
+  "quote3": "De petits pas chaque jour mènent à de grands changements.",
+  "quote4": "Tu n'as pas besoin d'être parfait pour être incroyable.",
+  "quote5": "Crois que tu peux, et tu as déjà fait la moitié du chemin.",
+  "quote6": "Pour vivre une vie heureuse, attache-la à un objectif, pas à des personnes ou des choses.",
+  "quote7": "La seule façon de faire du bon travail est d'aimer ce que tu fais."
+ 
 }

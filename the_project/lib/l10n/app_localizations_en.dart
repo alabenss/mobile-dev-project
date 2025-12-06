@@ -354,6 +354,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pointsMustBeGreaterThanZero => 'Points must be greater than 0!';
 
   @override
+  String get coloringDescription => 'Relax with mindful coloring.';
+
+  @override
   String get habitDrinkWater => 'Drink Water';
 
   @override
@@ -1048,4 +1051,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get journalMonthDecember => 'December';
+
+  @override
+  String get quote1 => 'The best way to predict the future is to create it';
+
+  @override
+  String get quote2 => 'You are stronger than you think.';
+
+  @override
+  String get quote3 => 'Small steps every day lead to big changes.';
+
+  @override
+  String get quote4 => 'You don’t have to be perfect to be amazing.';
+
+  @override
+  String get quote5 => 'Believe you can and you’re halfway there.';
+
+  @override
+  String get quote6 => 'If you want to live a happy life, tie it to a goal, not to people or things.';
+
+  @override
+  String get quote7 => 'The only way to do great work is to love what you do.';
 }

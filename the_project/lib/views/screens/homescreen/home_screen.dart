@@ -63,7 +63,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final l10n = AppLocalizations.of(context)!;
 
     return BlocBuilder<HomeCubit, HomeState>(
       builder: (context, state) {
@@ -100,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 ImageQuoteCard(
                   imagePath: AppImages.quotes,
-                  quote: AppConfig.quoteOfTheDay,
+                  quote: AppConfig.quoteOfTheDay(context),
                 ),
                 const SizedBox(height: 18),
 
@@ -156,11 +155,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   child: habitsToShow.isEmpty
                       ? Padding(
-                      ? Padding(
                           padding: const EdgeInsets.symmetric(vertical: 16.0),
                           child: Center(
                             child: Text(
-                              '${l10n.noDailyHabits}\n${l10n.tapToAddHabit}',
                               '${l10n.noDailyHabits}\n${l10n.tapToAddHabit}',
                               style: const TextStyle(
                                 fontSize: 14,
