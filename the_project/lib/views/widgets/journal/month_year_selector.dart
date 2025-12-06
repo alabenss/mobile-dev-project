@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_project/l10n/app_localizations.dart';
 import '../../themes/style_simple/colors.dart';
 
 class MonthYearSelector extends StatelessWidget {
@@ -15,6 +16,8 @@ class MonthYearSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
@@ -32,7 +35,7 @@ class MonthYearSelector extends StatelessWidget {
                   final month = index + 1;
                   return DropdownMenuItem(
                     value: month,
-                    child: Text(_getMonthName(month)),
+                    child: Text(_getMonthName(month, l10n)),
                   );
                 }),
                 onChanged: (month) {
@@ -65,10 +68,20 @@ class MonthYearSelector extends StatelessWidget {
     );
   }
 
-  String _getMonthName(int month) {
-    const months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+  String _getMonthName(int month, AppLocalizations l10n) {
+    final months = [
+      l10n.journalMonthJanuary,
+      l10n.journalMonthFebruary,
+      l10n.journalMonthMarch,
+      l10n.journalMonthApril,
+      l10n.journalMonthMayFull,
+      l10n.journalMonthJune,
+      l10n.journalMonthJuly,
+      l10n.journalMonthAugust,
+      l10n.journalMonthSeptember,
+      l10n.journalMonthOctober,
+      l10n.journalMonthNovember,
+      l10n.journalMonthDecember
     ];
     return months[month - 1];
   }

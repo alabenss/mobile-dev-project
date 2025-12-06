@@ -465,7 +465,52 @@
   
   "commonCancel": "Cancel",
   "commonDelete": "Delete",
-  "commonClose": "Close"
+  "commonClose": "Close",
 
-
+  "journalMoodCardTitle": "How do you feel today?",
+  "journalMoodCardToday": "Today",
+  "journalMoodCardRetry": "Retry",
+  "journalMoodCardFailedToLoad": "Failed to load mood",
+  
+  "journalCalendarMon": "Mon",
+  "journalCalendarTue": "Tue",
+  "journalCalendarWed": "Wed",
+  "journalCalendarThu": "Thu",
+  "journalCalendarFri": "Fri",
+  "journalCalendarSat": "Sat",
+  "journalCalendarSun": "Sun",
+  
+  "journalCalendarMonday": "Monday",
+  "journalCalendarTuesday": "Tuesday",
+  "journalCalendarWednesday": "Wednesday",
+  "journalCalendarThursday": "Thursday",
+  "journalCalendarFriday": "Friday",
+  "journalCalendarSaturday": "Saturday",
+  "journalCalendarSunday": "Sunday",
+  
+  "journalMonthJan": "Jan",
+  "journalMonthFeb": "Feb",
+  "journalMonthMar": "Mar",
+  "journalMonthApr": "Apr",
+  "journalMonthMay": "May",
+  "journalMonthJun": "Jun",
+  "journalMonthJul": "Jul",
+  "journalMonthAug": "Aug",
+  "journalMonthSep": "Sep",
+  "journalMonthOct": "Oct",
+  "journalMonthNov": "Nov",
+  "journalMonthDec": "Dec",
+  
+  "journalMonthJanuary": "January",
+  "journalMonthFebruary": "February",
+  "journalMonthMarch": "March",
+  "journalMonthApril": "April",
+  "journalMonthMayFull": "May",
+  "journalMonthJune": "June",
+  "journalMonthJuly": "July",
+  "journalMonthAugust": "August",
+  "journalMonthSeptember": "September",
+  "journalMonthOctober": "October",
+  "journalMonthNovember": "November",
+  "journalMonthDecember": "December"
 }

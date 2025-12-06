@@ -428,7 +428,51 @@
   
   "commonCancel": "إلغاء",
   "commonDelete": "حذف",
-  "commonClose": "إغلاق"
-
-
+  "commonClose": "إغلاق",
+  "journalMoodCardTitle": "كيف تشعر اليوم؟",
+  "journalMoodCardToday": "اليوم",
+  "journalMoodCardRetry": "إعادة المحاولة",
+  "journalMoodCardFailedToLoad": "فشل تحميل الحالة المزاجية",
+  
+  "journalCalendarMon": "الإثنين",
+  "journalCalendarTue": "الثلاثاء",
+  "journalCalendarWed": "الأربعاء",
+  "journalCalendarThu": "الخميس",
+  "journalCalendarFri": "الجمعة",
+  "journalCalendarSat": "السبت",
+  "journalCalendarSun": "الأحد",
+  
+  "journalCalendarMonday": "الإثنين",
+  "journalCalendarTuesday": "الثلاثاء",
+  "journalCalendarWednesday": "الأربعاء",
+  "journalCalendarThursday": "الخميس",
+  "journalCalendarFriday": "الجمعة",
+  "journalCalendarSaturday": "السبت",
+  "journalCalendarSunday": "الأحد",
+  
+  "journalMonthJan": "يناير",
+  "journalMonthFeb": "فبراير",
+  "journalMonthMar": "مارس",
+  "journalMonthApr": "أبريل",
+  "journalMonthMay": "مايو",
+  "journalMonthJun": "يونيو",
+  "journalMonthJul": "يوليو",
+  "journalMonthAug": "أغسطس",
+  "journalMonthSep": "سبتمبر",
+  "journalMonthOct": "أكتوبر",
+  "journalMonthNov": "نوفمبر",
+  "journalMonthDec": "ديسمبر",
+  
+  "journalMonthJanuary": "يناير",
+  "journalMonthFebruary": "فبراير",
+  "journalMonthMarch": "مارس",
+  "journalMonthApril": "أبريل",
+  "journalMonthMayFull": "مايو",
+  "journalMonthJune": "يونيو",
+  "journalMonthJuly": "يوليو",
+  "journalMonthAugust": "أغسطس",
+  "journalMonthSeptember": "سبتمبر",
+  "journalMonthOctober": "أكتوبر",
+  "journalMonthNovember": "نوفمبر",
+  "journalMonthDecember": "ديسمبر"
 }

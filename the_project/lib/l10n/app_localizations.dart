@@ -1644,6 +1644,258 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Close'**
   String get commonClose;
+
+  /// No description provided for @journalMoodCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How do you feel today?'**
+  String get journalMoodCardTitle;
+
+  /// No description provided for @journalMoodCardToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get journalMoodCardToday;
+
+  /// No description provided for @journalMoodCardRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get journalMoodCardRetry;
+
+  /// No description provided for @journalMoodCardFailedToLoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load mood'**
+  String get journalMoodCardFailedToLoad;
+
+  /// No description provided for @journalCalendarMon.
+  ///
+  /// In en, this message translates to:
+  /// **'Mon'**
+  String get journalCalendarMon;
+
+  /// No description provided for @journalCalendarTue.
+  ///
+  /// In en, this message translates to:
+  /// **'Tue'**
+  String get journalCalendarTue;
+
+  /// No description provided for @journalCalendarWed.
+  ///
+  /// In en, this message translates to:
+  /// **'Wed'**
+  String get journalCalendarWed;
+
+  /// No description provided for @journalCalendarThu.
+  ///
+  /// In en, this message translates to:
+  /// **'Thu'**
+  String get journalCalendarThu;
+
+  /// No description provided for @journalCalendarFri.
+  ///
+  /// In en, this message translates to:
+  /// **'Fri'**
+  String get journalCalendarFri;
+
+  /// No description provided for @journalCalendarSat.
+  ///
+  /// In en, this message translates to:
+  /// **'Sat'**
+  String get journalCalendarSat;
+
+  /// No description provided for @journalCalendarSun.
+  ///
+  /// In en, this message translates to:
+  /// **'Sun'**
+  String get journalCalendarSun;
+
+  /// No description provided for @journalCalendarMonday.
+  ///
+  /// In en, this message translates to:
+  /// **'Monday'**
+  String get journalCalendarMonday;
+
+  /// No description provided for @journalCalendarTuesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Tuesday'**
+  String get journalCalendarTuesday;
+
+  /// No description provided for @journalCalendarWednesday.
+  ///
+  /// In en, this message translates to:
+  /// **'Wednesday'**
+  String get journalCalendarWednesday;
+
+  /// No description provided for @journalCalendarThursday.
+  ///
+  /// In en, this message translates to:
+  /// **'Thursday'**
+  String get journalCalendarThursday;
+
+  /// No description provided for @journalCalendarFriday.
+  ///
+  /// In en, this message translates to:
+  /// **'Friday'**
+  String get journalCalendarFriday;
+
+  /// No description provided for @journalCalendarSaturday.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturday'**
+  String get journalCalendarSaturday;
+
+  /// No description provided for @journalCalendarSunday.
+  ///
+  /// In en, this message translates to:
+  /// **'Sunday'**
+  String get journalCalendarSunday;
+
+  /// No description provided for @journalMonthJan.
+  ///
+  /// In en, this message translates to:
+  /// **'Jan'**
+  String get journalMonthJan;
+
+  /// No description provided for @journalMonthFeb.
+  ///
+  /// In en, this message translates to:
+  /// **'Feb'**
+  String get journalMonthFeb;
+
+  /// No description provided for @journalMonthMar.
+  ///
+  /// In en, this message translates to:
+  /// **'Mar'**
+  String get journalMonthMar;
+
+  /// No description provided for @journalMonthApr.
+  ///
+  /// In en, this message translates to:
+  /// **'Apr'**
+  String get journalMonthApr;
+
+  /// No description provided for @journalMonthMay.
+  ///
+  /// In en, this message translates to:
+  /// **'May'**
+  String get journalMonthMay;
+
+  /// No description provided for @journalMonthJun.
+  ///
+  /// In en, this message translates to:
+  /// **'Jun'**
+  String get journalMonthJun;
+
+  /// No description provided for @journalMonthJul.
+  ///
+  /// In en, this message translates to:
+  /// **'Jul'**
+  String get journalMonthJul;
+
+  /// No description provided for @journalMonthAug.
+  ///
+  /// In en, this message translates to:
+  /// **'Aug'**
+  String get journalMonthAug;
+
+  /// No description provided for @journalMonthSep.
+  ///
+  /// In en, this message translates to:
+  /// **'Sep'**
+  String get journalMonthSep;
+
+  /// No description provided for @journalMonthOct.
+  ///
+  /// In en, this message translates to:
+  /// **'Oct'**
+  String get journalMonthOct;
+
+  /// No description provided for @journalMonthNov.
+  ///
+  /// In en, this message translates to:
+  /// **'Nov'**
+  String get journalMonthNov;
+
+  /// No description provided for @journalMonthDec.
+  ///
+  /// In en, this message translates to:
+  /// **'Dec'**
+  String get journalMonthDec;
+
+  /// No description provided for @journalMonthJanuary.
+  ///
+  /// In en, this message translates to:
+  /// **'January'**
+  String get journalMonthJanuary;
+
+  /// No description provided for @journalMonthFebruary.
+  ///
+  /// In en, this message translates to:
+  /// **'February'**
+  String get journalMonthFebruary;
+
+  /// No description provided for @journalMonthMarch.
+  ///
+  /// In en, this message translates to:
+  /// **'March'**
+  String get journalMonthMarch;
+
+  /// No description provided for @journalMonthApril.
+  ///
+  /// In en, this message translates to:
+  /// **'April'**
+  String get journalMonthApril;
+
+  /// No description provided for @journalMonthMayFull.
+  ///
+  /// In en, this message translates to:
+  /// **'May'**
+  String get journalMonthMayFull;
+
+  /// No description provided for @journalMonthJune.
+  ///
+  /// In en, this message translates to:
+  /// **'June'**
+  String get journalMonthJune;
+
+  /// No description provided for @journalMonthJuly.
+  ///
+  /// In en, this message translates to:
+  /// **'July'**
+  String get journalMonthJuly;
+
+  /// No description provided for @journalMonthAugust.
+  ///
+  /// In en, this message translates to:
+  /// **'August'**
+  String get journalMonthAugust;
+
+  /// No description provided for @journalMonthSeptember.
+  ///
+  /// In en, this message translates to:
+  /// **'September'**
+  String get journalMonthSeptember;
+
+  /// No description provided for @journalMonthOctober.
+  ///
+  /// In en, this message translates to:
+  /// **'October'**
+  String get journalMonthOctober;
+
+  /// No description provided for @journalMonthNovember.
+  ///
+  /// In en, this message translates to:
+  /// **'November'**
+  String get journalMonthNovember;
+
+  /// No description provided for @journalMonthDecember.
+  ///
+  /// In en, this message translates to:
+  /// **'December'**
+  String get journalMonthDecember;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
