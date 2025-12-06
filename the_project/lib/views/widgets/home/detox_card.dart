@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_project/l10n/app_localizations.dart';
 import '../../themes/style_simple/colors.dart';
 import '../../themes/style_simple/styles.dart';
 
@@ -40,6 +41,7 @@ class DetoxCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!; // <-- added
     final double p = progress.clamp(0, 1);
     final bool isComplete = p >= 1.0;
 
@@ -54,7 +56,10 @@ class DetoxCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Digital detox:', style: AppText.sectionTitle),
+                Text(
+                  l10n.detoxCardTitle, // was: 'Digital detox:'
+                  style: AppText.sectionTitle,
+                ),
                 const SizedBox(height: 6),
                 Image.asset('assets/images/phone_lock.png', width: 28, height: 28),
                 const SizedBox(height: 12),
@@ -77,10 +82,10 @@ class DetoxCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Center(
+                Center(
                   child: Text(
-                    'Phone is locked',
-                    style: TextStyle(
+                    l10n.detoxCardPhoneLocked, // was: 'Phone is locked'
+                    style: const TextStyle(
                       fontSize: 12,
                       color: AppColors.textSecondary,
                     ),
@@ -99,7 +104,9 @@ class DetoxCard extends StatelessWidget {
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     ),
-                    child: const Text('Disable Lock'),
+                    child: Text(
+                      l10n.detoxCardDisableLock, // was: 'Disable Lock'
+                    ),
                   ),
                 ),
               ],
@@ -119,7 +126,10 @@ class DetoxCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Digital detox:', style: AppText.sectionTitle),
+              Text(
+                l10n.detoxCardTitle, // was: 'Digital detox:'
+                style: AppText.sectionTitle,
+              ),
               const SizedBox(height: 6),
               Image.asset('assets/images/phone_lock.png', width: 28, height: 28),
               const SizedBox(height: 8),
@@ -132,10 +142,18 @@ class DetoxCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       text: TextSpan(
                         children: [
-                          TextSpan(text: '${(p * 100).round()}%', style: AppText.chipBold),
-                          const TextSpan(
-                            text: '  complete',
-                            style: TextStyle(fontSize: 11, color: AppColors.textPrimary, fontWeight: FontWeight.w400),
+                          TextSpan(
+                            text: '${(p * 100).round()}%',
+                            style: AppText.chipBold,
+                          ),
+                          TextSpan(
+                            // was: '  complete'
+                            text: '  ${l10n.detoxCardComplete}',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: AppColors.textPrimary,
+                              fontWeight: FontWeight.w400,
+                            ),
                           ),
                         ],
                       ),
@@ -156,7 +174,9 @@ class DetoxCard extends StatelessWidget {
                           minimumSize: const Size(58, 30),
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
-                        child: const Text('Reset'),
+                        child: Text(
+                          l10n.detoxCardReset, // was: 'Reset'
+                        ),
                       ),
                     )
                   else
@@ -174,7 +194,9 @@ class DetoxCard extends StatelessWidget {
                           minimumSize: const Size(58, 30),
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
-                        child: const Text('Lock 30m'),
+                        child: Text(
+                          l10n.detoxCardLock30m, // was: 'Lock 30m'
+                        ),
                       ),
                     ),
                 ],

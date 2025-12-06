@@ -22,13 +22,12 @@ import '../../../logic/activities/games/puzzle_cubit.dart';
 import '../../../logic/activities/games/painting_cubit.dart';
 import '../../../logic/activities/games/coloring_cubit.dart';
 
-
 class Activities extends StatelessWidget {
   const Activities({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!; // <-- added
+    final l10n = AppLocalizations.of(context)!;
 
     return BlocBuilder<ActivitiesCubit, ActivitiesState>(
       builder: (context, state) {
@@ -40,7 +39,6 @@ class Activities extends StatelessWidget {
           return Center(
             child: Text(
               l10n.failedToLoadActivities(state.error ?? ''),
-              // was: 'Failed to load activities\n${state.error}'
               textAlign: TextAlign.center,
               style: const TextStyle(color: Colors.red),
             ),
@@ -49,7 +47,8 @@ class Activities extends StatelessWidget {
 
         final List<ActivityItem> items = state.activities;
 
-        // Map activity title -> page builder (navigation)
+        // Map *raw English title key* -> page builder
+        // (we still use the raw title as an internal key)
         final Map<String, WidgetBuilder> routes = {
           'Bubble Popper': (_) => BlocProvider(
                 create: (_) => BubblePopperCubit(),
@@ -74,12 +73,13 @@ class Activities extends StatelessWidget {
           'Grow the plant': (_) => const GrowPlantPage(),
         };
 
-        // Convert ActivityItem -> UI data object
+        // Convert ActivityItem -> UI data object (with localization)
         final cards = <_MoodCardData>[
           for (final a in items)
             _MoodCardData(
-              title: a.title,
-              subtitle: a.subtitle,
+              key: a.title, // raw key from repo/database
+              title: _localizedActivityTitle(a.title, l10n),
+              subtitle: _localizedActivitySubtitle(a.title, l10n, a.subtitle),
               asset: a.asset,
             ),
         ];
@@ -93,7 +93,7 @@ class Activities extends StatelessWidget {
                 InkWell(
                   borderRadius: BorderRadius.circular(22),
                   onTap: () {
-                    final builder = routes[c.title];
+                    final builder = routes[c.key];
                     if (builder != null) {
                       Navigator.of(context).push(
                         MaterialPageRoute(builder: builder),
@@ -114,11 +114,65 @@ class Activities extends StatelessWidget {
   }
 }
 
+/// Localize activity titles based on the *raw* English title
+String _localizedActivityTitle(String rawTitle, AppLocalizations l10n) {
+  switch (rawTitle) {
+    case 'Bubble Popper':
+      return l10n.bubblePopperTitle;
+    case 'Breathing':
+      return l10n.breathingTitle;
+    case 'Painting':
+      return l10n.paintingTitle;
+    case 'Coloring':
+      return l10n.coloringTitle;
+    case 'Puzzle':
+      return l10n.puzzleTitle;
+    case 'Grow the plant':
+      return l10n.growPlantTitle;
+    default:
+      return rawTitle; // fallback if something unexpected comes from repo
+  }
+}
+
+/// Localize subtitles; fall back to existing subtitle if there is no key
+String _localizedActivitySubtitle(
+  String rawTitle,
+  AppLocalizations l10n,
+  String fallback,
+) {
+  switch (rawTitle) {
+    case 'Bubble Popper':
+      return l10n.bubblePopperDescription;
+    case 'Breathing':
+      return l10n.breathingDescription;
+    case 'Painting':
+      return l10n.paintingPrompt;
+    case 'Coloring':
+      // no dedicated subtitle key, reuse title or keep fallback
+      return fallback.isNotEmpty ? fallback : l10n.coloringTitle;
+    case 'Puzzle':
+      return l10n.puzzleInstruction;
+    case 'Grow the plant':
+      return l10n.growPlantHeadline;
+    default:
+      return fallback;
+  }
+}
+
 class _MoodCardData {
+  /// Raw key used to look up the route (e.g. 'Breathing', 'Bubble Popper')
+  final String key;
+
+  /// Localized title shown in UI
   final String title;
+
+  /// Localized subtitle shown in UI
   final String subtitle;
+
   final String asset;
+
   const _MoodCardData({
+    required this.key,
     required this.title,
     required this.subtitle,
     required this.asset,

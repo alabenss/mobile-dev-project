@@ -47,6 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  // currently unused, left as-is
   String _getGreeting() {
     final hour = DateTime.now().hour;
     if (hour < 12) {
@@ -60,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!; // <-- added
+    final l10n = AppLocalizations.of(context)!;
 
     return BlocBuilder<HomeCubit, HomeState>(
       builder: (context, state) {
@@ -83,8 +84,10 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 30),
+
+                // "Hello, {name}"
                 Text(
-                  "Hello, ${state.userName}",
+                  l10n.homeHello(state.userName),
                   style: const TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.w700,
@@ -137,12 +140,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 12),
 
                 SectionCard(
-                  title: l10n.todaysHabits, // <-- localized
+                  title: l10n.todaysHabits,
                   trailing: GestureDetector(
                     onTap: onViewAllHabits,
-                    child: const Text(
-                      'view all', // no key in ARB yet, left as-is
-                      style: TextStyle(
+                    child: Text(
+                      l10n.homeViewAllHabits, // 'view all'
+                      style: const TextStyle(
                         fontWeight: FontWeight.w500,
                         fontSize: 14,
                         color: AppColors.textPrimary,
@@ -150,11 +153,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   child: habitsToShow.isEmpty
-                      ? Padding( // <-- removed const to use l10n
+                      ? Padding(
                           padding: const EdgeInsets.symmetric(vertical: 16.0),
                           child: Center(
                             child: Text(
-                              '${l10n.noDailyHabits}\n${l10n.tapToAddHabit}', // <-- localized text
+                              '${l10n.noDailyHabits}\n${l10n.tapToAddHabit}',
                               style: const TextStyle(
                                 fontSize: 14,
                                 color: AppColors.textSecondary,
@@ -187,9 +190,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 const SizedBox(height: 18),
 
-                const Text(
-                  'Explore', // no key in ARB yet, left as-is
-                  style: TextStyle(
+                // Explore section
+                Text(
+                  l10n.exploreSectionTitle, // 'Explore'
+                  style: const TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 20,
                     color: AppColors.textPrimary,
@@ -211,8 +215,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                         child: ExploreCard(
                           color: AppColors.mint,
-                          title: 'The calming effect of plants', // left as-is
-                          cta: 'Read Now', // left as-is (no key yet)
+                          title: l10n.explorePlantTitle,
+                          cta: l10n.exploreReadNow,
                           assetImage: AppImages.plantIcon,
                         ),
                       ),
@@ -230,7 +234,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                         child: ExploreCard(
                           color: AppColors.primary,
-                          title: 'Boost your\nmood with\nsports', // left as-is
+                          title: l10n.exploreSportsTitle,
                           cta: '',
                           assetImage: AppImages.boostMoodIcon,
                         ),

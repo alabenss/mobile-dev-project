@@ -22,9 +22,9 @@ class HabitCubit extends Cubit<HabitState> {
   /// Add a new habit
   Future<void> addHabit(Habit habit) async {
     try {
-      // Check if habit with same title AND frequency already exists
+      // Check if habit with same habitKey AND frequency already exists
       final exists = await _repository.habitExistsWithFrequency(
-        habit.title, 
+        habit.habitKey, 
         habit.frequency
       );
       
@@ -45,40 +45,40 @@ class HabitCubit extends Cubit<HabitState> {
     }
   }
 
-  /// Mark a habit as completed (awards points)
-  Future<void> completeHabit(String title) async {
+  /// Mark a habit as completed (awards points) - uses habitKey
+  Future<void> completeHabit(String habitKey) async {
     try {
-      await _repository.updateHabitStatus(title, 'completed');
+      await _repository.updateHabitStatus(habitKey, 'completed');
       await loadHabits();
     } catch (e) {
       emit(state.copyWith(error: e.toString()));
     }
   }
 
-  /// Mark a habit as skipped
-  Future<void> skipHabit(String title) async {
+  /// Mark a habit as skipped - uses habitKey
+  Future<void> skipHabit(String habitKey) async {
     try {
-      await _repository.updateHabitStatus(title, 'skipped');
+      await _repository.updateHabitStatus(habitKey, 'skipped');
       await loadHabits();
     } catch (e) {
       emit(state.copyWith(error: e.toString()));
     }
   }
 
-  /// Reset a habit back to active
-  Future<void> resetHabit(String title) async {
+  /// Reset a habit back to active - uses habitKey
+  Future<void> resetHabit(String habitKey) async {
     try {
-      await _repository.updateHabitStatus(title, 'active');
+      await _repository.updateHabitStatus(habitKey, 'active');
       await loadHabits();
     } catch (e) {
       emit(state.copyWith(error: e.toString()));
     }
   }
 
-  /// Delete a habit
-  Future<void> deleteHabit(String title) async {
+  /// Delete a habit - uses habitKey
+  Future<void> deleteHabit(String habitKey) async {
     try {
-      await _repository.deleteHabit(title);
+      await _repository.deleteHabit(habitKey);
       await loadHabits();
     } catch (e) {
       emit(state.copyWith(error: e.toString()));

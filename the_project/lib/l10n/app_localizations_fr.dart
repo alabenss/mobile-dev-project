@@ -122,7 +122,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get appLockChooseType => 'Choisir le type de verrouillage :';
 
   @override
-  String get appLockPin => 'PIN';
+  String get appLockPin => 'Code PIN';
 
   @override
   String get appLockPinSubtitle => 'Sécuriser avec un code PIN numérique';
@@ -189,7 +189,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get appLockConfirmPassword => 'Confirmez votre mot de passe';
 
   @override
-  String get appLockMismatch => 'Les valeurs ne correspondent pas.';
+  String get appLockMismatch => 'Les valeurs de verrouillage ne correspondent pas !';
 
   @override
   String get appLockContinue => 'Continuer';
@@ -198,13 +198,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get appLockSaveLock => 'Enregistrer le verrouillage';
 
   @override
-  String get appLockSaved => 'Verrouillage enregistré avec succès.';
+  String get appLockSaved => 'Verrouillage de l\'application enregistré avec succès';
 
   @override
-  String get appLockSaveError => 'Erreur lors de l\'enregistrement du verrouillage.';
+  String get appLockSaveError => 'Échec de l\'enregistrement du verrouillage';
 
   @override
-  String get appLockRemoved => 'Verrouillage supprimé.';
+  String get appLockRemoved => 'Verrouillage de l\'application supprimé';
 
   @override
   String appLockEnterToUnlock(Object type) {
@@ -213,7 +213,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String appLockWrongAttempt(Object type) {
-    return 'Le $type est incorrect. Veuillez réessayer.';
+    return 'Mauvais $type ! Réessayez';
   }
 
   @override
@@ -378,7 +378,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get habitOther => 'Autre';
 
   @override
-  String get noHabitsYet => 'Aucune habitude pour l\'instant !\nAppuyez sur + pour ajouter votre première habitude';
+  String get noHabitsYet => 'Aucune habitude pour l\'instant !\\nAppuyez sur + pour ajouter votre première habitude';
 
   @override
   String get todaysHabits => 'Habitudes d\'aujourd\'hui';
@@ -842,6 +842,77 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get journalMoodGrateful => 'Reconnaissant';
+
+  @override
+  String get detoxCardTitle => 'Détox numérique :';
+
+  @override
+  String get detoxCardPhoneLocked => 'Téléphone verrouillé';
+
+  @override
+  String get detoxCardDisableLock => 'Désactiver le verrouillage';
+
+  @override
+  String get detoxCardComplete => 'terminé';
+
+  @override
+  String get detoxCardReset => 'Réinitialiser';
+
+  @override
+  String get detoxCardLock30m => 'Verrouiller 30 min';
+
+  @override
+  String get exploreSectionTitle => 'Explorer';
+
+  @override
+  String get explorePlantTitle => 'L\'effet apaisant des plantes';
+
+  @override
+  String get exploreReadNow => 'Lire maintenant';
+
+  @override
+  String get exploreSportsTitle => 'Améliore ton\\nmoral avec\\nle sport';
+
+  @override
+  String homeHello(String name) {
+    return 'Bonjour, $name';
+  }
+
+  @override
+  String get homeViewAllHabits => 'voir tout';
+
+  @override
+  String get phoneLockTitle => 'Téléphone verrouillé';
+
+  @override
+  String get phoneLockSubtitle => 'Faites une pause loin de l\'écran.\\nVotre détox numérique est en cours.';
+
+  @override
+  String get phoneLockStayStrong => 'Tiens bon !';
+
+  @override
+  String get phoneLockDisableTitle => 'Désactiver le verrouillage ?';
+
+  @override
+  String get phoneLockDisableMessage => 'Si vous désactivez le verrouillage trop tôt, vos progrès de détox n\'augmenteront pas. Êtes-vous sûr(e) ?';
+
+  @override
+  String get phoneLockStayLockedCta => 'Rester verrouillé';
+
+  @override
+  String get phoneLockDisableCta => 'Désactiver';
+
+  @override
+  String get phoneLockDisableButton => 'Désactiver le verrouillage';
+
+  @override
+  String get waterIntakeTitle => 'Hydratation :';
+
+  @override
+  String get waterGlassesUnit => 'verres';
+
+  @override
+  String get commonReset => 'Réinitialiser';
 
   @override
   String get commonCancel => 'Annuler';

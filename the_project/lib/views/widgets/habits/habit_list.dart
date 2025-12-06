@@ -94,7 +94,7 @@ class _HabitListState extends State<HabitList> {
           ),
         ),
         ...habits.map((habit) => Dismissible(
-              key: ValueKey('${habit.title}_${habit.frequency}_$title'),
+              key: ValueKey('${habit.habitKey}_${habit.frequency}_$title'),
               direction: title == "Today's Habits" || title == "Habits d'aujourd'hui"
                   ? DismissDirection.horizontal
                   : DismissDirection.none,
@@ -120,11 +120,10 @@ class _HabitListState extends State<HabitList> {
                 final l10n = AppLocalizations.of(context)!;
                 
                 if (direction == DismissDirection.startToEnd) {
-                  // Mark as completed
-                  await cubit.completeHabit(habit.title);
+                  // Mark as completed using habitKey
+                  await cubit.completeHabit(habit.habitKey);
                   
                   if (mounted) {
-                    // Show points earned with animation
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Row(
@@ -170,8 +169,8 @@ class _HabitListState extends State<HabitList> {
                     );
                   }
                 } else if (direction == DismissDirection.endToStart) {
-                  // Mark as skipped
-                  await cubit.skipHabit(habit.title);
+                  // Mark as skipped using habitKey
+                  await cubit.skipHabit(habit.habitKey);
                   
                   if (mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -190,7 +189,7 @@ class _HabitListState extends State<HabitList> {
                   if (shouldDelete && mounted) {
                     final cubit = context.read<HabitCubit>();
                     final l10n = AppLocalizations.of(context)!;
-                    await cubit.deleteHabit(habit.title);
+                    await cubit.deleteHabit(habit.habitKey);
                     
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(

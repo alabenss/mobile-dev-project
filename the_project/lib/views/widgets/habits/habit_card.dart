@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../themes/style_simple/colors.dart';
 import '../../../models/habit_model.dart';
+import '../../../utils/habit_localization.dart';
 
 class HabitCard extends StatelessWidget {
   final Habit habit;
@@ -14,6 +15,9 @@ class HabitCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    
+    // Get localized title
+    final localizedTitle = HabitLocalization.getLocalizedTitle(context, habit);
     
     // Format frequency for display
     String frequencyText = habit.frequency;
@@ -33,7 +37,7 @@ class HabitCard extends StatelessWidget {
       child: ListTile(
         leading: Icon(habit.icon, color: AppColors.icon, size: 32),
         title: Text(
-          habit.title,
+          localizedTitle,
           style: const TextStyle(
             color: AppColors.textPrimary,
             fontWeight: FontWeight.w600,
