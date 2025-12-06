@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:the_project/l10n/app_localizations.dart';
 import '../../themes/style_simple/colors.dart';
 
 class PhoneLockOverlay extends StatefulWidget {
@@ -54,6 +55,8 @@ class _PhoneLockOverlayState extends State<PhoneLockOverlay> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return WillPopScope(
       onWillPop: () async => false, // Prevent back button
       child: Material(
@@ -102,19 +105,20 @@ class _PhoneLockOverlayState extends State<PhoneLockOverlay> {
                 const SizedBox(height: 16),
 
                 // Message
-                const Text(
-                  'Phone is locked',
-                  style: TextStyle(
+                Text(
+                  l10n.phoneLockTitle, // was: 'Phone is locked'
+                  style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 12),
-                const Text(
-                  'Take a break from your screen.\nYour digital detox is in progress.',
+                Text(
+                  l10n.phoneLockSubtitle,
+                  // was: 'Take a break from your screen.\nYour digital detox is in progress.'
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     color: AppColors.textSecondary,
                     height: 1.5,
@@ -144,7 +148,7 @@ class _PhoneLockOverlayState extends State<PhoneLockOverlay> {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          'Stay strong!',
+                          l10n.phoneLockStayStrong, // was: 'Stay strong!'
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -169,20 +173,27 @@ class _PhoneLockOverlayState extends State<PhoneLockOverlay> {
                         barrierDismissible: false,
                         builder: (context) => AlertDialog(
                           backgroundColor: AppColors.card,
-                          title: const Text(
-                            'Disable Lock?',
-                            style: TextStyle(color: AppColors.textPrimary),
+                          title: Text(
+                            l10n.phoneLockDisableTitle, // was: 'Disable Lock?'
+                            style: const TextStyle(
+                              color: AppColors.textPrimary,
+                            ),
                           ),
-                          content: const Text(
-                            'If you disable the lock early, your detox progress will not increase. Are you sure?',
-                            style: TextStyle(color: AppColors.textSecondary),
+                          content: Text(
+                            l10n.phoneLockDisableMessage,
+                            // was: 'If you disable the lock early, your detox progress will not increase. Are you sure?'
+                            style: const TextStyle(
+                              color: AppColors.textSecondary,
+                            ),
                           ),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context),
-                              child: const Text(
-                                'Stay Locked',
-                                style: TextStyle(color: AppColors.accentGreen),
+                              child: Text(
+                                l10n.phoneLockStayLockedCta, // was: 'Stay Locked'
+                                style: const TextStyle(
+                                  color: AppColors.accentGreen,
+                                ),
                               ),
                             ),
                             TextButton(
@@ -190,9 +201,11 @@ class _PhoneLockOverlayState extends State<PhoneLockOverlay> {
                                 Navigator.pop(context);
                                 widget.onDisable();
                               },
-                              child: const Text(
-                                'Disable',
-                                style: TextStyle(color: AppColors.accentBlue),
+                              child: Text(
+                                l10n.phoneLockDisableCta, // was: 'Disable'
+                                style: const TextStyle(
+                                  color: AppColors.accentBlue,
+                                ),
                               ),
                             ),
                           ],
@@ -200,16 +213,19 @@ class _PhoneLockOverlayState extends State<PhoneLockOverlay> {
                       );
                     },
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: AppColors.accentBlue, width: 2),
+                      side: const BorderSide(
+                        color: AppColors.accentBlue,
+                        width: 2,
+                      ),
                       foregroundColor: AppColors.accentBlue,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    child: const Text(
-                      'Disable Lock',
-                      style: TextStyle(
+                    child: Text(
+                      l10n.phoneLockDisableButton, // was: 'Disable Lock'
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),

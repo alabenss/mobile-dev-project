@@ -378,7 +378,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get habitOther => 'Other';
 
   @override
-  String get noHabitsYet => 'No habits yet!\nTap + to add your first habit';
+  String get noHabitsYet => 'No habits yet!\\nTap + to add your first habit';
 
   @override
   String get todaysHabits => 'Today\'s Habits';
@@ -842,6 +842,77 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get journalMoodGrateful => 'Grateful';
+
+  @override
+  String get detoxCardTitle => 'Digital detox:';
+
+  @override
+  String get detoxCardPhoneLocked => 'Phone is locked';
+
+  @override
+  String get detoxCardDisableLock => 'Disable Lock';
+
+  @override
+  String get detoxCardComplete => 'complete';
+
+  @override
+  String get detoxCardReset => 'Reset';
+
+  @override
+  String get detoxCardLock30m => 'Lock 30m';
+
+  @override
+  String get exploreSectionTitle => 'Explore';
+
+  @override
+  String get explorePlantTitle => 'The calming effect of plants';
+
+  @override
+  String get exploreReadNow => 'Read Now';
+
+  @override
+  String get exploreSportsTitle => 'Boost your\\nmood with\\nsports';
+
+  @override
+  String homeHello(String name) {
+    return 'Hello, $name';
+  }
+
+  @override
+  String get homeViewAllHabits => 'view all';
+
+  @override
+  String get phoneLockTitle => 'Phone is locked';
+
+  @override
+  String get phoneLockSubtitle => 'Take a break from your screen.\\nYour digital detox is in progress.';
+
+  @override
+  String get phoneLockStayStrong => 'Stay strong!';
+
+  @override
+  String get phoneLockDisableTitle => 'Disable Lock?';
+
+  @override
+  String get phoneLockDisableMessage => 'If you disable the lock early, your detox progress will not increase. Are you sure?';
+
+  @override
+  String get phoneLockStayLockedCta => 'Stay Locked';
+
+  @override
+  String get phoneLockDisableCta => 'Disable';
+
+  @override
+  String get phoneLockDisableButton => 'Disable Lock';
+
+  @override
+  String get waterIntakeTitle => 'Water intake:';
+
+  @override
+  String get waterGlassesUnit => 'glasses';
+
+  @override
+  String get commonReset => 'Reset';
 
   @override
   String get commonCancel => 'Cancel';
