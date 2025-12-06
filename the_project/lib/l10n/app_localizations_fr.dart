@@ -354,6 +354,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get pointsMustBeGreaterThanZero => 'Les points doivent être supérieurs à 0 !';
 
   @override
+  String get coloringDescription => 'Relaxe-toi grace au coloriage mindful.';
+
+  @override
   String get habitDrinkWater => 'Boire de l\'eau';
 
   @override

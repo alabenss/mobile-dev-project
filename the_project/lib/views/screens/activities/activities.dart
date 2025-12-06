@@ -149,7 +149,7 @@ String _localizedActivitySubtitle(
       return l10n.paintingPrompt;
     case 'Coloring':
       // no dedicated subtitle key, reuse title or keep fallback
-      return fallback.isNotEmpty ? fallback : l10n.coloringTitle;
+      return l10n.coloringDescription;
     case 'Puzzle':
       return l10n.puzzleInstruction;
     case 'Grow the plant':

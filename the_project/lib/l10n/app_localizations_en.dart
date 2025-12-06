@@ -354,6 +354,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pointsMustBeGreaterThanZero => 'Points must be greater than 0!';
 
   @override
+  String get coloringDescription => 'Relax with mindful coloring.';
+
+  @override
   String get habitDrinkWater => 'Drink Water';
 
   @override

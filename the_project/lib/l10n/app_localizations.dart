@@ -715,6 +715,12 @@ abstract class AppLocalizations {
   /// **'Points must be greater than 0!'**
   String get pointsMustBeGreaterThanZero;
 
+  /// No description provided for @coloringDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Relax with mindful coloring.'**
+  String get coloringDescription;
+
   /// No description provided for @habitDrinkWater.
   ///
   /// In en, this message translates to:
