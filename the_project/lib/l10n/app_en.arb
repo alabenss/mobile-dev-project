@@ -378,7 +378,139 @@
   "sportArticleQuote": "Show up for 5 minutes. Most days, that’s all it takes to start.",
   "sportArticleRememberTitle": "Remember",
   "sportArticleRememberBody": "Pick a movement that makes you smile — not just one that makes you sweat. Joy builds consistency, and consistency lifts mood.",
-  "sportArticleStartActivityCta": "Start an activity"
+  "sportArticleStartActivityCta": "Start an activity",
+  
+  
+  "journalSelectDay": "Select a day to view journals",
+  "journalNoEntries": "No journals for this day",
+  "journalDeleteTitle": "Delete Journal",
+  "journalDeleteMessage": "Are you sure you want to delete this journal entry?",
+  "journalDeleteSuccess": "Journal deleted successfully",
+  "journalDeletedSuccessfully": "Journal deleted successfully",
+  "journalUpdatedSuccessfully": "Journal updated successfully",
+  "journalCannotCreateFuture": "Cannot create journal for future dates",
+  
+  "journalWriteTitle": "Write Journal",
+  "journalSave": "Save",
+  "journalTitle": "Title",
+  "journalWriteMore": "Write more here...",
+  "journalAddTitle": "Please add a title",
+  
+  "journalMoodTitle": "How do you feel today?",
+  "journalSelectBackground": "Select Background",
+  "journalNoBackground": "No Background",
+  "journalSelectSticker": "Select Sticker",
+  "journalTextStyle": "Text Style",
+  "journalFontFamily": "Font Family",
+  "journalTextColor": "Text Color",
+  "journalFontSize": "Font Size",
+  "journalApply": "Apply",
+  
+  "journalVoiceNote": "Voice Note",
+  "journalVoiceRecording": "Recording...",
+  "journalVoiceSaved": "Recording saved",
+  "journalVoiceTapToStart": "Tap to start recording",
+  "journalVoiceAddNote": "Add Voice Note",
+  "journalVoicePermissionDenied": "Microphone permission denied",
+  "journalVoiceStartFailed": "Failed to start recording: {error}",
+  "@journalVoiceStartFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "journalVoiceStopFailed": "Failed to stop recording: {error}",
+  "@journalVoiceStopFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "journalVoicePlayFailed": "Failed to play recording: {error}",
+  "@journalVoicePlayFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "journalToolbarBackground": "Background",
+  "journalToolbarAddImage": "Add Image",
+  "journalToolbarStickers": "Stickers",
+  "journalToolbarTextStyle": "Text Style",
+  "journalToolbarVoiceNote": "Voice note",
+  
+  "journalErrorPickingImage": "Error picking image: {error}",
+  "@journalErrorPickingImage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  
+  "journalMoodHappy": "Happy",
+  "journalMoodGood": "Good",
+  "journalMoodExcited": "Excited",
+  "journalMoodCalm": "Calm",
+  "journalMoodSad": "Sad",
+  "journalMoodTired": "Tired",
+  "journalMoodAnxious": "Anxious",
+  "journalMoodAngry": "Angry",
+  "journalMoodConfused": "Confused",
+  "journalMoodGrateful": "Grateful",
+  
+  "commonCancel": "Cancel",
+  "commonDelete": "Delete",
+  "commonClose": "Close",
 
-
+  "journalMoodCardTitle": "How do you feel today?",
+  "journalMoodCardToday": "Today",
+  "journalMoodCardRetry": "Retry",
+  "journalMoodCardFailedToLoad": "Failed to load mood",
+  
+  "journalCalendarMon": "Mon",
+  "journalCalendarTue": "Tue",
+  "journalCalendarWed": "Wed",
+  "journalCalendarThu": "Thu",
+  "journalCalendarFri": "Fri",
+  "journalCalendarSat": "Sat",
+  "journalCalendarSun": "Sun",
+  
+  "journalCalendarMonday": "Monday",
+  "journalCalendarTuesday": "Tuesday",
+  "journalCalendarWednesday": "Wednesday",
+  "journalCalendarThursday": "Thursday",
+  "journalCalendarFriday": "Friday",
+  "journalCalendarSaturday": "Saturday",
+  "journalCalendarSunday": "Sunday",
+  
+  "journalMonthJan": "Jan",
+  "journalMonthFeb": "Feb",
+  "journalMonthMar": "Mar",
+  "journalMonthApr": "Apr",
+  "journalMonthMay": "May",
+  "journalMonthJun": "Jun",
+  "journalMonthJul": "Jul",
+  "journalMonthAug": "Aug",
+  "journalMonthSep": "Sep",
+  "journalMonthOct": "Oct",
+  "journalMonthNov": "Nov",
+  "journalMonthDec": "Dec",
+  
+  "journalMonthJanuary": "January",
+  "journalMonthFebruary": "February",
+  "journalMonthMarch": "March",
+  "journalMonthApril": "April",
+  "journalMonthMayFull": "May",
+  "journalMonthJune": "June",
+  "journalMonthJuly": "July",
+  "journalMonthAugust": "August",
+  "journalMonthSeptember": "September",
+  "journalMonthOctober": "October",
+  "journalMonthNovember": "November",
+  "journalMonthDecember": "December"
 }

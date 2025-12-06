@@ -4,6 +4,7 @@ import 'package:record/record.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:the_project/l10n/app_localizations.dart';
 
 import '../../themes/style_simple/colors.dart';
 
@@ -37,20 +38,17 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget> {
     super.dispose();
   }
 
-  Future<void> _startRecording() async {
+  Future<void> _startRecording(AppLocalizations l10n) async {
     try {
-      // Request microphone permission
       final status = await Permission.microphone.request();
       if (!status.isGranted) {
-        _showError('Microphone permission denied');
+        _showError(l10n.journalVoicePermissionDenied);
         return;
       }
 
-      // Get app directory
       final directory = await getApplicationDocumentsDirectory();
       final filePath = '${directory.path}/voice_note_${DateTime.now().millisecondsSinceEpoch}.m4a';
 
-      // Start recording
       await _audioRecorder.start(
         const RecordConfig(
           encoder: AudioEncoder.aacLc,
@@ -65,14 +63,14 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget> {
         _recordDuration = 0;
       });
 
-      // Start timer
       _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
         setState(() {
           _recordDuration++;
         });
       });
     } catch (e) {
-      _showError('Failed to start recording: $e');
+      final l10n = AppLocalizations.of(context)!;
+      _showError(l10n.journalVoiceStartFailed( e.toString()));
     }
   }
 
@@ -86,7 +84,8 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget> {
         _recordedFilePath = path;
       });
     } catch (e) {
-      _showError('Failed to stop recording: $e');
+      final l10n = AppLocalizations.of(context)!;
+      _showError(l10n.journalVoiceStopFailed( e.toString()));
     }
   }
 
@@ -101,7 +100,8 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget> {
         setState(() => _isPlaying = false);
       });
     } catch (e) {
-      _showError('Failed to play recording: $e');
+      final l10n = AppLocalizations.of(context)!;
+      _showError(l10n.journalVoicePlayFailed( e.toString()));
     }
   }
 
@@ -141,9 +141,11 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Container(
       constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.85, // Use percentage of screen height
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
       ),
       decoration: const BoxDecoration(
         color: AppColors.card,
@@ -151,17 +153,16 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget> {
       ),
       child: SafeArea(
         child: Column(
-          mainAxisSize: MainAxisSize.min, // Use min to avoid overflow
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // Header
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Voice Note',
-                    style: TextStyle(
+                  Text(
+                    l10n.journalVoiceNote,
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -176,15 +177,14 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget> {
 
             const Divider(height: 1),
 
-            Flexible( // Use Flexible to allow content to shrink if needed
-              child: SingleChildScrollView( // Wrap in SingleChildScrollView for safety
+            Flexible(
+              child: SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Recording indicator
                       const SizedBox(height: 10),
                       if (_isRecording)
                         Container(
@@ -198,7 +198,7 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget> {
                               width: 3,
                             ),
                           ),
-                          child: Center(
+                          child: const Center(
                             child: Icon(
                               Icons.mic,
                               size: 50,
@@ -218,7 +218,7 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget> {
                               width: 3,
                             ),
                           ),
-                          child: Center(
+                          child: const Center(
                             child: Icon(
                               Icons.check_circle,
                               size: 50,
@@ -245,7 +245,6 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget> {
 
                       const SizedBox(height: 20),
 
-                      // Timer
                       Text(
                         _formatDuration(_recordDuration),
                         style: const TextStyle(
@@ -257,13 +256,12 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget> {
 
                       const SizedBox(height: 16),
 
-                      // Status text
                       Text(
                         _isRecording
-                            ? 'Recording...'
+                            ? l10n.journalVoiceRecording
                             : _recordedFilePath != null
-                                ? 'Recording saved'
-                                : 'Tap to start recording',
+                                ? l10n.journalVoiceSaved
+                                : l10n.journalVoiceTapToStart,
                         style: TextStyle(
                           fontSize: 16,
                           color: AppColors.textSecondary,
@@ -272,11 +270,9 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget> {
 
                       const SizedBox(height: 25),
 
-                      // Control buttons
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          // Delete button (if recorded)
                           if (_recordedFilePath != null && !_isRecording)
                             IconButton(
                               onPressed: _deleteRecording,
@@ -287,9 +283,8 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget> {
 
                           const SizedBox(width: 20),
 
-                          // Main button (record/stop)
                           GestureDetector(
-                            onTap: _isRecording ? _stopRecording : _startRecording,
+                            onTap: _isRecording ? _stopRecording : () => _startRecording(l10n),
                             child: Container(
                               width: 80,
                               height: 80,
@@ -315,7 +310,6 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget> {
 
                           const SizedBox(width: 20),
 
-                          // Play/Pause button (if recorded)
                           if (_recordedFilePath != null && !_isRecording)
                             IconButton(
                               onPressed:
@@ -336,7 +330,6 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget> {
               ),
             ),
 
-            // Save button
             if (_recordedFilePath != null && !_isRecording)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
@@ -351,9 +344,9 @@ class _VoiceRecorderWidgetState extends State<VoiceRecorderWidget> {
                         borderRadius: BorderRadius.circular(25),
                       ),
                     ),
-                    child: const Text(
-                      'Add Voice Note',
-                      style: TextStyle(
+                    child: Text(
+                      l10n.journalVoiceAddNote,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                         color: AppColors.card,

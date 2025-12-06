@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:the_project/l10n/app_localizations.dart';
+
 import '../../themes/style_simple/colors.dart';
 
 class CalendarRow extends StatefulWidget {
@@ -28,7 +30,6 @@ class _CalendarRowState extends State<CalendarRow> {
   @override
   void initState() {
     super.initState();
-    // Scroll to today after the widget is built
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToToday();
     });
@@ -37,7 +38,6 @@ class _CalendarRowState extends State<CalendarRow> {
   @override
   void didUpdateWidget(CalendarRow oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Reset scroll flag if month/year changed
     if (oldWidget.month != widget.month || oldWidget.year != widget.year) {
       _hasScrolledToToday = false;
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -50,12 +50,9 @@ class _CalendarRowState extends State<CalendarRow> {
     if (_hasScrolledToToday || !_scrollController.hasClients) return;
 
     final now = DateTime.now();
-    // Only auto-scroll if we're viewing the current month
     if (widget.month == now.month && widget.year == now.year) {
       final todayIndex = now.day - 1;
-      // Calculate position: each item is 70 width + 8 padding
       final scrollPosition = todayIndex * 78.0;
-      // Scroll to center the current day
       final offset = (scrollPosition - (MediaQuery.of(context).size.width / 2) + 39).clamp(
         0.0,
         _scrollController.position.maxScrollExtent,
@@ -79,6 +76,7 @@ class _CalendarRowState extends State<CalendarRow> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final daysInMonth = DateTime(widget.year, widget.month + 1, 0).day;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -92,7 +90,7 @@ class _CalendarRowState extends State<CalendarRow> {
         itemBuilder: (context, index) {
           final day = index + 1;
           final date = DateTime(widget.year, widget.month, day);
-          final dateLabel = _formatDateLabel(date);
+          final dateLabel = _formatDateLabel(date, l10n);
           final hasEntries = widget.entriesByDate.containsKey(dateLabel);
           final entryCount = widget.entriesByDate[dateLabel] ?? 0;
           final isSelected = widget.selectedDateLabel == dateLabel;
@@ -125,7 +123,7 @@ class _CalendarRowState extends State<CalendarRow> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        _getWeekdayShort(date.weekday),
+                        _getWeekdayShort(date.weekday, l10n),
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: isFuture ? AppColors.textSecondary.withOpacity(0.6) : AppColors.textSecondary,
@@ -173,20 +171,51 @@ class _CalendarRowState extends State<CalendarRow> {
     );
   }
 
-  String _formatDateLabel(DateTime date) {
-    return '${_getWeekdayFull(date.weekday)}, ${_getMonthShort(date.month)} ${date.day}';
+  String _formatDateLabel(DateTime date, AppLocalizations l10n) {
+    return '${_getWeekdayFull(date.weekday, l10n)}, ${_getMonthShort(date.month, l10n)} ${date.day}';
   }
 
-  String _getWeekdayShort(int w) =>
-      ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][w - 1];
+  String _getWeekdayShort(int w, AppLocalizations l10n) {
+    final weekdays = [
+      l10n.journalCalendarMon,
+      l10n.journalCalendarTue,
+      l10n.journalCalendarWed,
+      l10n.journalCalendarThu,
+      l10n.journalCalendarFri,
+      l10n.journalCalendarSat,
+      l10n.journalCalendarSun
+    ];
+    return weekdays[w - 1];
+  }
 
-  String _getWeekdayFull(int w) => [
-        'Monday', 'Tuesday', 'Wednesday', 'Thursday',
-        'Friday', 'Saturday', 'Sunday'
-      ][w - 1];
+  String _getWeekdayFull(int w, AppLocalizations l10n) {
+    final weekdays = [
+      l10n.journalCalendarMonday,
+      l10n.journalCalendarTuesday,
+      l10n.journalCalendarWednesday,
+      l10n.journalCalendarThursday,
+      l10n.journalCalendarFriday,
+      l10n.journalCalendarSaturday,
+      l10n.journalCalendarSunday
+    ];
+    return weekdays[w - 1];
+  }
 
-  String _getMonthShort(int m) => [
-        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-      ][m - 1];
+  String _getMonthShort(int m, AppLocalizations l10n) {
+    final months = [
+      l10n.journalMonthJan,
+      l10n.journalMonthFeb,
+      l10n.journalMonthMar,
+      l10n.journalMonthApr,
+      l10n.journalMonthMay,
+      l10n.journalMonthJun,
+      l10n.journalMonthJul,
+      l10n.journalMonthAug,
+      l10n.journalMonthSep,
+      l10n.journalMonthOct,
+      l10n.journalMonthNov,
+      l10n.journalMonthDec
+    ];
+    return months[m - 1];
+  }
 }

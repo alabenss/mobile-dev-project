@@ -693,4 +693,288 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get sportArticleStartActivityCta => 'ابدأ نشاطًا';
+
+  @override
+  String get journalSelectDay => 'اختر يومًا لعرض اليوميات';
+
+  @override
+  String get journalNoEntries => 'لا توجد يوميات لهذا اليوم';
+
+  @override
+  String get journalDeleteTitle => 'حذف اليومية';
+
+  @override
+  String get journalDeleteMessage => 'هل أنت متأكد أنك تريد حذف هذه اليومية؟';
+
+  @override
+  String get journalDeleteSuccess => 'تم حذف اليومية بنجاح';
+
+  @override
+  String get journalDeletedSuccessfully => 'تم حذف اليومية بنجاح';
+
+  @override
+  String get journalUpdatedSuccessfully => 'تم تحديث اليومية بنجاح';
+
+  @override
+  String get journalCannotCreateFuture => 'لا يمكن إنشاء يومية لتواريخ مستقبلية';
+
+  @override
+  String get journalWriteTitle => 'كتابة يومية';
+
+  @override
+  String get journalSave => 'حفظ';
+
+  @override
+  String get journalTitle => 'العنوان';
+
+  @override
+  String get journalWriteMore => 'اكتب المزيد هنا...';
+
+  @override
+  String get journalAddTitle => 'الرجاء إضافة عنوان';
+
+  @override
+  String get journalMoodTitle => 'كيف تشعر اليوم؟';
+
+  @override
+  String get journalSelectBackground => 'اختر الخلفية';
+
+  @override
+  String get journalNoBackground => 'بدون خلفية';
+
+  @override
+  String get journalSelectSticker => 'اختر ملصق';
+
+  @override
+  String get journalTextStyle => 'نمط النص';
+
+  @override
+  String get journalFontFamily => 'نوع الخط';
+
+  @override
+  String get journalTextColor => 'لون النص';
+
+  @override
+  String get journalFontSize => 'حجم الخط';
+
+  @override
+  String get journalApply => 'تطبيق';
+
+  @override
+  String get journalVoiceNote => 'مذكرة صوتية';
+
+  @override
+  String get journalVoiceRecording => 'جارٍ التسجيل...';
+
+  @override
+  String get journalVoiceSaved => 'تم حفظ التسجيل';
+
+  @override
+  String get journalVoiceTapToStart => 'اضغط لبدء التسجيل';
+
+  @override
+  String get journalVoiceAddNote => 'إضافة مذكرة صوتية';
+
+  @override
+  String get journalVoicePermissionDenied => 'تم رفض إذن الميكروفون';
+
+  @override
+  String journalVoiceStartFailed(String error) {
+    return 'فشل بدء التسجيل: $error';
+  }
+
+  @override
+  String journalVoiceStopFailed(String error) {
+    return 'فشل إيقاف التسجيل: $error';
+  }
+
+  @override
+  String journalVoicePlayFailed(String error) {
+    return 'فشل تشغيل التسجيل: $error';
+  }
+
+  @override
+  String get journalToolbarBackground => 'الخلفية';
+
+  @override
+  String get journalToolbarAddImage => 'إضافة صورة';
+
+  @override
+  String get journalToolbarStickers => 'الملصقات';
+
+  @override
+  String get journalToolbarTextStyle => 'نمط النص';
+
+  @override
+  String get journalToolbarVoiceNote => 'مذكرة صوتية';
+
+  @override
+  String journalErrorPickingImage(String error) {
+    return 'خطأ في اختيار الصورة: $error';
+  }
+
+  @override
+  String get journalMoodHappy => 'سعيد';
+
+  @override
+  String get journalMoodGood => 'جيد';
+
+  @override
+  String get journalMoodExcited => 'متحمس';
+
+  @override
+  String get journalMoodCalm => 'هادئ';
+
+  @override
+  String get journalMoodSad => 'حزين';
+
+  @override
+  String get journalMoodTired => 'متعب';
+
+  @override
+  String get journalMoodAnxious => 'قلق';
+
+  @override
+  String get journalMoodAngry => 'غاضب';
+
+  @override
+  String get journalMoodConfused => 'مرتبك';
+
+  @override
+  String get journalMoodGrateful => 'ممتن';
+
+  @override
+  String get commonCancel => 'إلغاء';
+
+  @override
+  String get commonDelete => 'حذف';
+
+  @override
+  String get commonClose => 'إغلاق';
+
+  @override
+  String get journalMoodCardTitle => 'كيف تشعر اليوم؟';
+
+  @override
+  String get journalMoodCardToday => 'اليوم';
+
+  @override
+  String get journalMoodCardRetry => 'إعادة المحاولة';
+
+  @override
+  String get journalMoodCardFailedToLoad => 'فشل تحميل الحالة المزاجية';
+
+  @override
+  String get journalCalendarMon => 'الإثنين';
+
+  @override
+  String get journalCalendarTue => 'الثلاثاء';
+
+  @override
+  String get journalCalendarWed => 'الأربعاء';
+
+  @override
+  String get journalCalendarThu => 'الخميس';
+
+  @override
+  String get journalCalendarFri => 'الجمعة';
+
+  @override
+  String get journalCalendarSat => 'السبت';
+
+  @override
+  String get journalCalendarSun => 'الأحد';
+
+  @override
+  String get journalCalendarMonday => 'الإثنين';
+
+  @override
+  String get journalCalendarTuesday => 'الثلاثاء';
+
+  @override
+  String get journalCalendarWednesday => 'الأربعاء';
+
+  @override
+  String get journalCalendarThursday => 'الخميس';
+
+  @override
+  String get journalCalendarFriday => 'الجمعة';
+
+  @override
+  String get journalCalendarSaturday => 'السبت';
+
+  @override
+  String get journalCalendarSunday => 'الأحد';
+
+  @override
+  String get journalMonthJan => 'يناير';
+
+  @override
+  String get journalMonthFeb => 'فبراير';
+
+  @override
+  String get journalMonthMar => 'مارس';
+
+  @override
+  String get journalMonthApr => 'أبريل';
+
+  @override
+  String get journalMonthMay => 'مايو';
+
+  @override
+  String get journalMonthJun => 'يونيو';
+
+  @override
+  String get journalMonthJul => 'يوليو';
+
+  @override
+  String get journalMonthAug => 'أغسطس';
+
+  @override
+  String get journalMonthSep => 'سبتمبر';
+
+  @override
+  String get journalMonthOct => 'أكتوبر';
+
+  @override
+  String get journalMonthNov => 'نوفمبر';
+
+  @override
+  String get journalMonthDec => 'ديسمبر';
+
+  @override
+  String get journalMonthJanuary => 'يناير';
+
+  @override
+  String get journalMonthFebruary => 'فبراير';
+
+  @override
+  String get journalMonthMarch => 'مارس';
+
+  @override
+  String get journalMonthApril => 'أبريل';
+
+  @override
+  String get journalMonthMayFull => 'مايو';
+
+  @override
+  String get journalMonthJune => 'يونيو';
+
+  @override
+  String get journalMonthJuly => 'يوليو';
+
+  @override
+  String get journalMonthAugust => 'أغسطس';
+
+  @override
+  String get journalMonthSeptember => 'سبتمبر';
+
+  @override
+  String get journalMonthOctober => 'أكتوبر';
+
+  @override
+  String get journalMonthNovember => 'نوفمبر';
+
+  @override
+  String get journalMonthDecember => 'ديسمبر';
 }

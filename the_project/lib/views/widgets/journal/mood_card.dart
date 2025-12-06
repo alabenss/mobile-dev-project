@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:the_project/l10n/app_localizations.dart';
 import '../../../logic/auth/auth_cubit.dart';
 import '../../../logic/auth/auth_state.dart';
 import '../../../logic/journal/daily_mood_state.dart';
@@ -15,20 +16,20 @@ class MoodCard extends StatefulWidget {
 }
 
 class _MoodCardState extends State<MoodCard> {
-  final List<Map<String, String>> _moods = [
-    {'image': 'assets/images/happy.png', 'label': 'Happy'},
-    {'image': 'assets/images/good.png', 'label': 'Good'},
-    {'image': 'assets/images/excited.png', 'label': 'Excited'},
-    {'image': 'assets/images/calm.png', 'label': 'Calm'},
-    {'image': 'assets/images/sad.png', 'label': 'Sad'},
-    {'image': 'assets/images/tired.png', 'label': 'Tired'},
-    {'image': 'assets/images/anxious.png', 'label': 'Anxious'},
-    {'image': 'assets/images/angry.png', 'label': 'Angry'},
-    {'image': 'assets/images/confused.png', 'label': 'Confused'},
-    {'image': 'assets/images/grateful.png', 'label': 'Grateful'},
-  ];
-
   int? _lastLoadedUserId;
+
+  List<Map<String, String>> _getMoods(AppLocalizations l10n) => [
+    {'image': 'assets/images/happy.png', 'label': l10n.journalMoodHappy},
+    {'image': 'assets/images/good.png', 'label': l10n.journalMoodGood},
+    {'image': 'assets/images/excited.png', 'label': l10n.journalMoodExcited},
+    {'image': 'assets/images/calm.png', 'label': l10n.journalMoodCalm},
+    {'image': 'assets/images/sad.png', 'label': l10n.journalMoodSad},
+    {'image': 'assets/images/tired.png', 'label': l10n.journalMoodTired},
+    {'image': 'assets/images/anxious.png', 'label': l10n.journalMoodAnxious},
+    {'image': 'assets/images/angry.png', 'label': l10n.journalMoodAngry},
+    {'image': 'assets/images/confused.png', 'label': l10n.journalMoodConfused},
+    {'image': 'assets/images/grateful.png', 'label': l10n.journalMoodGrateful},
+  ];
 
   @override
   void initState() {
@@ -42,7 +43,7 @@ class _MoodCardState extends State<MoodCard> {
   }
 
   void _loadMoodIfNeeded() async {
-    await Future.delayed(Duration.zero); // Wait for frame
+    await Future.delayed(Duration.zero);
     if (!mounted) return;
 
     final currentUserId = await _getCurrentUserId();
@@ -66,7 +67,6 @@ class _MoodCardState extends State<MoodCard> {
   Widget build(BuildContext context) {
     return MultiBlocListener(
       listeners: [
-        // Listen to auth changes to reload mood when user changes
         BlocListener<AuthCubit, AuthState>(
           listener: (context, authState) async {
             if (authState.isAuthenticated && authState.user != null) {
@@ -74,7 +74,6 @@ class _MoodCardState extends State<MoodCard> {
               print(
                   'MoodCard: Auth state changed, userId: $currentUserId, last loaded: $_lastLoadedUserId');
 
-              // Reload mood if user changed
               if (currentUserId != null && _lastLoadedUserId != currentUserId) {
                 print(
                     'MoodCard: User CHANGED from $_lastLoadedUserId to $currentUserId, reloading mood');
@@ -84,7 +83,6 @@ class _MoodCardState extends State<MoodCard> {
                 context.read<DailyMoodCubit>().loadTodayMood();
               }
             } else {
-              // User logged out, clear last user
               print('MoodCard: User logged out, clearing state');
               setState(() {
                 _lastLoadedUserId = null;
@@ -92,7 +90,6 @@ class _MoodCardState extends State<MoodCard> {
             }
           },
         ),
-        // Listen to mood errors
         BlocListener<DailyMoodCubit, DailyMoodState>(
           listener: (context, state) {
             if (state.error != null) {
@@ -131,6 +128,8 @@ class _MoodCardState extends State<MoodCard> {
   }
 
   Widget _buildContent(DailyMoodState state) {
+    final l10n = AppLocalizations.of(context)!;
+    
     if (state.status == DailyMoodStatus.loading) {
       return const Center(
         child: Padding(
@@ -146,7 +145,7 @@ class _MoodCardState extends State<MoodCard> {
           const Icon(Icons.error_outline, color: AppColors.error, size: 40),
           const SizedBox(height: 8),
           Text(
-            state.error ?? 'Failed to load mood',
+            state.error ?? l10n.journalMoodCardFailedToLoad,
             style: const TextStyle(color: AppColors.error),
             textAlign: TextAlign.center,
           ),
@@ -155,7 +154,7 @@ class _MoodCardState extends State<MoodCard> {
             onPressed: () {
               context.read<DailyMoodCubit>().loadTodayMood();
             },
-            child: const Text('Retry'),
+            child: Text(l10n.journalMoodCardRetry),
           ),
         ],
       );
@@ -167,8 +166,9 @@ class _MoodCardState extends State<MoodCard> {
   }
 
   Widget _buildSelectedMood(DailyMoodState state) {
+    final l10n = AppLocalizations.of(context)!;
     final mood = state.todayMood!;
-    final formattedTime = _formatDateTime(mood.updatedAt);
+    final formattedTime = _formatDateTime(mood.updatedAt, l10n);
 
     return Row(
       children: [
@@ -195,7 +195,6 @@ class _MoodCardState extends State<MoodCard> {
         IconButton(
           icon: const Icon(Icons.edit, color: AppColors.textSecondary),
           onPressed: () {
-            // Allow user to change mood
             context.read<DailyMoodCubit>().clearTodayMood();
           },
         ),
@@ -204,12 +203,15 @@ class _MoodCardState extends State<MoodCard> {
   }
 
   Widget _buildMoodSelector() {
+    final l10n = AppLocalizations.of(context)!;
+    final moods = _getMoods(l10n);
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'How do you feel today?',
-          style: TextStyle(
+        Text(
+          l10n.journalMoodCardTitle,
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -219,9 +221,9 @@ class _MoodCardState extends State<MoodCard> {
           height: 70,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemCount: _moods.length,
+            itemCount: moods.length,
             itemBuilder: (context, index) {
-              final mood = _moods[index];
+              final mood = moods[index];
               return Padding(
                 padding: const EdgeInsets.only(right: 16.0),
                 child: GestureDetector(
@@ -259,32 +261,32 @@ class _MoodCardState extends State<MoodCard> {
     );
   }
 
-  String _formatDateTime(DateTime date) {
+  String _formatDateTime(DateTime date, AppLocalizations l10n) {
     final hour = date.hour > 12
         ? date.hour - 12
         : (date.hour == 0 ? 12 : date.hour);
     final minute = date.minute.toString().padLeft(2, '0');
     final period = date.hour >= 12 ? 'PM' : 'AM';
     final day = date.day;
-    final month = _getMonthName(date.month);
+    final month = _getMonthName(date.month, l10n);
 
-    return 'Today, $month $day, $hour:$minute $period';
+    return '${l10n.journalMoodCardToday}, $month $day, $hour:$minute $period';
   }
 
-  String _getMonthName(int month) {
-    const months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December'
+  String _getMonthName(int month, AppLocalizations l10n) {
+    final months = [
+      l10n.journalMonthJanuary,
+      l10n.journalMonthFebruary,
+      l10n.journalMonthMarch,
+      l10n.journalMonthApril,
+      l10n.journalMonthMayFull,
+      l10n.journalMonthJune,
+      l10n.journalMonthJuly,
+      l10n.journalMonthAugust,
+      l10n.journalMonthSeptember,
+      l10n.journalMonthOctober,
+      l10n.journalMonthNovember,
+      l10n.journalMonthDecember
     ];
     return months[month - 1];
   }

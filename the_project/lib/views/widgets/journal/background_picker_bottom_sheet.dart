@@ -1,4 +1,5 @@
-  import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:the_project/l10n/app_localizations.dart';
 import '../../themes/style_simple/colors.dart';
 
 class BackgroundPickerBottomSheet extends StatelessWidget {
@@ -22,6 +23,8 @@ class BackgroundPickerBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Container(
       height: MediaQuery.of(context).size.height * 0.7,
       decoration: const BoxDecoration(
@@ -30,15 +33,14 @@ class BackgroundPickerBottomSheet extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Header
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Select Background',
-                  style: TextStyle(
+                Text(
+                  l10n.journalSelectBackground,
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -51,7 +53,6 @@ class BackgroundPickerBottomSheet extends StatelessWidget {
             ),
           ),
 
-          // Option "No Background"
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: GestureDetector(
@@ -65,10 +66,10 @@ class BackgroundPickerBottomSheet extends StatelessWidget {
                   border: Border.all(color: AppColors.textSecondary.withOpacity(0.3)),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Center(
+                child: Center(
                   child: Text(
-                    'No Background',
-                    style: TextStyle(
+                    l10n.journalNoBackground,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),

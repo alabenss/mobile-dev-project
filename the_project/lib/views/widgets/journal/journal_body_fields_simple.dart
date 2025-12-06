@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_project/l10n/app_localizations.dart';
 
 class JournalBodyFieldsSimple extends StatelessWidget {
   final String dateLabel;
@@ -20,6 +21,8 @@ class JournalBodyFieldsSimple extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -34,11 +37,10 @@ class JournalBodyFieldsSimple extends StatelessWidget {
         ),
         const SizedBox(height: 12),
 
-        // Title
         TextField(
           controller: titleController,
-          decoration: const InputDecoration(
-            hintText: 'Title',
+          decoration: InputDecoration(
+            hintText: l10n.journalTitle,
             border: InputBorder.none,
           ),
           style: TextStyle(
@@ -49,14 +51,13 @@ class JournalBodyFieldsSimple extends StatelessWidget {
           ),
         ),
 
-        // Body
         TextField(
           controller: bodyController,
           keyboardType: TextInputType.multiline,
           maxLines: null,
           minLines: 5,
-          decoration: const InputDecoration(
-            hintText: 'Write more here...',
+          decoration: InputDecoration(
+            hintText: l10n.journalWriteMore,
             border: InputBorder.none,
           ),
           style: TextStyle(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:the_project/l10n/app_localizations.dart';
 import '../../themes/style_simple/colors.dart';
 import '../../widgets/journal/journal_entry_model.dart';
 import '../../widgets/journal/sticker_picker_bottom_sheet.dart';
@@ -45,7 +46,6 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
 
   String _selectedMood = 'assets/images/good.png';
 
-  // Style properties
   String _backgroundImage = '';
   String _fontFamily = 'Roboto';
   Color _textColor = AppColors.textPrimary;
@@ -61,7 +61,6 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
     super.initState();
 
     if (widget.existingEntry != null) {
-      // EDITING: Use the existing entry's date
       _dateLabel = widget.existingEntry!.dateLabel;
       _selectedDate = widget.existingEntry!.date;
       _titleCtrl.text = widget.existingEntry!.title;
@@ -86,7 +85,6 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
 
       _voiceNotePath = widget.existingEntry!.voicePath;
     } else {
-      // CREATING NEW: Parse the date from initialDateLabel
       if (widget.initialDateLabel != null &&
           widget.initialMonth != null &&
           widget.initialYear != null) {
@@ -96,7 +94,6 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
           widget.initialYear!,
         );
 
-        // ✅ Keep selected day, but attach current time so it's not 12:00 AM
         final now = DateTime.now();
         _selectedDate = DateTime(
           baseDate.year,
@@ -111,7 +108,6 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
 
         _dateLabel = widget.initialDateLabel!;
       } else {
-        // Fallback to current date
         _selectedDate = DateTime.now();
         _dateLabel = _formatDate(_selectedDate);
       }
@@ -119,7 +115,6 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
   }
 
   DateTime _parseDateLabel(String label, int month, int year) {
-    // Parse "Monday, Dec 1" format
     final parts = label.split(', ');
     if (parts.length != 2) return DateTime(year, month, 1);
 
@@ -171,12 +166,13 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: AppBackground(
         child: Stack(
           children: [
-            // Background image if selected
             if (_backgroundImage.isNotEmpty)
               Positioned.fill(
                 child: Image.asset(
@@ -185,7 +181,6 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
                 ),
               ),
 
-            // Semi-transparent overlay for readability
             Positioned.fill(
               child: Container(
                 color: AppColors.card.withOpacity(0.3),
@@ -197,7 +192,7 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
                 children: [
                   JournalTopBar(
                     onBack: () => Navigator.of(context).pop(),
-                    onSave: _save,
+                    onSave: () => _save(l10n),
                     selectedMood: _selectedMood,
                     onMoodTap: _showMoodPicker,
                   ),
@@ -205,13 +200,11 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
                   Expanded(
                     child: Stack(
                       children: [
-                        // Scrollable content
                         SingleChildScrollView(
                           padding: const EdgeInsets.all(18.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Simple body fields (without images)
                               JournalBodyFieldsSimple(
                                 dateLabel: _dateLabel,
                                 titleController: _titleCtrl,
@@ -221,12 +214,11 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
                                 fontSize: _fontSize,
                               ),
 
-                              const SizedBox(height: 200), // Space for content
+                              const SizedBox(height: 200),
                             ],
                           ),
                         ),
 
-                        // Draggable images overlay
                         ..._attachedImages.asMap().entries.map((entry) {
                           final index = entry.key;
                           final image = entry.value;
@@ -250,7 +242,6 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
                           );
                         }).toList(),
 
-                        // Draggable stickers overlay
                         ..._stickers.asMap().entries.map((entry) {
                           final index = entry.key;
                           final sticker = entry.value;
@@ -288,7 +279,6 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
                     ),
                   ),
 
-                  // Voice note at bottom
                   if (_voiceNotePath != null)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 18.0),
@@ -302,10 +292,9 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
                       ),
                     ),
 
-                  // Bottom toolbar
                   JournalBottomToolbar(
                     onBackground: _showBackgroundPicker,
-                    onPickImage: _pickImage,
+                    onPickImage: () => _pickImage(l10n),
                     onStickers: _showStickerPicker,
                     onTextStyle: _showFontStylePicker,
                     onVoiceNote: _showVoiceRecorder,
@@ -383,7 +372,7 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
     );
   }
 
-  Future<void> _pickImage() async {
+  Future<void> _pickImage(AppLocalizations l10n) async {
     try {
       final XFile? image = await _imagePicker.pickImage(
         source: ImageSource.gallery,
@@ -399,7 +388,7 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error picking image: $e')),
+        SnackBar(content: Text(l10n.journalErrorPickingImage( e.toString()))),
       );
     }
   }
@@ -418,23 +407,21 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
     );
   }
 
-  void _save() {
+  void _save(AppLocalizations l10n) {
     final title = _titleCtrl.text.trim();
     final body = _bodyCtrl.text.trim();
 
     if (title.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please add a title')),
+        SnackBar(content: Text(l10n.journalAddTitle)),
       );
       return;
     }
 
-    // IMPORTANT: Use _selectedDate (the date of the journal entry)
-    // NOT DateTime.now() - this ensures journal is saved on its correct day
     final entry = JournalEntryModel(
       id: widget.existingEntry?.id,
       dateLabel: _dateLabel,
-      date: _selectedDate, // ✅ Uses the date from the selected day (+ now time for new entries)
+      date: _selectedDate,
       moodImage: _selectedMood,
       title: title,
       fullText: body,
@@ -457,8 +444,3 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
     super.dispose();
   }
 }
-
-
-
-
-

@@ -1,5 +1,5 @@
-
 import 'package:flutter/material.dart';
+import 'package:the_project/l10n/app_localizations.dart';
 import '../../themes/style_simple/colors.dart';
 
 class StickerPickerBottomSheet extends StatelessWidget {
@@ -10,7 +10,6 @@ class StickerPickerBottomSheet extends StatelessWidget {
     required this.onStickerSelected,
   });
 
-  // list of stickers
   static const List<String> _stickers = [
     'assets/images/stickers/sticker1.png',
     'assets/images/stickers/sticker2.png',
@@ -28,6 +27,8 @@ class StickerPickerBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Container(
       height: 350,
       decoration: const BoxDecoration(
@@ -41,9 +42,9 @@ class StickerPickerBottomSheet extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Select Sticker',
-                  style: TextStyle(
+                Text(
+                  l10n.journalSelectSticker,
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
