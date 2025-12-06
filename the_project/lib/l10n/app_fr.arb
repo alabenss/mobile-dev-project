@@ -193,6 +193,7 @@
   },
 
   "pointsMustBeGreaterThanZero": "Les points doivent être supérieurs à 0 !",
+  "coloringDescription":"Relaxe-toi grace au coloriage mindful.",
 
   "habitDrinkWater": "Boire de l'eau",
   "habitExercise": "Exercice",

@@ -20,6 +20,7 @@ import '../../widgets/home/explore_card.dart';
 import '../../../logic/home/home_cubit.dart';
 import '../../../logic/home/home_state.dart';
 import '../../../logic/auth/auth_cubit.dart';
+import '../../../utils/habit_localization.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback? onViewAllHabits;
@@ -171,11 +172,16 @@ class _HomeScreenState extends State<HomeScreen> {
                             for (int i = 0; i < habitsToShow.length; i++) ...[
                               HabitTile(
                                 icon: habitsToShow[i].icon,
-                                title: habitsToShow[i].title,
+                                title: HabitLocalization.getLocalizedTitle(
+                                  context, 
+                                  habitsToShow[i],
+                                ),
+                                habitKey: habitsToShow[i].habitKey,
                                 checked: habitsToShow[i].done,
                                 onToggle: () {
+                                  // Use habitKey instead of title
                                   homeCubit.toggleHabitCompletion(
-                                    habitsToShow[i].title,
+                                    habitsToShow[i].habitKey,
                                     habitsToShow[i].done,
                                   );
                                 },

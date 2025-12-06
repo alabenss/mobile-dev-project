@@ -55,6 +55,17 @@ class Habit {
     );
   }
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Habit &&
+          runtimeType == other.runtimeType &&
+          habitKey == other.habitKey &&
+          frequency == other.frequency;
+
+  @override
+  int get hashCode => habitKey.hashCode ^ frequency.hashCode;
+
   // Predefined habit keys for consistency
   static const String keyDrinkWater = 'drink_water';
   static const String keyExercise = 'exercise';
