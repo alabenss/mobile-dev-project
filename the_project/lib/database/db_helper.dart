@@ -638,109 +638,229 @@ class DBHelper {
   }
 
   /// Create a demo user with demo data if no users exist
-  static Future<void> initializeDemoData() async {
-    final db = await database;
+  /// Create a demo user with comprehensive demo data
+static Future<int> createDemoUserWithData() async {
+  final db = await database;
 
-    final userCount = Sqflite.firstIntValue(
-          await db.rawQuery('SELECT COUNT(*) as c FROM users'),
-        ) ??
-        0;
+  // Check if demo user already exists
+  final existingDemo = await db.query(
+    'users',
+    where: 'email = ?',
+    whereArgs: ['demo@riseapp.com'],
+    limit: 1,
+  );
 
-    if (userCount != 0) return;
-
+  int userId;
+  if (existingDemo.isNotEmpty) {
+    userId = existingDemo.first['id'] as int;
+    print('Demo user already exists with ID: $userId');
+  } else {
     // Create demo user
-    final userId = await db.insert('users', {
-      'name': 'Demo User',
-      'email': 'demo@example.com',
+    userId = await db.insert('users', {
+      'name': 'Demo',
+      'email': 'demo@riseapp.com',
       'password': 'demo123',
-      'totalPoints': 0,
-      'stars': 0,
+      'totalPoints': 450,
+      'stars': 15,
+    });
+    print('Created demo user with ID: $userId');
+  }
+
+  // Clear existing demo data for this user
+  await db.delete('home_status', where: 'userId = ?', whereArgs: [userId]);
+  await db.delete('daily_moods', where: 'userId = ?', whereArgs: [userId]);
+  await db.delete('journals', where: 'userId = ?', whereArgs: [userId]);
+  await db.delete('habits', where: 'userId = ?', whereArgs: [userId]);
+  await db.delete('app_lock', where: 'userId = ?', whereArgs: [userId]);
+
+  final today = DateTime.now();
+  final rnd = Random(42); // Fixed seed for consistent demo data
+
+  // Mood data
+  final moodLabels = ['happy', 'good', 'ok', 'low', 'sad'];
+  final moodImages = [
+    'assets/moods/happy.png',
+    'assets/moods/good.png',
+    'assets/moods/ok.png',
+    'assets/moods/low.png',
+    'assets/moods/sad.png',
+  ];
+
+  // Journal prompts for variety
+  final journalEntries = [
+    'Started my day with a morning walk. The fresh air really helped clear my mind and set a positive tone for the day ahead.',
+    'Had a productive work session today. Managed to complete two important tasks that I had been putting off. Feeling accomplished!',
+    'Spent quality time with family this evening. Sometimes the simple moments are the most meaningful.',
+    'Tried a new recipe for dinner tonight. It turned out better than expected! Cooking is becoming a therapeutic hobby.',
+    'Feeling a bit overwhelmed with everything on my plate, but taking it one step at a time. Remember to breathe.',
+    'Had an inspiring conversation with a friend today. It reminded me to focus on what truly matters in life.',
+    'Completed my morning meditation and felt so centered. This habit is really making a difference in my daily life.',
+    'Read an interesting article about personal growth. Key takeaway: progress over perfection.',
+    'Enjoyed a peaceful afternoon in the park. Nature has a way of putting things into perspective.',
+    'Reflected on my goals today. Feeling motivated to keep pushing forward despite the challenges.',
+    'Had a challenging day but managed to stay positive. Proud of myself for not giving up.',
+    'Discovered a great new podcast about mindfulness. Can\'t wait to listen to more episodes.',
+  ];
+
+  // Create data for the last 30 days
+  for (int i = 29; i >= 0; i--) {
+    final date = today.subtract(Duration(days: i));
+    final dateStr =
+        '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    final isToday = i == 0;
+
+    // Home status data
+    final waterCount = isToday ? 3 : (rnd.nextInt(5) + 4); // 4-8 glasses
+    final detoxProgress = isToday ? 0.3 : (rnd.nextDouble() * 0.6 + 0.3); // 0.3-0.9
+
+    await db.insert('home_status', {
+      'date': dateStr,
+      'userId': userId,
+      'water_count': waterCount,
+      'water_goal': 8,
+      'detox_progress': detoxProgress,
     });
 
-    // Create demo data for the last 7 days
-    final today = DateTime.now();
-    final rnd = Random(1234);
+    // Daily mood (mostly positive moods)
+    final moodIndex = isToday ? 1 : (rnd.nextInt(10) < 7 ? rnd.nextInt(2) : rnd.nextInt(3) + 2);
+    final actualMoodIndex = moodIndex.clamp(0, 4);
+    
+    await db.insert('daily_moods', {
+      'userId': userId,
+      'date': dateStr,
+      'moodImage': moodImages[actualMoodIndex],
+      'moodLabel': moodLabels[actualMoodIndex],
+      'createdAt': date.toIso8601String(),
+      'updatedAt': date.toIso8601String(),
+    });
 
-    for (int i = 6; i >= 0; i--) {
-      final date = today.subtract(Duration(days: i));
-      final dateStr =
-          '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    // Add journal entries (about 60% of days)
+    if (rnd.nextInt(10) < 6) {
+      final entryIndex = rnd.nextInt(journalEntries.length);
+      final hour = rnd.nextInt(12) + 8; // 8 AM - 8 PM
+      final minute = rnd.nextInt(60);
+      final timeStr = '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
 
-      final isToday = i == 0;
-
-      // Insert home_status data (WITHOUT mood fields)
-      await db.insert('home_status', {
-        'date': dateStr,
+      await db.insert('journals', {
         'userId': userId,
-        'water_count': isToday ? 0 : (rnd.nextDouble() * 3 + 5).toInt(),
-        'water_goal': 8,
-        'detox_progress': isToday ? 0.0 : rnd.nextDouble(),
+        'date': dateStr,
+        'time': timeStr,
+        'mood': moodLabels[actualMoodIndex],
+        'text': journalEntries[entryIndex],
+        'title': isToday ? 'Today\'s Thoughts' : null,
+        'imagePath': null,
+        'voicePath': null,
+        'backgroundImage': null,
+        'fontFamily': null,
+        'textColor': null,
+        'fontSize': null,
+        'attachedImages': null,
+        'stickers': null,
       });
-
-      // Add mood data to daily_moods table instead (not for today)
-      if (!isToday) {
-        final moodLabels = ['happy', 'good', 'ok', 'low', 'sad'];
-        await db.insert('daily_moods', {
-          'userId': userId,
-          'date': dateStr,
-          'moodImage': 'assets/moods/mood_${i % 5}.png',
-          'moodLabel': moodLabels[i % 5],
-          'createdAt': DateTime.now().toIso8601String(),
-          'updatedAt': DateTime.now().toIso8601String(),
-        });
-      }
-
-      // Add some journal entries (not for today)
-      if (i % 2 == 0 && !isToday) {
-        await db.insert('journals', {
-          'userId': userId,
-          'date': dateStr,
-          'mood': ['happy', 'ok'][i % 2],
-          'text': 'Journal entry for $dateStr. Had a good day!',
-          'imagePath': null,
-          'voicePath': null,
-        });
-      }
     }
+  }
 
-    // Add some habits
-    final createdDateStr =
-        '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+  // Create varied habits
+  final now = DateTime.now();
+  final createdDateStr =
+      '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
 
-    await db.insert('habits', {
-      'userId': userId,
+  final habits = [
+    {
       'title': 'Morning Meditation',
-      'description': 'Meditate for 10 minutes',
+      'description': 'Start the day with 10 minutes of mindfulness meditation',
       'frequency': 'daily',
       'status': 'active',
-      'createdDate': createdDateStr,
-      'lastUpdated': createdDateStr,
-      'Doitat': '08:00',
+      'Doitat': '07:00',
       'points': 10,
-    });
-
-    await db.insert('habits', {
-      'userId': userId,
-      'title': 'Read a Book',
-      'description': 'Read for 20 minutes',
+    },
+    {
+      'title': 'Drink 8 Glasses of Water',
+      'description': 'Stay hydrated throughout the day',
       'frequency': 'daily',
       'status': 'active',
-      'createdDate': createdDateStr,
-      'lastUpdated': createdDateStr,
-      'Doitat': '20:00',
+      'Doitat': '09:00',
+      'points': 5,
+    },
+    {
+      'title': 'Evening Reading',
+      'description': 'Read for at least 30 minutes before bed',
+      'frequency': 'daily',
+      'status': 'active',
+      'Doitat': '21:00',
       'points': 10,
-    });
-
-    await db.insert('habits', {
-      'userId': userId,
+    },
+    {
+      'title': 'Exercise',
+      'description': 'Get at least 30 minutes of physical activity',
+      'frequency': 'daily',
+      'status': 'active',
+      'Doitat': '06:30',
+      'points': 15,
+    },
+    {
+      'title': 'Gratitude Journal',
+      'description': 'Write down three things you\'re grateful for',
+      'frequency': 'daily',
+      'status': 'active',
+      'Doitat': '22:00',
+      'points': 8,
+    },
+    {
       'title': 'Weekly Review',
-      'description': 'Review your week',
+      'description': 'Review your week and plan for the next one',
       'frequency': 'weekly',
       'status': 'active',
-      'createdDate': createdDateStr,
-      'lastUpdated': createdDateStr,
       'Doitat': '18:00',
       'points': 20,
+    },
+    {
+      'title': 'Deep Work Session',
+      'description': 'Focus on important tasks without distractions',
+      'frequency': 'daily',
+      'status': 'active',
+      'Doitat': '10:00',
+      'points': 15,
+    },
+    {
+      'title': 'Healthy Breakfast',
+      'description': 'Start your day with a nutritious meal',
+      'frequency': 'daily',
+      'status': 'active',
+      'Doitat': '08:00',
+      'points': 5,
+    },
+  ];
+
+  for (var habit in habits) {
+    await db.insert('habits', {
+      'userId': userId,
+      'title': habit['title'],
+      'description': habit['description'],
+      'frequency': habit['frequency'],
+      'status': habit['status'],
+      'createdDate': createdDateStr,
+      'lastUpdated': createdDateStr,
+      'Doitat': habit['Doitat'],
+      'points': habit['points'],
     });
   }
+
+  print('Demo data created successfully for user: $userId');
+  return userId;
+}
+
+/// Initialize demo data if no users exist (kept for backward compatibility)
+static Future<void> initializeDemoData() async {
+  final db = await database;
+
+  final userCount = Sqflite.firstIntValue(
+        await db.rawQuery('SELECT COUNT(*) as c FROM users'),
+      ) ??
+      0;
+
+  if (userCount != 0) return;
+
+  await createDemoUserWithData();
+}
 }

@@ -1074,100 +1074,100 @@ class AppLocalizationsAr extends AppLocalizations {
   String get quote7 => 'الطريقة الوحيدة للقيام بعمل رائع هي أن تحب ما تفعله.';
 
   @override
-  String get profileTitle => 'الملف الشخصي';
+  String get profileTitle => 'Profile';
 
   @override
-  String get profileNoUserLoggedIn => 'لا يوجد مستخدم مسجّل الدخول';
+  String get profileNoUserLoggedIn => 'No user logged in';
 
   @override
-  String get profileEditPictureComingSoon => 'تعديل صورة الملف الشخصي سيتوفر قريبًا!';
+  String get profileEditPictureComingSoon => 'Profile picture editing coming soon!';
 
   @override
-  String get profilePointsLabel => 'نقطة';
+  String get profilePointsLabel => 'Points';
 
   @override
-  String get profileStarsLabel => 'نجمة';
+  String get profileStarsLabel => 'Stars';
 
   @override
-  String get profileEmailLabel => 'البريد الإلكتروني';
+  String get profileEmailLabel => 'Email';
 
   @override
-  String get profileUsernameLabel => 'اسم المستخدم';
+  String get profileUsernameLabel => 'Username';
 
   @override
-  String get profileJoinedLabel => 'تاريخ الانضمام';
+  String get profileJoinedLabel => 'Joined';
 
   @override
-  String get profileJoinedRecently => 'مؤخرًا';
+  String get profileJoinedRecently => 'Recently';
 
   @override
-  String get profileAppLockTitle => 'قفل التطبيق';
+  String get profileAppLockTitle => 'App Lock';
 
   @override
-  String get profileAppLockSubtitle => 'قم بتعيين أو تغيير قفل التطبيق';
+  String get profileAppLockSubtitle => 'Set or change your app lock';
 
   @override
-  String get profileLanguageTitle => 'اللغة';
+  String get profileLanguageTitle => 'Language';
 
   @override
-  String get profileLogoutButton => 'تسجيل الخروج';
+  String get profileLogoutButton => 'Log Out';
 
   @override
-  String get profileLogoutDialogTitle => 'تسجيل الخروج';
+  String get profileLogoutDialogTitle => 'Log Out';
 
   @override
-  String get profileLogoutDialogContent => 'هل أنت متأكد أنك تريد تسجيل الخروج؟';
+  String get profileLogoutDialogContent => 'Are you sure you want to log out?';
 
   @override
-  String get profileLogoutDialogCancel => 'إلغاء';
+  String get profileLogoutDialogCancel => 'Cancel';
 
   @override
-  String get profileLogoutDialogConfirm => 'تسجيل الخروج';
+  String get profileLogoutDialogConfirm => 'Log Out';
 
   @override
-  String get profileEmailUpdated => 'تم تحديث البريد الإلكتروني!';
+  String get profileEmailUpdated => 'Email updated!';
 
   @override
-  String get profileUsernameUpdated => 'تم تحديث اسم المستخدم!';
+  String get profileUsernameUpdated => 'Username updated!';
 
   @override
-  String get profileEditEmailTitle => 'تعديل البريد الإلكتروني';
+  String get profileEditEmailTitle => 'Edit Email';
 
   @override
-  String get profileEditUsernameTitle => 'تعديل اسم المستخدم';
+  String get profileEditUsernameTitle => 'Edit Username';
 
   @override
-  String get profileDialogCancel => 'إلغاء';
+  String get profileDialogCancel => 'Cancel';
 
   @override
-  String get profileDialogSave => 'حفظ';
+  String get profileDialogSave => 'Save';
 
   @override
-  String get languageScreenTitle => 'اللغة';
+  String get languageScreenTitle => 'Language';
 
   @override
-  String get languageSystemDefaultTitle => 'افتراضي النظام';
+  String get languageSystemDefaultTitle => 'System Default';
 
   @override
-  String get languageSystemDefaultSubtitle => 'اتبع إعدادات الجهاز';
+  String get languageSystemDefaultSubtitle => 'Follow device settings';
 
   @override
-  String get languageAvailableLanguagesSectionTitle => 'اللغات المتاحة';
+  String get languageAvailableLanguagesSectionTitle => 'Available Languages';
 
   @override
-  String get languageSystemDefaultSnack => 'تم ضبط اللغة على افتراضي النظام';
+  String get languageSystemDefaultSnack => 'Language set to system default';
 
   @override
   String languageChangedSnack(String language) {
-    return 'تم تغيير اللغة إلى $language';
+    return 'Language changed to $language';
   }
 
   @override
-  String get languageEnglish => 'الإنجليزية';
+  String get languageEnglish => 'English';
 
   @override
-  String get languageFrench => 'الفرنسية';
+  String get languageFrench => 'French';
 
   @override
-  String get languageArabic => 'العربية';
+  String get languageArabic => 'Arabic';
 }
