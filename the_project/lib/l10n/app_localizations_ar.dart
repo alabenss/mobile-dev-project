@@ -464,14 +464,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String failedToLoadActivities(String error) {
-    return 'فشل تحميل الأنشطة\\n$error';
+    return 'فشل تحميل الأنشطة\n$error';
   }
 
   @override
   String get breathingTitle => 'تنفّس';
 
   @override
-  String get breathingDescription => 'خذ نفسًا عميقًا ودع جسمك يهدأ\\nفي نهاية اليوم.';
+  String get breathingDescription => 'خذ نفسًا عميقًا ودع جسمك يهدأ\nفي نهاية اليوم.';
 
   @override
   String get breathingStart => 'ابدأ';
@@ -529,14 +529,14 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String coloringLoadError(String error) {
-    return 'حدث خطأ أثناء تحميل صفحة التلوين:\\n$error';
+    return 'حدث خطأ أثناء تحميل صفحة التلوين:\n$error';
   }
 
   @override
   String get growPlantTitle => 'نمِّ النبتة';
 
   @override
-  String get growPlantHeadline => 'اعتنِ بنبتتك بالماء والضوء.\\nاستخدم نقاط الأنشطة لمساعدتها على النمو!';
+  String get growPlantHeadline => 'اعتنِ بنبتتك بالماء والضوء.\nاستخدم نقاط الأنشطة لمساعدتها على النمو!';
 
   @override
   String growPlantStars(int count) {
@@ -590,7 +590,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get paintingPrompt => 'خذ نفسًا عميقًا، اختر لونك، ودع إبداعك يتدفق.';
 
   @override
-  String get paintingSaved => 'تم حفظ الصورة!.';
+  String get paintingSaved => 'تم حفظ الصورة!';
 
   @override
   String get paintingColorsTitle => 'الألوان';
@@ -629,7 +629,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get plantArticleTitle => 'التأثير المهدئ للنباتات';
 
   @override
-  String get plantArticleIntro => 'النباتات لا تزيّن مكانك فقط — بل تهدّئ عقلك أيضًا. الاعتناء بنبتة يبطئ وتيرتك ويعيد تركيزك إلى اللحظة الحالية.';
+  String get plantArticleIntro => 'النباتات لا تزيّن مكانك فقط — بل تهدّئ عقلك أيضًا.';
 
   @override
   String get plantArticleBenefitsTitle => 'الفوائد باختصار';
@@ -653,7 +653,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get plantArticleTipTitle => 'نصيحة اليوم';
 
   @override
-  String get plantArticleTipBody => 'ضع نبتة صغيرة بالقرب من المكان الذي تعمل فيه غالبًا. ألقِ نظرة عليها مرة في اليوم — استراحة لمدة 30 ثانية لعقلك.';
+  String get plantArticleTipBody => 'ضع نبتة صغيرة بالقرب من المكان الذي تعمل فيه غالبًا...';
 
   @override
   String get plantArticleFooter => 'استمر في النمو — ورقة بعد أخرى 🌿';
@@ -662,10 +662,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sportArticleTitle => 'حسِّن مزاجك بالرياضة';
 
   @override
-  String get sportArticleHeroText => 'قليل من الحركة\\يخلق الكثير من الشعور 💪✨';
+  String get sportArticleHeroText => 'قليل من الحركة\nيخلق الكثير من الشعور 💪✨';
 
   @override
-  String get sportArticleIntro => 'تحريك جسمك من أسرع الطرق لرفع مزاجك. النشاط يفرز الإندورفين — وهي مواد كيميائية طبيعية في الدماغ تمنحك شعورًا جيدًا.';
+  String get sportArticleIntro => 'تحريك جسمك من أسرع الطرق لرفع مزاجك...';
 
   @override
   String get sportArticleEasyWaysTitle => 'طرق بسيطة للبدء';
@@ -674,174 +674,245 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sportArticleBullet1 => 'مشي 5–10 دقائق بعد الوجبات';
 
   @override
-  String get sportArticleBullet2 => 'استراحة رقص على أغنية واحدة أثناء تحضير القهوة';
+  String get sportArticleBullet2 => 'استراحة رقص...';
 
   @override
-  String get sportArticleBullet3 => 'تمددات خفيفة أثناء مشاهدة التلفاز';
+  String get sportArticleBullet3 => 'تمددات خفيفة...';
 
   @override
-  String get sportArticleBullet4 => 'ادعُ صديقًا لركض قصير أو جولة بالدراجة';
+  String get sportArticleBullet4 => 'ادعُ صديقًا...';
 
   @override
-  String get sportArticleQuote => 'احضر فقط لمدة 5 دقائق. في أغلب الأيام، هذا يكفي للبدء.';
+  String get sportArticleQuote => 'احضر فقط لمدة 5 دقائق...';
 
   @override
   String get sportArticleRememberTitle => 'تذكّر';
 
   @override
-  String get sportArticleRememberBody => 'اختر حركة تجعلك تبتسم — ليس فقط تتعرّق. المتعة تصنع الاستمرارية، والاستمرارية ترفع المزاج.';
+  String get sportArticleRememberBody => 'اختر حركة تجعلك تبتسم...';
 
   @override
   String get sportArticleStartActivityCta => 'ابدأ نشاطًا';
 
   @override
-  String get journalSelectDay => 'اختر يومًا لعرض اليوميات';
+  String get journalSelectDay => 'Select a day to view journals';
 
   @override
-  String get journalNoEntries => 'لا توجد يوميات لهذا اليوم';
+  String get journalNoEntries => 'No journals for this day';
 
   @override
-  String get journalDeleteTitle => 'حذف اليومية';
+  String get journalDeleteTitle => 'Delete Journal';
 
   @override
-  String get journalDeleteMessage => 'هل أنت متأكد أنك تريد حذف هذه اليومية؟';
+  String get journalDeleteMessage => 'Are you sure you want to delete this journal entry?';
 
   @override
-  String get journalDeleteSuccess => 'تم حذف اليومية بنجاح';
+  String get journalDeleteSuccess => 'Journal deleted successfully';
 
   @override
-  String get journalDeletedSuccessfully => 'تم حذف اليومية بنجاح';
+  String get journalDeletedSuccessfully => 'Journal deleted successfully';
 
   @override
-  String get journalUpdatedSuccessfully => 'تم تحديث اليومية بنجاح';
+  String get journalUpdatedSuccessfully => 'Journal updated successfully';
 
   @override
-  String get journalCannotCreateFuture => 'لا يمكن إنشاء يومية لتواريخ مستقبلية';
+  String get journalCannotCreateFuture => 'Cannot create journal for future dates';
 
   @override
-  String get journalWriteTitle => 'كتابة يومية';
+  String get journalWriteTitle => 'Write Journal';
 
   @override
-  String get journalSave => 'حفظ';
+  String get journalSave => 'Save';
 
   @override
-  String get journalTitle => 'العنوان';
+  String get journalTitle => 'Title';
 
   @override
-  String get journalWriteMore => 'اكتب المزيد هنا...';
+  String get journalWriteMore => 'Write more here...';
 
   @override
-  String get journalAddTitle => 'الرجاء إضافة عنوان';
+  String get journalAddTitle => 'Please add a title';
 
   @override
-  String get journalMoodTitle => 'كيف تشعر اليوم؟';
+  String get journalMoodTitle => 'How do you feel today?';
 
   @override
-  String get journalSelectBackground => 'اختر الخلفية';
+  String get journalSelectBackground => 'Select Background';
 
   @override
-  String get journalNoBackground => 'بدون خلفية';
+  String get journalNoBackground => 'No Background';
 
   @override
-  String get journalSelectSticker => 'اختر ملصق';
+  String get journalSelectSticker => 'Select Sticker';
 
   @override
-  String get journalTextStyle => 'نمط النص';
+  String get journalTextStyle => 'Text Style';
 
   @override
-  String get journalFontFamily => 'نوع الخط';
+  String get journalFontFamily => 'Font Family';
 
   @override
-  String get journalTextColor => 'لون النص';
+  String get journalTextColor => 'Text Color';
 
   @override
-  String get journalFontSize => 'حجم الخط';
+  String get journalFontSize => 'Font Size';
 
   @override
-  String get journalApply => 'تطبيق';
+  String get journalApply => 'Apply';
 
   @override
-  String get journalVoiceNote => 'مذكرة صوتية';
+  String get journalVoiceNote => 'Voice Note';
 
   @override
-  String get journalVoiceRecording => 'جارٍ التسجيل...';
+  String get journalVoiceRecording => 'Recording...';
 
   @override
-  String get journalVoiceSaved => 'تم حفظ التسجيل';
+  String get journalVoiceSaved => 'Recording saved';
 
   @override
-  String get journalVoiceTapToStart => 'اضغط لبدء التسجيل';
+  String get journalVoiceTapToStart => 'Tap to start recording';
 
   @override
-  String get journalVoiceAddNote => 'إضافة مذكرة صوتية';
+  String get journalVoiceAddNote => 'Add Voice Note';
 
   @override
-  String get journalVoicePermissionDenied => 'تم رفض إذن الميكروفون';
+  String get journalVoicePermissionDenied => 'Microphone permission denied';
 
   @override
   String journalVoiceStartFailed(String error) {
-    return 'فشل بدء التسجيل: $error';
+    return 'Failed to start recording: $error';
   }
 
   @override
   String journalVoiceStopFailed(String error) {
-    return 'فشل إيقاف التسجيل: $error';
+    return 'Failed to stop recording: $error';
   }
 
   @override
   String journalVoicePlayFailed(String error) {
-    return 'فشل تشغيل التسجيل: $error';
+    return 'Failed to play recording: $error';
   }
 
   @override
-  String get journalToolbarBackground => 'الخلفية';
+  String get journalToolbarBackground => 'Background';
 
   @override
-  String get journalToolbarAddImage => 'إضافة صورة';
+  String get journalToolbarAddImage => 'Add Image';
 
   @override
-  String get journalToolbarStickers => 'الملصقات';
+  String get journalToolbarStickers => 'Stickers';
 
   @override
-  String get journalToolbarTextStyle => 'نمط النص';
+  String get journalToolbarTextStyle => 'Text Style';
 
   @override
-  String get journalToolbarVoiceNote => 'مذكرة صوتية';
+  String get journalToolbarVoiceNote => 'Voice note';
 
   @override
   String journalErrorPickingImage(String error) {
-    return 'خطأ في اختيار الصورة: $error';
+    return 'Error picking image: $error';
   }
 
   @override
-  String get journalMoodHappy => 'سعيد';
+  String get journalMoodHappy => 'Happy';
 
   @override
-  String get journalMoodGood => 'جيد';
+  String get journalMoodGood => 'Good';
 
   @override
-  String get journalMoodExcited => 'متحمس';
+  String get journalMoodExcited => 'Excited';
 
   @override
-  String get journalMoodCalm => 'هادئ';
+  String get journalMoodCalm => 'Calm';
 
   @override
-  String get journalMoodSad => 'حزين';
+  String get journalMoodSad => 'Sad';
 
   @override
-  String get journalMoodTired => 'متعب';
+  String get journalMoodTired => 'Tired';
 
   @override
-  String get journalMoodAnxious => 'قلق';
+  String get journalMoodAnxious => 'Anxious';
 
   @override
-  String get journalMoodAngry => 'غاضب';
+  String get journalMoodAngry => 'Angry';
 
   @override
-  String get journalMoodConfused => 'مرتبك';
+  String get journalMoodConfused => 'Confused';
 
   @override
-  String get journalMoodGrateful => 'ممتن';
+  String get journalMoodGrateful => 'Grateful';
+
+  @override
+  String get detoxCardTitle => 'التحرر الرقمي:';
+
+  @override
+  String get detoxCardPhoneLocked => 'الهاتف مقفول';
+
+  @override
+  String get detoxCardDisableLock => 'إيقاف القفل';
+
+  @override
+  String get detoxCardComplete => 'مكتمل';
+
+  @override
+  String get detoxCardReset => 'إعادة التعيين';
+
+  @override
+  String get detoxCardLock30m => 'قفل لمدة 30 دقيقة';
+
+  @override
+  String get exploreSectionTitle => 'استكشف';
+
+  @override
+  String get explorePlantTitle => 'التأثير المهدئ للنباتات';
+
+  @override
+  String get exploreReadNow => 'اقرأ الآن';
+
+  @override
+  String get exploreSportsTitle => 'حسِّن\nمزاجك\nبالرياضة';
+
+  @override
+  String homeHello(String name) {
+    return 'مرحبًا، $name';
+  }
+
+  @override
+  String get homeViewAllHabits => 'عرض الكل';
+
+  @override
+  String get phoneLockTitle => 'الهاتف مقفول';
+
+  @override
+  String get phoneLockSubtitle => 'خذ استراحة من الشاشة.\nعملية التخلص من السموم الرقمية قيد التقدم.';
+
+  @override
+  String get phoneLockStayStrong => 'ابقَ قويًا!';
+
+  @override
+  String get phoneLockDisableTitle => 'إلغاء القفل؟';
+
+  @override
+  String get phoneLockDisableMessage => 'إذا ألغيت القفل مبكرًا...';
+
+  @override
+  String get phoneLockStayLockedCta => 'ابقَ مقفولًا';
+
+  @override
+  String get phoneLockDisableCta => 'إلغاء';
+
+  @override
+  String get phoneLockDisableButton => 'إلغاء القفل';
+
+  @override
+  String get waterIntakeTitle => 'شرب الماء:';
+
+  @override
+  String get waterGlassesUnit => 'أكواب';
+
+  @override
+  String get commonReset => 'إعادة التعيين';
 
   @override
   String get commonCancel => 'إلغاء';
