@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -12,6 +11,7 @@ import 'logic/auth/auth_cubit.dart';
 import 'logic/auth/auth_state.dart';
 import 'logic/journal/journal_cubit.dart';
 import 'logic/journal/daily_mood_cubit.dart';
+import 'logic/locale/locale_cubit.dart';
 
 import 'database/repo/home_repo.dart';
 import 'database/repo/activities_repo.dart';
@@ -24,6 +24,7 @@ import 'views/widgets/common/bottom_nav_wrapper.dart';
 import 'views/wrappers/phone_lock_wrapper.dart';
 import 'views/screens/settings/profile.dart';
 import 'views/screens/settings/app_lock_screen.dart';
+import 'views/screens/settings/language_selection_screen.dart';
 import 'views/screens/auth/login_screen.dart';
 import 'views/screens/auth/signup_screen.dart';
 
@@ -52,6 +53,9 @@ void main() async {
     runApp(
       MultiBlocProvider(
         providers: [
+          BlocProvider<LocaleCubit>(
+            create: (_) => LocaleCubit(),
+          ),
           BlocProvider<AuthCubit>(
             create: (_) => AuthCubit()..checkAuthStatus(),
           ),
@@ -126,104 +130,69 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-  debugShowCheckedModeBanner: false,
+    return BlocBuilder<LocaleCubit, LocaleState>(
+      builder: (context, localeState) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
 
-  locale: const Locale('en'), // ✅ FORCE FRENCH
+          // Use locale from LocaleCubit, null means use system default
+          locale: localeState.locale,
 
-  localizationsDelegates: const [
-    AppLocalizations.delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-  ],
-  supportedLocales: const [
-    Locale('en'),
-    Locale('fr'),
-    Locale('ar'),
-  ],
-
-      home: BlocListener<AuthCubit, AuthState>(
-        listener: (context, state) {
-          // When user logs in, load their data
-          if (state.isAuthenticated && state.user != null) {
-            print('User authenticated: ${state.user!.name}');
-            context.read<HomeCubit>().loadInitial(userName: state.user!.name);
-            context.read<HabitCubit>().loadHabits();
-            context.read<ActivitiesCubit>().loadActivities();
-          }
-        },
-        child: BlocBuilder<AuthCubit, AuthState>(
-          builder: (context, state) {
-            if (state.isLoading) {
-              return const Scaffold(
-                body: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              );
-            }
-
-            // Show login screen if not authenticated
-            if (!state.isAuthenticated) {
-              return const LoginScreen();
-            }
-
-            // When authenticated, wrap main app with PhoneLockWrapper
-            return const PhoneLockWrapper(
-              child: BottomNavWrapper(),
-            );
-          },
-        ),
-      ),
-      routes: {
-        '/login': (context) => const LoginScreen(),
-        '/signup': (context) => const SignUpScreen(),
-        '/home': (context) => const BottomNavWrapper(),
-        '/profile': (context) => const ProfileScreen(),
-        '/app-lock': (context) => const AppLockScreen(),
-      },
-    );
-  }
-}
-
-class _AppRoot extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return BlocListener<AuthCubit, AuthState>(
-      listener: (context, state) {
-        // Only load data when user is authenticated
-        if (state.isAuthenticated && state.user != null) {
-          print('User authenticated: ${state.user!.name}');
-          context.read<HomeCubit>().loadInitial(
-            userName: state.user!.name,
-          );
-          context.read<HabitCubit>().loadHabits();
-          context.read<ActivitiesCubit>().loadActivities();
-        }
-      },
-      child: BlocBuilder<AuthCubit, AuthState>(
-        builder: (context, state) {
-          print('Auth State: isLoading=${state.isLoading}, isAuthenticated=${state.isAuthenticated}, user=${state.user?.name}');
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
           
-          if (state.isLoading) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
+          supportedLocales: const [
+            Locale('en'),
+            Locale('fr'),
+            Locale('ar'),
+          ],
 
-          // If NOT logged in → Show Login Screen directly
-          if (!state.isAuthenticated || state.user == null) {
-            print('User not authenticated, showing login screen');
-            return const LoginScreen();
-          }
+          home: BlocListener<AuthCubit, AuthState>(
+            listener: (context, state) {
+              // When user logs in, load their data
+              if (state.isAuthenticated && state.user != null) {
+                print('User authenticated: ${state.user!.name}');
+                context.read<HomeCubit>().loadInitial(userName: state.user!.name);
+                context.read<HabitCubit>().loadHabits();
+                context.read<ActivitiesCubit>().loadActivities();
+              }
+            },
+            child: BlocBuilder<AuthCubit, AuthState>(
+              builder: (context, state) {
+                if (state.isLoading) {
+                  return const Scaffold(
+                    body: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
 
-          // If logged in → Show Phone Lock Wrapper
-          print('User authenticated, checking app lock...');
-          return PhoneLockWrapper(
-            child: const BottomNavWrapper(),
-          );
-        },
-      ),
+                // Show login screen if not authenticated
+                if (!state.isAuthenticated) {
+                  return const LoginScreen();
+                }
+
+                // When authenticated, wrap main app with PhoneLockWrapper
+                return const PhoneLockWrapper(
+                  child: BottomNavWrapper(),
+                );
+              },
+            ),
+          ),
+          routes: {
+            '/login': (context) => const LoginScreen(),
+            '/signup': (context) => const SignUpScreen(),
+            '/home': (context) => const BottomNavWrapper(),
+            '/profile': (context) => const ProfileScreen(),
+            '/app-lock': (context) => const AppLockScreen(),
+            '/language': (context) => const LanguageSelectionScreen(),
+          },
+        );
+      },
     );
   }
 }

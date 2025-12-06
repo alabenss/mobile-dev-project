@@ -4,12 +4,15 @@ import '../../themes/style_simple/colors.dart';
 class HabitTile extends StatelessWidget {
   final IconData icon;
   final String title;
+  final String habitKey; // Add habitKey parameter
   final bool checked;
   final VoidCallback onToggle;
+  
   const HabitTile({
     super.key,
     required this.icon,
     required this.title,
+    required this.habitKey, // Required parameter
     required this.checked,
     required this.onToggle,
   });

@@ -20,6 +20,7 @@ import '../../widgets/home/explore_card.dart';
 import '../../../logic/home/home_cubit.dart';
 import '../../../logic/home/home_state.dart';
 import '../../../logic/auth/auth_cubit.dart';
+import '../../../utils/habit_localization.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback? onViewAllHabits;
@@ -60,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!; // <-- added
+    final l10n = AppLocalizations.of(context)!;
 
     return BlocBuilder<HomeCubit, HomeState>(
       builder: (context, state) {
@@ -137,11 +138,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 12),
 
                 SectionCard(
-                  title: l10n.todaysHabits, // <-- localized
+                  title: l10n.todaysHabits,
                   trailing: GestureDetector(
                     onTap: onViewAllHabits,
                     child: const Text(
-                      'view all', // no key in ARB yet, left as-is
+                      'view all',
                       style: TextStyle(
                         fontWeight: FontWeight.w500,
                         fontSize: 14,
@@ -150,11 +151,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   child: habitsToShow.isEmpty
-                      ? Padding( // <-- removed const to use l10n
+                      ? Padding(
                           padding: const EdgeInsets.symmetric(vertical: 16.0),
                           child: Center(
                             child: Text(
-                              '${l10n.noDailyHabits}\n${l10n.tapToAddHabit}', // <-- localized text
+                              '${l10n.noDailyHabits}\n${l10n.tapToAddHabit}',
                               style: const TextStyle(
                                 fontSize: 14,
                                 color: AppColors.textSecondary,
@@ -168,11 +169,16 @@ class _HomeScreenState extends State<HomeScreen> {
                             for (int i = 0; i < habitsToShow.length; i++) ...[
                               HabitTile(
                                 icon: habitsToShow[i].icon,
-                                title: habitsToShow[i].title,
+                                title: HabitLocalization.getLocalizedTitle(
+                                  context, 
+                                  habitsToShow[i],
+                                ),
+                                habitKey: habitsToShow[i].habitKey,
                                 checked: habitsToShow[i].done,
                                 onToggle: () {
+                                  // Use habitKey instead of title
                                   homeCubit.toggleHabitCompletion(
-                                    habitsToShow[i].title,
+                                    habitsToShow[i].habitKey,
                                     habitsToShow[i].done,
                                   );
                                 },
@@ -188,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 18),
 
                 const Text(
-                  'Explore', // no key in ARB yet, left as-is
+                  'Explore',
                   style: TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 20,
@@ -211,8 +217,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                         child: ExploreCard(
                           color: AppColors.mint,
-                          title: 'The calming effect of plants', // left as-is
-                          cta: 'Read Now', // left as-is (no key yet)
+                          title: 'The calming effect of plants',
+                          cta: 'Read Now',
                           assetImage: AppImages.plantIcon,
                         ),
                       ),
@@ -230,7 +236,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                         child: ExploreCard(
                           color: AppColors.primary,
-                          title: 'Boost your\nmood with\nsports', // left as-is
+                          title: 'Boost your\nmood with\nsports',
                           cta: '',
                           assetImage: AppImages.boostMoodIcon,
                         ),
