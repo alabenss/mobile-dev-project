@@ -922,4 +922,130 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get commonClose => 'Fermer';
+
+  @override
+  String get journalMoodCardTitle => 'Comment vous sentez-vous aujourd\'hui ?';
+
+  @override
+  String get journalMoodCardToday => 'Aujourd\'hui';
+
+  @override
+  String get journalMoodCardRetry => 'Réessayer';
+
+  @override
+  String get journalMoodCardFailedToLoad => 'Échec du chargement de l\'humeur';
+
+  @override
+  String get journalCalendarMon => 'Lun';
+
+  @override
+  String get journalCalendarTue => 'Mar';
+
+  @override
+  String get journalCalendarWed => 'Mer';
+
+  @override
+  String get journalCalendarThu => 'Jeu';
+
+  @override
+  String get journalCalendarFri => 'Ven';
+
+  @override
+  String get journalCalendarSat => 'Sam';
+
+  @override
+  String get journalCalendarSun => 'Dim';
+
+  @override
+  String get journalCalendarMonday => 'Lundi';
+
+  @override
+  String get journalCalendarTuesday => 'Mardi';
+
+  @override
+  String get journalCalendarWednesday => 'Mercredi';
+
+  @override
+  String get journalCalendarThursday => 'Jeudi';
+
+  @override
+  String get journalCalendarFriday => 'Vendredi';
+
+  @override
+  String get journalCalendarSaturday => 'Samedi';
+
+  @override
+  String get journalCalendarSunday => 'Dimanche';
+
+  @override
+  String get journalMonthJan => 'Jan';
+
+  @override
+  String get journalMonthFeb => 'Fév';
+
+  @override
+  String get journalMonthMar => 'Mar';
+
+  @override
+  String get journalMonthApr => 'Avr';
+
+  @override
+  String get journalMonthMay => 'Mai';
+
+  @override
+  String get journalMonthJun => 'Juin';
+
+  @override
+  String get journalMonthJul => 'Juil';
+
+  @override
+  String get journalMonthAug => 'Août';
+
+  @override
+  String get journalMonthSep => 'Sep';
+
+  @override
+  String get journalMonthOct => 'Oct';
+
+  @override
+  String get journalMonthNov => 'Nov';
+
+  @override
+  String get journalMonthDec => 'Déc';
+
+  @override
+  String get journalMonthJanuary => 'Janvier';
+
+  @override
+  String get journalMonthFebruary => 'Février';
+
+  @override
+  String get journalMonthMarch => 'Mars';
+
+  @override
+  String get journalMonthApril => 'Avril';
+
+  @override
+  String get journalMonthMayFull => 'Mai';
+
+  @override
+  String get journalMonthJune => 'Juin';
+
+  @override
+  String get journalMonthJuly => 'Juillet';
+
+  @override
+  String get journalMonthAugust => 'Août';
+
+  @override
+  String get journalMonthSeptember => 'Septembre';
+
+  @override
+  String get journalMonthOctober => 'Octobre';
+
+  @override
+  String get journalMonthNovember => 'Novembre';
+
+  @override
+  String get journalMonthDecember => 'Décembre';
 }

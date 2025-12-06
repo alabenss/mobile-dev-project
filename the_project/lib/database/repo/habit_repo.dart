@@ -11,7 +11,6 @@ class HabitRepository {
     final userId = prefs.getInt('userId');
     
     if (userId == null) {
-      // Fallback to default user if no one is logged in
       return await DBHelper.ensureDefaultUser();
     }
     
@@ -21,8 +20,8 @@ class HabitRepository {
   /// Convert a Habit object to a Map for database storage
   Map<String, dynamic> _habitToMap(Habit habit) {
     return {
-      'title': habit.title,
-      'description': '',
+      'title': habit.habitKey, // Store the key, not the localized title
+      'description': habit.iconCodePoint.toString(), // Store icon code point here
       'frequency': habit.frequency,
       'status': habit.done ? 'completed' : (habit.skipped ? 'skipped' : 'active'),
       'createdDate': DateTime.now().toIso8601String(),
@@ -35,9 +34,25 @@ class HabitRepository {
   }
 
   /// Convert a database Map to a Habit object
-  Habit _mapToHabit(Map<String, dynamic> map) {
-    // Parse icon from title or use default
-    IconData icon = _getIconForTitle(map['title'] as String);
+  Habit _mapToHabit(Map<String, dynamic> map, String? localizedTitle) {
+    // Get habit key from database (stored in 'title' field)
+    String habitKey = map['title'] as String;
+    
+    // Get icon from code point stored in description, or use key-based icon
+    IconData icon;
+    try {
+      final iconCode = int.parse(map['description'] as String? ?? '0');
+      if (iconCode > 0) {
+        icon = Habit.iconFromCodePoint(iconCode);
+      } else {
+        icon = Habit.getIconForKey(habitKey);
+      }
+    } catch (e) {
+      icon = Habit.getIconForKey(habitKey);
+    }
+
+    // Use localized title if provided, otherwise use the key
+    String displayTitle = localizedTitle ?? _getLocalizedTitle(habitKey);
 
     // Parse time if available
     TimeOfDay? time;
@@ -50,10 +65,12 @@ class HabitRepository {
         );
       }
     }
+    
     final status = (map['status'] as String?) ?? 'active';
 
     return Habit(
-      title: map['title'] as String,
+      title: displayTitle,
+      habitKey: habitKey,
       icon: icon,
       frequency: map['frequency'] as String,
       time: time,
@@ -64,19 +81,14 @@ class HabitRepository {
     );
   }
 
-  /// Get appropriate icon based on habit title
-  IconData _getIconForTitle(String title) {
-    final Map<String, IconData> iconMap = {
-      'Drink Water': Icons.local_drink,
-      'Exercise': Icons.fitness_center,
-      'Meditate': Icons.self_improvement,
-      'Read': Icons.book,
-      'Sleep Early': Icons.bedtime,
-      'Study': Icons.school,
-      'Walk': Icons.directions_walk,
-    };
-
-    return iconMap[title] ?? Icons.star_border;
+  /// Get localized title for a habit key (fallback if not provided)
+  String _getLocalizedTitle(String habitKey) {
+    // This will just return the key formatted nicely as fallback
+    // The actual localization should happen in the UI layer
+    return habitKey
+        .split('_')
+        .map((word) => word[0].toUpperCase() + word.substring(1))
+        .join(' ');
   }
 
   /// Insert a new habit into the database
@@ -102,7 +114,7 @@ class HabitRepository {
       orderBy: 'createdDate DESC',
     );
 
-    return maps.map((map) => _mapToHabit(map)).toList();
+    return maps.map((map) => _mapToHabit(map, null)).toList();
   }
 
   /// Get habits by frequency (Daily, Weekly, Monthly, Yearly)
@@ -117,7 +129,6 @@ class HabitRepository {
       orderBy: 'createdDate DESC',
     );
 
-    // Filter habits based on their period
     final now = DateTime.now();
     final List<Habit> habits = [];
 
@@ -128,22 +139,18 @@ class HabitRepository {
 
       switch (frequency.toLowerCase()) {
         case 'daily':
-          // Show if updated today
           shouldShow = _isSameDay(lastUpdated, now);
           break;
           
         case 'weekly':
-          // Show if updated in current week
           shouldShow = _isSameWeek(lastUpdated, now);
           break;
           
         case 'monthly':
-          // Show if updated in current month
           shouldShow = _isSameMonth(lastUpdated, now);
           break;
           
         case 'yearly':
-          // Show if updated in current year
           shouldShow = _isSameYear(lastUpdated, now);
           break;
           
@@ -151,7 +158,6 @@ class HabitRepository {
           shouldShow = true;
       }
 
-      // If habit is from a previous period and was completed/skipped, reset it
       if (!shouldShow) {
         await db.update(
           'habits',
@@ -166,47 +172,39 @@ class HabitRepository {
         map['lastUpdated'] = now.toIso8601String();
       }
 
-      habits.add(_mapToHabit(map));
+      habits.add(_mapToHabit(map, null));
     }
 
     return habits;
   }
 
-  /// Check if two dates are on the same day
   bool _isSameDay(DateTime date1, DateTime date2) {
     return date1.year == date2.year &&
         date1.month == date2.month &&
         date1.day == date2.day;
   }
 
-  /// Check if two dates are in the same week (Monday as start)
   bool _isSameWeek(DateTime date1, DateTime date2) {
-    // Get Monday of the week for both dates
     final monday1 = _getMondayOfWeek(date1);
     final monday2 = _getMondayOfWeek(date2);
     return _isSameDay(monday1, monday2);
   }
 
-  /// Get the Monday of the week for a given date
   DateTime _getMondayOfWeek(DateTime date) {
-    // DateTime.weekday returns 1 for Monday, 7 for Sunday
     final daysFromMonday = date.weekday - 1;
     return DateTime(date.year, date.month, date.day).subtract(
       Duration(days: daysFromMonday),
     );
   }
 
-  /// Check if two dates are in the same month
   bool _isSameMonth(DateTime date1, DateTime date2) {
     return date1.year == date2.year && date1.month == date2.month;
   }
 
-  /// Check if two dates are in the same year
   bool _isSameYear(DateTime date1, DateTime date2) {
     return date1.year == date2.year;
   }
 
-  /// Check and reset habits from previous periods
   Future<void> checkAndResetOldHabits() async {
     final db = await DBHelper.database;
     final userId = await _getCurrentUserId();
@@ -238,7 +236,6 @@ class HabitRepository {
           break;
       }
 
-      // Reset if from previous period
       if (shouldReset && habit['status'] != 'active') {
         await db.update(
           'habits',
@@ -253,27 +250,24 @@ class HabitRepository {
     }
   }
 
-  /// Update habit status (active, completed, skipped)
-  Future<int> updateHabitStatus(String title, String status) async {
+  /// Update habit status - accepts either habitKey or title for backward compatibility
+  Future<int> updateHabitStatus(String habitKeyOrTitle, String status) async {
     final db = await DBHelper.database;
     final userId = await _getCurrentUserId();
 
-    // If completed, award points
     if (status == 'completed') {
-      final habit = await getHabitByTitle(title);
+      final habit = await getHabitByKey(habitKeyOrTitle);
       if (habit != null) {
         await _awardPoints(habit.points);
       }
     }
 
-    // If from completed to active, reduce points
     if (status == 'active') {
-      final habit = await getHabitByTitle(title);
+      final habit = await getHabitByKey(habitKeyOrTitle);
       if (habit != null) {
         await _awardPoints(-habit.points);
       }
     }
-
 
     return await db.update(
       'habits',
@@ -282,39 +276,43 @@ class HabitRepository {
         'lastUpdated': DateTime.now().toIso8601String(),
       },
       where: 'userId = ? AND title = ?',
-      whereArgs: [userId, title],
+      whereArgs: [userId, habitKeyOrTitle],
     );
   }
 
-  /// Get a specific habit by title
-  Future<Habit?> getHabitByTitle(String title) async {
+  /// Get a specific habit by habitKey
+  Future<Habit?> getHabitByKey(String habitKey) async {
     final db = await DBHelper.database;
     final userId = await _getCurrentUserId();
 
     final List<Map<String, dynamic>> maps = await db.query(
       'habits',
       where: 'userId = ? AND title = ?',
-      whereArgs: [userId, title],
+      whereArgs: [userId, habitKey],
       limit: 1,
     );
 
     if (maps.isEmpty) return null;
-    return _mapToHabit(maps.first);
+    return _mapToHabit(maps.first, null);
   }
 
-  /// Delete a habit by title
-  Future<int> deleteHabit(String title) async {
+  /// Get a specific habit by title (kept for backward compatibility)
+  Future<Habit?> getHabitByTitle(String title) async {
+    return await getHabitByKey(title);
+  }
+
+  /// Delete a habit by habitKey
+  Future<int> deleteHabit(String habitKey) async {
     final db = await DBHelper.database;
     final userId = await _getCurrentUserId();
 
     return await db.delete(
       'habits',
       where: 'userId = ? AND title = ?',
-      whereArgs: [userId, title],
+      whereArgs: [userId, habitKey],
     );
   }
 
-  /// Delete all habits
   Future<int> deleteAllHabits() async {
     final db = await DBHelper.database;
     final userId = await _getCurrentUserId();
@@ -326,7 +324,6 @@ class HabitRepository {
     );
   }
 
-  /// Get count of completed habits
   Future<int> getCompletedHabitsCount() async {
     final db = await DBHelper.database;
     final userId = await _getCurrentUserId();
@@ -339,12 +336,10 @@ class HabitRepository {
     return Sqflite.firstIntValue(result) ?? 0;
   }
 
-  /// Get habits that are due today (based on frequency and last completed date)
   Future<List<Habit>> getTodayHabits() async {
     return await getHabitsByFrequency('Daily');
   }
 
-  /// Reset daily habit statuses (call this at the start of each day)
   Future<void> resetDailyHabits() async {
     final db = await DBHelper.database;
     final userId = await _getCurrentUserId();
@@ -357,12 +352,10 @@ class HabitRepository {
     );
   }
 
-  /// Award points to user when completing a habit
   Future<void> _awardPoints(int points) async {
     final userId = await _getCurrentUserId();
     final db = await DBHelper.database;
     
-    // Get current points for this specific user
     final result = await db.query(
       'users',
       columns: ['totalPoints'],
@@ -381,7 +374,6 @@ class HabitRepository {
       }
     }
     
-    // Update points for this specific user
     await db.update(
       'users',
       {'totalPoints': currentPoints + points},
@@ -390,7 +382,6 @@ class HabitRepository {
     );
   }
 
-  /// Get total points earned from all completed habits
   Future<int> getTotalHabitPoints() async {
     final db = await DBHelper.database;
     final userId = await _getCurrentUserId();
@@ -407,30 +398,30 @@ class HabitRepository {
     return 0;
   }
 
-  /// Check if a habit with the given title already exists
-  Future<bool> habitExists(String title) async {
+  /// Check if a habit exists using habitKey
+  Future<bool> habitExists(String habitKey) async {
     final db = await DBHelper.database;
     final userId = await _getCurrentUserId();
 
     final result = await db.query(
       'habits',
-      where: 'userId = ? AND LOWER(title) = ?',
-      whereArgs: [userId, title.toLowerCase()],
+      where: 'userId = ? AND title = ?',
+      whereArgs: [userId, habitKey],
       limit: 1,
     );
 
     return result.isNotEmpty;
   }
 
-  /// Check if a habit with the given title and frequency already exists
-  Future<bool> habitExistsWithFrequency(String title, String frequency) async {
+  /// Check if a habit with the given key and frequency already exists
+  Future<bool> habitExistsWithFrequency(String habitKey, String frequency) async {
     final db = await DBHelper.database;
     final userId = await _getCurrentUserId();
 
     final result = await db.query(
       'habits',
-      where: 'userId = ? AND LOWER(title) = ? AND frequency = ?',
-      whereArgs: [userId, title.toLowerCase(), frequency],
+      where: 'userId = ? AND title = ? AND frequency = ?',
+      whereArgs: [userId, habitKey, frequency],
       limit: 1,
     );
 
