@@ -695,73 +695,160 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sportArticleStartActivityCta => 'ابدأ نشاطًا';
 
   @override
-  String get detoxCardTitle => 'التحرر الرقمي:';
+  String get journalSelectDay => 'اختر يومًا لعرض اليوميات';
 
   @override
-  String get detoxCardPhoneLocked => 'الهاتف مقفول';
+  String get journalNoEntries => 'لا توجد يوميات لهذا اليوم';
 
   @override
-  String get detoxCardDisableLock => 'إيقاف القفل';
+  String get journalDeleteTitle => 'حذف اليومية';
 
   @override
-  String get detoxCardComplete => 'مكتمل';
+  String get journalDeleteMessage => 'هل أنت متأكد أنك تريد حذف هذه اليومية؟';
 
   @override
-  String get detoxCardReset => 'إعادة التعيين';
+  String get journalDeleteSuccess => 'تم حذف اليومية بنجاح';
 
   @override
-  String get detoxCardLock30m => 'قفل لمدة 30 دقيقة';
+  String get journalDeletedSuccessfully => 'تم حذف اليومية بنجاح';
 
   @override
-  String get exploreSectionTitle => 'استكشف';
+  String get journalUpdatedSuccessfully => 'تم تحديث اليومية بنجاح';
 
   @override
-  String get explorePlantTitle => 'التأثير المهدئ للنباتات';
+  String get journalCannotCreateFuture => 'لا يمكن إنشاء يومية لتواريخ مستقبلية';
 
   @override
-  String get exploreReadNow => 'اقرأ الآن';
+  String get journalWriteTitle => 'كتابة يومية';
 
   @override
-  String get exploreSportsTitle => 'حسِّن\nمزاجك\nبالرياضة';
+  String get journalSave => 'حفظ';
 
   @override
-  String homeHello(String name) {
-    return 'مرحبًا، $name';
+  String get journalTitle => 'العنوان';
+
+  @override
+  String get journalWriteMore => 'اكتب المزيد هنا...';
+
+  @override
+  String get journalAddTitle => 'الرجاء إضافة عنوان';
+
+  @override
+  String get journalMoodTitle => 'كيف تشعر اليوم؟';
+
+  @override
+  String get journalSelectBackground => 'اختر الخلفية';
+
+  @override
+  String get journalNoBackground => 'بدون خلفية';
+
+  @override
+  String get journalSelectSticker => 'اختر ملصق';
+
+  @override
+  String get journalTextStyle => 'نمط النص';
+
+  @override
+  String get journalFontFamily => 'نوع الخط';
+
+  @override
+  String get journalTextColor => 'لون النص';
+
+  @override
+  String get journalFontSize => 'حجم الخط';
+
+  @override
+  String get journalApply => 'تطبيق';
+
+  @override
+  String get journalVoiceNote => 'مذكرة صوتية';
+
+  @override
+  String get journalVoiceRecording => 'جارٍ التسجيل...';
+
+  @override
+  String get journalVoiceSaved => 'تم حفظ التسجيل';
+
+  @override
+  String get journalVoiceTapToStart => 'اضغط لبدء التسجيل';
+
+  @override
+  String get journalVoiceAddNote => 'إضافة مذكرة صوتية';
+
+  @override
+  String get journalVoicePermissionDenied => 'تم رفض إذن الميكروفون';
+
+  @override
+  String journalVoiceStartFailed(String error) {
+    return 'فشل بدء التسجيل: $error';
   }
 
   @override
-  String get homeViewAllHabits => 'عرض الكل';
+  String journalVoiceStopFailed(String error) {
+    return 'فشل إيقاف التسجيل: $error';
+  }
 
   @override
-  String get phoneLockTitle => 'الهاتف مقفول';
+  String journalVoicePlayFailed(String error) {
+    return 'فشل تشغيل التسجيل: $error';
+  }
 
   @override
-  String get phoneLockSubtitle => 'خذ استراحة من الشاشة.\nعملية التخلص من السموم الرقمية قيد التقدم.';
+  String get journalToolbarBackground => 'الخلفية';
 
   @override
-  String get phoneLockStayStrong => 'ابقَ قويًا!';
+  String get journalToolbarAddImage => 'إضافة صورة';
 
   @override
-  String get phoneLockDisableTitle => 'إلغاء القفل؟';
+  String get journalToolbarStickers => 'الملصقات';
 
   @override
-  String get phoneLockDisableMessage => 'إذا ألغيت القفل مبكرًا، فلن يزداد تقدم التخلص من السموم الرقمية. هل أنت متأكد؟';
+  String get journalToolbarTextStyle => 'نمط النص';
 
   @override
-  String get phoneLockStayLockedCta => 'ابقَ مقفولًا';
+  String get journalToolbarVoiceNote => 'مذكرة صوتية';
 
   @override
-  String get phoneLockDisableCta => 'إلغاء';
+  String journalErrorPickingImage(String error) {
+    return 'خطأ في اختيار الصورة: $error';
+  }
 
   @override
-  String get phoneLockDisableButton => 'إلغاء القفل';
+  String get journalMoodHappy => 'سعيد';
 
   @override
-  String get waterIntakeTitle => 'شرب الماء:';
+  String get journalMoodGood => 'جيد';
 
   @override
-  String get waterGlassesUnit => 'أكواب';
+  String get journalMoodExcited => 'متحمس';
 
   @override
-  String get commonReset => 'إعادة التعيين';
+  String get journalMoodCalm => 'هادئ';
+
+  @override
+  String get journalMoodSad => 'حزين';
+
+  @override
+  String get journalMoodTired => 'متعب';
+
+  @override
+  String get journalMoodAnxious => 'قلق';
+
+  @override
+  String get journalMoodAngry => 'غاضب';
+
+  @override
+  String get journalMoodConfused => 'مرتبك';
+
+  @override
+  String get journalMoodGrateful => 'ممتن';
+
+  @override
+  String get commonCancel => 'إلغاء';
+
+  @override
+  String get commonDelete => 'حذف';
+
+  @override
+  String get commonClose => 'إغلاق';
 }

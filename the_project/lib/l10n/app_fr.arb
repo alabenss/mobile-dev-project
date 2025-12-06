@@ -20,6 +20,7 @@
       }
     }
   },
+
   "statsRefreshingData": "Actualisation des données...",
   "statsLoading": "Chargement des statistiques...",
   "statsErrorTitle": "Une erreur est survenue",
@@ -30,6 +31,7 @@
   "statsEmptyTrackMood": "Suivez votre humeur chaque jour",
   "statsEmptyLogWater": "Enregistrez votre consommation d'eau",
   "statsEmptyWriteJournal": "Écrivez dans votre journal",
+
   "noData": "Aucune donnée",
   "noMoodData": "Aucune donnée d'humeur disponible",
   "noWaterData": "Aucune donnée d'eau disponible",
@@ -51,8 +53,10 @@
       }
     }
   },
+
   "statsNoData": "Aucune donnée",
   "statsNoMoodData": "Aucune donnée d'humeur disponible",
+
   "appLockTitle": "Verrouillage de l'application",
   "appLockChooseType": "Choisir le type de verrouillage :",
   "appLockPin": "Code PIN",
@@ -82,40 +86,29 @@
   "appLockRemoved": "Verrouillage de l'application supprimé",
   "appLockEnterToUnlock": "Entrez {type} pour déverrouiller",
   "appLockWrongAttempt": "Mauvais {type} ! Réessayez",
+  "@appLockWrongAttempt": {
+    "placeholders": {
+      "type": {}
+    }
+  },
   "appLockUnlock": "Déverrouiller",
   "appLockForgotLock": "{type} oublié ?",
   "appLockVerifyIdentity": "Vérifiez votre identité pour réinitialiser le verrou",
-  "appLockTitle": "Verrouillage de l'application",
-"appLockSaved": "Verrouillage enregistré avec succès.",
-"appLockSaveError": "Erreur lors de l'enregistrement du verrouillage.",
-"appLockRemoved": "Verrouillage supprimé.",
-"appLockMismatch": "Les valeurs ne correspondent pas.",
-"appLockPin": "PIN",
-"appLockPattern": "Schéma",
-"appLockPassword": "Mot de passe",
-"appLockUnlock": "Déverrouiller",
-"appLockWrongAttempt": "Le {type} est incorrect. Veuillez réessayer.",
-"@appLockWrongAttempt": {
-  "placeholders": {
-    "type": {}
-  }
-},
 
-"appLockEnabled": "App Lock Enabled",
-"appLockChangeLock": "Change Lock",
-"appLockRemove": "Remove",
-"appLockCurrentSettings": "Current Settings",
-"appLockRemoveConfirm": "Remove App Lock?",
-"appLockRemoveMessage": "Are you sure you want to remove the app lock?",
-"appLockCancel": "Cancel",
-"appLockCurrentType": "Verrouillage actuel : {type}",
-"@appLockCurrentType": {
-  "placeholders": {
-    "type": {}
-  }
-},
-"appLockChangeOrRemove": "Vous pouvez modifier ou supprimer votre verrouillage actuel.",
-
+  "appLockEnabled": "App Lock Enabled",
+  "appLockChangeLock": "Change Lock",
+  "appLockRemove": "Remove",
+  "appLockCurrentSettings": "Current Settings",
+  "appLockRemoveConfirm": "Remove App Lock?",
+  "appLockRemoveMessage": "Are you sure you want to remove the app lock?",
+  "appLockCancel": "Cancel",
+  "appLockCurrentType": "Verrouillage actuel : {type}",
+  "@appLockCurrentType": {
+    "placeholders": {
+      "type": {}
+    }
+  },
+  "appLockChangeOrRemove": "Vous pouvez modifier ou supprimer votre verrouillage actuel.",
 
   "monthlyAvg": "Moyenne mensuelle {count} verres",
   "@monthlyAvg": {
@@ -133,6 +126,7 @@
 
   "youWroteToday": "Vous avez écrit aujourd'hui",
   "noEntryToday": "Aucune entrée aujourd'hui",
+
   "daysLogged": "{count} jours enregistrés",
   "@daysLogged": {
     "placeholders": {
@@ -141,6 +135,7 @@
       }
     }
   },
+
   "entriesThisMonth": "{count} entrées ce mois",
   "@entriesThisMonth": {
     "placeholders": {
@@ -149,6 +144,7 @@
       }
     }
   },
+
   "totalEntries": "{count} entrées au total",
   "@totalEntries": {
     "placeholders": {
@@ -186,6 +182,7 @@
   "setReminder": "Définir un rappel",
   "cancel": "Annuler",
   "add": "Ajouter",
+
   "habitAlreadyExists": "Cette habitude existe déjà avec une fréquence {frequency} !",
   "@habitAlreadyExists": {
     "placeholders": {
@@ -194,8 +191,9 @@
       }
     }
   },
+
   "pointsMustBeGreaterThanZero": "Les points doivent être supérieurs à 0 !",
-  
+
   "habitDrinkWater": "Boire de l'eau",
   "habitExercise": "Exercice",
   "habitMeditate": "Méditer",
@@ -204,12 +202,12 @@
   "habitStudy": "Étudier",
   "habitWalk": "Marcher",
   "habitOther": "Autre",
-  
-  "noHabitsYet": "Aucune habitude pour l'instant !\nAppuyez sur + pour ajouter votre première habitude",
+
+  "noHabitsYet": "Aucune habitude pour l'instant !\\nAppuyez sur + pour ajouter votre première habitude",
   "todaysHabits": "Habitudes d'aujourd'hui",
   "completed": "Terminé",
   "skipped": "Ignoré",
-  
+
   "skipHabit": "Ignorer l'habitude ?",
   "skipHabitConfirmation": "Voulez-vous vraiment ignorer \"{habit}\" ?",
   "@skipHabitConfirmation": {
@@ -220,7 +218,7 @@
     }
   },
   "skip": "Ignorer",
-  
+
   "deleteHabit": "Supprimer l'habitude ?",
   "deleteHabitConfirmation": "Voulez-vous vraiment supprimer définitivement \"{habit}\" ?",
   "@deleteHabitConfirmation": {
@@ -232,7 +230,7 @@
   },
   "actionCannotBeUndone": "Cette action ne peut pas être annulée.",
   "delete": "Supprimer",
-  
+
   "habitCompleted": "{habit} terminé !",
   "@habitCompleted": {
     "placeholders": {
@@ -257,11 +255,12 @@
       }
     }
   },
-  
+
   "noDailyHabits": "Aucune habitude quotidienne pour l'instant",
   "noWeeklyHabits": "Aucune habitude hebdomadaire pour l'instant",
   "noMonthlyHabits": "Aucune habitude mensuelle pour l'instant",
   "tapToAddHabit": "Appuyez sur le bouton + pour ajouter une habitude",
+
   "detoxProgress": "Progrès de détox",
   "detoxExcellent": "Excellent progrès !",
   "detoxGood": "Bon progrès",
@@ -381,6 +380,7 @@
   "puzzleShuffle": "Mélanger",
   "puzzleReset": "Réinitialiser",
   "puzzleSolved": "Résolu ! 🎉",
+
   "plantArticleTitle": "L'effet apaisant des plantes",
   "plantArticleIntro": "La verdure fait plus que décorer votre espace — elle apaise votre esprit. Prendre soin d'une plante vous ralentit et ramène votre attention au moment présent.",
   "plantArticleBenefitsTitle": "Bénéfices en un coup d'œil",
@@ -392,6 +392,7 @@
   "plantArticleTipTitle": "Astuce du jour",
   "plantArticleTipBody": "Placez une petite plante près de l'endroit où vous travaillez le plus. Vérifiez-la une fois par jour — une pause de 30 secondes pour votre esprit.",
   "plantArticleFooter": "Continuez de grandir — une feuille à la fois 🌿",
+
   "sportArticleTitle": "Booster votre humeur avec le sport",
   "sportArticleHeroText": "Un peu de mouvement\\ncrée beaucoup d'émotion 💪✨",
   "sportArticleIntro": "Bouger votre corps est l’un des moyens les plus rapides pour améliorer votre humeur. L’activité libère des endorphines — les “hormones du bien-être” de votre cerveau.",
@@ -404,43 +405,125 @@
   "sportArticleRememberTitle": "À retenir",
   "sportArticleRememberBody": "Choisissez un mouvement qui vous fait sourire — pas seulement transpirer. La joie crée la régularité, et la régularité améliore l’humeur.",
   "sportArticleStartActivityCta": "Commencer une activité",
+
+  "journalSelectDay": "Sélectionnez un jour pour voir les journaux",
+  "journalNoEntries": "Aucun journal pour ce jour",
+  "journalDeleteTitle": "Supprimer le journal",
+  "journalDeleteMessage": "Voulez-vous vraiment supprimer cette entrée de journal ?",
+  "journalDeleteSuccess": "Journal supprimé avec succès",
+  "journalDeletedSuccessfully": "Journal supprimé avec succès",
+  "journalUpdatedSuccessfully": "Journal mis à jour avec succès",
+  "journalCannotCreateFuture": "Impossible de créer un journal pour des dates futures",
+
+  "journalWriteTitle": "Écrire un journal",
+  "journalSave": "Enregistrer",
+  "journalTitle": "Titre",
+  "journalWriteMore": "Écrivez plus ici...",
+  "journalAddTitle": "Veuillez ajouter un titre",
+
+  "journalMoodTitle": "Comment vous sentez-vous aujourd'hui ?",
+  "journalSelectBackground": "Sélectionner l'arrière-plan",
+  "journalNoBackground": "Pas d'arrière-plan",
+  "journalSelectSticker": "Sélectionner un autocollant",
+  "journalTextStyle": "Style de texte",
+  "journalFontFamily": "Police",
+  "journalTextColor": "Couleur du texte",
+  "journalFontSize": "Taille de police",
+  "journalApply": "Appliquer",
+
+  "journalVoiceNote": "Note vocale",
+  "journalVoiceRecording": "Enregistrement...",
+  "journalVoiceSaved": "Enregistrement sauvegardé",
+  "journalVoiceTapToStart": "Appuyez pour commencer l'enregistrement",
+  "journalVoiceAddNote": "Ajouter une note vocale",
+  "journalVoicePermissionDenied": "Permission du microphone refusée",
+  "journalVoiceStartFailed": "Échec du démarrage de l'enregistrement : {error}",
+  "@journalVoiceStartFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "journalVoiceStopFailed": "Échec de l'arrêt de l'enregistrement : {error}",
+  "@journalVoiceStopFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "journalVoicePlayFailed": "Échec de la lecture de l'enregistrement : {error}",
+  "@journalVoicePlayFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "journalToolbarBackground": "Arrière-plan",
+  "journalToolbarAddImage": "Ajouter une image",
+  "journalToolbarStickers": "Autocollants",
+  "journalToolbarTextStyle": "Style de texte",
+  "journalToolbarVoiceNote": "Note vocale",
+
+  "journalErrorPickingImage": "Erreur lors de la sélection de l'image : {error}",
+  "@journalErrorPickingImage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "journalMoodHappy": "Heureux",
+  "journalMoodGood": "Bien",
+  "journalMoodExcited": "Excité",
+  "journalMoodCalm": "Calme",
+  "journalMoodSad": "Triste",
+  "journalMoodTired": "Fatigué",
+  "journalMoodAnxious": "Anxieux",
+  "journalMoodAngry": "En colère",
+  "journalMoodConfused": "Confus",
+  "journalMoodGrateful": "Reconnaissant",
+
   "detoxCardTitle": "Détox numérique :",
   "detoxCardPhoneLocked": "Téléphone verrouillé",
   "detoxCardDisableLock": "Désactiver le verrouillage",
   "detoxCardComplete": "terminé",
   "detoxCardReset": "Réinitialiser",
   "detoxCardLock30m": "Verrouiller 30 min",
+
   "exploreSectionTitle": "Explorer",
   "explorePlantTitle": "L'effet apaisant des plantes",
   "exploreReadNow": "Lire maintenant",
-  "exploreSportsTitle": "Améliore ton\nmoral avec\nle sport",
+  "exploreSportsTitle": "Améliore ton\\nmoral avec\\nle sport",
+
   "homeHello": "Bonjour, {name}",
   "@homeHello": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "homeViewAllHabits": "voir tout",
-  "exploreSectionTitle": "Explorer",
-  "explorePlantTitle": "L'effet apaisant des plantes",
-  "exploreReadNow": "Lire maintenant",
-  "exploreSportsTitle": "Améliore ton\nmoral avec\nle sport",
+
   "phoneLockTitle": "Téléphone verrouillé",
-  "phoneLockSubtitle": "Faites une pause loin de l'écran.\nVotre détox numérique est en cours.",
+  "phoneLockSubtitle": "Faites une pause loin de l'écran.\\nVotre détox numérique est en cours.",
   "phoneLockStayStrong": "Tiens bon !",
   "phoneLockDisableTitle": "Désactiver le verrouillage ?",
   "phoneLockDisableMessage": "Si vous désactivez le verrouillage trop tôt, vos progrès de détox n'augmenteront pas. Êtes-vous sûr(e) ?",
   "phoneLockStayLockedCta": "Rester verrouillé",
   "phoneLockDisableCta": "Désactiver",
   "phoneLockDisableButton": "Désactiver le verrouillage",
+
   "waterIntakeTitle": "Hydratation :",
   "waterGlassesUnit": "verres",
-  "commonReset": "Réinitialiser"
 
-
-
-
-
-
-
+  "commonReset": "Réinitialiser",
+  "commonCancel": "Annuler",
+  "commonDelete": "Supprimer",
+  "commonClose": "Fermer"
 }

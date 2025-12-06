@@ -695,73 +695,160 @@ class AppLocalizationsFr extends AppLocalizations {
   String get sportArticleStartActivityCta => 'Commencer une activité';
 
   @override
-  String get detoxCardTitle => 'Détox numérique :';
+  String get journalSelectDay => 'Sélectionnez un jour pour voir les journaux';
 
   @override
-  String get detoxCardPhoneLocked => 'Téléphone verrouillé';
+  String get journalNoEntries => 'Aucun journal pour ce jour';
 
   @override
-  String get detoxCardDisableLock => 'Désactiver le verrouillage';
+  String get journalDeleteTitle => 'Supprimer le journal';
 
   @override
-  String get detoxCardComplete => 'terminé';
+  String get journalDeleteMessage => 'Voulez-vous vraiment supprimer cette entrée de journal ?';
 
   @override
-  String get detoxCardReset => 'Réinitialiser';
+  String get journalDeleteSuccess => 'Journal supprimé avec succès';
 
   @override
-  String get detoxCardLock30m => 'Verrouiller 30 min';
+  String get journalDeletedSuccessfully => 'Journal supprimé avec succès';
 
   @override
-  String get exploreSectionTitle => 'Explorer';
+  String get journalUpdatedSuccessfully => 'Journal mis à jour avec succès';
 
   @override
-  String get explorePlantTitle => 'L\'effet apaisant des plantes';
+  String get journalCannotCreateFuture => 'Impossible de créer un journal pour des dates futures';
 
   @override
-  String get exploreReadNow => 'Lire maintenant';
+  String get journalWriteTitle => 'Écrire un journal';
 
   @override
-  String get exploreSportsTitle => 'Améliore ton\nmoral avec\nle sport';
+  String get journalSave => 'Enregistrer';
 
   @override
-  String homeHello(String name) {
-    return 'Bonjour, $name';
+  String get journalTitle => 'Titre';
+
+  @override
+  String get journalWriteMore => 'Écrivez plus ici...';
+
+  @override
+  String get journalAddTitle => 'Veuillez ajouter un titre';
+
+  @override
+  String get journalMoodTitle => 'Comment vous sentez-vous aujourd\'hui ?';
+
+  @override
+  String get journalSelectBackground => 'Sélectionner l\'arrière-plan';
+
+  @override
+  String get journalNoBackground => 'Pas d\'arrière-plan';
+
+  @override
+  String get journalSelectSticker => 'Sélectionner un autocollant';
+
+  @override
+  String get journalTextStyle => 'Style de texte';
+
+  @override
+  String get journalFontFamily => 'Police';
+
+  @override
+  String get journalTextColor => 'Couleur du texte';
+
+  @override
+  String get journalFontSize => 'Taille de police';
+
+  @override
+  String get journalApply => 'Appliquer';
+
+  @override
+  String get journalVoiceNote => 'Note vocale';
+
+  @override
+  String get journalVoiceRecording => 'Enregistrement...';
+
+  @override
+  String get journalVoiceSaved => 'Enregistrement sauvegardé';
+
+  @override
+  String get journalVoiceTapToStart => 'Appuyez pour commencer l\'enregistrement';
+
+  @override
+  String get journalVoiceAddNote => 'Ajouter une note vocale';
+
+  @override
+  String get journalVoicePermissionDenied => 'Permission du microphone refusée';
+
+  @override
+  String journalVoiceStartFailed(String error) {
+    return 'Échec du démarrage de l\'enregistrement : $error';
   }
 
   @override
-  String get homeViewAllHabits => 'voir tout';
+  String journalVoiceStopFailed(String error) {
+    return 'Échec de l\'arrêt de l\'enregistrement : $error';
+  }
 
   @override
-  String get phoneLockTitle => 'Téléphone verrouillé';
+  String journalVoicePlayFailed(String error) {
+    return 'Échec de la lecture de l\'enregistrement : $error';
+  }
 
   @override
-  String get phoneLockSubtitle => 'Faites une pause loin de l\'écran.\nVotre détox numérique est en cours.';
+  String get journalToolbarBackground => 'Arrière-plan';
 
   @override
-  String get phoneLockStayStrong => 'Tiens bon !';
+  String get journalToolbarAddImage => 'Ajouter une image';
 
   @override
-  String get phoneLockDisableTitle => 'Désactiver le verrouillage ?';
+  String get journalToolbarStickers => 'Autocollants';
 
   @override
-  String get phoneLockDisableMessage => 'Si vous désactivez le verrouillage trop tôt, vos progrès de détox n\'augmenteront pas. Êtes-vous sûr(e) ?';
+  String get journalToolbarTextStyle => 'Style de texte';
 
   @override
-  String get phoneLockStayLockedCta => 'Rester verrouillé';
+  String get journalToolbarVoiceNote => 'Note vocale';
 
   @override
-  String get phoneLockDisableCta => 'Désactiver';
+  String journalErrorPickingImage(String error) {
+    return 'Erreur lors de la sélection de l\'image : $error';
+  }
 
   @override
-  String get phoneLockDisableButton => 'Désactiver le verrouillage';
+  String get journalMoodHappy => 'Heureux';
 
   @override
-  String get waterIntakeTitle => 'Hydratation :';
+  String get journalMoodGood => 'Bien';
 
   @override
-  String get waterGlassesUnit => 'verres';
+  String get journalMoodExcited => 'Excité';
 
   @override
-  String get commonReset => 'Réinitialiser';
+  String get journalMoodCalm => 'Calme';
+
+  @override
+  String get journalMoodSad => 'Triste';
+
+  @override
+  String get journalMoodTired => 'Fatigué';
+
+  @override
+  String get journalMoodAnxious => 'Anxieux';
+
+  @override
+  String get journalMoodAngry => 'En colère';
+
+  @override
+  String get journalMoodConfused => 'Confus';
+
+  @override
+  String get journalMoodGrateful => 'Reconnaissant';
+
+  @override
+  String get commonCancel => 'Annuler';
+
+  @override
+  String get commonDelete => 'Supprimer';
+
+  @override
+  String get commonClose => 'Fermer';
 }

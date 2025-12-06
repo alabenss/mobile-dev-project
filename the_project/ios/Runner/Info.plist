@@ -41,9 +41,19 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<false/>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	
+	<!-- ADD THESE FOR VOICE RECORDING -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>We need access to your microphone to record voice notes for your journal</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to attach images to your journal</string>
+	<key>NSCameraUsageDescription</key>
+	<string>We need access to your camera to take photos for your journal</string>
 </dict>
 </plist>

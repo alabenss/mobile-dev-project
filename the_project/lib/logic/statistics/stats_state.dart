@@ -30,6 +30,7 @@ class StatsLoaded extends StatsState {
   final List<double> waterData;
   final List<double> moodData;
   final int journalingCount;
+  final List<int> journalCounts; // NEW: counts per day/period
   final Map<String, double> screenTime;
   final List<String> labels;
 
@@ -38,6 +39,7 @@ class StatsLoaded extends StatsState {
     required this.waterData,
     required this.moodData,
     required this.journalingCount,
+    required this.journalCounts,
     required this.screenTime,
     required this.labels,
   }) : super(range);
@@ -47,7 +49,8 @@ class StatsLoaded extends StatsState {
     range, 
     waterData, 
     moodData, 
-    journalingCount, 
+    journalingCount,
+    journalCounts,
     screenTime, 
     labels
   ];

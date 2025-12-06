@@ -293,6 +293,7 @@ class _StatsScreenState extends State<StatsScreen> {
             padding: const EdgeInsets.all(14),
             child: JournalingStatsWidget(
               journalingCount: state.journalingCount,
+              dailyJournalCounts: state.journalCounts,
               selectedRange: state.range,
               labels: state.labels,
               animationDuration: animDur,
@@ -305,6 +306,7 @@ class _StatsScreenState extends State<StatsScreen> {
             padding: const EdgeInsets.all(14),
             child: ScreenTimeWidget(
               screenTime: state.screenTime,
+              selectedRange: state.range,
               animationDuration: animDur,
               animationCurve: animCurve,
             ),

@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'home_state.dart';
 import '../../database/repo/home_repo.dart';
 import '../../database/repo/habit_repo.dart';
-import '../../models/habit_model.dart';
 
 class HomeCubit extends Cubit<HomeState> {
   final AbstractHomeRepo _repo;

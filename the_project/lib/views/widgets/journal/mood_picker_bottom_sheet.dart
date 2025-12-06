@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_project/l10n/app_localizations.dart';
 import '../../themes/style_simple/colors.dart';
 
 class MoodPickerBottomSheet extends StatelessWidget {
@@ -11,21 +12,24 @@ class MoodPickerBottomSheet extends StatelessWidget {
     required this.onMoodSelected,
   });
 
-  static const List<Map<String, String>> _moods = [
-    {'image': 'assets/images/happy.png', 'label': 'Happy'},
-    {'image': 'assets/images/good.png', 'label': 'Good'},
-    {'image': 'assets/images/excited.png', 'label': 'Excited'},
-    {'image': 'assets/images/calm.png', 'label': 'Calm'},
-    {'image': 'assets/images/sad.png', 'label': 'Sad'},
-    {'image': 'assets/images/tired.png', 'label': 'Tired'},
-    {'image': 'assets/images/anxious.png', 'label': 'Anxious'},
-    {'image': 'assets/images/angry.png', 'label': 'Angry'},
-    {'image': 'assets/images/confused.png', 'label': 'Confused'},
-    {'image': 'assets/images/grateful.png', 'label': 'Grateful'},
+  List<Map<String, String>> _getMoods(AppLocalizations l10n) => [
+    {'image': 'assets/images/happy.png', 'label': l10n.journalMoodHappy},
+    {'image': 'assets/images/good.png', 'label': l10n.journalMoodGood},
+    {'image': 'assets/images/excited.png', 'label': l10n.journalMoodExcited},
+    {'image': 'assets/images/calm.png', 'label': l10n.journalMoodCalm},
+    {'image': 'assets/images/sad.png', 'label': l10n.journalMoodSad},
+    {'image': 'assets/images/tired.png', 'label': l10n.journalMoodTired},
+    {'image': 'assets/images/anxious.png', 'label': l10n.journalMoodAnxious},
+    {'image': 'assets/images/angry.png', 'label': l10n.journalMoodAngry},
+    {'image': 'assets/images/confused.png', 'label': l10n.journalMoodConfused},
+    {'image': 'assets/images/grateful.png', 'label': l10n.journalMoodGrateful},
   ];
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final moods = _getMoods(l10n);
+    
     return Container(
       height: 320,
       decoration: const BoxDecoration(
@@ -34,15 +38,14 @@ class MoodPickerBottomSheet extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Header
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'How do you feel?',
-                  style: TextStyle(
+                Text(
+                  l10n.journalMoodTitle,
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -57,69 +60,78 @@ class MoodPickerBottomSheet extends StatelessWidget {
 
           const Divider(height: 1),
 
-          // Mood Grid
           Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.all(16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 5,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-                childAspectRatio: 0.85,
-              ),
-              itemCount: _moods.length,
-              itemBuilder: (context, index) {
-                final mood = _moods[index];
-                final isSelected = currentMood == mood['image'];
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 100,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: moods.length,
+                        itemBuilder: (context, index) {
+                          final mood = moods[index];
+                          final isSelected = currentMood == mood['image'];
 
-                return GestureDetector(
-                  onTap: () {
-                    onMoodSelected(mood['image']!, mood['label']!);
-                    Navigator.pop(context);
-                  },
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? AppColors.accentBlue.withOpacity(0.2)
-                              : Colors.transparent,
-                          shape: BoxShape.circle,
-                          border: isSelected
-                              ? Border.all(
-                                  color: AppColors.accentBlue,
-                                  width: 2,
-                                )
-                              : null,
-                        ),
-                        child: Image.asset(
-                          mood['image']!,
-                          width: 40,
-                          height: 40,
-                          fit: BoxFit.contain,
-                        ),
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 16.0),
+                            child: GestureDetector(
+                              onTap: () {
+                                onMoodSelected(mood['image']!, mood['label']!);
+                                Navigator.pop(context);
+                              },
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? AppColors.accentBlue.withOpacity(0.2)
+                                          : Colors.transparent,
+                                      shape: BoxShape.circle,
+                                      border: isSelected
+                                          ? Border.all(
+                                              color: AppColors.accentBlue,
+                                              width: 2,
+                                            )
+                                          : null,
+                                    ),
+                                    child: Image.asset(
+                                      mood['image']!,
+                                      width: 50,
+                                      height: 50,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    mood['label']!,
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: isSelected
+                                          ? AppColors.accentBlue
+                                          : AppColors.textSecondary,
+                                      fontWeight: isSelected 
+                                          ? FontWeight.bold 
+                                          : FontWeight.normal,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        mood['label']!,
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: isSelected
-                              ? AppColors.accentBlue
-                              : AppColors.textSecondary,
-                          fontWeight:
-                              isSelected ? FontWeight.bold : FontWeight.normal,
-                        ),
-                        textAlign: TextAlign.center,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
+                    ),
                   ),
-                );
-              },
+                  
+                  const SizedBox(height: 10),
+                ],
+              ),
             ),
           ),
         ],

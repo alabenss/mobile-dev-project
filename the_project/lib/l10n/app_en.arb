@@ -9,6 +9,7 @@
   "moodTracking": "Mood tracking",
   "journaling": "Journaling",
   "screenTime": "Screen time",
+
   "glassesToday": "{count} glasses today",
   "@glassesToday": {
     "placeholders": {
@@ -17,6 +18,7 @@
       }
     }
   },
+
   "avgPerDay": "Avg. {count} glasses / day",
   "@avgPerDay": {
     "placeholders": {
@@ -25,20 +27,24 @@
       }
     }
   },
+
   "monthlyAvg": "Monthly average {count} glasses",
   "@monthlyAvg": {
     "placeholders": {
       "count": {}
     }
   },
+
   "yearlyAvg": "Yearly average {count} glasses",
   "@yearlyAvg": {
     "placeholders": {
       "count": {}
     }
   },
+
   "youWroteToday": "You wrote today",
   "noEntryToday": "No entry today",
+
   "daysLogged": "{count} days logged",
   "@daysLogged": {
     "placeholders": {
@@ -47,6 +53,7 @@
       }
     }
   },
+
   "entriesThisMonth": "{count} entries this month",
   "@entriesThisMonth": {
     "placeholders": {
@@ -55,6 +62,7 @@
       }
     }
   },
+
   "totalEntries": "{count} entries total",
   "@totalEntries": {
     "placeholders": {
@@ -63,6 +71,7 @@
       }
     }
   },
+
   "noData": "No data",
   "noMoodData": "No mood data available",
   "noWaterData": "No water data available",
@@ -75,9 +84,11 @@
   "moodNice": "Nice mood",
   "moodOkay": "Okay",
   "moodFeelingLow": "Feeling low",
+
   "statsNoData": "No data",
   "statsNoMoodData": "No mood data available",
-"appLockTitle": "App Lock",
+
+  "appLockTitle": "App Lock",
   "appLockChooseType": "Choose Lock Type:",
   "appLockPin": "PIN",
   "appLockPinSubtitle": "Secure with numeric PIN",
@@ -110,36 +121,40 @@
   "appLockForgotLock": "Forgot {type}?",
   "appLockVerifyIdentity": "Verify your identity to reset the lock",
   "appLockCurrentType": "Current lock: {type}",
-"@appLockCurrentType": {
-  "placeholders": {
-    "type": {}
-  }
-},
-"appLockChangeOrRemove": "You can change or remove your current lock.",
+  "@appLockCurrentType": {
+    "placeholders": {
+      "type": {}
+    }
+  },
+  "appLockChangeOrRemove": "You can change or remove your current lock.",
 
-"appLockEnabled": "App Lock Enabled",
-"appLockChangeLock": "Change Lock",
-"appLockRemove": "Remove",
-"appLockCurrentSettings": "Current Settings",
-"appLockRemoveConfirm": "Remove App Lock?",
-"appLockRemoveMessage": "Are you sure you want to remove the app lock?",
-"appLockCancel": "Cancel",
+  "appLockEnabled": "App Lock Enabled",
+  "appLockChangeLock": "Change Lock",
+  "appLockRemove": "Remove",
+  "appLockCurrentSettings": "Current Settings",
+  "appLockRemoveConfirm": "Remove App Lock?",
+  "appLockRemoveMessage": "Are you sure you want to remove the app lock?",
+  "appLockCancel": "Cancel",
 
   "statsRefreshingData": "Refreshing data...",
   "statsLoading": "Loading statistics...",
   "statsErrorTitle": "Oops! Something went wrong",
   "commonTryAgain": "Try Again",
+
   "statsEmptyTitle": "No Data Yet",
   "statsEmptySubtitle": "Start using the app to see your statistics here",
   "statsEmptyTrackMood": "Track your mood daily",
   "statsEmptyLogWater": "Log your water intake",
   "statsEmptyWriteJournal": "Write journal entries",
+
   "calm": "Calm",
   "balanced": "Balanced",
   "low": "Low",
+
   "social": "Social",
   "entertainment": "Entertainment",
   "productivity": "Productivity",
+
   "hoursPerDay": "{count} h/day",
   "@hoursPerDay": {
     "placeholders": {
@@ -160,6 +175,7 @@
   "setReminder": "Set Reminder",
   "cancel": "Cancel",
   "add": "Add",
+
   "habitAlreadyExists": "This habit already exists with {frequency} frequency!",
   "@habitAlreadyExists": {
     "placeholders": {
@@ -168,8 +184,9 @@
       }
     }
   },
+
   "pointsMustBeGreaterThanZero": "Points must be greater than 0!",
-  
+
   "habitDrinkWater": "Drink Water",
   "habitExercise": "Exercise",
   "habitMeditate": "Meditate",
@@ -178,12 +195,12 @@
   "habitStudy": "Study",
   "habitWalk": "Walk",
   "habitOther": "Other",
-  
-  "noHabitsYet": "No habits yet!\nTap + to add your first habit",
+
+  "noHabitsYet": "No habits yet!\\nTap + to add your first habit",
   "todaysHabits": "Today's Habits",
   "completed": "Completed",
   "skipped": "Skipped",
-  
+
   "skipHabit": "Skip Habit?",
   "skipHabitConfirmation": "Are you sure you want to skip \"{habit}\"?",
   "@skipHabitConfirmation": {
@@ -194,7 +211,7 @@
     }
   },
   "skip": "Skip",
-  
+
   "deleteHabit": "Delete Habit?",
   "deleteHabitConfirmation": "Are you sure you want to permanently delete \"{habit}\"?",
   "@deleteHabitConfirmation": {
@@ -206,7 +223,7 @@
   },
   "actionCannotBeUndone": "This action cannot be undone.",
   "delete": "Delete",
-  
+
   "habitCompleted": "{habit} completed!",
   "@habitCompleted": {
     "placeholders": {
@@ -231,7 +248,7 @@
       }
     }
   },
-  
+
   "noDailyHabits": "No daily habits yet",
   "noWeeklyHabits": "No weekly habits yet",
   "noMonthlyHabits": "No monthly habits yet",
@@ -356,6 +373,7 @@
   "puzzleShuffle": "Shuffle",
   "puzzleReset": "Reset",
   "puzzleSolved": "Solved! 🎉",
+
   "plantArticleTitle": "The calming effect of plants",
   "plantArticleIntro": "Greenery does more than decorate your space — it relaxes your mind. Caring for a plant slows you down and brings your focus to the present moment.",
   "plantArticleBenefitsTitle": "Benefits at a glance",
@@ -367,6 +385,7 @@
   "plantArticleTipTitle": "Tip of the day",
   "plantArticleTipBody": "Place one small plant near where you work most. Check in with it once a day — a 30-second reset for your brain.",
   "plantArticleFooter": "Keep growing — one leaf at a time 🌿",
+
   "sportArticleTitle": "Boost your mood with sports",
   "sportArticleHeroText": "A little motion\\ncreates a lot of emotion 💪✨",
   "sportArticleIntro": "Moving your body is one of the fastest ways to lift your mood. Activity releases endorphins — your brain’s natural “feel-good” chemicals.",
@@ -379,38 +398,125 @@
   "sportArticleRememberTitle": "Remember",
   "sportArticleRememberBody": "Pick a movement that makes you smile — not just one that makes you sweat. Joy builds consistency, and consistency lifts mood.",
   "sportArticleStartActivityCta": "Start an activity",
+
+  "journalSelectDay": "Select a day to view journals",
+  "journalNoEntries": "No journals for this day",
+  "journalDeleteTitle": "Delete Journal",
+  "journalDeleteMessage": "Are you sure you want to delete this journal entry?",
+  "journalDeleteSuccess": "Journal deleted successfully",
+  "journalDeletedSuccessfully": "Journal deleted successfully",
+  "journalUpdatedSuccessfully": "Journal updated successfully",
+  "journalCannotCreateFuture": "Cannot create journal for future dates",
+
+  "journalWriteTitle": "Write Journal",
+  "journalSave": "Save",
+  "journalTitle": "Title",
+  "journalWriteMore": "Write more here...",
+  "journalAddTitle": "Please add a title",
+
+  "journalMoodTitle": "How do you feel today?",
+  "journalSelectBackground": "Select Background",
+  "journalNoBackground": "No Background",
+  "journalSelectSticker": "Select Sticker",
+  "journalTextStyle": "Text Style",
+  "journalFontFamily": "Font Family",
+  "journalTextColor": "Text Color",
+  "journalFontSize": "Font Size",
+  "journalApply": "Apply",
+
+  "journalVoiceNote": "Voice Note",
+  "journalVoiceRecording": "Recording...",
+  "journalVoiceSaved": "Recording saved",
+  "journalVoiceTapToStart": "Tap to start recording",
+  "journalVoiceAddNote": "Add Voice Note",
+  "journalVoicePermissionDenied": "Microphone permission denied",
+  "journalVoiceStartFailed": "Failed to start recording: {error}",
+  "@journalVoiceStartFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "journalVoiceStopFailed": "Failed to stop recording: {error}",
+  "@journalVoiceStopFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "journalVoicePlayFailed": "Failed to play recording: {error}",
+  "@journalVoicePlayFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "journalToolbarBackground": "Background",
+  "journalToolbarAddImage": "Add Image",
+  "journalToolbarStickers": "Stickers",
+  "journalToolbarTextStyle": "Text Style",
+  "journalToolbarVoiceNote": "Voice note",
+
+  "journalErrorPickingImage": "Error picking image: {error}",
+  "@journalErrorPickingImage": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "journalMoodHappy": "Happy",
+  "journalMoodGood": "Good",
+  "journalMoodExcited": "Excited",
+  "journalMoodCalm": "Calm",
+  "journalMoodSad": "Sad",
+  "journalMoodTired": "Tired",
+  "journalMoodAnxious": "Anxious",
+  "journalMoodAngry": "Angry",
+  "journalMoodConfused": "Confused",
+  "journalMoodGrateful": "Grateful",
+
   "detoxCardTitle": "Digital detox:",
   "detoxCardPhoneLocked": "Phone is locked",
   "detoxCardDisableLock": "Disable Lock",
   "detoxCardComplete": "complete",
   "detoxCardReset": "Reset",
   "detoxCardLock30m": "Lock 30m",
+
   "exploreSectionTitle": "Explore",
   "explorePlantTitle": "The calming effect of plants",
   "exploreReadNow": "Read Now",
-  "exploreSportsTitle": "Boost your\nmood with\nsports",
+  "exploreSportsTitle": "Boost your\\nmood with\\nsports",
+
   "homeHello": "Hello, {name}",
   "@homeHello": {
     "placeholders": {
-      "name": { "type": "String" }
+      "name": {
+        "type": "String"
+      }
     }
   },
   "homeViewAllHabits": "view all",
-  "exploreSectionTitle": "Explore",
-  "explorePlantTitle": "The calming effect of plants",
-  "exploreReadNow": "Read Now",
-  "exploreSportsTitle": "Boost your\nmood with\nsports",
+
   "phoneLockTitle": "Phone is locked",
-  "phoneLockSubtitle": "Take a break from your screen.\nYour digital detox is in progress.",
+  "phoneLockSubtitle": "Take a break from your screen.\\nYour digital detox is in progress.",
   "phoneLockStayStrong": "Stay strong!",
   "phoneLockDisableTitle": "Disable Lock?",
   "phoneLockDisableMessage": "If you disable the lock early, your detox progress will not increase. Are you sure?",
   "phoneLockStayLockedCta": "Stay Locked",
   "phoneLockDisableCta": "Disable",
   "phoneLockDisableButton": "Disable Lock",
+
   "waterIntakeTitle": "Water intake:",
   "waterGlassesUnit": "glasses",
-  "commonReset": "Reset"
-  
 
+  "commonReset": "Reset",
+  "commonCancel": "Cancel",
+  "commonDelete": "Delete",
+  "commonClose": "Close"
 }

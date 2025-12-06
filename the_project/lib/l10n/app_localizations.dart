@@ -1345,143 +1345,305 @@ abstract class AppLocalizations {
   /// **'Start an activity'**
   String get sportArticleStartActivityCta;
 
-  /// No description provided for @detoxCardTitle.
+  /// No description provided for @journalSelectDay.
   ///
   /// In en, this message translates to:
-  /// **'Digital detox:'**
-  String get detoxCardTitle;
+  /// **'Select a day to view journals'**
+  String get journalSelectDay;
 
-  /// No description provided for @detoxCardPhoneLocked.
+  /// No description provided for @journalNoEntries.
   ///
   /// In en, this message translates to:
-  /// **'Phone is locked'**
-  String get detoxCardPhoneLocked;
+  /// **'No journals for this day'**
+  String get journalNoEntries;
 
-  /// No description provided for @detoxCardDisableLock.
+  /// No description provided for @journalDeleteTitle.
   ///
   /// In en, this message translates to:
-  /// **'Disable Lock'**
-  String get detoxCardDisableLock;
+  /// **'Delete Journal'**
+  String get journalDeleteTitle;
 
-  /// No description provided for @detoxCardComplete.
+  /// No description provided for @journalDeleteMessage.
   ///
   /// In en, this message translates to:
-  /// **'complete'**
-  String get detoxCardComplete;
+  /// **'Are you sure you want to delete this journal entry?'**
+  String get journalDeleteMessage;
 
-  /// No description provided for @detoxCardReset.
+  /// No description provided for @journalDeleteSuccess.
   ///
   /// In en, this message translates to:
-  /// **'Reset'**
-  String get detoxCardReset;
+  /// **'Journal deleted successfully'**
+  String get journalDeleteSuccess;
 
-  /// No description provided for @detoxCardLock30m.
+  /// No description provided for @journalDeletedSuccessfully.
   ///
   /// In en, this message translates to:
-  /// **'Lock 30m'**
-  String get detoxCardLock30m;
+  /// **'Journal deleted successfully'**
+  String get journalDeletedSuccessfully;
 
-  /// No description provided for @exploreSectionTitle.
+  /// No description provided for @journalUpdatedSuccessfully.
   ///
   /// In en, this message translates to:
-  /// **'Explore'**
-  String get exploreSectionTitle;
+  /// **'Journal updated successfully'**
+  String get journalUpdatedSuccessfully;
 
-  /// No description provided for @explorePlantTitle.
+  /// No description provided for @journalCannotCreateFuture.
   ///
   /// In en, this message translates to:
-  /// **'The calming effect of plants'**
-  String get explorePlantTitle;
+  /// **'Cannot create journal for future dates'**
+  String get journalCannotCreateFuture;
 
-  /// No description provided for @exploreReadNow.
+  /// No description provided for @journalWriteTitle.
   ///
   /// In en, this message translates to:
-  /// **'Read Now'**
-  String get exploreReadNow;
+  /// **'Write Journal'**
+  String get journalWriteTitle;
 
-  /// No description provided for @exploreSportsTitle.
+  /// No description provided for @journalSave.
   ///
   /// In en, this message translates to:
-  /// **'Boost your\nmood with\nsports'**
-  String get exploreSportsTitle;
+  /// **'Save'**
+  String get journalSave;
 
-  /// No description provided for @homeHello.
+  /// No description provided for @journalTitle.
   ///
   /// In en, this message translates to:
-  /// **'Hello, {name}'**
-  String homeHello(String name);
+  /// **'Title'**
+  String get journalTitle;
 
-  /// No description provided for @homeViewAllHabits.
+  /// No description provided for @journalWriteMore.
   ///
   /// In en, this message translates to:
-  /// **'view all'**
-  String get homeViewAllHabits;
+  /// **'Write more here...'**
+  String get journalWriteMore;
 
-  /// No description provided for @phoneLockTitle.
+  /// No description provided for @journalAddTitle.
   ///
   /// In en, this message translates to:
-  /// **'Phone is locked'**
-  String get phoneLockTitle;
+  /// **'Please add a title'**
+  String get journalAddTitle;
 
-  /// No description provided for @phoneLockSubtitle.
+  /// No description provided for @journalMoodTitle.
   ///
   /// In en, this message translates to:
-  /// **'Take a break from your screen.\nYour digital detox is in progress.'**
-  String get phoneLockSubtitle;
+  /// **'How do you feel today?'**
+  String get journalMoodTitle;
 
-  /// No description provided for @phoneLockStayStrong.
+  /// No description provided for @journalSelectBackground.
   ///
   /// In en, this message translates to:
-  /// **'Stay strong!'**
-  String get phoneLockStayStrong;
+  /// **'Select Background'**
+  String get journalSelectBackground;
 
-  /// No description provided for @phoneLockDisableTitle.
+  /// No description provided for @journalNoBackground.
   ///
   /// In en, this message translates to:
-  /// **'Disable Lock?'**
-  String get phoneLockDisableTitle;
+  /// **'No Background'**
+  String get journalNoBackground;
 
-  /// No description provided for @phoneLockDisableMessage.
+  /// No description provided for @journalSelectSticker.
   ///
   /// In en, this message translates to:
-  /// **'If you disable the lock early, your detox progress will not increase. Are you sure?'**
-  String get phoneLockDisableMessage;
+  /// **'Select Sticker'**
+  String get journalSelectSticker;
 
-  /// No description provided for @phoneLockStayLockedCta.
+  /// No description provided for @journalTextStyle.
   ///
   /// In en, this message translates to:
-  /// **'Stay Locked'**
-  String get phoneLockStayLockedCta;
+  /// **'Text Style'**
+  String get journalTextStyle;
 
-  /// No description provided for @phoneLockDisableCta.
+  /// No description provided for @journalFontFamily.
   ///
   /// In en, this message translates to:
-  /// **'Disable'**
-  String get phoneLockDisableCta;
+  /// **'Font Family'**
+  String get journalFontFamily;
 
-  /// No description provided for @phoneLockDisableButton.
+  /// No description provided for @journalTextColor.
   ///
   /// In en, this message translates to:
-  /// **'Disable Lock'**
-  String get phoneLockDisableButton;
+  /// **'Text Color'**
+  String get journalTextColor;
 
-  /// No description provided for @waterIntakeTitle.
+  /// No description provided for @journalFontSize.
   ///
   /// In en, this message translates to:
-  /// **'Water intake:'**
-  String get waterIntakeTitle;
+  /// **'Font Size'**
+  String get journalFontSize;
 
-  /// No description provided for @waterGlassesUnit.
+  /// No description provided for @journalApply.
   ///
   /// In en, this message translates to:
-  /// **'glasses'**
-  String get waterGlassesUnit;
+  /// **'Apply'**
+  String get journalApply;
 
-  /// No description provided for @commonReset.
+  /// No description provided for @journalVoiceNote.
   ///
   /// In en, this message translates to:
-  /// **'Reset'**
-  String get commonReset;
+  /// **'Voice Note'**
+  String get journalVoiceNote;
+
+  /// No description provided for @journalVoiceRecording.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording...'**
+  String get journalVoiceRecording;
+
+  /// No description provided for @journalVoiceSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording saved'**
+  String get journalVoiceSaved;
+
+  /// No description provided for @journalVoiceTapToStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to start recording'**
+  String get journalVoiceTapToStart;
+
+  /// No description provided for @journalVoiceAddNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Voice Note'**
+  String get journalVoiceAddNote;
+
+  /// No description provided for @journalVoicePermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Microphone permission denied'**
+  String get journalVoicePermissionDenied;
+
+  /// No description provided for @journalVoiceStartFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to start recording: {error}'**
+  String journalVoiceStartFailed(String error);
+
+  /// No description provided for @journalVoiceStopFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to stop recording: {error}'**
+  String journalVoiceStopFailed(String error);
+
+  /// No description provided for @journalVoicePlayFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to play recording: {error}'**
+  String journalVoicePlayFailed(String error);
+
+  /// No description provided for @journalToolbarBackground.
+  ///
+  /// In en, this message translates to:
+  /// **'Background'**
+  String get journalToolbarBackground;
+
+  /// No description provided for @journalToolbarAddImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Image'**
+  String get journalToolbarAddImage;
+
+  /// No description provided for @journalToolbarStickers.
+  ///
+  /// In en, this message translates to:
+  /// **'Stickers'**
+  String get journalToolbarStickers;
+
+  /// No description provided for @journalToolbarTextStyle.
+  ///
+  /// In en, this message translates to:
+  /// **'Text Style'**
+  String get journalToolbarTextStyle;
+
+  /// No description provided for @journalToolbarVoiceNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Voice note'**
+  String get journalToolbarVoiceNote;
+
+  /// No description provided for @journalErrorPickingImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Error picking image: {error}'**
+  String journalErrorPickingImage(String error);
+
+  /// No description provided for @journalMoodHappy.
+  ///
+  /// In en, this message translates to:
+  /// **'Happy'**
+  String get journalMoodHappy;
+
+  /// No description provided for @journalMoodGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Good'**
+  String get journalMoodGood;
+
+  /// No description provided for @journalMoodExcited.
+  ///
+  /// In en, this message translates to:
+  /// **'Excited'**
+  String get journalMoodExcited;
+
+  /// No description provided for @journalMoodCalm.
+  ///
+  /// In en, this message translates to:
+  /// **'Calm'**
+  String get journalMoodCalm;
+
+  /// No description provided for @journalMoodSad.
+  ///
+  /// In en, this message translates to:
+  /// **'Sad'**
+  String get journalMoodSad;
+
+  /// No description provided for @journalMoodTired.
+  ///
+  /// In en, this message translates to:
+  /// **'Tired'**
+  String get journalMoodTired;
+
+  /// No description provided for @journalMoodAnxious.
+  ///
+  /// In en, this message translates to:
+  /// **'Anxious'**
+  String get journalMoodAnxious;
+
+  /// No description provided for @journalMoodAngry.
+  ///
+  /// In en, this message translates to:
+  /// **'Angry'**
+  String get journalMoodAngry;
+
+  /// No description provided for @journalMoodConfused.
+  ///
+  /// In en, this message translates to:
+  /// **'Confused'**
+  String get journalMoodConfused;
+
+  /// No description provided for @journalMoodGrateful.
+  ///
+  /// In en, this message translates to:
+  /// **'Grateful'**
+  String get journalMoodGrateful;
+
+  /// No description provided for @commonCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get commonCancel;
+
+  /// No description provided for @commonDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get commonDelete;
+
+  /// No description provided for @commonClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get commonClose;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

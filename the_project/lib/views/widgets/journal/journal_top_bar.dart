@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:the_project/l10n/app_localizations.dart';
 import '../../themes/style_simple/colors.dart';
 
 class JournalTopBar extends StatelessWidget {
   final VoidCallback onBack;
   final VoidCallback onSave;
   final String selectedMood;
-  final VoidCallback onMoodTap; // NEW: Callback when mood emoji is tapped
+  final VoidCallback onMoodTap;
 
   const JournalTopBar({
     super.key,
     required this.onBack,
     required this.onSave,
     required this.selectedMood,
-    required this.onMoodTap, // NEW: Required parameter
+    required this.onMoodTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Container(
       color: AppColors.card.withOpacity(0.0),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
@@ -35,14 +38,13 @@ class JournalTopBar extends StatelessWidget {
                 color: AppColors.icon,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const Text(
-                'Save',
-                style: TextStyle(color: AppColors.card),
+              child: Text(
+                l10n.journalSave,
+                style: const TextStyle(color: AppColors.card),
               ),
             ),
           ),
           const SizedBox(width: 10),
-          // NEW: Made the mood emoji tappable
           GestureDetector(
             onTap: onMoodTap,
             child: Container(

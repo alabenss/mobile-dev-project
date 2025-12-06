@@ -695,73 +695,160 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sportArticleStartActivityCta => 'Start an activity';
 
   @override
-  String get detoxCardTitle => 'Digital detox:';
+  String get journalSelectDay => 'Select a day to view journals';
 
   @override
-  String get detoxCardPhoneLocked => 'Phone is locked';
+  String get journalNoEntries => 'No journals for this day';
 
   @override
-  String get detoxCardDisableLock => 'Disable Lock';
+  String get journalDeleteTitle => 'Delete Journal';
 
   @override
-  String get detoxCardComplete => 'complete';
+  String get journalDeleteMessage => 'Are you sure you want to delete this journal entry?';
 
   @override
-  String get detoxCardReset => 'Reset';
+  String get journalDeleteSuccess => 'Journal deleted successfully';
 
   @override
-  String get detoxCardLock30m => 'Lock 30m';
+  String get journalDeletedSuccessfully => 'Journal deleted successfully';
 
   @override
-  String get exploreSectionTitle => 'Explore';
+  String get journalUpdatedSuccessfully => 'Journal updated successfully';
 
   @override
-  String get explorePlantTitle => 'The calming effect of plants';
+  String get journalCannotCreateFuture => 'Cannot create journal for future dates';
 
   @override
-  String get exploreReadNow => 'Read Now';
+  String get journalWriteTitle => 'Write Journal';
 
   @override
-  String get exploreSportsTitle => 'Boost your\nmood with\nsports';
+  String get journalSave => 'Save';
 
   @override
-  String homeHello(String name) {
-    return 'Hello, $name';
+  String get journalTitle => 'Title';
+
+  @override
+  String get journalWriteMore => 'Write more here...';
+
+  @override
+  String get journalAddTitle => 'Please add a title';
+
+  @override
+  String get journalMoodTitle => 'How do you feel today?';
+
+  @override
+  String get journalSelectBackground => 'Select Background';
+
+  @override
+  String get journalNoBackground => 'No Background';
+
+  @override
+  String get journalSelectSticker => 'Select Sticker';
+
+  @override
+  String get journalTextStyle => 'Text Style';
+
+  @override
+  String get journalFontFamily => 'Font Family';
+
+  @override
+  String get journalTextColor => 'Text Color';
+
+  @override
+  String get journalFontSize => 'Font Size';
+
+  @override
+  String get journalApply => 'Apply';
+
+  @override
+  String get journalVoiceNote => 'Voice Note';
+
+  @override
+  String get journalVoiceRecording => 'Recording...';
+
+  @override
+  String get journalVoiceSaved => 'Recording saved';
+
+  @override
+  String get journalVoiceTapToStart => 'Tap to start recording';
+
+  @override
+  String get journalVoiceAddNote => 'Add Voice Note';
+
+  @override
+  String get journalVoicePermissionDenied => 'Microphone permission denied';
+
+  @override
+  String journalVoiceStartFailed(String error) {
+    return 'Failed to start recording: $error';
   }
 
   @override
-  String get homeViewAllHabits => 'view all';
+  String journalVoiceStopFailed(String error) {
+    return 'Failed to stop recording: $error';
+  }
 
   @override
-  String get phoneLockTitle => 'Phone is locked';
+  String journalVoicePlayFailed(String error) {
+    return 'Failed to play recording: $error';
+  }
 
   @override
-  String get phoneLockSubtitle => 'Take a break from your screen.\nYour digital detox is in progress.';
+  String get journalToolbarBackground => 'Background';
 
   @override
-  String get phoneLockStayStrong => 'Stay strong!';
+  String get journalToolbarAddImage => 'Add Image';
 
   @override
-  String get phoneLockDisableTitle => 'Disable Lock?';
+  String get journalToolbarStickers => 'Stickers';
 
   @override
-  String get phoneLockDisableMessage => 'If you disable the lock early, your detox progress will not increase. Are you sure?';
+  String get journalToolbarTextStyle => 'Text Style';
 
   @override
-  String get phoneLockStayLockedCta => 'Stay Locked';
+  String get journalToolbarVoiceNote => 'Voice note';
 
   @override
-  String get phoneLockDisableCta => 'Disable';
+  String journalErrorPickingImage(String error) {
+    return 'Error picking image: $error';
+  }
 
   @override
-  String get phoneLockDisableButton => 'Disable Lock';
+  String get journalMoodHappy => 'Happy';
 
   @override
-  String get waterIntakeTitle => 'Water intake:';
+  String get journalMoodGood => 'Good';
 
   @override
-  String get waterGlassesUnit => 'glasses';
+  String get journalMoodExcited => 'Excited';
 
   @override
-  String get commonReset => 'Reset';
+  String get journalMoodCalm => 'Calm';
+
+  @override
+  String get journalMoodSad => 'Sad';
+
+  @override
+  String get journalMoodTired => 'Tired';
+
+  @override
+  String get journalMoodAnxious => 'Anxious';
+
+  @override
+  String get journalMoodAngry => 'Angry';
+
+  @override
+  String get journalMoodConfused => 'Confused';
+
+  @override
+  String get journalMoodGrateful => 'Grateful';
+
+  @override
+  String get commonCancel => 'Cancel';
+
+  @override
+  String get commonDelete => 'Delete';
+
+  @override
+  String get commonClose => 'Close';
 }

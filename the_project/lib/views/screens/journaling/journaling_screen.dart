@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:the_project/l10n/app_localizations.dart';
 import 'package:the_project/views/themes/style_simple/colors.dart';
 import '../../themes/style_simple/app_background.dart';
 import '../../widgets/journal/journal_entry_model.dart';
@@ -22,15 +23,47 @@ class _JournalingScreenState extends State<JournalingScreen> {
   @override
   void initState() {
     super.initState();
-    // Load journals when screen opens
-    context.read<JournalCubit>().loadJournalsByMonth(
-      DateTime.now().month,
-      DateTime.now().year,
-    );
+    final now = DateTime.now();
+    final cubit = context.read<JournalCubit>();
+    
+    cubit.loadJournalsByMonth(now.month, now.year).then((_) {
+      final todayLabel = _formatDate(now);
+      cubit.filterByDateLabel(todayLabel);
+    });
   }
+
+  String _formatDate(DateTime d) =>
+      '${_weekdayName(d.weekday)}, ${_monthName(d.month)} ${d.day}';
+
+  String _weekdayName(int w) => [
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+        'Sunday'
+      ][w - 1];
+
+  String _monthName(int m) => [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec'
+      ][m - 1];
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    
     return Scaffold(
       backgroundColor: Colors.transparent,
       floatingActionButton: FloatingActionButton(
@@ -42,7 +75,6 @@ class _JournalingScreenState extends State<JournalingScreen> {
       body: AppBackground(
         child: BlocConsumer<JournalCubit, JournalState>(
           listener: (context, state) {
-            // Show error if any
             if (state.error != null) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -59,7 +91,6 @@ class _JournalingScreenState extends State<JournalingScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // MoodCard now manages its own state
                   const MoodCard(),
                   const SizedBox(height: 20),
                   
@@ -89,7 +120,7 @@ class _JournalingScreenState extends State<JournalingScreen> {
                   const SizedBox(height: 20),
                   
                   Expanded(
-                    child: _buildJournalList(state),
+                    child: _buildJournalList(state, l10n),
                   ),
                 ],
               ),
@@ -100,7 +131,7 @@ class _JournalingScreenState extends State<JournalingScreen> {
     );
   }
 
-  Widget _buildJournalList(JournalState state) {
+  Widget _buildJournalList(JournalState state, AppLocalizations l10n) {
     if (state.status == JournalStatus.loading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -108,7 +139,7 @@ class _JournalingScreenState extends State<JournalingScreen> {
     if (state.selectedDateLabel == null) {
       return Center(
         child: Text(
-          'Select a day to view journals',
+          l10n.journalSelectDay,
           style: TextStyle(
             color: AppColors.textSecondary,
             fontSize: 16,
@@ -120,7 +151,7 @@ class _JournalingScreenState extends State<JournalingScreen> {
     if (state.filteredJournals.isEmpty) {
       return Center(
         child: Text(
-          'No journals for this day',
+          l10n.journalNoEntries,
           style: TextStyle(
             color: AppColors.textSecondary,
             fontSize: 16,
@@ -135,11 +166,68 @@ class _JournalingScreenState extends State<JournalingScreen> {
         final entry = state.filteredJournals[index];
         return Padding(
           padding: const EdgeInsets.only(bottom: 10.0),
-          child: JournalEntryTemplate(
-            title: entry.title,
-            time: _formatTime(entry.date),
-            moodImage: entry.moodImage,
-            onTap: () => _openEditPage(entry),
+          child: Dismissible(
+            key: Key(entry.id.toString()),
+            direction: DismissDirection.endToStart,
+            background: Container(
+              alignment: Alignment.centerRight,
+              padding: const EdgeInsets.only(right: 20),
+              decoration: BoxDecoration(
+                color: AppColors.error,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Icon(
+                Icons.delete,
+                color: AppColors.card,
+                size: 28,
+              ),
+            ),
+            confirmDismiss: (direction) async {
+              return await showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text(l10n.journalDeleteTitle),
+                    content: Text(l10n.journalDeleteMessage),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: Text(l10n.commonCancel),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppColors.error,
+                        ),
+                        child: Text(l10n.commonDelete),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            onDismissed: (direction) async {
+              if (entry.id != null) {
+                final success = await context
+                    .read<JournalCubit>()
+                    .deleteJournal(entry.id!);
+                
+                if (success && mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(l10n.journalDeletedSuccessfully),
+                      backgroundColor: AppColors.accentGreen,
+                    ),
+                  );
+                }
+              }
+            },
+            child: JournalEntryTemplate(
+              title: entry.title,
+              time: _formatTime(entry.date),
+              moodImage: entry.moodImage,
+              onTap: () => _openEditPage(entry),
+            ),
           ),
         );
       },
@@ -154,9 +242,9 @@ class _JournalingScreenState extends State<JournalingScreen> {
   }
 
   Future<void> _openWritePage({String? initialDateLabel}) async {
+    final l10n = AppLocalizations.of(context)!;
     final cubit = context.read<JournalCubit>();
     
-    // Verify the date is not in the future
     if (initialDateLabel != null) {
       final selectedDate = _parseDateLabel(
         initialDateLabel,
@@ -167,8 +255,8 @@ class _JournalingScreenState extends State<JournalingScreen> {
       
       if (selectedDate.isAfter(today)) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Cannot create journal for future dates'),
+          SnackBar(
+            content: Text(l10n.journalCannotCreateFuture),
             backgroundColor: AppColors.error,
           ),
         );
@@ -209,6 +297,7 @@ class _JournalingScreenState extends State<JournalingScreen> {
   }
 
   Future<void> _openEditPage(JournalEntryModel entry) async {
+    final l10n = AppLocalizations.of(context)!;
     final result = await Navigator.of(context).push<JournalEntryModel>(
       MaterialPageRoute(
         builder: (_) => WriteJournalScreen.edit(existingEntry: entry),
@@ -216,23 +305,19 @@ class _JournalingScreenState extends State<JournalingScreen> {
     );
 
     if (result != null && mounted) {
-      // Check if the entry has an ID
       if (entry.id != null) {
-        // UPDATE the existing journal
         final success = await context.read<JournalCubit>().updateJournal(entry.id!, result);
         if (success && mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Journal updated successfully'),
+            SnackBar(
+              content: Text(l10n.journalUpdatedSuccessfully),
               backgroundColor: AppColors.accentGreen,
             ),
           );
         }
       } else {
-        // Fallback: create new if somehow no ID exists
         await context.read<JournalCubit>().createJournal(result);
       }
     }
   }
 }
-
