@@ -41,7 +41,6 @@ class MoodPickerBottomSheet extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(15.0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
                   child: Text(
@@ -143,3 +142,4 @@ class MoodPickerBottomSheet extends StatelessWidget {
     );
   }
 }
+

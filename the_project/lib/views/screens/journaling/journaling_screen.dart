@@ -27,38 +27,47 @@ class _JournalingScreenState extends State<JournalingScreen> {
     final cubit = context.read<JournalCubit>();
     
     cubit.loadJournalsByMonth(now.month, now.year).then((_) {
-      final todayLabel = _formatDate(now);
-      cubit.filterByDateLabel(todayLabel);
+      cubit.filterByDate(now);
     });
   }
 
-  String _formatDate(DateTime d) =>
-      '${_weekdayName(d.weekday)}, ${_monthName(d.month)} ${d.day}';
+  String _formatDateLabel(BuildContext context, DateTime date) {
+    final l10n = AppLocalizations.of(context)!;
+    final weekday = _getLocalizedWeekday(l10n, date.weekday);
+    final month = _getLocalizedMonthShort(l10n, date.month);
+    return '$weekday, $month ${date.day}';
+  }
 
-  String _weekdayName(int w) => [
-        'Monday',
-        'Tuesday',
-        'Wednesday',
-        'Thursday',
-        'Friday',
-        'Saturday',
-        'Sunday'
-      ][w - 1];
+  String _getLocalizedWeekday(AppLocalizations l10n, int weekday) {
+    switch (weekday) {
+      case 1: return l10n.journalCalendarMonday;
+      case 2: return l10n.journalCalendarTuesday;
+      case 3: return l10n.journalCalendarWednesday;
+      case 4: return l10n.journalCalendarThursday;
+      case 5: return l10n.journalCalendarFriday;
+      case 6: return l10n.journalCalendarSaturday;
+      case 7: return l10n.journalCalendarSunday;
+      default: return '';
+    }
+  }
 
-  String _monthName(int m) => [
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'May',
-        'Jun',
-        'Jul',
-        'Aug',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dec'
-      ][m - 1];
+  String _getLocalizedMonthShort(AppLocalizations l10n, int month) {
+    switch (month) {
+      case 1: return l10n.journalMonthJan;
+      case 2: return l10n.journalMonthFeb;
+      case 3: return l10n.journalMonthMar;
+      case 4: return l10n.journalMonthApr;
+      case 5: return l10n.journalMonthMay;
+      case 6: return l10n.journalMonthJun;
+      case 7: return l10n.journalMonthJul;
+      case 8: return l10n.journalMonthAug;
+      case 9: return l10n.journalMonthSep;
+      case 10: return l10n.journalMonthOct;
+      case 11: return l10n.journalMonthNov;
+      case 12: return l10n.journalMonthDec;
+      default: return '';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,10 +119,10 @@ class _JournalingScreenState extends State<JournalingScreen> {
                   CalendarRow(
                     month: state.selectedMonth,
                     year: state.selectedYear,
-                    selectedDateLabel: state.selectedDateLabel,
+                    selectedDate: state.selectedDate,
                     entriesByDate: state.entriesByDate,
-                    onDateTap: (dateLabel) {
-                      context.read<JournalCubit>().filterByDateLabel(dateLabel);
+                    onDateTap: (date) {
+                      context.read<JournalCubit>().filterByDate(date);
                     },
                   ),
                   
@@ -136,7 +145,7 @@ class _JournalingScreenState extends State<JournalingScreen> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (state.selectedDateLabel == null) {
+    if (state.selectedDate == null) {
       return Center(
         child: Text(
           l10n.journalSelectDay,
@@ -241,19 +250,19 @@ class _JournalingScreenState extends State<JournalingScreen> {
     return '$hour:$minute $period';
   }
 
-  Future<void> _openWritePage({String? initialDateLabel}) async {
+  Future<void> _openWritePage({DateTime? initialDate}) async {
     final l10n = AppLocalizations.of(context)!;
     final cubit = context.read<JournalCubit>();
     
-    if (initialDateLabel != null) {
-      final selectedDate = _parseDateLabel(
-        initialDateLabel,
-        cubit.state.selectedYear,
-      );
+    // Use provided date, or selected date, or today
+    final dateToUse = initialDate ?? cubit.state.selectedDate;
+    
+    if (dateToUse != null) {
       final now = DateTime.now();
       final today = DateTime(now.year, now.month, now.day);
+      final selectedDay = DateTime(dateToUse.year, dateToUse.month, dateToUse.day);
       
-      if (selectedDate.isAfter(today)) {
+      if (selectedDay.isAfter(today)) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(l10n.journalCannotCreateFuture),
@@ -267,7 +276,7 @@ class _JournalingScreenState extends State<JournalingScreen> {
     final result = await Navigator.of(context).push<JournalEntryModel>(
       MaterialPageRoute(
         builder: (_) => WriteJournalScreen(
-          initialDateLabel: initialDateLabel ?? cubit.state.selectedDateLabel,
+          initialDate: dateToUse,
           initialMonth: cubit.state.selectedMonth,
           initialYear: cubit.state.selectedYear,
         ),
@@ -277,23 +286,6 @@ class _JournalingScreenState extends State<JournalingScreen> {
     if (result != null && mounted) {
       await cubit.createJournal(result);
     }
-  }
-
-  DateTime _parseDateLabel(String label, int year) {
-    final parts = label.split(', ');
-    if (parts.length != 2) return DateTime.now();
-    
-    final dateParts = parts[1].split(' ');
-    if (dateParts.length != 2) return DateTime.now();
-    
-    final monthStr = dateParts[0];
-    final day = int.tryParse(dateParts[1]) ?? 1;
-    
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    final month = months.indexOf(monthStr) + 1;
-    
-    return DateTime(year, month, day);
   }
 
   Future<void> _openEditPage(JournalEntryModel entry) async {

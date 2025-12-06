@@ -113,12 +113,22 @@ class JournalRepository {
     return results.map((row) => _mapToJournalEntry(row)).toList();
   }
 
-  Future<List<JournalEntryModel>> getJournalsByDateLabel({
+  Future<List<JournalEntryModel>> getJournalsByDate({
     required int userId,
-    required String dateLabel,
+    required DateTime date,
   }) async {
-    final allJournals = await getAllJournals(userId);
-    return allJournals.where((j) => j.dateLabel == dateLabel).toList();
+    final db = await DBHelper.database;
+    final startOfDay = DateTime(date.year, date.month, date.day);
+    final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59);
+
+    final results = await db.query(
+      'journals',
+      where: 'userId = ? AND date >= ? AND date <= ?',
+      whereArgs: [userId, startOfDay.toIso8601String(), endOfDay.toIso8601String()],
+      orderBy: 'date DESC',
+    );
+
+    return results.map((row) => _mapToJournalEntry(row)).toList();
   }
 
   Future<JournalEntryModel?> getJournalById(int journalId, int userId) async {
@@ -136,7 +146,6 @@ class JournalRepository {
 
   JournalEntryModel _mapToJournalEntry(Map<String, dynamic> row) {
     final date = DateTime.parse(row['date'] as String);
-    final dateLabel = _formatDateLabel(date);
 
     List<ImageData>? attachedImages;
     if (row['attachedImages'] != null) {
@@ -152,8 +161,7 @@ class JournalRepository {
 
     return JournalEntryModel(
       id: row['id'] as int?,
-      dateLabel: dateLabel,
-      date: date,
+      date: date, // No dateLabel needed - it's generated dynamically in UI
       moodImage: row['mood'] as String,
       title: row['title'] as String? ?? '',
       fullText: row['text'] as String? ?? '',
@@ -166,33 +174,4 @@ class JournalRepository {
       stickers: stickers,
     );
   }
-
-  String _formatDateLabel(DateTime date) {
-    return '${_getWeekdayFull(date.weekday)}, ${_getMonthShort(date.month)} ${date.day}';
-  }
-
-  String _getWeekdayFull(int w) => [
-        'Monday',
-        'Tuesday',
-        'Wednesday',
-        'Thursday',
-        'Friday',
-        'Saturday',
-        'Sunday'
-      ][w - 1];
-
-  String _getMonthShort(int m) => [
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'May',
-        'Jun',
-        'Jul',
-        'Aug',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dec'
-      ][m - 1];
 }

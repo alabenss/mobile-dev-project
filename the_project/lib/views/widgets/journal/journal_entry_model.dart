@@ -1,6 +1,5 @@
 class JournalEntryModel {
   final int? id;
-  final String dateLabel;
   final DateTime date;
   final String moodImage;
   final String title;
@@ -11,14 +10,13 @@ class JournalEntryModel {
   final String? fontFamily;
   final String? textColor;
   final double? fontSize;
-  final List<ImageData>? attachedImages; // Changed from List<String>?
+  final List<ImageData>? attachedImages;
   final String? voicePath;
   
   final List<StickerData>? stickers;
 
   JournalEntryModel({
     this.id,
-    required this.dateLabel,
     required this.date,
     required this.moodImage,
     required this.title,
@@ -34,7 +32,6 @@ class JournalEntryModel {
 
   JournalEntryModel.empty()
       : id = null,
-        dateLabel = '',
         date = DateTime.now(),
         moodImage = '',
         title = '',
@@ -50,7 +47,6 @@ class JournalEntryModel {
 
   JournalEntryModel copyWith({
     int? id,
-    String? dateLabel,
     DateTime? date,
     String? moodImage,
     String? title,
@@ -65,7 +61,6 @@ class JournalEntryModel {
   }) {
     return JournalEntryModel(
       id: id ?? this.id,
-      dateLabel: dateLabel ?? this.dateLabel,
       date: date ?? this.date,
       moodImage: moodImage ?? this.moodImage,
       title: title ?? this.title,
@@ -78,6 +73,11 @@ class JournalEntryModel {
       voicePath: voicePath ?? this.voicePath,
       stickers: stickers ?? this.stickers,
     );
+  }
+  
+  // Helper: Get date as YYYY-MM-DD string for comparison
+  String get dateKey {
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
   }
 }
 

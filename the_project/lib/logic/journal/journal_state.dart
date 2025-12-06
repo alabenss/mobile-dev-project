@@ -6,7 +6,7 @@ class JournalState {
   final JournalStatus status;
   final List<JournalEntryModel> allJournals;
   final List<JournalEntryModel> filteredJournals;
-  final String? selectedDateLabel;
+  final DateTime? selectedDate;
   final int selectedMonth;
   final int selectedYear;
   final String? todayMood;
@@ -18,7 +18,7 @@ class JournalState {
     this.status = JournalStatus.initial,
     this.allJournals = const [],
     this.filteredJournals = const [],
-    this.selectedDateLabel,
+    this.selectedDate,
     int? selectedMonth,
     int? selectedYear,
     this.todayMood,
@@ -32,21 +32,21 @@ class JournalState {
     JournalStatus? status,
     List<JournalEntryModel>? allJournals,
     List<JournalEntryModel>? filteredJournals,
-    String? selectedDateLabel,
+    DateTime? selectedDate,
     int? selectedMonth,
     int? selectedYear,
     String? todayMood,
     String? todayMoodLabel,
     DateTime? todayMoodTime,
     String? error,
-    bool clearDateLabel = false,
+    bool clearSelectedDate = false,
     bool clearMood = false,
   }) {
     return JournalState(
       status: status ?? this.status,
       allJournals: allJournals ?? this.allJournals,
       filteredJournals: filteredJournals ?? this.filteredJournals,
-      selectedDateLabel: clearDateLabel ? null : (selectedDateLabel ?? this.selectedDateLabel),
+      selectedDate: clearSelectedDate ? null : (selectedDate ?? this.selectedDate),
       selectedMonth: selectedMonth ?? this.selectedMonth,
       selectedYear: selectedYear ?? this.selectedYear,
       todayMood: clearMood ? null : (todayMood ?? this.todayMood),
@@ -56,12 +56,13 @@ class JournalState {
     );
   }
 
-  /// Get count of entries by date label
+  /// Get count of entries by date (returns map with date keys: YYYY-MM-DD)
   Map<String, int> get entriesByDate {
     final Map<String, int> map = {};
     for (var entry in allJournals) {
       if (entry.date.month == selectedMonth && entry.date.year == selectedYear) {
-        map[entry.dateLabel] = (map[entry.dateLabel] ?? 0) + 1;
+        final dateKey = entry.dateKey;
+        map[dateKey] = (map[dateKey] ?? 0) + 1;
       }
     }
     return map;

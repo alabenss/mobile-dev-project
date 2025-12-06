@@ -17,20 +17,20 @@ import '../../widgets/journal/draggable_sticker.dart';
 import '../../widgets/journal/draggable_image.dart';
 
 class WriteJournalScreen extends StatefulWidget {
-  final String? initialDateLabel;
+  final DateTime? initialDate;
   final int? initialMonth;
   final int? initialYear;
   final JournalEntryModel? existingEntry;
 
   const WriteJournalScreen({
-    this.initialDateLabel,
+    this.initialDate,
     this.initialMonth,
     this.initialYear,
     super.key,
   }) : existingEntry = null;
 
   const WriteJournalScreen.edit({required this.existingEntry, super.key})
-      : initialDateLabel = null,
+      : initialDate = null,
         initialMonth = null,
         initialYear = null;
 
@@ -39,7 +39,6 @@ class WriteJournalScreen extends StatefulWidget {
 }
 
 class _WriteJournalScreenState extends State<WriteJournalScreen> {
-  late String _dateLabel;
   late DateTime _selectedDate;
   final TextEditingController _titleCtrl = TextEditingController();
   final TextEditingController _bodyCtrl = TextEditingController();
@@ -61,7 +60,6 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
     super.initState();
 
     if (widget.existingEntry != null) {
-      _dateLabel = widget.existingEntry!.dateLabel;
       _selectedDate = widget.existingEntry!.date;
       _titleCtrl.text = widget.existingEntry!.title;
       _bodyCtrl.text = widget.existingEntry!.fullText;
@@ -85,15 +83,8 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
 
       _voiceNotePath = widget.existingEntry!.voicePath;
     } else {
-      if (widget.initialDateLabel != null &&
-          widget.initialMonth != null &&
-          widget.initialYear != null) {
-        final baseDate = _parseDateLabel(
-          widget.initialDateLabel!,
-          widget.initialMonth!,
-          widget.initialYear!,
-        );
-
+      if (widget.initialDate != null) {
+        final baseDate = widget.initialDate!;
         final now = DateTime.now();
         _selectedDate = DateTime(
           baseDate.year,
@@ -105,24 +96,10 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
           now.millisecond,
           now.microsecond,
         );
-
-        _dateLabel = widget.initialDateLabel!;
       } else {
         _selectedDate = DateTime.now();
-        _dateLabel = _formatDate(_selectedDate);
       }
     }
-  }
-
-  DateTime _parseDateLabel(String label, int month, int year) {
-    final parts = label.split(', ');
-    if (parts.length != 2) return DateTime(year, month, 1);
-
-    final dateParts = parts[1].split(' ');
-    if (dateParts.length != 2) return DateTime(year, month, 1);
-
-    final day = int.tryParse(dateParts[1]) ?? 1;
-    return DateTime(year, month, day);
   }
 
   Color _colorFromHex(String hexString) {
@@ -136,37 +113,48 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
     return '#${color.value.toRadixString(16).substring(2).toUpperCase()}';
   }
 
-  String _formatDate(DateTime d) =>
-      '${_weekdayName(d.weekday)}, ${_monthName(d.month)} ${d.day}';
+  String _formatDateLabel(BuildContext context, DateTime date) {
+    final l10n = AppLocalizations.of(context)!;
+    final weekday = _getLocalizedWeekday(l10n, date.weekday);
+    final month = _getLocalizedMonthShort(l10n, date.month);
+    return '$weekday, $month ${date.day}';
+  }
 
-  String _weekdayName(int w) => [
-        'Monday',
-        'Tuesday',
-        'Wednesday',
-        'Thursday',
-        'Friday',
-        'Saturday',
-        'Sunday'
-      ][w - 1];
+  String _getLocalizedWeekday(AppLocalizations l10n, int weekday) {
+    switch (weekday) {
+      case 1: return l10n.journalCalendarMonday;
+      case 2: return l10n.journalCalendarTuesday;
+      case 3: return l10n.journalCalendarWednesday;
+      case 4: return l10n.journalCalendarThursday;
+      case 5: return l10n.journalCalendarFriday;
+      case 6: return l10n.journalCalendarSaturday;
+      case 7: return l10n.journalCalendarSunday;
+      default: return '';
+    }
+  }
 
-  String _monthName(int m) => [
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'May',
-        'Jun',
-        'Jul',
-        'Aug',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dec'
-      ][m - 1];
+  String _getLocalizedMonthShort(AppLocalizations l10n, int month) {
+    switch (month) {
+      case 1: return l10n.journalMonthJan;
+      case 2: return l10n.journalMonthFeb;
+      case 3: return l10n.journalMonthMar;
+      case 4: return l10n.journalMonthApr;
+      case 5: return l10n.journalMonthMay;
+      case 6: return l10n.journalMonthJun;
+      case 7: return l10n.journalMonthJul;
+      case 8: return l10n.journalMonthAug;
+      case 9: return l10n.journalMonthSep;
+      case 10: return l10n.journalMonthOct;
+      case 11: return l10n.journalMonthNov;
+      case 12: return l10n.journalMonthDec;
+      default: return '';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final dateLabel = _formatDateLabel(context, _selectedDate);
     
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -206,7 +194,7 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               JournalBodyFieldsSimple(
-                                dateLabel: _dateLabel,
+                                dateLabel: dateLabel,
                                 titleController: _titleCtrl,
                                 bodyController: _bodyCtrl,
                                 fontFamily: _fontFamily,
@@ -388,7 +376,7 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.journalErrorPickingImage( e.toString()))),
+        SnackBar(content: Text(l10n.journalErrorPickingImage(e.toString()))),
       );
     }
   }
@@ -420,7 +408,6 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
 
     final entry = JournalEntryModel(
       id: widget.existingEntry?.id,
-      dateLabel: _dateLabel,
       date: _selectedDate,
       moodImage: _selectedMood,
       title: title,

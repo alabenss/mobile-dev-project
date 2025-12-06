@@ -41,14 +41,14 @@ class JournalCubit extends Cubit<JournalState> {
 
   /// Load journals for specific month
   Future<void> loadJournalsByMonth(int month, int year) async {
-    // Store the current selected date label before loading
-    final previousSelectedDateLabel = state.selectedDateLabel;
+    // Store the current selected date before loading
+    final previousSelectedDate = state.selectedDate;
     
     emit(state.copyWith(
       status: JournalStatus.loading,
       selectedMonth: month,
       selectedYear: year,
-      // Don't clear the date label yet
+      // Keep the selected date during loading
     ));
 
     try {
@@ -68,16 +68,16 @@ class JournalCubit extends Cubit<JournalState> {
       );
 
       // If we had a selected date, filter by it automatically
-      if (previousSelectedDateLabel != null) {
+      if (previousSelectedDate != null) {
         final filtered = journals
-            .where((j) => j.dateLabel == previousSelectedDateLabel)
+            .where((j) => _isSameDay(j.date, previousSelectedDate))
             .toList();
         
         emit(state.copyWith(
           status: JournalStatus.success,
           allJournals: journals,
           filteredJournals: filtered,
-          selectedDateLabel: previousSelectedDateLabel,
+          selectedDate: previousSelectedDate,
         ));
       } else {
         emit(state.copyWith(
@@ -94,14 +94,14 @@ class JournalCubit extends Cubit<JournalState> {
     }
   }
 
-  /// Filter journals by date label
-  void filterByDateLabel(String dateLabel) {
+  /// Filter journals by date
+  void filterByDate(DateTime date) {
     final filtered = state.allJournals
-        .where((j) => j.dateLabel == dateLabel)
+        .where((j) => _isSameDay(j.date, date))
         .toList();
 
     emit(state.copyWith(
-      selectedDateLabel: dateLabel,
+      selectedDate: date,
       filteredJournals: filtered,
     ));
   }
@@ -109,7 +109,7 @@ class JournalCubit extends Cubit<JournalState> {
   /// Clear date filter
   void clearDateFilter() {
     emit(state.copyWith(
-      clearDateLabel: true,
+      clearSelectedDate: true,
       filteredJournals: const [],
     ));
   }
@@ -203,5 +203,10 @@ class JournalCubit extends Cubit<JournalState> {
   /// Clear error
   void clearError() {
     emit(state.copyWith(error: null));
+  }
+
+  /// Helper to check if two dates are the same day
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 }

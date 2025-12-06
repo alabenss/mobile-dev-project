@@ -6,15 +6,15 @@ import '../../themes/style_simple/colors.dart';
 class CalendarRow extends StatefulWidget {
   final int month;
   final int year;
-  final String? selectedDateLabel;
-  final Map<String, int> entriesByDate;
-  final Function(String dateLabel) onDateTap;
+  final DateTime? selectedDate;
+  final Map<String, int> entriesByDate; // Map uses dateKey (YYYY-MM-DD)
+  final Function(DateTime date) onDateTap;
 
   const CalendarRow({
     super.key,
     required this.month,
     required this.year,
-    this.selectedDateLabel,
+    this.selectedDate,
     required this.entriesByDate,
     required this.onDateTap,
   });
@@ -90,10 +90,10 @@ class _CalendarRowState extends State<CalendarRow> {
         itemBuilder: (context, index) {
           final day = index + 1;
           final date = DateTime(widget.year, widget.month, day);
-          final dateLabel = _formatDateLabel(date, l10n);
-          final hasEntries = widget.entriesByDate.containsKey(dateLabel);
-          final entryCount = widget.entriesByDate[dateLabel] ?? 0;
-          final isSelected = widget.selectedDateLabel == dateLabel;
+          final dateKey = _getDateKey(date);
+          final hasEntries = widget.entriesByDate.containsKey(dateKey);
+          final entryCount = widget.entriesByDate[dateKey] ?? 0;
+          final isSelected = widget.selectedDate != null && _isSameDay(widget.selectedDate!, date);
           final isFuture = date.isAfter(today);
 
           return Padding(
@@ -101,7 +101,7 @@ class _CalendarRowState extends State<CalendarRow> {
             child: Opacity(
               opacity: isFuture ? 0.4 : 1.0,
               child: GestureDetector(
-                onTap: isFuture ? null : () => widget.onDateTap(dateLabel),
+                onTap: isFuture ? null : () => widget.onDateTap(date),
                 child: Container(
                   width: 70,
                   decoration: BoxDecoration(
@@ -171,8 +171,12 @@ class _CalendarRowState extends State<CalendarRow> {
     );
   }
 
-  String _formatDateLabel(DateTime date, AppLocalizations l10n) {
-    return '${_getWeekdayFull(date.weekday, l10n)}, ${_getMonthShort(date.month, l10n)} ${date.day}';
+  String _getDateKey(DateTime date) {
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
   String _getWeekdayShort(int w, AppLocalizations l10n) {
@@ -186,36 +190,5 @@ class _CalendarRowState extends State<CalendarRow> {
       l10n.journalCalendarSun
     ];
     return weekdays[w - 1];
-  }
-
-  String _getWeekdayFull(int w, AppLocalizations l10n) {
-    final weekdays = [
-      l10n.journalCalendarMonday,
-      l10n.journalCalendarTuesday,
-      l10n.journalCalendarWednesday,
-      l10n.journalCalendarThursday,
-      l10n.journalCalendarFriday,
-      l10n.journalCalendarSaturday,
-      l10n.journalCalendarSunday
-    ];
-    return weekdays[w - 1];
-  }
-
-  String _getMonthShort(int m, AppLocalizations l10n) {
-    final months = [
-      l10n.journalMonthJan,
-      l10n.journalMonthFeb,
-      l10n.journalMonthMar,
-      l10n.journalMonthApr,
-      l10n.journalMonthMay,
-      l10n.journalMonthJun,
-      l10n.journalMonthJul,
-      l10n.journalMonthAug,
-      l10n.journalMonthSep,
-      l10n.journalMonthOct,
-      l10n.journalMonthNov,
-      l10n.journalMonthDec
-    ];
-    return months[m - 1];
   }
 }
