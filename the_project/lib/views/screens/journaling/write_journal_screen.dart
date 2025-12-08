@@ -228,7 +228,7 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
                               );
                             },
                           );
-                        }).toList(),
+                        }),
 
                         ..._stickers.asMap().entries.map((entry) {
                           final index = entry.key;
@@ -262,7 +262,7 @@ class _WriteJournalScreenState extends State<WriteJournalScreen> {
                               );
                             },
                           );
-                        }).toList(),
+                        }),
                       ],
                     ),
                   ),

@@ -116,7 +116,7 @@ class LanguageSelectionScreen extends StatelessWidget {
                         },
                       ),
                     );
-                  }).toList(),
+                  }),
                 ],
               );
             },

@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:sqflite/sqflite.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:the_project/database/db_helper.dart';

@@ -120,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           onRemove: homeCubit.decrementWater,
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 2),
                       Expanded(
                         child: DetoxCard(
                           progress: state.detoxProgress,

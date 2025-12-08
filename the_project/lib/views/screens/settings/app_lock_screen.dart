@@ -22,7 +22,7 @@ class AppLockScreen extends StatelessWidget {
 }
 
 class _AppLockScreenBody extends StatefulWidget {
-  const _AppLockScreenBody({super.key});
+  const _AppLockScreenBody();
 
   @override
   State<_AppLockScreenBody> createState() => _AppLockScreenBodyState();

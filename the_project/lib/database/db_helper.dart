@@ -677,13 +677,13 @@ static Future<int> createDemoUserWithData() async {
   final rnd = Random(42); // Fixed seed for consistent demo data
 
   // Mood data
-  final moodLabels = ['happy', 'good', 'ok', 'low', 'sad'];
+  final moodLabels = ['happy', 'good', 'grateful', 'angry', 'sad'];
   final moodImages = [
-    'assets/moods/happy.png',
-    'assets/moods/good.png',
-    'assets/moods/ok.png',
-    'assets/moods/low.png',
-    'assets/moods/sad.png',
+    'assets/images/happy.png',
+    'assets/images/good.png',
+    'assets/images/grateful.png',
+    'assets/images/angry.png',
+    'assets/images/sad.png',
   ];
 
   // Journal prompts for variety
@@ -745,7 +745,7 @@ static Future<int> createDemoUserWithData() async {
         'userId': userId,
         'date': dateStr,
         'time': timeStr,
-        'mood': moodLabels[actualMoodIndex],
+        'mood': moodImages[actualMoodIndex],
         'text': journalEntries[entryIndex],
         'title': isToday ? 'Today\'s Thoughts' : null,
         'imagePath': null,

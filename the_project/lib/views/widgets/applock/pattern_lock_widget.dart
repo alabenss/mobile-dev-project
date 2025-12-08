@@ -17,7 +17,7 @@ class PatternLockWidget extends StatefulWidget {
 }
 
 class _PatternLockWidgetState extends State<PatternLockWidget> {
-  List<Offset> _dotPositions = [];
+  final List<Offset> _dotPositions = [];
   final List<Offset> _temporaryLine = [];
 
   @override
