@@ -702,6 +702,22 @@ static Future<int> createDemoUserWithData() async {
     'Discovered a great new podcast about mindfulness. Can\'t wait to listen to more episodes.',
   ];
 
+  // Journal titles for variety
+  final journalTitles = [
+    'Morning Reflections',
+    'Today\'s Thoughts',
+    'Evening Notes',
+    'Daily Journal',
+    'Personal Reflections',
+    'Mindful Moments',
+    'Day Recap',
+    'Thoughts & Feelings',
+    'My Day',
+    'Journal Entry',
+    'Today\'s Memories',
+    'Daily Gratitude',
+  ];
+
   // Create data for the last 30 days
   for (int i = 29; i >= 0; i--) {
     final date = today.subtract(Duration(days: i));
@@ -737,6 +753,7 @@ static Future<int> createDemoUserWithData() async {
     // Add journal entries (about 60% of days)
     if (rnd.nextInt(10) < 6) {
       final entryIndex = rnd.nextInt(journalEntries.length);
+      final titleIndex = rnd.nextInt(journalTitles.length);
       final hour = rnd.nextInt(12) + 8; // 8 AM - 8 PM
       final minute = rnd.nextInt(60);
       final timeStr = '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
@@ -747,7 +764,7 @@ static Future<int> createDemoUserWithData() async {
         'time': timeStr,
         'mood': moodImages[actualMoodIndex],
         'text': journalEntries[entryIndex],
-        'title': isToday ? 'Today\'s Thoughts' : null,
+        'title': journalTitles[titleIndex],
         'imagePath': null,
         'voicePath': null,
         'backgroundImage': null,
