@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "681153008806",
+    "project_id": "rise-955cc",
+    "storage_bucket": "rise-955cc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:681153008806:android:71057062275afdbe1bd067",
+        "android_client_info": {
+          "package_name": "com.example.the_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyASDC2fhDE4RRTmJpSS96TfAiIMmBwurjQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

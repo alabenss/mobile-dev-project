@@ -28,8 +28,91 @@ import 'views/screens/settings/language_selection_screen.dart';
 import 'views/screens/auth/login_screen.dart';
 import 'views/screens/auth/signup_screen.dart';
 
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+
+final GlobalKey<NavigatorState> navigatorKey =
+    GlobalKey<NavigatorState>();
+
+final FlutterLocalNotificationsPlugin localNotifications =
+    FlutterLocalNotificationsPlugin();
+
+
 void main() async {
+
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+
+
+
+  const AndroidInitializationSettings androidInit =
+    AndroidInitializationSettings('@mipmap/ic_launcher');
+
+const InitializationSettings initSettings =
+    InitializationSettings(android: androidInit);
+
+await localNotifications.initialize(initSettings,
+    onDidReceiveNotificationResponse: (response) {
+  // Handle tap when app is open
+});
+
+
+
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+await messaging.requestPermission(
+  alert: true,
+  badge: true,
+  sound: true,
+);
+
+String? token = await messaging.getToken();
+print('FCM TOKEN: $token');
+
+// Subscribe to topic (easy demo)
+await messaging.subscribeToTopic('demo');
+
+
+
+FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+  print('Notification received in foreground');
+
+  final notification = message.notification;
+  if (notification == null) return;
+
+  const AndroidNotificationDetails androidDetails =
+      AndroidNotificationDetails(
+    'demo_channel',
+    'Demo Notifications',
+    importance: Importance.max,
+    priority: Priority.high,
+  );
+
+  const NotificationDetails details =
+      NotificationDetails(android: androidDetails);
+
+  localNotifications.show(
+    0,
+    notification.title,
+    notification.body,
+    details,
+    payload: message.data['screen'],
+  );
+});
+
+
+
+FirebaseMessaging.onMessageOpenedApp.listen((message) {
+  handleNotificationNavigation(message);
+});
+
+
+
+
+
+
 
   try {
     // Initialize database
@@ -133,6 +216,7 @@ class MyApp extends StatelessWidget {
     return BlocBuilder<LocaleCubit, LocaleState>(
       builder: (context, localeState) {
         return MaterialApp(
+          navigatorKey: navigatorKey,
           debugShowCheckedModeBanner: false,
 
           // Use locale from LocaleCubit, null means use system default
@@ -194,5 +278,17 @@ class MyApp extends StatelessWidget {
         );
       },
     );
+  }
+}
+
+
+
+void handleNotificationNavigation(RemoteMessage message) {
+  final screen = message.data['screen'];
+
+  if (screen == 'home') {
+    navigatorKey.currentState?.pushNamed('/home');
+  } else if (screen == 'profile') {
+    navigatorKey.currentState?.pushNamed('/profile');
   }
 }
