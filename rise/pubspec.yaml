@@ -53,9 +53,10 @@ dependencies:
   record: ^6.0.0
   permission_handler: ^11.0.0
 
-  firebase_core: ^2.27.0
+  firebase_core: ^2.32.0
   firebase_messaging: ^14.7.10
-  flutter_local_notifications: ^17.0.0
+  flutter_local_notifications: ^19.5.0
+  timezone: 0.10.1
 
  
 dev_dependencies:

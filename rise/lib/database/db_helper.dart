@@ -137,21 +137,25 @@ class DBHelper {
     ''');
 
     // Habits table
-    await db.execute('''
-      CREATE TABLE habits (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        userId INTEGER,
-        title TEXT,
-        description TEXT,
-        frequency TEXT,
-        status TEXT,
-        createdDate TEXT,
-        lastUpdated TEXT,
-        Doitat TEXT,
-        points INTEGER,
-        FOREIGN KEY (userId) REFERENCES users(id)
-      );
-    ''');
+
+await db.execute('''
+  CREATE TABLE habits (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    userId INTEGER,
+    title TEXT,
+    description TEXT,
+    frequency TEXT,
+    status TEXT,
+    createdDate TEXT,
+    lastUpdated TEXT,
+    Doitat TEXT,
+    points INTEGER,
+    remindMe INTEGER DEFAULT 0,
+    lastNotified TEXT,
+    FOREIGN KEY (userId) REFERENCES users(id)
+  );
+''');
+
 
     // Journals table with enhanced fields
     await db.execute('''

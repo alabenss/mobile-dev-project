@@ -3,8 +3,11 @@ import 'package:sqflite/sqflite.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../db_helper.dart';
 import '../../models/habit_model.dart';
+import '../../services/notification_service.dart';
 
 class HabitRepository {
+  final NotificationService _notificationService = NotificationService();
+
   /// Get the current logged-in user's ID
   Future<int> _getCurrentUserId() async {
     final prefs = await SharedPreferences.getInstance();
@@ -20,8 +23,8 @@ class HabitRepository {
   /// Convert a Habit object to a Map for database storage
   Map<String, dynamic> _habitToMap(Habit habit) {
     return {
-      'title': habit.habitKey, // Store the key, not the localized title
-      'description': habit.iconCodePoint.toString(), // Store icon code point here
+      'title': habit.habitKey,
+      'description': habit.iconCodePoint.toString(),
       'frequency': habit.frequency,
       'status': habit.done ? 'completed' : (habit.skipped ? 'skipped' : 'active'),
       'createdDate': DateTime.now().toIso8601String(),
@@ -30,15 +33,14 @@ class HabitRepository {
           ? '${habit.time!.hour.toString().padLeft(2, '0')}:${habit.time!.minute.toString().padLeft(2, '0')}'
           : null,
       'points': habit.points,
+      'remindMe': habit.reminder ? 1 : 0,
     };
   }
 
   /// Convert a database Map to a Habit object
   Habit _mapToHabit(Map<String, dynamic> map, String? localizedTitle) {
-    // Get habit key from database (stored in 'title' field)
     String habitKey = map['title'] as String;
     
-    // Get icon from code point stored in description, or use key-based icon
     IconData icon;
     try {
       final iconCode = int.parse(map['description'] as String? ?? '0');
@@ -51,10 +53,8 @@ class HabitRepository {
       icon = Habit.getIconForKey(habitKey);
     }
 
-    // Use localized title if provided, otherwise use the key
     String displayTitle = localizedTitle ?? _getLocalizedTitle(habitKey);
 
-    // Parse time if available
     TimeOfDay? time;
     if (map['Doitat'] != null && map['Doitat'] != '') {
       final parts = (map['Doitat'] as String).split(':');
@@ -67,6 +67,7 @@ class HabitRepository {
     }
     
     final status = (map['status'] as String?) ?? 'active';
+    final remindMe = (map['remindMe'] as int?) ?? 0;
 
     return Habit(
       title: displayTitle,
@@ -74,17 +75,14 @@ class HabitRepository {
       icon: icon,
       frequency: map['frequency'] as String,
       time: time,
-      reminder: map['Doitat'] != null && map['Doitat'] != '',
+      reminder: remindMe == 1,
       points: map['points'] as int? ?? 10,
       done: status == 'completed',
       skipped: status == 'skipped',
     );
   }
 
-  /// Get localized title for a habit key (fallback if not provided)
   String _getLocalizedTitle(String habitKey) {
-    // This will just return the key formatted nicely as fallback
-    // The actual localization should happen in the UI layer
     return habitKey
         .split('_')
         .map((word) => word[0].toUpperCase() + word.substring(1))
@@ -99,7 +97,14 @@ class HabitRepository {
     final map = _habitToMap(habit);
     map['userId'] = userId;
 
-    return await db.insert('habits', map);
+    final id = await db.insert('habits', map);
+
+    // Schedule notification if reminder is enabled
+    if (habit.reminder && habit.time != null) {
+      await _notificationService.scheduleHabitReminder(habit, userId);
+    }
+
+    return id;
   }
 
   /// Retrieve all habits from the database
@@ -216,9 +221,9 @@ class HabitRepository {
       whereArgs: [userId],
     );
 
-    for (var habit in allHabits) {
-      final lastUpdated = DateTime.parse(habit['lastUpdated'] as String);
-      final frequency = habit['frequency'] as String;
+    for (var habitMap in allHabits) {
+      final lastUpdated = DateTime.parse(habitMap['lastUpdated'] as String);
+      final frequency = habitMap['frequency'] as String;
       bool shouldReset = false;
 
       switch (frequency.toLowerCase()) {
@@ -236,7 +241,7 @@ class HabitRepository {
           break;
       }
 
-      if (shouldReset && habit['status'] != 'active') {
+      if (shouldReset && habitMap['status'] != 'active') {
         await db.update(
           'habits',
           {
@@ -244,13 +249,19 @@ class HabitRepository {
             'lastUpdated': now.toIso8601String(),
           },
           where: 'id = ?',
-          whereArgs: [habit['id']],
+          whereArgs: [habitMap['id']],
         );
+
+        // Reschedule notification if needed
+        final habit = _mapToHabit(habitMap, null);
+        if (habit.reminder && habit.time != null) {
+          await _notificationService.scheduleHabitReminder(habit, userId);
+        }
       }
     }
   }
 
-  /// Update habit status - accepts either habitKey or title for backward compatibility
+  /// Update habit status
   Future<int> updateHabitStatus(String habitKeyOrTitle, String status) async {
     final db = await DBHelper.database;
     final userId = await _getCurrentUserId();
@@ -306,6 +317,12 @@ class HabitRepository {
     final db = await DBHelper.database;
     final userId = await _getCurrentUserId();
 
+    // Cancel notification before deleting
+    final habit = await getHabitByKey(habitKey);
+    if (habit != null && habit.reminder) {
+      await _notificationService.cancelHabitReminder(habit, userId);
+    }
+
     return await db.delete(
       'habits',
       where: 'userId = ? AND title = ?',
@@ -316,6 +333,9 @@ class HabitRepository {
   Future<int> deleteAllHabits() async {
     final db = await DBHelper.database;
     final userId = await _getCurrentUserId();
+
+    // Cancel all notifications
+    await _notificationService.cancelAllNotifications();
 
     return await db.delete(
       'habits',
@@ -426,5 +446,45 @@ class HabitRepository {
     );
 
     return result.isNotEmpty;
+  }
+
+  /// Update habit reminder settings
+  Future<void> updateHabitReminder(String habitKey, bool reminder, TimeOfDay? time) async {
+    final db = await DBHelper.database;
+    final userId = await _getCurrentUserId();
+
+    await db.update(
+      'habits',
+      {
+        'remindMe': reminder ? 1 : 0,
+        'Doitat': time != null
+            ? '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}'
+            : null,
+      },
+      where: 'userId = ? AND title = ?',
+      whereArgs: [userId, habitKey],
+    );
+
+    // Update notification
+    final habit = await getHabitByKey(habitKey);
+    if (habit != null) {
+      if (reminder && time != null) {
+        await _notificationService.scheduleHabitReminder(habit, userId);
+      } else {
+        await _notificationService.cancelHabitReminder(habit, userId);
+      }
+    }
+  }
+
+  /// Reschedule all habit notifications (useful after app restart)
+  Future<void> rescheduleAllNotifications() async {
+    final userId = await _getCurrentUserId();
+    final allHabits = await getAllHabits();
+
+    for (var habit in allHabits) {
+      if (habit.reminder && habit.time != null) {
+        await _notificationService.scheduleHabitReminder(habit, userId);
+      }
+    }
   }
 }

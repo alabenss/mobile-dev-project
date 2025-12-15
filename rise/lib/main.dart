@@ -27,94 +27,40 @@ import 'views/screens/settings/app_lock_screen.dart';
 import 'views/screens/settings/language_selection_screen.dart';
 import 'views/screens/auth/login_screen.dart';
 import 'views/screens/auth/signup_screen.dart';
+import 'views/test_notification_screen.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'services/notification_service.dart';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-final GlobalKey<NavigatorState> navigatorKey =
-    GlobalKey<NavigatorState>();
-
-final FlutterLocalNotificationsPlugin localNotifications =
-    FlutterLocalNotificationsPlugin();
-
+// Background message handler (must be top-level function)
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print('Handling background message: ${message.messageId}');
+}
 
 void main() async {
-
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-
-
-
-  const AndroidInitializationSettings androidInit =
-    AndroidInitializationSettings('@mipmap/ic_launcher');
-
-const InitializationSettings initSettings =
-    InitializationSettings(android: androidInit);
-
-await localNotifications.initialize(initSettings,
-    onDidReceiveNotificationResponse: (response) {
-  // Handle tap when app is open
-});
-
-
-
-  FirebaseMessaging messaging = FirebaseMessaging.instance;
-
-await messaging.requestPermission(
-  alert: true,
-  badge: true,
-  sound: true,
-);
-
-String? token = await messaging.getToken();
-print('FCM TOKEN: $token');
-
-// Subscribe to topic (easy demo)
-await messaging.subscribeToTopic('demo');
-
-
-
-FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-  print('Notification received in foreground');
-
-  final notification = message.notification;
-  if (notification == null) return;
-
-  const AndroidNotificationDetails androidDetails =
-      AndroidNotificationDetails(
-    'demo_channel',
-    'Demo Notifications',
-    importance: Importance.max,
-    priority: Priority.high,
-  );
-
-  const NotificationDetails details =
-      NotificationDetails(android: androidDetails);
-
-  localNotifications.show(
-    0,
-    notification.title,
-    notification.body,
-    details,
-    payload: message.data['screen'],
-  );
-});
-
-
-
-FirebaseMessaging.onMessageOpenedApp.listen((message) {
-  handleNotificationNavigation(message);
-});
-
-
-
-
-
-
-
+  
   try {
+    // Initialize Firebase
+    await Firebase.initializeApp();
+    print('Firebase initialized successfully');
+
+    // Set up background message handler
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+    // Initialize notification service
+    final notificationService = NotificationService();
+    await notificationService.initialize();
+    print('Notification service initialized');
+
+    // Subscribe to demo topic for testing
+    await notificationService.subscribeToTopic('habit_reminders');
+
     // Initialize database
     print('Initializing database...');
     final db = await DBHelper.database;
@@ -132,6 +78,10 @@ FirebaseMessaging.onMessageOpenedApp.listen((message) {
     final homeRepo = AbstractHomeRepo.getInstance();
     final activitiesRepo = AbstractActivitiesRepo.getInstance();
     final habitRepo = HabitRepository();
+
+    // Reschedule all habit notifications
+    await habitRepo.rescheduleAllNotifications();
+    print('Habit notifications rescheduled');
 
     runApp(
       MultiBlocProvider(
@@ -190,7 +140,6 @@ FirebaseMessaging.onMessageOpenedApp.listen((message) {
                   const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () async {
-                      // Try to clear and reinitialize
                       try {
                         await DBHelper.clearAll();
                         await DBHelper.initializeDemoData();
@@ -218,26 +167,20 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           navigatorKey: navigatorKey,
           debugShowCheckedModeBanner: false,
-
-          // Use locale from LocaleCubit, null means use system default
           locale: localeState.locale,
-
           localizationsDelegates: const [
             AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          
           supportedLocales: const [
             Locale('en'),
             Locale('fr'),
             Locale('ar'),
           ],
-
           home: BlocListener<AuthCubit, AuthState>(
             listener: (context, state) {
-              // When user logs in, load their data
               if (state.isAuthenticated && state.user != null) {
                 print('User authenticated: ${state.user!.name}');
                 context.read<HomeCubit>().loadInitial(userName: state.user!.name);
@@ -255,12 +198,10 @@ class MyApp extends StatelessWidget {
                   );
                 }
 
-                // Show login screen if not authenticated
                 if (!state.isAuthenticated) {
                   return const LoginScreen();
                 }
 
-                // When authenticated, wrap main app with PhoneLockWrapper
                 return const PhoneLockWrapper(
                   child: BottomNavWrapper(),
                 );
@@ -271,7 +212,7 @@ class MyApp extends StatelessWidget {
             '/login': (context) => const LoginScreen(),
             '/signup': (context) => const SignUpScreen(),
             '/home': (context) => const BottomNavWrapper(),
-            '/profile': (context) => const ProfileScreen(),
+            '/profile': (context) => const TestNotificationsScreen(),
             '/app-lock': (context) => const AppLockScreen(),
             '/language': (context) => const LanguageSelectionScreen(),
           },
@@ -281,14 +222,16 @@ class MyApp extends StatelessWidget {
   }
 }
 
-
-
 void handleNotificationNavigation(RemoteMessage message) {
   final screen = message.data['screen'];
+  final habitKey = message.data['habitKey'];
 
   if (screen == 'home') {
     navigatorKey.currentState?.pushNamed('/home');
   } else if (screen == 'profile') {
     navigatorKey.currentState?.pushNamed('/profile');
+  } else if (screen == 'habits' || habitKey != null) {
+    // Navigate to habits screen
+    navigatorKey.currentState?.pushNamed('/home');
   }
 }
