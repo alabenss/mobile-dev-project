@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:the_project/l10n/app_localizations.dart';
 
@@ -31,6 +30,8 @@ import 'views/test_notification_screen.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+
+import 'package:the_project/notifications/notification_service.dart';
 import 'services/notification_service.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -44,36 +45,26 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+  await Firebase.initializeApp();
+
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
+  await NotificationService.instance.init(
+    navigatorKey: navigatorKey,
+    onTapAction: (screen) {
+      if (screen == 'journal') {
+        navigatorKey.currentState?.pushNamed('/home');
+        bottomNavKey.currentState?.switchToTab(2);
+      } else if (screen == 'home') {
+        navigatorKey.currentState?.pushNamed('/home');
+        bottomNavKey.currentState?.switchToTab(0);
+      }
+    },
+  );
+
   try {
-    // Initialize Firebase
-    await Firebase.initializeApp();
-    print('Firebase initialized successfully');
-
-    // Set up background message handler
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-    // Initialize notification service
-    final notificationService = NotificationService();
-    await notificationService.initialize();
-    print('Notification service initialized');
-
-    // Subscribe to demo topic for testing
-    await notificationService.subscribeToTopic('habit_reminders');
-
-    // Initialize database
-    print('Initializing database...');
-    final db = await DBHelper.database;
-    print('Database initialized at: ${db.path}');
-
-    // Create demo data
-    print('Creating demo data...');
+    await DBHelper.database;
     await DBHelper.initializeDemoData();
-    print('Demo data created successfully');
-
-    // Verify data was created
-    final userCount = await db.rawQuery('SELECT COUNT(*) as c FROM users');
-    print('User count: ${userCount.first['c']}');
 
     final homeRepo = AbstractHomeRepo.getInstance();
     final activitiesRepo = AbstractActivitiesRepo.getInstance();
@@ -86,15 +77,9 @@ void main() async {
     runApp(
       MultiBlocProvider(
         providers: [
-          BlocProvider<LocaleCubit>(
-            create: (_) => LocaleCubit(),
-          ),
-          BlocProvider<AuthCubit>(
-            create: (_) => AuthCubit()..checkAuthStatus(),
-          ),
-          BlocProvider<HomeCubit>(
-            create: (_) => HomeCubit(homeRepo, habitRepo),
-          ),
+          BlocProvider<LocaleCubit>(create: (_) => LocaleCubit()),
+          BlocProvider<AuthCubit>(create: (_) => AuthCubit()..checkAuthStatus()),
+          BlocProvider<HomeCubit>(create: (_) => HomeCubit(homeRepo, habitRepo)),
           BlocProvider<ActivitiesCubit>(
             create: (_) => ActivitiesCubit(activitiesRepo)..loadActivities(),
           ),
@@ -115,7 +100,6 @@ void main() async {
     print('Error initializing app: $e');
     print('Stack trace: $stackTrace');
 
-    // Show error screen
     runApp(
       MaterialApp(
         home: Scaffold(
@@ -182,8 +166,9 @@ class MyApp extends StatelessWidget {
           home: BlocListener<AuthCubit, AuthState>(
             listener: (context, state) {
               if (state.isAuthenticated && state.user != null) {
-                print('User authenticated: ${state.user!.name}');
-                context.read<HomeCubit>().loadInitial(userName: state.user!.name);
+                context
+                    .read<HomeCubit>()
+                    .loadInitial(userName: state.user!.name);
                 context.read<HabitCubit>().loadHabits();
                 context.read<ActivitiesCubit>().loadActivities();
               }
@@ -192,9 +177,7 @@ class MyApp extends StatelessWidget {
               builder: (context, state) {
                 if (state.isLoading) {
                   return const Scaffold(
-                    body: Center(
-                      child: CircularProgressIndicator(),
-                    ),
+                    body: Center(child: CircularProgressIndicator()),
                   );
                 }
 
@@ -202,8 +185,8 @@ class MyApp extends StatelessWidget {
                   return const LoginScreen();
                 }
 
-                return const PhoneLockWrapper(
-                  child: BottomNavWrapper(),
+                return PhoneLockWrapper(
+                  child: BottomNavWrapper(key: bottomNavKey),
                 );
               },
             ),
@@ -211,8 +194,8 @@ class MyApp extends StatelessWidget {
           routes: {
             '/login': (context) => const LoginScreen(),
             '/signup': (context) => const SignUpScreen(),
-            '/home': (context) => const BottomNavWrapper(),
-            '/profile': (context) => const TestNotificationsScreen(),
+            '/home': (context) => BottomNavWrapper(key: bottomNavKey),
+            '/profile': (context) => const ProfileScreen(),
             '/app-lock': (context) => const AppLockScreen(),
             '/language': (context) => const LanguageSelectionScreen(),
           },
