@@ -22,6 +22,9 @@ import '../../../logic/home/home_state.dart';
 import '../../../logic/auth/auth_cubit.dart';
 import '../../../utils/habit_localization.dart';
 
+// 🔔 notification service
+import '../../../notifications/notification_service.dart';
+
 class HomeScreen extends StatefulWidget {
   final VoidCallback? onViewAllHabits;
   const HomeScreen({super.key, this.onViewAllHabits});
@@ -31,9 +34,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // Access widget properties through widget.propertyName
   VoidCallback? get onViewAllHabits => widget.onViewAllHabits;
-  
+
   @override
   void initState() {
     super.initState();
@@ -48,18 +50,6 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  // currently unused, left as-is
-  String _getGreeting() {
-    final hour = DateTime.now().hour;
-    if (hour < 12) {
-      return 'Good morning';
-    } else if (hour < 17) {
-      return 'Good afternoon';
-    } else {
-      return 'Good evening';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -67,8 +57,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return BlocBuilder<HomeCubit, HomeState>(
       builder: (context, state) {
         final homeCubit = context.read<HomeCubit>();
-
-        // Limit to first 2 daily habits only
         final habitsToShow = state.dailyHabits.take(2).toList();
 
         return Container(
@@ -86,7 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 const SizedBox(height: 30),
 
-                // "Hello, {name}"
+                // 👋 Hello
                 Text(
                   l10n.homeHello(state.userName),
                   style: const TextStyle(
@@ -95,17 +83,43 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: AppColors.textPrimary,
                   ),
                 ),
+
+                const SizedBox(height: 12),
+
+                // 🔔 TEST BUTTONS (EASIEST DEMO)
+                ElevatedButton(
+                  onPressed: () async {
+                    await NotificationService.instance.showTestNotification(
+                      title: "Don’t forget to journal today!",
+                      body: "Tap to open Journal 📝",
+                      screen: "journal",
+                    );
+                  },
+                  child: const Text("TEST JOURNAL NOTIFICATION"),
+                ),
+
+                const SizedBox(height: 8),
+
+                ElevatedButton(
+                  onPressed: () async {
+                    await NotificationService.instance.showTestNotification(
+                      title: "What is your mood today?",
+                      body: "Tap to check in 😊",
+                      screen: "home",
+                    );
+                  },
+                  child: const Text("TEST MOOD NOTIFICATION"),
+                ),
+
                 const SizedBox(height: 16),
 
                 ImageQuoteCard(
                   imagePath: AppImages.quotes,
                   quote: AppConfig.quoteOfTheDay(context),
                 ),
+
                 const SizedBox(height: 18),
-
-                const SizedBox(height: 10),
                 const MoodCard(),
-
                 const SizedBox(height: 12),
 
                 IntrinsicHeight(
@@ -145,7 +159,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   trailing: GestureDetector(
                     onTap: onViewAllHabits,
                     child: Text(
-                      l10n.homeViewAllHabits, // 'view all'
+                      l10n.homeViewAllHabits,
                       style: const TextStyle(
                         fontWeight: FontWeight.w500,
                         fontSize: 14,
@@ -173,13 +187,12 @@ class _HomeScreenState extends State<HomeScreen> {
                               HabitTile(
                                 icon: habitsToShow[i].icon,
                                 title: HabitLocalization.getLocalizedTitle(
-                                  context, 
+                                  context,
                                   habitsToShow[i],
                                 ),
                                 habitKey: habitsToShow[i].habitKey,
                                 checked: habitsToShow[i].done,
                                 onToggle: () {
-                                  // Use habitKey instead of title
                                   homeCubit.toggleHabitCompletion(
                                     habitsToShow[i].habitKey,
                                     habitsToShow[i].done,
@@ -192,19 +205,18 @@ class _HomeScreenState extends State<HomeScreen> {
                           ],
                         ),
                 ),
-                const SizedBox(height: 8),
 
                 const SizedBox(height: 18),
 
-                // Explore section
                 Text(
-                  l10n.exploreSectionTitle, // 'Explore'
+                  l10n.exploreSectionTitle,
                   style: const TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 20,
                     color: AppColors.textPrimary,
                   ),
                 ),
+
                 const SizedBox(height: 10),
 
                 Row(
