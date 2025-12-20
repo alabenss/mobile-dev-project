@@ -26,12 +26,10 @@ import 'views/screens/settings/app_lock_screen.dart';
 import 'views/screens/settings/language_selection_screen.dart';
 import 'views/screens/auth/login_screen.dart';
 import 'views/screens/auth/signup_screen.dart';
-import 'views/test_notification_screen.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
-import 'package:the_project/notifications/notification_service.dart';
 import 'services/notification_service.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -47,7 +45,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
-  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   await NotificationService.instance.init(
     navigatorKey: navigatorKey,
@@ -58,6 +56,10 @@ void main() async {
       } else if (screen == 'home') {
         navigatorKey.currentState?.pushNamed('/home');
         bottomNavKey.currentState?.switchToTab(0);
+      } else if (screen != null && screen.startsWith('habit_')) {
+        // Handle habit-specific navigation
+        navigatorKey.currentState?.pushNamed('/home');
+        bottomNavKey.currentState?.switchToTab(1); // Assuming habits tab is at index 1
       }
     },
   );
@@ -202,19 +204,5 @@ class MyApp extends StatelessWidget {
         );
       },
     );
-  }
-}
-
-void handleNotificationNavigation(RemoteMessage message) {
-  final screen = message.data['screen'];
-  final habitKey = message.data['habitKey'];
-
-  if (screen == 'home') {
-    navigatorKey.currentState?.pushNamed('/home');
-  } else if (screen == 'profile') {
-    navigatorKey.currentState?.pushNamed('/profile');
-  } else if (screen == 'habits' || habitKey != null) {
-    // Navigate to habits screen
-    navigatorKey.currentState?.pushNamed('/home');
   }
 }

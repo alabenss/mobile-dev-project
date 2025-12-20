@@ -6,7 +6,8 @@ import '../../models/habit_model.dart';
 import '../../services/notification_service.dart';
 
 class HabitRepository {
-  final NotificationService _notificationService = NotificationService();
+  // Use the singleton instance instead of creating a new one
+  NotificationService get _notificationService => NotificationService.instance;
 
   /// Get the current logged-in user's ID
   Future<int> _getCurrentUserId() async {

@@ -11,7 +11,6 @@ class TestNotificationsScreen extends StatefulWidget {
 }
 
 class _TestNotificationsScreenState extends State<TestNotificationsScreen> {
-  final NotificationService _notificationService = NotificationService();
   final HabitRepository _habitRepo = HabitRepository();
   List<dynamic> _pendingNotifications = [];
   bool _loading = false;
@@ -25,7 +24,7 @@ class _TestNotificationsScreenState extends State<TestNotificationsScreen> {
   Future<void> _loadPendingNotifications() async {
     setState(() => _loading = true);
     try {
-      final pending = await _notificationService.getPendingNotifications();
+      final pending = await NotificationService.instance.getPendingNotifications();
       setState(() {
         _pendingNotifications = pending;
         _loading = false;
@@ -38,12 +37,25 @@ class _TestNotificationsScreenState extends State<TestNotificationsScreen> {
 
   Future<void> _testImmediateNotification() async {
     try {
-      await _notificationService.showImmediateNotification(
+      await NotificationService.instance.showImmediateNotification(
         'Test Notification',
         'This is a test notification! 🎯',
         payload: 'test_habit',
       );
       _showSuccess('Test notification sent!');
+    } catch (e) {
+      _showError('Failed to send notification: $e');
+    }
+  }
+
+  Future<void> _testNavigationNotification() async {
+    try {
+      await NotificationService.instance.showTestNotification(
+        title: 'Journal Reminder',
+        body: 'Time to write in your journal! 📝',
+        screen: 'journal',
+      );
+      _showSuccess('Journal notification sent! Tap it to test navigation.');
     } catch (e) {
       _showError('Failed to send notification: $e');
     }
@@ -85,7 +97,7 @@ class _TestNotificationsScreenState extends State<TestNotificationsScreen> {
 
   Future<void> _cancelAllNotifications() async {
     try {
-      await _notificationService.cancelAllNotifications();
+      await NotificationService.instance.cancelAllNotifications();
       _showSuccess('All notifications cancelled!');
       await _loadPendingNotifications();
     } catch (e) {
@@ -119,6 +131,7 @@ class _TestNotificationsScreenState extends State<TestNotificationsScreen> {
       appBar: AppBar(
         title: const Text('Test Notifications'),
         backgroundColor: Colors.deepPurple,
+        foregroundColor: Colors.white,
       ),
       body: Container(
         decoration: const BoxDecoration(
@@ -154,6 +167,20 @@ class _TestNotificationsScreenState extends State<TestNotificationsScreen> {
                       label: const Text('Send Test Notification Now'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.all(16),
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 12),
+                    
+                    ElevatedButton.icon(
+                      onPressed: _testNavigationNotification,
+                      icon: const Icon(Icons.navigate_next),
+                      label: const Text('Test Navigation (Journal)'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.teal,
+                        foregroundColor: Colors.white,
                         padding: const EdgeInsets.all(16),
                       ),
                     ),
@@ -166,6 +193,7 @@ class _TestNotificationsScreenState extends State<TestNotificationsScreen> {
                       label: const Text('Schedule Test Habit (1 min)'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
                         padding: const EdgeInsets.all(16),
                       ),
                     ),
@@ -178,6 +206,7 @@ class _TestNotificationsScreenState extends State<TestNotificationsScreen> {
                       label: const Text('Reschedule All Notifications'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.orange,
+                        foregroundColor: Colors.white,
                         padding: const EdgeInsets.all(16),
                       ),
                     ),
@@ -190,6 +219,7 @@ class _TestNotificationsScreenState extends State<TestNotificationsScreen> {
                       label: const Text('Cancel All Notifications'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
                         padding: const EdgeInsets.all(16),
                       ),
                     ),
@@ -202,6 +232,7 @@ class _TestNotificationsScreenState extends State<TestNotificationsScreen> {
                       label: const Text('Refresh List'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.purple,
+                        foregroundColor: Colors.white,
                         padding: const EdgeInsets.all(16),
                       ),
                     ),
@@ -288,25 +319,38 @@ class _TestNotificationsScreenState extends State<TestNotificationsScreen> {
                         itemCount: _pendingNotifications.length,
                         itemBuilder: (context, index) {
                           final notification = _pendingNotifications[index];
-                          return ListTile(
-                            leading: const CircleAvatar(
-                              backgroundColor: Colors.blue,
-                              child: Icon(Icons.notifications, color: Colors.white),
-                            ),
-                            title: Text(
-                              notification.title ?? 'No title',
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            subtitle: Text(
-                              notification.body ?? 'No body',
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            trailing: Text(
-                              'ID: ${notification.id}',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
+                          return Card(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            child: ListTile(
+                              leading: const CircleAvatar(
+                                backgroundColor: Colors.blue,
+                                child: Icon(Icons.notifications, color: Colors.white),
+                              ),
+                              title: Text(
+                                notification.title ?? 'No title',
+                                style: const TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    notification.body ?? 'No body',
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'ID: ${notification.id}',
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              trailing: const Icon(
+                                Icons.schedule,
+                                color: Colors.orange,
                               ),
                             ),
                           );
@@ -343,11 +387,13 @@ class _TestNotificationsScreenState extends State<TestNotificationsScreen> {
                     ),
                     const SizedBox(height: 12),
                     const Text(
-                      '1. Tap "Send Test Notification Now" to see an immediate notification\n\n'
-                      '2. Tap "Schedule Test Habit (1 min)" to schedule a notification for 1 minute from now\n\n'
-                      '3. Wait 1 minute to receive the scheduled notification\n\n'
-                      '4. Check "Pending Notifications" to see what\'s scheduled\n\n'
-                      '5. Use "Reschedule All" to reload all habit reminders',
+                      '1. "Send Test Notification Now" - Shows an immediate notification\n\n'
+                      '2. "Test Navigation (Journal)" - Sends a notification that navigates to journal when tapped\n\n'
+                      '3. "Schedule Test Habit (1 min)" - Schedules a notification for 1 minute from now\n\n'
+                      '4. Wait 1 minute to receive the scheduled notification\n\n'
+                      '5. "Refresh List" - See all pending notifications\n\n'
+                      '6. "Reschedule All" - Reload all habit reminders\n\n'
+                      '7. "Cancel All" - Clear all pending notifications',
                       style: TextStyle(fontSize: 14, height: 1.5),
                     ),
                   ],
