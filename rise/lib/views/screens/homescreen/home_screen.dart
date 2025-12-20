@@ -23,7 +23,7 @@ import '../../../logic/auth/auth_cubit.dart';
 import '../../../utils/habit_localization.dart';
 
 // 🔔 notification service
-import '../../../notifications/notification_service.dart';
+import '../../../services/notification_service.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback? onViewAllHabits;
