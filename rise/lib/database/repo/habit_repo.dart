@@ -6,10 +6,8 @@ import '../../models/habit_model.dart';
 import '../../services/notification_service.dart';
 
 class HabitRepository {
-  // Use the singleton instance instead of creating a new one
   NotificationService get _notificationService => NotificationService.instance;
 
-  /// Get the current logged-in user's ID
   Future<int> _getCurrentUserId() async {
     final prefs = await SharedPreferences.getInstance();
     final userId = prefs.getInt('userId');
@@ -21,7 +19,6 @@ class HabitRepository {
     return userId;
   }
 
-  /// Convert a Habit object to a Map for database storage
   Map<String, dynamic> _habitToMap(Habit habit) {
     return {
       'title': habit.habitKey,
@@ -35,10 +32,15 @@ class HabitRepository {
           : null,
       'points': habit.points,
       'remindMe': habit.reminder ? 1 : 0,
+      'habitType': habit.habitType,
+      'streakCount': habit.streakCount,
+      'bestStreak': habit.bestStreak,
+      'isTask': habit.isTask ? 1 : 0,
+      'taskCompletionCount': habit.taskCompletionCount,
+      'lastCompletedDate': habit.lastCompletedDate?.toIso8601String(),
     };
   }
 
-  /// Convert a database Map to a Habit object
   Habit _mapToHabit(Map<String, dynamic> map, String? localizedTitle) {
     String habitKey = map['title'] as String;
     
@@ -69,6 +71,16 @@ class HabitRepository {
     
     final status = (map['status'] as String?) ?? 'active';
     final remindMe = (map['remindMe'] as int?) ?? 0;
+    final habitType = (map['habitType'] as String?) ?? 'good';
+    final streakCount = (map['streakCount'] as int?) ?? 0;
+    final bestStreak = (map['bestStreak'] as int?) ?? 0;
+    final isTask = ((map['isTask'] as int?) ?? 1) == 1;
+    final taskCompletionCount = (map['taskCompletionCount'] as int?) ?? 0;
+    
+    DateTime? lastCompletedDate;
+    if (map['lastCompletedDate'] != null) {
+      lastCompletedDate = DateTime.parse(map['lastCompletedDate'] as String);
+    }
 
     return Habit(
       title: displayTitle,
@@ -80,6 +92,12 @@ class HabitRepository {
       points: map['points'] as int? ?? 10,
       done: status == 'completed',
       skipped: status == 'skipped',
+      habitType: habitType,
+      streakCount: streakCount,
+      bestStreak: bestStreak,
+      isTask: isTask,
+      taskCompletionCount: taskCompletionCount,
+      lastCompletedDate: lastCompletedDate,
     );
   }
 
@@ -90,7 +108,6 @@ class HabitRepository {
         .join(' ');
   }
 
-  /// Insert a new habit into the database
   Future<int> insertHabit(Habit habit) async {
     final db = await DBHelper.database;
     final userId = await _getCurrentUserId();
@@ -100,7 +117,6 @@ class HabitRepository {
 
     final id = await db.insert('habits', map);
 
-    // Schedule notification if reminder is enabled
     if (habit.reminder && habit.time != null) {
       await _notificationService.scheduleHabitReminder(habit, userId);
     }
@@ -108,7 +124,6 @@ class HabitRepository {
     return id;
   }
 
-  /// Retrieve all habits from the database
   Future<List<Habit>> getAllHabits() async {
     final db = await DBHelper.database;
     final userId = await _getCurrentUserId();
@@ -123,7 +138,7 @@ class HabitRepository {
     return maps.map((map) => _mapToHabit(map, null)).toList();
   }
 
-  /// Get habits by frequency (Daily, Weekly, Monthly, Yearly)
+  /// Get habits by frequency - ONLY show habits that should appear in this period
   Future<List<Habit>> getHabitsByFrequency(String frequency) async {
     final db = await DBHelper.database;
     final userId = await _getCurrentUserId();
@@ -145,35 +160,28 @@ class HabitRepository {
 
       switch (frequency.toLowerCase()) {
         case 'daily':
+          // Only show if last updated TODAY
           shouldShow = _isSameDay(lastUpdated, now);
           break;
           
         case 'weekly':
+          // Only show if last updated THIS WEEK
           shouldShow = _isSameWeek(lastUpdated, now);
           break;
           
         case 'monthly':
+          // Only show if last updated THIS MONTH
           shouldShow = _isSameMonth(lastUpdated, now);
-          break;
-          
-        case 'yearly':
-          shouldShow = _isSameYear(lastUpdated, now);
           break;
           
         default:
           shouldShow = true;
       }
 
+      // If habit is from a previous period, reset it
       if (!shouldShow) {
-        await db.update(
-          'habits',
-          {
-            'status': 'active',
-            'lastUpdated': now.toIso8601String(),
-          },
-          where: 'userId = ? AND title = ? AND frequency = ?',
-          whereArgs: [userId, map['title'], frequency],
-        );
+        // Reset status but check streak
+        await _handlePeriodTransition(db, userId, map, frequency, now);
         map['status'] = 'active';
         map['lastUpdated'] = now.toIso8601String();
       }
@@ -182,6 +190,111 @@ class HabitRepository {
     }
 
     return habits;
+  }
+
+  /// Handle streak when transitioning between periods
+  Future<void> _handlePeriodTransition(
+    Database db,
+    int userId,
+    Map<String, dynamic> habitMap,
+    String frequency,
+    DateTime now,
+  ) async {
+    final lastUpdated = DateTime.parse(habitMap['lastUpdated'] as String);
+    final status = habitMap['status'] as String;
+    final habitType = (habitMap['habitType'] as String?) ?? 'good';
+    int currentStreak = (habitMap['streakCount'] as int?) ?? 0;
+    int bestStreak = (habitMap['bestStreak'] as int?) ?? 0;
+    final lastCompletedDateStr = habitMap['lastCompletedDate'] as String?;
+    
+    // Check if the streak should continue or break
+    bool streakBroken = false;
+    
+    switch (frequency.toLowerCase()) {
+      case 'daily':
+        // For daily habits, check if it was completed yesterday
+        final yesterday = now.subtract(const Duration(days: 1));
+        if (lastCompletedDateStr != null) {
+          final lastCompleted = DateTime.parse(lastCompletedDateStr);
+          if (!_isSameDay(lastCompleted, yesterday)) {
+            // Didn't complete yesterday, streak is broken
+            if (habitType == 'good') {
+              streakBroken = true;
+            }
+          } else if (status == 'completed' || (habitType == 'bad' && status == 'skipped')) {
+            // Completed yesterday, increment streak
+            currentStreak++;
+            if (currentStreak > bestStreak) {
+              bestStreak = currentStreak;
+            }
+          }
+        } else if (habitType == 'good') {
+          // Never completed, break streak if it was > 0
+          streakBroken = currentStreak > 0;
+        }
+        break;
+        
+      case 'weekly':
+        // For weekly habits, check if completed last week
+        final lastWeek = now.subtract(const Duration(days: 7));
+        if (lastCompletedDateStr != null) {
+          final lastCompleted = DateTime.parse(lastCompletedDateStr);
+          if (!_isSameWeek(lastCompleted, lastWeek)) {
+            if (habitType == 'good') {
+              streakBroken = true;
+            }
+          } else if (status == 'completed' || (habitType == 'bad' && status == 'skipped')) {
+            currentStreak++;
+            if (currentStreak > bestStreak) {
+              bestStreak = currentStreak;
+            }
+          }
+        } else if (habitType == 'good') {
+          streakBroken = currentStreak > 0;
+        }
+        break;
+        
+      case 'monthly':
+        // For monthly habits, check if completed last month
+        final lastMonth = DateTime(now.year, now.month - 1, now.day);
+        if (lastCompletedDateStr != null) {
+          final lastCompleted = DateTime.parse(lastCompletedDateStr);
+          if (!_isSameMonth(lastCompleted, lastMonth)) {
+            if (habitType == 'good') {
+              streakBroken = true;
+            }
+          } else if (status == 'completed' || (habitType == 'bad' && status == 'skipped')) {
+            currentStreak++;
+            if (currentStreak > bestStreak) {
+              bestStreak = currentStreak;
+            }
+          }
+        } else if (habitType == 'good') {
+          streakBroken = currentStreak > 0;
+        }
+        break;
+    }
+    
+    if (streakBroken) {
+      currentStreak = 0;
+    }
+
+    await db.update(
+      'habits',
+      {
+        'status': 'active',
+        'lastUpdated': now.toIso8601String(),
+        'streakCount': currentStreak,
+        'bestStreak': bestStreak,
+      },
+      where: 'id = ?',
+      whereArgs: [habitMap['id']],
+    );
+
+    final habit = _mapToHabit(habitMap, null);
+    if (habit.reminder && habit.time != null) {
+      await _notificationService.scheduleHabitReminder(habit, userId);
+    }
   }
 
   bool _isSameDay(DateTime date1, DateTime date2) {
@@ -237,23 +350,11 @@ class HabitRepository {
         case 'monthly':
           shouldReset = !_isSameMonth(lastUpdated, now);
           break;
-        case 'yearly':
-          shouldReset = !_isSameYear(lastUpdated, now);
-          break;
       }
 
       if (shouldReset && habitMap['status'] != 'active') {
-        await db.update(
-          'habits',
-          {
-            'status': 'active',
-            'lastUpdated': now.toIso8601String(),
-          },
-          where: 'id = ?',
-          whereArgs: [habitMap['id']],
-        );
+        await _handlePeriodTransition(db, userId, habitMap, frequency, now);
 
-        // Reschedule notification if needed
         final habit = _mapToHabit(habitMap, null);
         if (habit.reminder && habit.time != null) {
           await _notificationService.scheduleHabitReminder(habit, userId);
@@ -262,23 +363,67 @@ class HabitRepository {
     }
   }
 
-  /// Update habit status
+  /// Update habit status with streak tracking and task-to-habit conversion
   Future<int> updateHabitStatus(String habitKeyOrTitle, String status) async {
     final db = await DBHelper.database;
     final userId = await _getCurrentUserId();
 
+    final habit = await getHabitByKey(habitKeyOrTitle);
+    if (habit == null) return 0;
+
+    int newStreak = habit.streakCount;
+    int newBestStreak = habit.bestStreak;
+    int newTaskCompletion = habit.taskCompletionCount;
+    bool newIsTask = habit.isTask;
+
+    // Handle completion
     if (status == 'completed') {
-      final habit = await getHabitByKey(habitKeyOrTitle);
-      if (habit != null) {
-        await _awardPoints(habit.points);
+      await _awardPoints(habit.points);
+      
+      // For good habits, completion increments streak
+      if (habit.habitType == 'good') {
+        newStreak++;
+        newTaskCompletion++;
+        if (newStreak > newBestStreak) {
+          newBestStreak = newStreak;
+        }
+      }
+      
+      // Check if task should become habit (10 consecutive completions)
+      if (newIsTask && newTaskCompletion >= 10) {
+        newIsTask = false;
+        // Bonus points for establishing a habit!
+        await _awardPoints(50);
       }
     }
-
-    if (status == 'active') {
-      final habit = await getHabitByKey(habitKeyOrTitle);
-      if (habit != null) {
-        await _awardPoints(-habit.points);
+    
+    // Handle skipping
+    else if (status == 'skipped') {
+      // For bad habits, skipping increments streak
+      if (habit.habitType == 'bad') {
+        newStreak++;
+        newTaskCompletion++;
+        await _awardPoints(habit.points); // Award points for resisting
+        if (newStreak > newBestStreak) {
+          newBestStreak = newStreak;
+        }
+        
+        // Check if task should become habit
+        if (newIsTask && newTaskCompletion >= 10) {
+          newIsTask = false;
+          await _awardPoints(50);
+        }
       }
+      // For good habits, skipping breaks the streak
+      else {
+        newStreak = 0;
+      }
+    }
+    
+    // Handle reset (undoing completion)
+    else if (status == 'active') {
+      await _awardPoints(-habit.points);
+      // Don't decrement streak when resetting, just when period transitions
     }
 
     return await db.update(
@@ -286,13 +431,64 @@ class HabitRepository {
       {
         'status': status,
         'lastUpdated': DateTime.now().toIso8601String(),
+        'lastCompletedDate': (status == 'completed' || status == 'skipped') 
+            ? DateTime.now().toIso8601String() 
+            : habit.lastCompletedDate?.toIso8601String(),
+        'streakCount': newStreak,
+        'bestStreak': newBestStreak,
+        'taskCompletionCount': newTaskCompletion,
+        'isTask': newIsTask ? 1 : 0,
       },
       where: 'userId = ? AND title = ?',
       whereArgs: [userId, habitKeyOrTitle],
     );
   }
 
-  /// Get a specific habit by habitKey
+  /// Restore streak using points
+  Future<bool> restoreStreak(String habitKey) async {
+    final db = await DBHelper.database;
+    final userId = await _getCurrentUserId();
+    
+    final habit = await getHabitByKey(habitKey);
+    if (habit == null || !habit.needsStreakRestoration) return false;
+    
+    // Check if user has enough points
+    final userResult = await db.query(
+      'users',
+      columns: ['totalPoints'],
+      where: 'id = ?',
+      whereArgs: [userId],
+      limit: 1,
+    );
+    
+    if (userResult.isEmpty) return false;
+    
+    final currentPoints = (userResult.first['totalPoints'] as int?) ?? 0;
+    final restorationCost = habit.streakRestorationCost;
+    
+    if (currentPoints < restorationCost) return false;
+    
+    // Deduct points and restore streak
+    await db.update(
+      'users',
+      {'totalPoints': currentPoints - restorationCost},
+      where: 'id = ?',
+      whereArgs: [userId],
+    );
+    
+    await db.update(
+      'habits',
+      {
+        'streakCount': habit.bestStreak,
+        'lastCompletedDate': DateTime.now().toIso8601String(),
+      },
+      where: 'userId = ? AND title = ?',
+      whereArgs: [userId, habitKey],
+    );
+    
+    return true;
+  }
+
   Future<Habit?> getHabitByKey(String habitKey) async {
     final db = await DBHelper.database;
     final userId = await _getCurrentUserId();
@@ -308,17 +504,14 @@ class HabitRepository {
     return _mapToHabit(maps.first, null);
   }
 
-  /// Get a specific habit by title (kept for backward compatibility)
   Future<Habit?> getHabitByTitle(String title) async {
     return await getHabitByKey(title);
   }
 
-  /// Delete a habit by habitKey
   Future<int> deleteHabit(String habitKey) async {
     final db = await DBHelper.database;
     final userId = await _getCurrentUserId();
 
-    // Cancel notification before deleting
     final habit = await getHabitByKey(habitKey);
     if (habit != null && habit.reminder) {
       await _notificationService.cancelHabitReminder(habit, userId);
@@ -335,7 +528,6 @@ class HabitRepository {
     final db = await DBHelper.database;
     final userId = await _getCurrentUserId();
 
-    // Cancel all notifications
     await _notificationService.cancelAllNotifications();
 
     return await db.delete(
@@ -419,7 +611,6 @@ class HabitRepository {
     return 0;
   }
 
-  /// Check if a habit exists using habitKey
   Future<bool> habitExists(String habitKey) async {
     final db = await DBHelper.database;
     final userId = await _getCurrentUserId();
@@ -434,7 +625,6 @@ class HabitRepository {
     return result.isNotEmpty;
   }
 
-  /// Check if a habit with the given key and frequency already exists
   Future<bool> habitExistsWithFrequency(String habitKey, String frequency) async {
     final db = await DBHelper.database;
     final userId = await _getCurrentUserId();
@@ -449,7 +639,6 @@ class HabitRepository {
     return result.isNotEmpty;
   }
 
-  /// Update habit reminder settings
   Future<void> updateHabitReminder(String habitKey, bool reminder, TimeOfDay? time) async {
     final db = await DBHelper.database;
     final userId = await _getCurrentUserId();
@@ -466,7 +655,6 @@ class HabitRepository {
       whereArgs: [userId, habitKey],
     );
 
-    // Update notification
     final habit = await getHabitByKey(habitKey);
     if (habit != null) {
       if (reminder && time != null) {
@@ -477,7 +665,6 @@ class HabitRepository {
     }
   }
 
-  /// Reschedule all habit notifications (useful after app restart)
   Future<void> rescheduleAllNotifications() async {
     final userId = await _getCurrentUserId();
     final allHabits = await getAllHabits();

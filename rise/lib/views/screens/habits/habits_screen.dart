@@ -126,7 +126,7 @@ class _HabitsScreenState extends State<HabitsScreen>
         onPressed: () async {
           final newHabit = await showDialog<Habit>(
             context: context,
-            builder: (_) => AddHabitDialog(
+            builder: (context) => AddHabitDialog(
               existingHabits: context.read<HabitCubit>().state.habits,
             ),
           );

@@ -95,6 +95,20 @@ class HabitCubit extends Cubit<HabitState> {
     }
   }
 
+  /// Restore streak for a habit using points
+  Future<bool> restoreStreak(String habitKey) async {
+    try {
+      final success = await _repository.restoreStreak(habitKey);
+      if (success) {
+        await loadHabits();
+      }
+      return success;
+    } catch (e) {
+      emit(state.copyWith(error: e.toString()));
+      return false;
+    }
+  }
+
   /// Get completed habits count
   Future<int> getCompletedCount() async {
     return await _repository.getCompletedHabitsCount();
