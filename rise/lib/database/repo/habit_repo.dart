@@ -1,50 +1,41 @@
+// lib/data/repo/habit_repo.dart
 import 'package:flutter/material.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../db_helper.dart';
 import '../../models/habit_model.dart';
 import '../../services/notification_service.dart';
+import '../../services/api_service.dart';
+import '../../config/api_config.dart';
 
 class HabitRepository {
-  // Use the singleton instance instead of creating a new one
-  NotificationService get _notificationService => NotificationService.instance;
+  final ApiService _api = ApiService.instance;
+  final NotificationService _notificationService = NotificationService.instance;
 
   /// Get the current logged-in user's ID
   Future<int> _getCurrentUserId() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userId = prefs.getInt('userId');
-    
-    if (userId == null) {
-      return await DBHelper.ensureDefaultUser();
-    }
-    
-    return userId;
+    return await _api.getCurrentUserId();
   }
 
-  /// Convert a Habit object to a Map for database storage
-  Map<String, dynamic> _habitToMap(Habit habit) {
+  /// Convert a Habit object to JSON for API
+  Map<String, dynamic> _habitToJson(Habit habit) {
     return {
       'title': habit.habitKey,
       'description': habit.iconCodePoint.toString(),
       'frequency': habit.frequency,
       'status': habit.done ? 'completed' : (habit.skipped ? 'skipped' : 'active'),
-      'createdDate': DateTime.now().toIso8601String(),
-      'lastUpdated': DateTime.now().toIso8601String(),
-      'Doitat': habit.time != null
+      'doItAt': habit.time != null
           ? '${habit.time!.hour.toString().padLeft(2, '0')}:${habit.time!.minute.toString().padLeft(2, '0')}'
           : null,
       'points': habit.points,
-      'remindMe': habit.reminder ? 1 : 0,
+      'remindMe': habit.reminder,
     };
   }
 
-  /// Convert a database Map to a Habit object
-  Habit _mapToHabit(Map<String, dynamic> map, String? localizedTitle) {
-    String habitKey = map['title'] as String;
+  /// Convert JSON from API to Habit object
+  Habit _habitFromJson(Map<String, dynamic> json) {
+    String habitKey = json['title'] as String;
     
     IconData icon;
     try {
-      final iconCode = int.parse(map['description'] as String? ?? '0');
+      final iconCode = int.parse(json['description'] as String? ?? '0');
       if (iconCode > 0) {
         icon = Habit.iconFromCodePoint(iconCode);
       } else {
@@ -54,11 +45,12 @@ class HabitRepository {
       icon = Habit.getIconForKey(habitKey);
     }
 
-    String displayTitle = localizedTitle ?? _getLocalizedTitle(habitKey);
+    String displayTitle = _getLocalizedTitle(habitKey);
 
     TimeOfDay? time;
-    if (map['Doitat'] != null && map['Doitat'] != '') {
-      final parts = (map['Doitat'] as String).split(':');
+    final doItAt = json['do_it_at'] as String?;
+    if (doItAt != null && doItAt.isNotEmpty) {
+      final parts = doItAt.split(':');
       if (parts.length == 2) {
         time = TimeOfDay(
           hour: int.parse(parts[0]),
@@ -67,17 +59,17 @@ class HabitRepository {
       }
     }
     
-    final status = (map['status'] as String?) ?? 'active';
-    final remindMe = (map['remindMe'] as int?) ?? 0;
-
+    final status = (json['status'] as String?) ?? 'active';
+    final remindMe = json['remind_me'];
+    
     return Habit(
       title: displayTitle,
       habitKey: habitKey,
       icon: icon,
-      frequency: map['frequency'] as String,
+      frequency: json['frequency'] as String,
       time: time,
-      reminder: remindMe == 1,
-      points: map['points'] as int? ?? 10,
+      reminder: remindMe == true || remindMe == 1,
+      points: json['points'] as int? ?? 10,
       done: status == 'completed',
       skipped: status == 'skipped',
     );
@@ -90,222 +82,154 @@ class HabitRepository {
         .join(' ');
   }
 
-  /// Insert a new habit into the database
+  /// Insert a new habit
   Future<int> insertHabit(Habit habit) async {
-    final db = await DBHelper.database;
-    final userId = await _getCurrentUserId();
+    try {
+      final userId = await _getCurrentUserId();
+      
+      print('HabitRepo: Inserting habit for userId: $userId');
 
-    final map = _habitToMap(habit);
-    map['userId'] = userId;
+      final habitData = _habitToJson(habit);
+      habitData['userId'] = userId;
 
-    final id = await db.insert('habits', map);
+      final response = await _api.post(ApiConfig.HABITS_ADD, habitData);
 
-    // Schedule notification if reminder is enabled
-    if (habit.reminder && habit.time != null) {
-      await _notificationService.scheduleHabitReminder(habit, userId);
+      final habitId = response['habitId'] as int? ?? 0;
+
+      // Schedule notification if reminder is enabled
+      if (habit.reminder && habit.time != null) {
+        await _notificationService.scheduleHabitReminder(habit, userId);
+      }
+
+      print('HabitRepo: Habit inserted with ID: $habitId');
+      return habitId;
+    } catch (e) {
+      print('HabitRepo: Error inserting habit: $e');
+      rethrow;
     }
-
-    return id;
   }
 
-  /// Retrieve all habits from the database
+  /// Retrieve all habits
   Future<List<Habit>> getAllHabits() async {
-    final db = await DBHelper.database;
-    final userId = await _getCurrentUserId();
+    try {
+      final userId = await _getCurrentUserId();
+      
+      print('HabitRepo: Getting all habits for userId: $userId');
 
-    final List<Map<String, dynamic>> maps = await db.query(
-      'habits',
-      where: 'userId = ?',
-      whereArgs: [userId],
-      orderBy: 'createdDate DESC',
-    );
+      final response = await _api.get(
+        ApiConfig.HABITS_GET,
+        params: {'userId': userId.toString()},
+      );
 
-    return maps.map((map) => _mapToHabit(map, null)).toList();
+      if (response['success'] == true && response['habits'] != null) {
+        final habitsList = response['habits'] as List;
+        return habitsList.map((json) => _habitFromJson(json)).toList();
+      }
+
+      return [];
+    } catch (e) {
+      print('HabitRepo: Error getting all habits: $e');
+      return [];
+    }
   }
 
   /// Get habits by frequency (Daily, Weekly, Monthly, Yearly)
   Future<List<Habit>> getHabitsByFrequency(String frequency) async {
-    final db = await DBHelper.database;
-    final userId = await _getCurrentUserId();
-
-    final List<Map<String, dynamic>> maps = await db.query(
-      'habits',
-      where: 'userId = ? AND frequency = ?',
-      whereArgs: [userId, frequency],
-      orderBy: 'createdDate DESC',
-    );
-
-    final now = DateTime.now();
-    final List<Habit> habits = [];
-
-    for (var map in maps) {
-      final lastUpdated = DateTime.parse(map['lastUpdated'] as String);
+    try {
+      final userId = await _getCurrentUserId();
       
-      bool shouldShow = false;
+      print('HabitRepo: Getting habits by frequency: $frequency');
 
-      switch (frequency.toLowerCase()) {
-        case 'daily':
-          shouldShow = _isSameDay(lastUpdated, now);
-          break;
-          
-        case 'weekly':
-          shouldShow = _isSameWeek(lastUpdated, now);
-          break;
-          
-        case 'monthly':
-          shouldShow = _isSameMonth(lastUpdated, now);
-          break;
-          
-        case 'yearly':
-          shouldShow = _isSameYear(lastUpdated, now);
-          break;
-          
-        default:
-          shouldShow = true;
-      }
+      final response = await _api.get(
+        ApiConfig.HABITS_GET,
+        params: {
+          'userId': userId.toString(),
+          'frequency': frequency,
+        },
+      );
 
-      if (!shouldShow) {
-        await db.update(
-          'habits',
-          {
-            'status': 'active',
-            'lastUpdated': now.toIso8601String(),
-          },
-          where: 'userId = ? AND title = ? AND frequency = ?',
-          whereArgs: [userId, map['title'], frequency],
-        );
-        map['status'] = 'active';
-        map['lastUpdated'] = now.toIso8601String();
-      }
+      if (response['success'] == true && response['habits'] != null) {
+        final habitsList = response['habits'] as List;
+        final habits = habitsList.map((json) => _habitFromJson(json)).toList();
 
-      habits.add(_mapToHabit(map, null));
-    }
+        // Client-side filtering/reset logic (if needed)
+        final now = DateTime.now();
+        final List<Habit> filteredHabits = [];
 
-    return habits;
-  }
-
-  bool _isSameDay(DateTime date1, DateTime date2) {
-    return date1.year == date2.year &&
-        date1.month == date2.month &&
-        date1.day == date2.day;
-  }
-
-  bool _isSameWeek(DateTime date1, DateTime date2) {
-    final monday1 = _getMondayOfWeek(date1);
-    final monday2 = _getMondayOfWeek(date2);
-    return _isSameDay(monday1, monday2);
-  }
-
-  DateTime _getMondayOfWeek(DateTime date) {
-    final daysFromMonday = date.weekday - 1;
-    return DateTime(date.year, date.month, date.day).subtract(
-      Duration(days: daysFromMonday),
-    );
-  }
-
-  bool _isSameMonth(DateTime date1, DateTime date2) {
-    return date1.year == date2.year && date1.month == date2.month;
-  }
-
-  bool _isSameYear(DateTime date1, DateTime date2) {
-    return date1.year == date2.year;
-  }
-
-  Future<void> checkAndResetOldHabits() async {
-    final db = await DBHelper.database;
-    final userId = await _getCurrentUserId();
-    final now = DateTime.now();
-
-    final List<Map<String, dynamic>> allHabits = await db.query(
-      'habits',
-      where: 'userId = ?',
-      whereArgs: [userId],
-    );
-
-    for (var habitMap in allHabits) {
-      final lastUpdated = DateTime.parse(habitMap['lastUpdated'] as String);
-      final frequency = habitMap['frequency'] as String;
-      bool shouldReset = false;
-
-      switch (frequency.toLowerCase()) {
-        case 'daily':
-          shouldReset = !_isSameDay(lastUpdated, now);
-          break;
-        case 'weekly':
-          shouldReset = !_isSameWeek(lastUpdated, now);
-          break;
-        case 'monthly':
-          shouldReset = !_isSameMonth(lastUpdated, now);
-          break;
-        case 'yearly':
-          shouldReset = !_isSameYear(lastUpdated, now);
-          break;
-      }
-
-      if (shouldReset && habitMap['status'] != 'active') {
-        await db.update(
-          'habits',
-          {
-            'status': 'active',
-            'lastUpdated': now.toIso8601String(),
-          },
-          where: 'id = ?',
-          whereArgs: [habitMap['id']],
-        );
-
-        // Reschedule notification if needed
-        final habit = _mapToHabit(habitMap, null);
-        if (habit.reminder && habit.time != null) {
-          await _notificationService.scheduleHabitReminder(habit, userId);
+        for (var habit in habits) {
+          // You can add client-side date checking here if needed
+          filteredHabits.add(habit);
         }
+
+        return filteredHabits;
       }
+
+      return [];
+    } catch (e) {
+      print('HabitRepo: Error getting habits by frequency: $e');
+      return [];
     }
   }
 
   /// Update habit status
   Future<int> updateHabitStatus(String habitKeyOrTitle, String status) async {
-    final db = await DBHelper.database;
-    final userId = await _getCurrentUserId();
+    try {
+      final userId = await _getCurrentUserId();
+      
+      print('HabitRepo: Updating habit status: $habitKeyOrTitle -> $status');
 
-    if (status == 'completed') {
-      final habit = await getHabitByKey(habitKeyOrTitle);
-      if (habit != null) {
-        await _awardPoints(habit.points);
+      // Award/remove points based on status
+      if (status == 'completed') {
+        final habit = await getHabitByKey(habitKeyOrTitle);
+        if (habit != null) {
+          await _awardPoints(habit.points);
+        }
       }
-    }
 
-    if (status == 'active') {
-      final habit = await getHabitByKey(habitKeyOrTitle);
-      if (habit != null) {
-        await _awardPoints(-habit.points);
+      if (status == 'active') {
+        final habit = await getHabitByKey(habitKeyOrTitle);
+        if (habit != null) {
+          await _awardPoints(-habit.points);
+        }
       }
-    }
 
-    return await db.update(
-      'habits',
-      {
+      await _api.put(ApiConfig.HABITS_UPDATE_STATUS, {
+        'userId': userId,
+        'title': habitKeyOrTitle,
         'status': status,
-        'lastUpdated': DateTime.now().toIso8601String(),
-      },
-      where: 'userId = ? AND title = ?',
-      whereArgs: [userId, habitKeyOrTitle],
-    );
+      });
+
+      return 1;
+    } catch (e) {
+      print('HabitRepo: Error updating habit status: $e');
+      return 0;
+    }
   }
 
   /// Get a specific habit by habitKey
   Future<Habit?> getHabitByKey(String habitKey) async {
-    final db = await DBHelper.database;
-    final userId = await _getCurrentUserId();
+    try {
+      final userId = await _getCurrentUserId();
+      
+      print('HabitRepo: Getting habit by key: $habitKey');
 
-    final List<Map<String, dynamic>> maps = await db.query(
-      'habits',
-      where: 'userId = ? AND title = ?',
-      whereArgs: [userId, habitKey],
-      limit: 1,
-    );
+      final response = await _api.get(
+        ApiConfig.HABITS_GET_BY_TITLE,
+        params: {
+          'userId': userId.toString(),
+          'title': habitKey,
+        },
+      );
 
-    if (maps.isEmpty) return null;
-    return _mapToHabit(maps.first, null);
+      if (response['success'] == true && response['habit'] != null) {
+        return _habitFromJson(response['habit']);
+      }
+
+      return null;
+    } catch (e) {
+      print('HabitRepo: Error getting habit by key: $e');
+      return null;
+    }
   }
 
   /// Get a specific habit by title (kept for backward compatibility)
@@ -315,177 +239,246 @@ class HabitRepository {
 
   /// Delete a habit by habitKey
   Future<int> deleteHabit(String habitKey) async {
-    final db = await DBHelper.database;
-    final userId = await _getCurrentUserId();
+    try {
+      final userId = await _getCurrentUserId();
+      
+      print('HabitRepo: Deleting habit: $habitKey');
 
-    // Cancel notification before deleting
-    final habit = await getHabitByKey(habitKey);
-    if (habit != null && habit.reminder) {
-      await _notificationService.cancelHabitReminder(habit, userId);
+      // Cancel notification before deleting
+      final habit = await getHabitByKey(habitKey);
+      if (habit != null && habit.reminder) {
+        await _notificationService.cancelHabitReminder(habit, userId);
+      }
+
+      // Find the habit ID first
+      final response = await _api.get(
+        ApiConfig.HABITS_GET_BY_TITLE,
+        params: {
+          'userId': userId.toString(),
+          'title': habitKey,
+        },
+      );
+
+      if (response['success'] == true && response['habit'] != null) {
+        final habitId = response['habit']['id'];
+        
+        await _api.delete(
+          ApiConfig.HABITS_DELETE,
+          params: {
+            'id': habitId.toString(),
+            'userId': userId.toString(),
+          },
+        );
+      }
+
+      return 1;
+    } catch (e) {
+      print('HabitRepo: Error deleting habit: $e');
+      return 0;
     }
-
-    return await db.delete(
-      'habits',
-      where: 'userId = ? AND title = ?',
-      whereArgs: [userId, habitKey],
-    );
   }
 
-  Future<int> deleteAllHabits() async {
-    final db = await DBHelper.database;
-    final userId = await _getCurrentUserId();
-
-    // Cancel all notifications
-    await _notificationService.cancelAllNotifications();
-
-    return await db.delete(
-      'habits',
-      where: 'userId = ?',
-      whereArgs: [userId],
-    );
-  }
-
+  /// Get completed habits count
   Future<int> getCompletedHabitsCount() async {
-    final db = await DBHelper.database;
-    final userId = await _getCurrentUserId();
+    try {
+      final userId = await _getCurrentUserId();
+      
+      print('HabitRepo: Getting completed habits count');
 
-    final result = await db.rawQuery(
-      'SELECT COUNT(*) as count FROM habits WHERE userId = ? AND status = ?',
-      [userId, 'completed'],
-    );
+      final response = await _api.get(
+        ApiConfig.HABITS_GET_COMPLETED,
+        params: {'userId': userId.toString()},
+      );
 
-    return Sqflite.firstIntValue(result) ?? 0;
+      if (response['success'] == true) {
+        return response['count'] as int? ?? 0;
+      }
+
+      return 0;
+    } catch (e) {
+      print('HabitRepo: Error getting completed habits count: $e');
+      return 0;
+    }
   }
 
+  /// Get today's habits
   Future<List<Habit>> getTodayHabits() async {
     return await getHabitsByFrequency('Daily');
   }
 
-  Future<void> resetDailyHabits() async {
-    final db = await DBHelper.database;
-    final userId = await _getCurrentUserId();
-
-    await db.update(
-      'habits',
-      {'status': 'active'},
-      where: 'userId = ? AND frequency = ? AND status != ?',
-      whereArgs: [userId, 'Daily', 'active'],
-    );
-  }
-
-  Future<void> _awardPoints(int points) async {
-    final userId = await _getCurrentUserId();
-    final db = await DBHelper.database;
-    
-    final result = await db.query(
-      'users',
-      columns: ['totalPoints'],
-      where: 'id = ?',
-      whereArgs: [userId],
-      limit: 1,
-    );
-    
-    int currentPoints = 0;
-    if (result.isNotEmpty) {
-      final value = result.first['totalPoints'];
-      if (value is int) {
-        currentPoints = value;
-      } else if (value is num) {
-        currentPoints = value.toInt();
-      }
-    }
-    
-    await db.update(
-      'users',
-      {'totalPoints': currentPoints + points},
-      where: 'id = ?',
-      whereArgs: [userId],
-    );
-  }
-
-  Future<int> getTotalHabitPoints() async {
-    final db = await DBHelper.database;
-    final userId = await _getCurrentUserId();
-
-    final result = await db.rawQuery(
-      'SELECT SUM(points) as total FROM habits WHERE userId = ? AND status = ?',
-      [userId, 'completed'],
-    );
-
-    final value = result.first['total'];
-    if (value == null) return 0;
-    if (value is int) return value;
-    if (value is num) return value.toInt();
-    return 0;
-  }
-
-  /// Check if a habit exists using habitKey
+  /// Check if a habit exists
   Future<bool> habitExists(String habitKey) async {
-    final db = await DBHelper.database;
-    final userId = await _getCurrentUserId();
+    try {
+      final userId = await _getCurrentUserId();
+      
+      final response = await _api.get(
+        ApiConfig.HABITS_CHECK_EXISTS,
+        params: {
+          'userId': userId.toString(),
+          'title': habitKey,
+        },
+      );
 
-    final result = await db.query(
-      'habits',
-      where: 'userId = ? AND title = ?',
-      whereArgs: [userId, habitKey],
-      limit: 1,
-    );
+      if (response['success'] == true) {
+        return response['exists'] as bool? ?? false;
+      }
 
-    return result.isNotEmpty;
+      return false;
+    } catch (e) {
+      print('HabitRepo: Error checking habit exists: $e');
+      return false;
+    }
   }
 
   /// Check if a habit with the given key and frequency already exists
   Future<bool> habitExistsWithFrequency(String habitKey, String frequency) async {
-    final db = await DBHelper.database;
-    final userId = await _getCurrentUserId();
+    try {
+      final userId = await _getCurrentUserId();
+      
+      final response = await _api.get(
+        ApiConfig.HABITS_CHECK_EXISTS,
+        params: {
+          'userId': userId.toString(),
+          'title': habitKey,
+          'frequency': frequency,
+        },
+      );
 
-    final result = await db.query(
-      'habits',
-      where: 'userId = ? AND title = ? AND frequency = ?',
-      whereArgs: [userId, habitKey, frequency],
-      limit: 1,
-    );
+      if (response['success'] == true) {
+        return response['exists'] as bool? ?? false;
+      }
 
-    return result.isNotEmpty;
+      return false;
+    } catch (e) {
+      print('HabitRepo: Error checking habit exists with frequency: $e');
+      return false;
+    }
   }
 
   /// Update habit reminder settings
   Future<void> updateHabitReminder(String habitKey, bool reminder, TimeOfDay? time) async {
-    final db = await DBHelper.database;
-    final userId = await _getCurrentUserId();
+    try {
+      final userId = await _getCurrentUserId();
+      
+      print('HabitRepo: Updating reminder for habit: $habitKey');
 
-    await db.update(
-      'habits',
-      {
-        'remindMe': reminder ? 1 : 0,
-        'Doitat': time != null
+      await _api.put(ApiConfig.HABITS_UPDATE, {
+        'userId': userId,
+        'habitId': habitKey, // This should ideally be the actual ID
+        'remindMe': reminder,
+        'doItAt': time != null
             ? '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}'
             : null,
-      },
-      where: 'userId = ? AND title = ?',
-      whereArgs: [userId, habitKey],
-    );
+      });
 
-    // Update notification
-    final habit = await getHabitByKey(habitKey);
-    if (habit != null) {
-      if (reminder && time != null) {
-        await _notificationService.scheduleHabitReminder(habit, userId);
-      } else {
-        await _notificationService.cancelHabitReminder(habit, userId);
+      // Update notification
+      final habit = await getHabitByKey(habitKey);
+      if (habit != null) {
+        if (reminder && time != null) {
+          await _notificationService.scheduleHabitReminder(habit, userId);
+        } else {
+          await _notificationService.cancelHabitReminder(habit, userId);
+        }
       }
+    } catch (e) {
+      print('HabitRepo: Error updating habit reminder: $e');
+      rethrow;
     }
   }
 
   /// Reschedule all habit notifications (useful after app restart)
   Future<void> rescheduleAllNotifications() async {
-    final userId = await _getCurrentUserId();
-    final allHabits = await getAllHabits();
+    try {
+      final userId = await _getCurrentUserId();
+      final allHabits = await getAllHabits();
 
-    for (var habit in allHabits) {
-      if (habit.reminder && habit.time != null) {
-        await _notificationService.scheduleHabitReminder(habit, userId);
+      for (var habit in allHabits) {
+        if (habit.reminder && habit.time != null) {
+          await _notificationService.scheduleHabitReminder(habit, userId);
+        }
       }
+    } catch (e) {
+      print('HabitRepo: Error rescheduling notifications: $e');
     }
+  }
+
+  /// Award points to user (internal helper)
+  Future<void> _awardPoints(int points) async {
+    try {
+      final userId = await _getCurrentUserId();
+      
+      // You'll need to create a user points endpoint
+      // For now, we'll call the user profile to get current points
+      final profileResponse = await _api.get(
+        ApiConfig.USER_PROFILE,
+        params: {'userId': userId.toString()},
+      );
+
+      if (profileResponse['success'] == true && profileResponse['user'] != null) {
+        final currentPoints = profileResponse['user']['total_points'] as int? ?? 0;
+        final newPoints = currentPoints + points;
+
+        // Update points (you'll need to add this endpoint)
+        // await _api.put('/user.updatePoints', {'userId': userId, 'points': newPoints});
+      }
+    } catch (e) {
+      print('HabitRepo: Error awarding points: $e');
+    }
+  }
+
+  /// Get total habit points
+  /// Get total habit points
+  Future<int> getTotalHabitPoints() async {
+    try {
+      final habits = await getAllHabits();
+
+      int total = 0;
+      for (final habit in habits) {
+        if (!habit.done) continue;
+
+        // Handles int OR Future<int> safely
+        final pts = await Future.value(habit.points);
+        total += pts;
+      }
+
+      return total;
+    } catch (e) {
+      print('HabitRepo: Error getting total habit points: $e');
+      return 0;
+    }
+  }
+
+
+  // Legacy methods for compatibility
+  Future<int> deleteAllHabits() async {
+    try {
+      final habits = await getAllHabits();
+      for (var habit in habits) {
+        await deleteHabit(habit.habitKey);
+      }
+      return habits.length;
+    } catch (e) {
+      print('HabitRepo: Error deleting all habits: $e');
+      return 0;
+    }
+  }
+
+  Future<void> resetDailyHabits() async {
+    try {
+      final dailyHabits = await getHabitsByFrequency('Daily');
+      for (var habit in dailyHabits) {
+        if (habit.done || habit.skipped) {
+          await updateHabitStatus(habit.habitKey, 'active');
+        }
+      }
+    } catch (e) {
+      print('HabitRepo: Error resetting daily habits: $e');
+    }
+  }
+
+  Future<void> checkAndResetOldHabits() async {
+    // This logic should ideally be handled by the backend
+    // For now, we'll just refresh the data
+    print('HabitRepo: checkAndResetOldHabits - handled by backend');
   }
 }

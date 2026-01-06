@@ -1,13 +1,13 @@
-import 'package:sqflite/sqflite.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:the_project/database/db_helper.dart';
-import 'package:the_project/views/widgets/stats/range_selector_widget.dart';
+// lib/data/repo/stats_repo.dart
+import '../../services/api_service.dart';
+import '../../config/api_config.dart';
+import '../../views/widgets/stats/range_selector_widget.dart';
 
 class StatsData {
   final List<double> waterData;
   final List<double> moodData; // 0..1
   final int journalingCount;
-  final List<int> journalCounts; // NEW: counts per day/period
+  final List<int> journalCounts;
   final Map<String, double> screenTime;
   final List<String> labels;
 
@@ -22,23 +22,22 @@ class StatsData {
 }
 
 class StatsRepo {
-  // Get current logged-in user ID
+  final ApiService _api = ApiService.instance;
+
+  /// Get current logged-in user ID
   Future<int?> _getCurrentUserId() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getInt('userId');
-      print('StatsRepo: Retrieved userId from SharedPreferences: $userId');
-      return userId;
+      return await _api.getCurrentUserId();
     } catch (e) {
       print('StatsRepo: Error getting userId: $e');
       return null;
     }
   }
 
-  // Format date as yyyy-MM-dd
-  String _formatDate(DateTime d) =>
-      '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+  /// Format date as yyyy-MM-dd
+  String _formatDate(DateTime d) => _api.formatDate(d);
 
+  /// Convert mood label to numeric value
   double _moodLabelToValue(String? label) {
     if (label == null || label.isEmpty) return 0.5;
     final l = label.toLowerCase();
@@ -76,61 +75,51 @@ class StatsRepo {
     return 0.5;
   }
 
-  /// Get combined mood from both daily_moods and journals tables
-  Future<double> _getMoodForDate(Database db, int userId, String dateStr) async {
-    final moodValues = <double>[];
-    
-    // Get mood from daily_moods table
-    final dailyMoodRows = await db.query(
-      'daily_moods',
-      where: 'userId = ? AND date = ?',
-      whereArgs: [userId, dateStr],
-      limit: 1,
-    );
-    if (dailyMoodRows.isNotEmpty) {
-      final label = dailyMoodRows.first['moodLabel'] as String?;
-      moodValues.add(_moodLabelToValue(label));
-    }
-    
-    // Get moods from journals table (can be multiple journals per day)
-    final journalRows = await db.query(
-      'journals',
-      columns: ['mood'],
-      where: 'userId = ? AND substr(date, 1, 10) = ?',
-      whereArgs: [userId, dateStr],
-    );
-    for (final row in journalRows) {
-      final label = row['mood'] as String?;
-      if (label != null && label.isNotEmpty) {
+  /// Get mood value for a specific date (combines daily_moods and journals)
+  Future<double> _getMoodForDate(int userId, String dateStr) async {
+    try {
+      final moodValues = <double>[];
+      
+      // Get mood from daily_moods
+      final moodResponse = await _api.get(
+        ApiConfig.MOODS_TODAY,
+        params: {
+          'userId': userId.toString(),
+          'date': dateStr,
+        },
+      );
+
+      if (moodResponse['success'] == true && moodResponse['mood'] != null) {
+        final label = moodResponse['mood']['mood_label'] as String?;
         moodValues.add(_moodLabelToValue(label));
       }
-    }
-    
-    // Return average of all moods for this day, or 0.5 if no moods found
-    if (moodValues.isEmpty) return 0.5;
-    return moodValues.reduce((a, b) => a + b) / moodValues.length;
-  }
 
-  /// Get total detox progress for screen time (sum, not average)
-  Future<Map<String, double>> _getScreenTimeData(Database db, int userId, String startDate, String endDate) async {
-    final detoxRows = await db.query(
-      'home_status',
-      columns: ['detox_progress'],
-      where: 'userId = ? AND date >= ? AND date <= ?',
-      whereArgs: [userId, startDate, endDate],
-    );
-    
-    if (detoxRows.isEmpty) {
-      return {'detox': 0.0};
+      // Get moods from journals for this date
+      final journalsResponse = await _api.get(
+        ApiConfig.JOURNALS_GET,
+        params: {'userId': userId.toString()},
+      );
+
+      if (journalsResponse['success'] == true && journalsResponse['journals'] != null) {
+        final journals = journalsResponse['journals'] as List;
+        for (var journal in journals) {
+          final journalDate = journal['date'] as String?;
+          if (journalDate != null && journalDate.startsWith(dateStr)) {
+            final mood = journal['mood'] as String?;
+            if (mood != null && mood.isNotEmpty) {
+              moodValues.add(_moodLabelToValue(mood));
+            }
+          }
+        }
+      }
+
+      // Return average or default
+      if (moodValues.isEmpty) return 0.5;
+      return moodValues.reduce((a, b) => a + b) / moodValues.length;
+    } catch (e) {
+      print('StatsRepo: Error getting mood for date $dateStr: $e');
+      return 0.5;
     }
-    
-    double totalDetox = 0.0;
-    for (final row in detoxRows) {
-      totalDetox += (row['detox_progress'] as num?)?.toDouble() ?? 0.0;
-    }
-    
-    // Return the total sum, not the average
-    return {'detox': totalDetox};
   }
 
   String _weekdayFr(int weekday) {
@@ -164,7 +153,7 @@ class StatsRepo {
     }
   }
 
-  /// Generate empty placeholder data based on range
+  /// Generate empty placeholder data
   StatsData _generateEmptyData(StatsRange range) {
     final today = DateTime.now();
 
@@ -199,7 +188,7 @@ class StatsRepo {
           journalingCount: 0,
           journalCounts: List.filled(4, 0),
           screenTime: {'detox': 0.0},
-          labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+          labels: ['W1', 'W2', 'W3', 'W4'],
         );
       case StatsRange.yearly:
         return StatsData(
@@ -216,44 +205,75 @@ class StatsRepo {
   /// Load data for today
   Future<StatsData> _loadTodayData(int userId) async {
     try {
-      final db = await DBHelper.database;
       final today = DateTime.now();
       final todayStr = _formatDate(today);
       
-      print('StatsRepo: Loading today data for date: $todayStr, userId: $userId');
-      
-      // Water data
+      print('StatsRepo: Loading today data for date: $todayStr');
+
+      // Get water data
       double water = 0.0;
-      final waterRows = await db.query(
-        'home_status',
-        where: 'userId = ? AND date = ?',
-        whereArgs: [userId, todayStr],
-        limit: 1,
-      );
-      if (waterRows.isNotEmpty) {
-        water = (waterRows.first['water_count'] as num?)?.toDouble() ?? 0.0;
-        print('StatsRepo: Water count: $water');
-      } else {
-        print('StatsRepo: No water data found for today');
+      try {
+        final homeResponse = await _api.get(
+          ApiConfig.HOME_STATUS_GET,
+          params: {
+            'userId': userId.toString(),
+            'date': todayStr,
+          },
+        );
+
+        if (homeResponse['success'] == true && homeResponse['status'] != null) {
+          water = (homeResponse['status']['water_count'] as num?)?.toDouble() ?? 0.0;
+        }
+      } catch (e) {
+        print('StatsRepo: Error getting water data: $e');
       }
-      
-      // Mood data (combined from both tables)
-      final mood = await _getMoodForDate(db, userId, todayStr);
-      print('StatsRepo: Combined mood: $mood');
-      
-      // Journal count
-      int journalCount = await DBHelper.getJournalCountForRange(userId, todayStr, todayStr);
-      print('StatsRepo: Journal count: $journalCount');
-      
-      // Screen time (detox average)
-      final screenTime = await _getScreenTimeData(db, userId, todayStr, todayStr);
-      
+
+      // Get mood data
+      final mood = await _getMoodForDate(userId, todayStr);
+
+      // Get journal count
+      int journalCount = 0;
+      try {
+        final journalsResponse = await _api.get(
+          ApiConfig.JOURNALS_GET,
+          params: {'userId': userId.toString()},
+        );
+
+        if (journalsResponse['success'] == true && journalsResponse['journals'] != null) {
+          final journals = journalsResponse['journals'] as List;
+          journalCount = journals.where((j) {
+            final date = j['date'] as String?;
+            return date != null && date.startsWith(todayStr);
+          }).length;
+        }
+      } catch (e) {
+        print('StatsRepo: Error getting journal count: $e');
+      }
+
+      // Get detox progress
+      double detox = 0.0;
+      try {
+        final homeResponse = await _api.get(
+          ApiConfig.HOME_STATUS_GET,
+          params: {
+            'userId': userId.toString(),
+            'date': todayStr,
+          },
+        );
+
+        if (homeResponse['success'] == true && homeResponse['status'] != null) {
+          detox = (homeResponse['status']['detox_progress'] as num?)?.toDouble() ?? 0.0;
+        }
+      } catch (e) {
+        print('StatsRepo: Error getting detox data: $e');
+      }
+
       return StatsData(
         waterData: [water],
         moodData: [mood],
         journalingCount: journalCount,
         journalCounts: [journalCount],
-        screenTime: screenTime,
+        screenTime: {'detox': detox},
         labels: ['Today'],
       );
     } catch (e) {
@@ -265,60 +285,87 @@ class StatsRepo {
   /// Load data for weekly range (last 7 days)
   Future<StatsData> _loadWeeklyData(int userId) async {
     try {
-      final db = await DBHelper.database;
       final today = DateTime.now();
-      
       final waterData = <double>[];
       final moodData = <double>[];
       final journalCounts = <int>[];
       final labels = <String>[];
-      int totalJournalCount = 0;
-      
-      print('StatsRepo: Loading weekly data for userId: $userId');
-      
-      final firstDay = today.subtract(const Duration(days: 6));
-      final lastDay = today;
-      
-      // Get last 7 days including today
+      int totalJournals = 0;
+      double totalDetox = 0.0;
+
+      print('StatsRepo: Loading weekly data');
+
+      // Get all journals once
+      List<dynamic> allJournals = [];
+      try {
+        final journalsResponse = await _api.get(
+          ApiConfig.JOURNALS_GET,
+          params: {'userId': userId.toString()},
+        );
+        if (journalsResponse['success'] == true && journalsResponse['journals'] != null) {
+          allJournals = journalsResponse['journals'] as List;
+        }
+      } catch (e) {
+        print('StatsRepo: Error fetching journals: $e');
+      }
+
+      // Get home status range
+      final startDate = _formatDate(today.subtract(const Duration(days: 6)));
+      final endDate = _formatDate(today);
+      List<dynamic> allHomeStatus = [];
+      try {
+        final homeResponse = await _api.get(
+          ApiConfig.HOME_GET_RANGE,
+          params: {
+            'userId': userId.toString(),
+            'startDate': startDate,
+            'endDate': endDate,
+          },
+        );
+        if (homeResponse['success'] == true && homeResponse['statuses'] != null) {
+          allHomeStatus = homeResponse['statuses'] as List;
+        }
+      } catch (e) {
+        print('StatsRepo: Error fetching home status range: $e');
+      }
+
+      // Process each day
       for (int i = 6; i >= 0; i--) {
         final date = today.subtract(Duration(days: i));
         final dateStr = _formatDate(date);
         labels.add(_weekdayFr(date.weekday));
-        
+
         // Water data
         double water = 0.0;
-        final waterRows = await db.query(
-          'home_status',
-          where: 'userId = ? AND date = ?',
-          whereArgs: [userId, dateStr],
-          limit: 1,
+        final dayStatus = allHomeStatus.firstWhere(
+          (s) => s['date'] == dateStr,
+          orElse: () => null,
         );
-        if (waterRows.isNotEmpty) {
-          water = (waterRows.first['water_count'] as num?)?.toDouble() ?? 0.0;
+        if (dayStatus != null) {
+          water = (dayStatus['water_count'] as num?)?.toDouble() ?? 0.0;
+          totalDetox += (dayStatus['detox_progress'] as num?)?.toDouble() ?? 0.0;
         }
         waterData.add(water);
-        
-        // Mood data (combined from both tables)
-        final mood = await _getMoodForDate(db, userId, dateStr);
+
+        // Mood data
+        final mood = await _getMoodForDate(userId, dateStr);
         moodData.add(mood);
-        
-        // Journal count for this day
-        final count = await DBHelper.getJournalCountForRange(userId, dateStr, dateStr);
-        journalCounts.add(count);
-        totalJournalCount += count;
+
+        // Journal count
+        final dayJournals = allJournals.where((j) {
+          final jDate = j['date'] as String?;
+          return jDate != null && jDate.startsWith(dateStr);
+        }).length;
+        journalCounts.add(dayJournals);
+        totalJournals += dayJournals;
       }
-      
-      print('StatsRepo: Weekly totals - Water: $waterData, Mood: $moodData, Journals per day: $journalCounts, Total: $totalJournalCount');
-      
-      // Screen time (detox average for the week)
-      final screenTime = await _getScreenTimeData(db, userId, _formatDate(firstDay), _formatDate(lastDay));
-      
+
       return StatsData(
         waterData: waterData,
         moodData: moodData,
-        journalingCount: totalJournalCount,
+        journalingCount: totalJournals,
         journalCounts: journalCounts,
-        screenTime: screenTime,
+        screenTime: {'detox': totalDetox},
         labels: labels,
       );
     } catch (e) {
@@ -331,74 +378,97 @@ class StatsRepo {
   Future<StatsData> _loadMonthlyData(int userId) async {
     try {
       final today = DateTime.now();
-      final db = await DBHelper.database;
-      
       final waterData = <double>[];
       final moodData = <double>[];
       final journalCounts = <int>[];
       final labels = <String>[];
-      int totalJournalCount = 0;
-      
-      print('StatsRepo: Loading monthly data for userId: $userId');
-      
-      final firstDay = today.subtract(const Duration(days: 27)); // 4 weeks = 28 days
-      
-      // Group by weeks (4 weeks of 7 days each, going backwards from today)
+      int totalJournals = 0;
+      double totalDetox = 0.0;
+
+      print('StatsRepo: Loading monthly data');
+
+      // Get all journals once
+      List<dynamic> allJournals = [];
+      try {
+        final journalsResponse = await _api.get(
+          ApiConfig.JOURNALS_GET,
+          params: {'userId': userId.toString()},
+        );
+        if (journalsResponse['success'] == true && journalsResponse['journals'] != null) {
+          allJournals = journalsResponse['journals'] as List;
+        }
+      } catch (e) {
+        print('StatsRepo: Error fetching journals: $e');
+      }
+
+      // Get home status range
+      final startDate = _formatDate(today.subtract(const Duration(days: 27)));
+      final endDate = _formatDate(today);
+      List<dynamic> allHomeStatus = [];
+      try {
+        final homeResponse = await _api.get(
+          ApiConfig.HOME_GET_RANGE,
+          params: {
+            'userId': userId.toString(),
+            'startDate': startDate,
+            'endDate': endDate,
+          },
+        );
+        if (homeResponse['success'] == true && homeResponse['statuses'] != null) {
+          allHomeStatus = homeResponse['statuses'] as List;
+        }
+      } catch (e) {
+        print('StatsRepo: Error fetching home status range: $e');
+      }
+
+      // Process each week (4 weeks)
       for (int week = 3; week >= 0; week--) {
         double weekWater = 0.0;
         double weekMood = 0.0;
-        int weekJournalCount = 0;
+        int weekJournals = 0;
         int daysWithWater = 0;
-        int daysWithMood = 0;
-        
-        // Calculate days for this week
+
         for (int day = 0; day < 7; day++) {
           final daysAgo = (week * 7) + day;
           final date = today.subtract(Duration(days: daysAgo));
           final dateStr = _formatDate(date);
-          
-          // Water data
-          final waterRows = await db.query(
-            'home_status',
-            where: 'userId = ? AND date = ?',
-            whereArgs: [userId, dateStr],
-            limit: 1,
+
+          // Water
+          final dayStatus = allHomeStatus.firstWhere(
+            (s) => s['date'] == dateStr,
+            orElse: () => null,
           );
-          if (waterRows.isNotEmpty) {
-            final water = (waterRows.first['water_count'] as num?)?.toDouble() ?? 0.0;
-            weekWater += water;
+          if (dayStatus != null) {
+            weekWater += (dayStatus['water_count'] as num?)?.toDouble() ?? 0.0;
+            totalDetox += (dayStatus['detox_progress'] as num?)?.toDouble() ?? 0.0;
             daysWithWater++;
           }
-          
-          // Mood data (combined from both tables)
-          final mood = await _getMoodForDate(db, userId, dateStr);
+
+          // Mood
+          final mood = await _getMoodForDate(userId, dateStr);
           weekMood += mood;
-          daysWithMood++;
-          
-          // Journal count
-          final count = await DBHelper.getJournalCountForRange(userId, dateStr, dateStr);
-          weekJournalCount += count;
-          totalJournalCount += count;
+
+          // Journals
+          final dayJournals = allJournals.where((j) {
+            final jDate = j['date'] as String?;
+            return jDate != null && jDate.startsWith(dateStr);
+          }).length;
+          weekJournals += dayJournals;
         }
-        
-        // Add weekly averages (insert at beginning to maintain chronological order)
+
         waterData.insert(0, daysWithWater > 0 ? weekWater / daysWithWater : 0.0);
-        moodData.insert(0, daysWithMood > 0 ? weekMood / daysWithMood : 0.5);
-        journalCounts.insert(0, weekJournalCount);
+        moodData.insert(0, weekMood / 7);
+        journalCounts.insert(0, weekJournals);
+        totalJournals += weekJournals;
         labels.insert(0, 'W${4 - week}');
       }
-      
-      print('StatsRepo: Monthly totals - Journals per week: $journalCounts, Total: $totalJournalCount');
-      
-      // Screen time (detox average for the month)
-      final screenTime = await _getScreenTimeData(db, userId, _formatDate(firstDay), _formatDate(today));
-      
+
       return StatsData(
         waterData: waterData,
         moodData: moodData,
-        journalingCount: totalJournalCount,
+        journalingCount: totalJournals,
         journalCounts: journalCounts,
-        screenTime: screenTime,
+        screenTime: {'detox': totalDetox},
         labels: labels,
       );
     } catch (e) {
@@ -411,84 +481,82 @@ class StatsRepo {
   Future<StatsData> _loadYearlyData(int userId) async {
     try {
       final today = DateTime.now();
-      final db = await DBHelper.database;
-      
       final waterData = <double>[];
       final moodData = <double>[];
       final journalCounts = <int>[];
       final labels = <String>[];
-      int totalJournalCount = 0;
-      
-      print('StatsRepo: Loading yearly data for userId: $userId');
-      
-      // Get data for each of the last 12 months
+      int totalJournals = 0;
+      double totalDetox = 0.0;
+
+      print('StatsRepo: Loading yearly data');
+
+      // Get all data once
+      List<dynamic> allJournals = [];
+      List<dynamic> allHomeStatus = [];
+
+      try {
+        final journalsResponse = await _api.get(
+          ApiConfig.JOURNALS_GET,
+          params: {'userId': userId.toString()},
+        );
+        if (journalsResponse['success'] == true && journalsResponse['journals'] != null) {
+          allJournals = journalsResponse['journals'] as List;
+        }
+      } catch (e) {
+        print('StatsRepo: Error fetching journals: $e');
+      }
+
+      // For yearly, we need to make multiple range calls or get all data
+      // This is a simplified version - you might want to optimize
       for (int monthOffset = 11; monthOffset >= 0; monthOffset--) {
-        // Calculate the target month
         int targetYear = today.year;
         int targetMonth = today.month - monthOffset;
-        
-        // Handle year wraparound
+
         while (targetMonth <= 0) {
           targetMonth += 12;
           targetYear -= 1;
         }
-        
+
         final monthStart = DateTime(targetYear, targetMonth, 1);
-        final monthEnd = DateTime(targetYear, targetMonth + 1, 0); // Last day of month
-        
-        final startStr = _formatDate(monthStart);
-        final endStr = _formatDate(monthEnd);
-        
-        // Water data for month
+        final monthEnd = DateTime(targetYear, targetMonth + 1, 0);
+
         double monthWater = 0.0;
-        int waterDays = 0;
-        final waterRows = await db.query(
-          'home_status',
-          where: 'userId = ? AND date >= ? AND date <= ?',
-          whereArgs: [userId, startStr, endStr],
-        );
-        for (final row in waterRows) {
-          monthWater += (row['water_count'] as num?)?.toDouble() ?? 0.0;
-          waterDays++;
-        }
-        
-        // Mood data for month (combined from both tables)
         double monthMood = 0.0;
+        int monthJournals = 0;
+        int waterDays = 0;
         int moodDays = 0;
-        
-        // Get all days in the month
-        for (int day = monthStart.day; day <= monthEnd.day; day++) {
+
+        // Process each day in month
+        for (int day = 1; day <= monthEnd.day; day++) {
           final date = DateTime(targetYear, targetMonth, day);
           final dateStr = _formatDate(date);
-          
-          final mood = await _getMoodForDate(db, userId, dateStr);
+
+          // This would be more efficient with a single month query
+          // For now, we filter from all data
+          final dayJournals = allJournals.where((j) {
+            final jDate = j['date'] as String?;
+            return jDate != null && jDate.startsWith(dateStr);
+          }).length;
+          monthJournals += dayJournals;
+
+          final mood = await _getMoodForDate(userId, dateStr);
           monthMood += mood;
           moodDays++;
         }
-        
-        // Journal count for month
-        final monthJournalCount = await DBHelper.getJournalCountForRange(userId, startStr, endStr);
-        journalCounts.add(monthJournalCount);
-        totalJournalCount += monthJournalCount;
-        
-        // Add monthly data
+
         waterData.add(waterDays > 0 ? monthWater / waterDays : 0.0);
         moodData.add(moodDays > 0 ? monthMood / moodDays : 0.5);
+        journalCounts.add(monthJournals);
+        totalJournals += monthJournals;
         labels.add(_monthFr(targetMonth));
       }
-      
-      print('StatsRepo: Yearly totals - Journals per month: $journalCounts, Total: $totalJournalCount');
-      
-      // Screen time (detox average for the year)
-      final yearStart = DateTime(today.year - 1, today.month, today.day);
-      final screenTime = await _getScreenTimeData(db, userId, _formatDate(yearStart), _formatDate(today));
-      
+
       return StatsData(
         waterData: waterData,
         moodData: moodData,
-        journalingCount: totalJournalCount,
+        journalingCount: totalJournals,
         journalCounts: journalCounts,
-        screenTime: screenTime,
+        screenTime: {'detox': totalDetox},
         labels: labels,
       );
     } catch (e) {
@@ -500,44 +568,28 @@ class StatsRepo {
   /// Main method to load data for any range
   Future<StatsData> loadForRange(StatsRange range) async {
     try {
-      // Get logged-in user ID from SharedPreferences
       final userId = await _getCurrentUserId();
       
       if (userId == null) {
-        print('StatsRepo: No logged-in user found! Using fallback.');
-        // Fallback to default user if no one is logged in
-        final fallbackUserId = await DBHelper.ensureDefaultUser();
-        print('StatsRepo: Using fallback userId: $fallbackUserId');
-        
-        // Debug print user data
-        await DBHelper.debugPrintUserData(fallbackUserId);
-        
-        return await _loadDataForUser(fallbackUserId, range);
+        print('StatsRepo: No logged-in user found!');
+        return _generateEmptyData(range);
       }
       
       print('StatsRepo: Loading stats for range: $range, userId: $userId');
       
-      // Debug print user data
-      await DBHelper.debugPrintUserData(userId);
-      
-      return await _loadDataForUser(userId, range);
+      switch (range) {
+        case StatsRange.today:
+          return await _loadTodayData(userId);
+        case StatsRange.weekly:
+          return await _loadWeeklyData(userId);
+        case StatsRange.monthly:
+          return await _loadMonthlyData(userId);
+        case StatsRange.yearly:
+          return await _loadYearlyData(userId);
+      }
     } catch (e) {
       print('StatsRepo: Error loading stats for range $range: $e');
       return _generateEmptyData(range);
-    }
-  }
-
-  /// Load data for a specific user and range
-  Future<StatsData> _loadDataForUser(int userId, StatsRange range) async {
-    switch (range) {
-      case StatsRange.today:
-        return await _loadTodayData(userId);
-      case StatsRange.weekly:
-        return await _loadWeeklyData(userId);
-      case StatsRange.monthly:
-        return await _loadMonthlyData(userId);
-      case StatsRange.yearly:
-        return await _loadYearlyData(userId);
     }
   }
 }
