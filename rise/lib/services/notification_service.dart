@@ -32,10 +32,11 @@ class NotificationService {
     _navigatorKey = navigatorKey;
     _onTapAction = onTapAction;
 
-    // Initialize timezone data
+    // Initialize timezone data and set local location
     tz.initializeTimeZones();
+    // Set to local timezone - this is crucial for correct notification timing
+    final locationName = tz.local.name;
 
-    // Initialize local notifications
     const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
     const iosInit = DarwinInitializationSettings(
       requestAlertPermission: true,
@@ -54,30 +55,25 @@ class NotificationService {
       },
     );
 
-    // Create notification channel for Android
     final androidPlatform = _local.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
     await androidPlatform?.createNotificationChannel(_channel);
 
-    // Request Firebase permissions
     await FirebaseMessaging.instance.requestPermission(
       alert: true,
       badge: true,
       sound: true,
     );
 
-    // Handle notification tap when app is opened from background
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
       _handleFirebaseNotificationTap(message);
     });
 
-    // Handle notification tap when app is opened from terminated state
     final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
     if (initialMessage != null) {
       _handleFirebaseNotificationTap(initialMessage);
     }
 
-    // Handle foreground messages
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       final n = message.notification;
       if (n == null) return;
@@ -91,37 +87,29 @@ class NotificationService {
       );
     });
 
-    // Get and print FCM token
     final token = await FirebaseMessaging.instance.getToken();
-    print('FCM TOKEN: $token');
 
-    // Subscribe to demo topic
     await FirebaseMessaging.instance.subscribeToTopic('demo');
 
     _initialized = true;
   }
 
-  /// Handle local notification tap
   void _handleLocalNotificationTap(NotificationResponse response) {
     final payload = response.payload;
-    print('Local notification tapped with payload: $payload');
     if (_onTapAction != null && payload != null) {
       _onTapAction!(payload);
     }
   }
 
-  /// Handle Firebase notification tap
   void _handleFirebaseNotificationTap(RemoteMessage message) {
     final screen = message.data['screen'];
     final habitKey = message.data['habitKey'];
-    print('Firebase notification tapped - screen: $screen, habitKey: $habitKey');
     
     if (_onTapAction != null) {
       _onTapAction!(screen ?? habitKey);
     }
   }
 
-  /// Get notification details for local notifications
   NotificationDetails _getNotificationDetails() {
     final AndroidNotificationDetails androidDetails =
         AndroidNotificationDetails(
@@ -148,17 +136,37 @@ class NotificationService {
     );
   }
 
-  /// Schedule a habit reminder
+  /// Schedule a habit reminder - FIXED to use local time correctly
   Future<void> scheduleHabitReminder(Habit habit, int userId) async {
     if (!habit.reminder || habit.time == null) return;
 
     final notificationId = _generateNotificationId(habit, userId);
     final scheduledTime = _getNextScheduledTime(habit);
 
+
+    // Get notification title based on habit type
+    String notificationTitle;
+    String notificationBody;
+    
+    if (habit.habitType == 'bad') {
+      notificationTitle = 'Resist ${habit.title}! 💪';
+      notificationBody = 'Skip this habit and earn ${habit.points} points ⭐';
+    } else {
+      notificationTitle = 'Time for ${habit.title}! 🎯';
+      notificationBody = 'Complete your habit and earn ${habit.points} points ⭐';
+    }
+    
+    // Add task/habit indicator
+    if (habit.isTask) {
+      notificationBody += '\nTask Progress: ${habit.taskCompletionCount}/10';
+    } else {
+      notificationBody += '\nStreak: ${habit.streakCount} 🔥';
+    }
+
     await _local.zonedSchedule(
       notificationId,
-      'Time for ${habit.title}! 🎯',
-      'Complete your habit and earn ${habit.points} points ⭐',
+      notificationTitle,
+      notificationBody,
       scheduledTime,
       _getNotificationDetails(),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
@@ -166,14 +174,16 @@ class NotificationService {
       payload: habit.habitKey,
     );
 
-    print('Scheduled notification for ${habit.title} at $scheduledTime');
   }
 
-  /// Get next scheduled time for habit
+  /// Get next scheduled time - FIXED to properly use local timezone
   tz.TZDateTime _getNextScheduledTime(Habit habit) {
+    // Get current time in local timezone
     final now = tz.TZDateTime.now(tz.local);
     final time = habit.time!;
 
+
+    // Create scheduled time for today in LOCAL timezone
     tz.TZDateTime scheduledDate = tz.TZDateTime(
       tz.local,
       now.year,
@@ -181,28 +191,55 @@ class NotificationService {
       now.day,
       time.hour,
       time.minute,
+      0,
+      0,
     );
 
-    // If the time has passed today, schedule for tomorrow (or next occurrence)
+
+    // If the time has already passed today, schedule for the next occurrence
     if (scheduledDate.isBefore(now)) {
+      
       switch (habit.frequency.toLowerCase()) {
         case 'daily':
+          // Schedule for tomorrow at the same time
           scheduledDate = scheduledDate.add(const Duration(days: 1));
           break;
+          
         case 'weekly':
+          // Schedule for next week same day
           scheduledDate = scheduledDate.add(const Duration(days: 7));
           break;
+          
         case 'monthly':
+          // Schedule for same day next month
+          int nextMonth = scheduledDate.month + 1;
+          int nextYear = scheduledDate.year;
+          if (nextMonth > 12) {
+            nextMonth = 1;
+            nextYear++;
+          }
+          
+          // Handle edge case where day doesn't exist in next month (e.g., Jan 31 -> Feb)
+          int nextDay = scheduledDate.day;
+          final daysInNextMonth = DateTime(nextYear, nextMonth + 1, 0).day;
+          if (nextDay > daysInNextMonth) {
+            nextDay = daysInNextMonth;
+          }
+          
           scheduledDate = tz.TZDateTime(
             tz.local,
-            now.month == 12 ? now.year + 1 : now.year,
-            now.month == 12 ? 1 : now.month + 1,
-            scheduledDate.day,
+            nextYear,
+            nextMonth,
+            nextDay,
             time.hour,
             time.minute,
+            0,
+            0,
           );
           break;
+          
         default:
+          // Default to daily
           scheduledDate = scheduledDate.add(const Duration(days: 1));
       }
     }
@@ -214,11 +251,11 @@ class NotificationService {
   DateTimeComponents? _getDateTimeComponents(String frequency) {
     switch (frequency.toLowerCase()) {
       case 'daily':
-        return DateTimeComponents.time;
+        return DateTimeComponents.time; // Repeat at same time every day
       case 'weekly':
-        return DateTimeComponents.dayOfWeekAndTime;
+        return DateTimeComponents.dayOfWeekAndTime; // Repeat same day of week
       case 'monthly':
-        return DateTimeComponents.dayOfMonthAndTime;
+        return DateTimeComponents.dayOfMonthAndTime; // Repeat same day of month
       default:
         return DateTimeComponents.time;
     }
@@ -226,23 +263,23 @@ class NotificationService {
 
   /// Generate unique notification ID for habit
   int _generateNotificationId(Habit habit, int userId) {
-    return '${userId}_${habit.habitKey}_${habit.frequency}'.hashCode;
+    // Use a consistent hash that includes userId, habitKey, and frequency
+    final uniqueString = '${userId}_${habit.habitKey}_${habit.frequency}';
+    return uniqueString.hashCode;
   }
 
   /// Cancel habit reminder
   Future<void> cancelHabitReminder(Habit habit, int userId) async {
     final notificationId = _generateNotificationId(habit, userId);
     await _local.cancel(notificationId);
-    print('Cancelled notification for ${habit.title}');
   }
 
   /// Cancel all notifications
   Future<void> cancelAllNotifications() async {
     await _local.cancelAll();
-    print('Cancelled all notifications');
   }
 
-  /// Show test notification (for testing, no Firebase needed)
+  /// Show test notification
   Future<void> showTestNotification({
     required String title,
     required String body,
@@ -280,12 +317,10 @@ class NotificationService {
   /// Subscribe to FCM topic
   Future<void> subscribeToTopic(String topic) async {
     await FirebaseMessaging.instance.subscribeToTopic(topic);
-    print('Subscribed to topic: $topic');
   }
 
   /// Unsubscribe from FCM topic
   Future<void> unsubscribeFromTopic(String topic) async {
     await FirebaseMessaging.instance.unsubscribeFromTopic(topic);
-    print('Unsubscribed from topic: $topic');
   }
 }

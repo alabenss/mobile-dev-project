@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../themes/style_simple/colors.dart';
 import '../../../models/habit_model.dart';
+import '../../../database/repo/habit_repo.dart';
 import 'habit_card.dart';
 import '../../../logic/habits/habit_cubit.dart';
 
@@ -19,7 +20,6 @@ class _HabitListState extends State<HabitList> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     
-    // Separate habits by status
     final active = widget.habits
         .where((h) => !h.done && !h.skipped)
         .toList();
@@ -28,14 +28,12 @@ class _HabitListState extends State<HabitList> {
         .where((h) => h.skipped)
         .toList();
     
-    // Calculate progress
     double progress = widget.habits.isEmpty
         ? 0
         : completed.length / widget.habits.length;
 
     return Column(
       children: [
-        // Progress bar
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
           child: ClipRRect(
@@ -98,15 +96,20 @@ class _HabitListState extends State<HabitList> {
               direction: title == "Today's Habits" || title == "Habits d'aujourd'hui"
                   ? DismissDirection.horizontal
                   : DismissDirection.none,
+              // REVERSED COLORS FOR BAD HABITS - Using dialog-style icons
               background: _buildSwipeBackground(
-                Icons.check,
-                Colors.greenAccent.withOpacity(0.7),
-                "Completed",
+                habit.habitType == 'bad' ? Icons.cancel : Icons.check_circle,
+                habit.habitType == 'bad' 
+                    ? Colors.redAccent.withOpacity(0.7)  // Red for bad habit "done"
+                    : Colors.greenAccent.withOpacity(0.7), // Green for good habit completed
+                habit.habitType == 'good' ? "Completed" : "Did It 😢",
               ),
               secondaryBackground: _buildSwipeBackground(
-                Icons.close,
-                Colors.redAccent.withOpacity(0.7),
-                "Skipped",
+                habit.habitType == 'good' ? Icons.cancel : Icons.check_circle,
+                habit.habitType == 'good' 
+                    ? Colors.redAccent.withOpacity(0.7)  // Red for good habit skipped
+                    : Colors.greenAccent.withOpacity(0.7), // Green for bad habit resisted
+                habit.habitType == 'good' ? "Skipped" : "Resisted! 💪",
                 alignRight: true,
               ),
               confirmDismiss: (direction) async {
@@ -120,66 +123,138 @@ class _HabitListState extends State<HabitList> {
                 final l10n = AppLocalizations.of(context)!;
                 
                 if (direction == DismissDirection.startToEnd) {
-                  // Mark as completed using habitKey
-                  await cubit.completeHabit(habit.habitKey);
-                  
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Row(
-                          children: [
-                            const Icon(Icons.check_circle, color: Colors.white),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(l10n.habitCompleted(habit.title)),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 4,
+                  if (habit.habitType == 'good') {
+                    await cubit.completeHabit(habit.habitKey);
+                    
+                    if (mounted) {
+                      String message = l10n.habitCompleted(habit.title);
+                      
+                      // Special message if task became habit
+                      if (habit.isTask && habit.taskCompletionCount == 9) {
+                        message = '🎉 ${habit.title} is now a Habit! +50 bonus points!';
+                      }
+                      
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Row(
+                            children: [
+                              const Icon(Icons.check_circle, color: Colors.white),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(message),
                               ),
-                              decoration: BoxDecoration(
-                                color: Colors.amber,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    Icons.stars,
-                                    color: Colors.white,
-                                    size: 18,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    '+${habit.points}',
-                                    style: const TextStyle(
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.amber,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(
+                                      Icons.stars,
                                       color: Colors.white,
-                                      fontWeight: FontWeight.bold,
+                                      size: 18,
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '+${habit.points}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
+                          backgroundColor: Colors.greenAccent,
+                          duration: const Duration(seconds: 3),
                         ),
-                        backgroundColor: Colors.greenAccent,
-                        duration: const Duration(seconds: 3),
-                      ),
-                    );
+                      );
+                    }
+                  } else {
+                    // Bad habit - marking as "done" (did the bad habit) breaks the streak
+                    await cubit.completeHabit(habit.habitKey);
+                    
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Oh no! You did ${habit.title}. Streak broken! 😞'),
+                          backgroundColor: Colors.redAccent,
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                    }
                   }
                 } else if (direction == DismissDirection.endToStart) {
-                  // Mark as skipped using habitKey
-                  await cubit.skipHabit(habit.habitKey);
-                  
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(l10n.habitSkipped(habit.title)),
-                        backgroundColor: Colors.orangeAccent,
-                        duration: const Duration(seconds: 2),
-                      ),
-                    );
+                  if (habit.habitType == 'good') {
+                    // Good habit skipped
+                    await cubit.skipHabit(habit.habitKey);
+                    
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(l10n.habitSkipped(habit.title)),
+                          backgroundColor: Colors.orangeAccent,
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                    }
+                  } else {
+                    // Bad habit resisted - this is good!
+                    await cubit.skipHabit(habit.habitKey);
+                    
+                    if (mounted) {
+                      String message = 'Great! You resisted ${habit.title}! 💪';
+                      
+                      if (habit.isTask && habit.taskCompletionCount == 9) {
+                        message = '🎉 Resisting ${habit.title} is now a Habit! +50 bonus!';
+                      }
+                      
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Row(
+                            children: [
+                              const Icon(Icons.celebration, color: Colors.white),
+                              const SizedBox(width: 8),
+                              Expanded(child: Text(message)),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.amber,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.stars, color: Colors.white, size: 18),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '+${habit.points}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          backgroundColor: Colors.greenAccent,
+                          duration: const Duration(seconds: 3),
+                        ),
+                      );
+                    }
                   }
                 }
               },
@@ -204,7 +279,12 @@ class _HabitListState extends State<HabitList> {
                 },
                 child: Opacity(
                   opacity: faded ? 0.6 : 1,
-                  child: HabitCard(habit: habit),
+                  child: HabitCard(
+                    habit: habit,
+                    onRestoreStreak: habit.needsStreakRestoration
+                        ? () => _handleRestoreStreak(context, habit)
+                        : null,
+                  ),
                 ),
               ),
             )),
@@ -212,15 +292,123 @@ class _HabitListState extends State<HabitList> {
     );
   }
 
+  Future<void> _handleRestoreStreak(BuildContext context, Habit habit) async {
+    final l10n = AppLocalizations.of(context)!;
+    
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.card,
+        title: Row(
+          children: [
+            Icon(Icons.restore, color: Colors.orange, size: 28),
+            const SizedBox(width: 8),
+            Text('Restore Streak?'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Restore your ${habit.bestStreak}-day streak for ${habit.habitKey}?',
+              style: TextStyle(color: AppColors.textPrimary),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.orange.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.stars, color: Colors.amber),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Cost: ${habit.streakRestorationCost} points',
+                    style: TextStyle(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l10n.cancel, style: TextStyle(color: AppColors.textPrimary)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
+            onPressed: () => Navigator.pop(context, true),
+            child: Text('Restore', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+    
+    if (confirmed == true && mounted) {
+      final repo = HabitRepository();
+      final success = await repo.restoreStreak(habit.habitKey);
+      
+      if (mounted) {
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.check_circle, color: Colors.white),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text('Streak restored! Keep it going! 🔥'),
+                  ),
+                ],
+              ),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+          
+          // Reload habits to show updated streak
+          context.read<HabitCubit>().loadHabits();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Not enough points to restore streak!'),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      }
+    }
+  }
+
   Future<bool> _showSkipConfirmation(BuildContext context, Habit habit) async {
     final l10n = AppLocalizations.of(context)!;
+    
+    String title;
+    String message;
+    
+    if (habit.habitType == 'good') {
+      title = l10n.skipHabit;
+      message = l10n.skipHabitConfirmation(habit.title);
+    } else {
+      title = 'Resist ${habit.title}?';
+      message = 'Mark that you successfully resisted this habit today?';
+    }
+    
     return await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
             backgroundColor: AppColors.card,
-            title: Text(l10n.skipHabit),
+            title: Text(title),
             content: Text(
-              l10n.skipHabitConfirmation(habit.title),
+              message,
               style: const TextStyle(color: AppColors.textSecondary),
             ),
             actions: [
@@ -233,11 +421,13 @@ class _HabitListState extends State<HabitList> {
               ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orangeAccent,
+                  backgroundColor: habit.habitType == 'good' 
+                      ? Colors.orangeAccent 
+                      : Colors.green,
                 ),
                 onPressed: () => Navigator.pop(context, true),
                 child: Text(
-                  l10n.skip,
+                  habit.habitType == 'good' ? l10n.skip : 'Resisted',
                   style: const TextStyle(color: Colors.white),
                 ),
               ),
@@ -316,13 +506,13 @@ class _HabitListState extends State<HabitList> {
         children: [
           if (alignRight)
             Text(label,
-                style: const TextStyle(color: Colors.white, fontSize: 16)),
+                style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
           const SizedBox(width: 8),
-          Icon(icon, color: Colors.white, size: 28),
+          Icon(icon, color: Colors.white, size: 32),
           if (!alignRight) const SizedBox(width: 8),
           if (!alignRight)
             Text(label,
-                style: const TextStyle(color: Colors.white, fontSize: 16)),
+                style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
         ],
       ),
     );

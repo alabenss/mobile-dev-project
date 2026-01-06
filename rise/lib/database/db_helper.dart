@@ -20,7 +20,7 @@ class DBHelper {
 
     return await openDatabase(
       path,
-      version: 5, // FINAL VERSION = 5
+      version: 6, // UPDATED VERSION = 6
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -33,24 +33,21 @@ class DBHelper {
     int newVersion,
   ) async {
     if (oldVersion < 2) {
-      // Add userId column to home_status table
       await db.execute('ALTER TABLE home_status ADD COLUMN userId INTEGER');
     }
 
     if (oldVersion < 3) {
-      // Add new columns to journals table for enhanced features
       await db.execute('ALTER TABLE journals ADD COLUMN title TEXT');
       await db.execute('ALTER TABLE journals ADD COLUMN backgroundImage TEXT');
       await db.execute('ALTER TABLE journals ADD COLUMN fontFamily TEXT');
       await db.execute('ALTER TABLE journals ADD COLUMN textColor TEXT');
       await db.execute('ALTER TABLE journals ADD COLUMN fontSize REAL');
-      await db.execute('ALTER TABLE journals ADD COLUMN attachedImages TEXT'); // JSON array
-      await db.execute('ALTER TABLE journals ADD COLUMN stickers TEXT'); // JSON array
-      await db.execute('ALTER TABLE journals ADD COLUMN time TEXT'); // Time of journal entry
+      await db.execute('ALTER TABLE journals ADD COLUMN attachedImages TEXT');
+      await db.execute('ALTER TABLE journals ADD COLUMN stickers TEXT');
+      await db.execute('ALTER TABLE journals ADD COLUMN time TEXT');
     }
 
     if (oldVersion < 4) {
-      // Create daily_moods table
       await db.execute('''
         CREATE TABLE IF NOT EXISTS daily_moods (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -67,9 +64,6 @@ class DBHelper {
     }
 
     if (oldVersion < 5) {
-      // --- Part 1: remove mood columns from home_status (old schema) ---
-      // SQLite doesn't support DROP COLUMN, so recreate the table
-
       await db.execute('''
         CREATE TABLE home_status_new(
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -92,7 +86,6 @@ class DBHelper {
       await db.execute('DROP TABLE home_status;');
       await db.execute('ALTER TABLE home_status_new RENAME TO home_status;');
 
-      // --- Part 2: create app_lock table ---
       await db.execute('''
         CREATE TABLE IF NOT EXISTS app_lock (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -106,11 +99,20 @@ class DBHelper {
         )
       ''');
     }
+
+    if (oldVersion < 6) {
+      // Add new columns for enhanced habit tracking
+      await db.execute('ALTER TABLE habits ADD COLUMN habitType TEXT DEFAULT "good"');
+      await db.execute('ALTER TABLE habits ADD COLUMN streakCount INTEGER DEFAULT 0');
+      await db.execute('ALTER TABLE habits ADD COLUMN bestStreak INTEGER DEFAULT 0');
+      await db.execute('ALTER TABLE habits ADD COLUMN isTask INTEGER DEFAULT 1');
+      await db.execute('ALTER TABLE habits ADD COLUMN taskCompletionCount INTEGER DEFAULT 0');
+      await db.execute('ALTER TABLE habits ADD COLUMN lastCompletedDate TEXT');
+    }
   }
 
   // Create all the tables (final schema)
   static Future<void> _onCreate(Database db, int version) async {
-    // Users table with password field
     await db.execute('''
       CREATE TABLE users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -122,7 +124,6 @@ class DBHelper {
       );
     ''');
 
-    // home_status table WITHOUT mood fields
     await db.execute('''
       CREATE TABLE home_status(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -136,28 +137,30 @@ class DBHelper {
       );
     ''');
 
-    // Habits table
+    await db.execute('''
+      CREATE TABLE habits (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        userId INTEGER,
+        title TEXT,
+        description TEXT,
+        frequency TEXT,
+        status TEXT,
+        createdDate TEXT,
+        lastUpdated TEXT,
+        Doitat TEXT,
+        points INTEGER,
+        remindMe INTEGER DEFAULT 0,
+        lastNotified TEXT,
+        habitType TEXT DEFAULT 'good',
+        streakCount INTEGER DEFAULT 0,
+        bestStreak INTEGER DEFAULT 0,
+        isTask INTEGER DEFAULT 1,
+        taskCompletionCount INTEGER DEFAULT 0,
+        lastCompletedDate TEXT,
+        FOREIGN KEY (userId) REFERENCES users(id)
+      );
+    ''');
 
-await db.execute('''
-  CREATE TABLE habits (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    userId INTEGER,
-    title TEXT,
-    description TEXT,
-    frequency TEXT,
-    status TEXT,
-    createdDate TEXT,
-    lastUpdated TEXT,
-    Doitat TEXT,
-    points INTEGER,
-    remindMe INTEGER DEFAULT 0,
-    lastNotified TEXT,
-    FOREIGN KEY (userId) REFERENCES users(id)
-  );
-''');
-
-
-    // Journals table with enhanced fields
     await db.execute('''
       CREATE TABLE journals (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -179,7 +182,6 @@ await db.execute('''
       );
     ''');
 
-    // Daily moods table (separate from home_status)
     await db.execute('''
       CREATE TABLE daily_moods (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -194,7 +196,6 @@ await db.execute('''
       );
     ''');
 
-    // App Lock table
     await db.execute('''
       CREATE TABLE app_lock (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -211,7 +212,6 @@ await db.execute('''
 
   // ------------------ Auth Methods ------------------
 
-  /// Create a new user and return their ID
   static Future<int> createUser(String name, String email, String password) async {
     final db = await database;
     return await db.insert('users', {
@@ -223,7 +223,6 @@ await db.execute('''
     });
   }
 
-  /// Login user - verify credentials
   static Future<Map<String, dynamic>?> loginUser(String email, String password) async {
     final db = await database;
     final result = await db.query(
@@ -237,12 +236,10 @@ await db.execute('''
     return result.first;
   }
 
-  /// Login using email (alias)
   static Future<Map<String, dynamic>?> loginUserByEmail(String email, String password) async {
     return await loginUser(email, password);
   }
 
-  /// Login using username (we will use the "name" column as username)
   static Future<Map<String, dynamic>?> loginUserByUsername(String username, String password) async {
     final db = await database;
 
@@ -257,7 +254,6 @@ await db.execute('''
     return result.first;
   }
 
-  /// Check if a user with this email already exists
   static Future<bool> userExists(String email) async {
     final db = await database;
 
@@ -272,7 +268,6 @@ await db.execute('''
     return result.isNotEmpty;
   }
 
-  /// Get user by ID
   static Future<Map<String, dynamic>?> getUserById(int id) async {
     final db = await database;
     final result = await db.query(
@@ -286,7 +281,6 @@ await db.execute('''
     return result.first;
   }
 
-  /// Update user name
   static Future<void> updateUserName(int userId, String newName) async {
     final db = await database;
 
@@ -298,7 +292,6 @@ await db.execute('''
     );
   }
 
-  /// Update user email
   static Future<void> updateUserEmail(int userId, String newEmail) async {
     final db = await database;
 
@@ -310,7 +303,6 @@ await db.execute('''
     );
   }
 
-  /// Update user password
   static Future<void> updateUserPassword(int userId, String newPassword) async {
     final db = await database;
 
@@ -324,7 +316,6 @@ await db.execute('''
 
   // ------------------ Stars Methods ------------------
 
-  /// Get current number of stars for a specific user
   static Future<int> getUserStars(int userId) async {
     final db = await database;
 
@@ -344,7 +335,6 @@ await db.execute('''
     return 0;
   }
 
-  /// Update the number of stars for a specific user
   static Future<void> updateUserStars(int userId, int stars) async {
     final db = await database;
 
@@ -358,7 +348,6 @@ await db.execute('''
 
   // ------------------ User + Points Methods ------------------
 
-  /// Ensure there is at least one default user row and return its id.
   static Future<int> ensureDefaultUser() async {
     final db = await database;
     final result = await db.query('users', limit: 1);
@@ -380,7 +369,6 @@ await db.execute('''
     return id;
   }
 
-  /// Read current total points for the default user.
   static Future<int> getUserTotalPoints() async {
     final db = await database;
     final userId = await ensureDefaultUser();
@@ -401,7 +389,6 @@ await db.execute('''
     return 0;
   }
 
-  /// Update total points for the default user.
   static Future<void> setUserTotalPoints(int points) async {
     final db = await database;
     final userId = await ensureDefaultUser();
@@ -416,7 +403,6 @@ await db.execute('''
 
   // ------------------ Journal Methods ------------------
 
-  /// Get journal count for a date range
   static Future<int> getJournalCountForRange(
     int userId,
     String startDate,
@@ -435,7 +421,6 @@ await db.execute('''
     return Sqflite.firstIntValue(result) ?? 0;
   }
 
-  /// Get all journals for a specific date (for debugging)
   static Future<List<Map<String, dynamic>>> getJournalsForDate(int userId, String date) async {
     final db = await database;
 
@@ -448,7 +433,6 @@ await db.execute('''
 
   // ------------------ SharedPreferences Methods ------------------
 
-  /// Get current logged-in user ID from SharedPreferences
   static Future<int?> getCurrentUserId() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -460,13 +444,11 @@ await db.execute('''
 
   // ------------------ Debug Methods ------------------
 
-  /// Print all tables for debugging
   static Future<void> debugPrintAllTables() async {
     final db = await database;
 
     print('\n========== DATABASE DEBUG ==========');
 
-    // Users
     print('\n--- USERS TABLE ---');
     final users = await db.query('users');
     for (var user in users) {
@@ -475,7 +457,6 @@ await db.execute('''
       );
     }
 
-    // Home Status
     print('\n--- HOME_STATUS TABLE ---');
     final homeStatus = await db.query('home_status', orderBy: 'date DESC', limit: 20);
     for (var status in homeStatus) {
@@ -484,7 +465,6 @@ await db.execute('''
       );
     }
 
-    // Daily Moods
     print('\n--- DAILY_MOODS TABLE ---');
     final moods = await db.query('daily_moods', orderBy: 'date DESC', limit: 20);
     for (var mood in moods) {
@@ -493,7 +473,6 @@ await db.execute('''
       );
     }
 
-    // Journals
     print('\n--- JOURNALS TABLE ---');
     final journals = await db.query('journals', orderBy: 'date DESC', limit: 20);
     for (var journal in journals) {
@@ -506,19 +485,17 @@ await db.execute('''
       );
     }
 
-    // Habits
     print('\n--- HABITS TABLE ---');
     final habits = await db.query('habits', limit: 20);
     for (var habit in habits) {
       print(
-        'Habit: id=${habit['id']}, userId=${habit['userId']}, title=${habit['title']}, status=${habit['status']}',
+        'Habit: id=${habit['id']}, userId=${habit['userId']}, title=${habit['title']}, status=${habit['status']}, type=${habit['habitType']}, streak=${habit['streakCount']}',
       );
     }
 
     print('\n====================================\n');
   }
 
-  /// Debug: Print data for specific user
   static Future<void> debugPrintUserData(int userId) async {
     final db = await database;
 
@@ -527,7 +504,6 @@ await db.execute('''
     final user = await getUserById(userId);
     print('User: $user');
 
-    // Home status
     print('\n--- Home Status (last 7 days) ---');
     final homeStatus = await db.query(
       'home_status',
@@ -540,7 +516,6 @@ await db.execute('''
       print('  ${row['date']}: water=${row['water_count']}, detox=${row['detox_progress']}');
     }
 
-    // Moods
     print('\n--- Moods (last 7 days) ---');
     final moods = await db.query(
       'daily_moods',
@@ -553,7 +528,6 @@ await db.execute('''
       print('  ${row['date']}: ${row['moodLabel']}');
     }
 
-    // Journals
     print('\n--- Journals (last 7 days) ---');
     final journals = await db.query(
       'journals',
@@ -575,7 +549,6 @@ await db.execute('''
 
   // ------------------ App Lock Methods ------------------
 
-  /// Get app lock settings for a user
   static Future<Map<String, dynamic>?> getAppLock(int userId) async {
     final db = await database;
     final result = await db.query(
@@ -589,7 +562,6 @@ await db.execute('''
     return result.first;
   }
 
-  /// Save app lock settings
   static Future<void> saveAppLock({
     required int userId,
     required String lockType,
@@ -611,7 +583,6 @@ await db.execute('''
     );
   }
 
-  /// Remove app lock
   static Future<void> removeAppLock(int userId) async {
     final db = await database;
     await db.delete(
@@ -623,7 +594,6 @@ await db.execute('''
 
   // ------------------ Utilities ------------------
 
-  /// Clear all tables
   static Future<void> clearAll() async {
     final db = await database;
     await db.delete('journals');
@@ -634,19 +604,18 @@ await db.execute('''
     await db.delete('users');
   }
 
-  /// Close the database
   static Future<void> close() async {
     final db = _database;
     await db?.close();
     _database = null;
   }
 
-  /// Create a demo user with demo data if no users exist
-  /// Create a demo user with comprehensive demo data
+  // Replace the createDemoUserWithData method in db_helper.dart with this version
+// This uses hardcoded icon codepoints instead of Icons references
+
 static Future<int> createDemoUserWithData() async {
   final db = await database;
 
-  // Check if demo user already exists
   final existingDemo = await db.query(
     'users',
     where: 'email = ?',
@@ -659,18 +628,16 @@ static Future<int> createDemoUserWithData() async {
     userId = existingDemo.first['id'] as int;
     print('Demo user already exists with ID: $userId');
   } else {
-    // Create demo user
     userId = await db.insert('users', {
       'name': 'Demo',
       'email': 'demo@riseapp.com',
       'password': 'demo123',
-      'totalPoints': 450,
-      'stars': 15,
+      'totalPoints': 850,
+      'stars': 25,
     });
     print('Created demo user with ID: $userId');
   }
 
-  // Clear existing demo data for this user
   await db.delete('home_status', where: 'userId = ?', whereArgs: [userId]);
   await db.delete('daily_moods', where: 'userId = ?', whereArgs: [userId]);
   await db.delete('journals', where: 'userId = ?', whereArgs: [userId]);
@@ -678,9 +645,8 @@ static Future<int> createDemoUserWithData() async {
   await db.delete('app_lock', where: 'userId = ?', whereArgs: [userId]);
 
   final today = DateTime.now();
-  final rnd = Random(42); // Fixed seed for consistent demo data
+  final rnd = Random(42);
 
-  // Mood data
   final moodLabels = ['happy', 'good', 'grateful', 'angry', 'sad'];
   final moodImages = [
     'assets/images/happy.png',
@@ -690,7 +656,6 @@ static Future<int> createDemoUserWithData() async {
     'assets/images/sad.png',
   ];
 
-  // Journal prompts for variety
   final journalEntries = [
     'Started my day with a morning walk. The fresh air really helped clear my mind and set a positive tone for the day ahead.',
     'Had a productive work session today. Managed to complete two important tasks that I had been putting off. Feeling accomplished!',
@@ -702,11 +667,8 @@ static Future<int> createDemoUserWithData() async {
     'Read an interesting article about personal growth. Key takeaway: progress over perfection.',
     'Enjoyed a peaceful afternoon in the park. Nature has a way of putting things into perspective.',
     'Reflected on my goals today. Feeling motivated to keep pushing forward despite the challenges.',
-    'Had a challenging day but managed to stay positive. Proud of myself for not giving up.',
-    'Discovered a great new podcast about mindfulness. Can\'t wait to listen to more episodes.',
   ];
 
-  // Journal titles for variety
   final journalTitles = [
     'Morning Reflections',
     'Today\'s Thoughts',
@@ -714,24 +676,17 @@ static Future<int> createDemoUserWithData() async {
     'Daily Journal',
     'Personal Reflections',
     'Mindful Moments',
-    'Day Recap',
-    'Thoughts & Feelings',
-    'My Day',
-    'Journal Entry',
-    'Today\'s Memories',
-    'Daily Gratitude',
   ];
 
-  // Create data for the last 30 days
+  // Create home status and moods for the past 30 days
   for (int i = 29; i >= 0; i--) {
     final date = today.subtract(Duration(days: i));
     final dateStr =
         '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
     final isToday = i == 0;
 
-    // Home status data
-    final waterCount = isToday ? 3 : (rnd.nextInt(5) + 4); // 4-8 glasses
-    final detoxProgress = isToday ? 0.3 : (rnd.nextDouble() * 0.6 + 0.3); // 0.3-0.9
+    final waterCount = isToday ? 3 : (rnd.nextInt(5) + 4);
+    final detoxProgress = isToday ? 0.3 : (rnd.nextDouble() * 0.6 + 0.3);
 
     await db.insert('home_status', {
       'date': dateStr,
@@ -741,7 +696,6 @@ static Future<int> createDemoUserWithData() async {
       'detox_progress': detoxProgress,
     });
 
-    // Daily mood (mostly positive moods)
     final moodIndex = isToday ? 1 : (rnd.nextInt(10) < 7 ? rnd.nextInt(2) : rnd.nextInt(3) + 2);
     final actualMoodIndex = moodIndex.clamp(0, 4);
     
@@ -754,11 +708,10 @@ static Future<int> createDemoUserWithData() async {
       'updatedAt': date.toIso8601String(),
     });
 
-    // Add journal entries (about 60% of days)
     if (rnd.nextInt(10) < 6) {
       final entryIndex = rnd.nextInt(journalEntries.length);
       final titleIndex = rnd.nextInt(journalTitles.length);
-      final hour = rnd.nextInt(12) + 8; // 8 AM - 8 PM
+      final hour = rnd.nextInt(12) + 8;
       final minute = rnd.nextInt(60);
       final timeStr = '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
 
@@ -781,107 +734,357 @@ static Future<int> createDemoUserWithData() async {
     }
   }
 
-  // Create varied habits
-  final now = DateTime.now();
-  final createdDateStr =
-      '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-
-  final habits = [
-    {
-      'title': 'Morning Meditation',
-      'description': 'Start the day with 10 minutes of mindfulness meditation',
-      'frequency': 'daily',
-      'status': 'active',
-      'Doitat': '07:00',
-      'points': 10,
-    },
-    {
-      'title': 'Drink 8 Glasses of Water',
-      'description': 'Stay hydrated throughout the day',
-      'frequency': 'daily',
-      'status': 'active',
-      'Doitat': '09:00',
-      'points': 5,
-    },
-    {
-      'title': 'Evening Reading',
-      'description': 'Read for at least 30 minutes before bed',
-      'frequency': 'daily',
-      'status': 'active',
-      'Doitat': '21:00',
-      'points': 10,
-    },
-    {
-      'title': 'Exercise',
-      'description': 'Get at least 30 minutes of physical activity',
-      'frequency': 'daily',
-      'status': 'active',
-      'Doitat': '06:30',
-      'points': 15,
-    },
-    {
-      'title': 'Gratitude Journal',
-      'description': 'Write down three things you\'re grateful for',
-      'frequency': 'daily',
-      'status': 'active',
-      'Doitat': '22:00',
-      'points': 8,
-    },
-    {
-      'title': 'Weekly Review',
-      'description': 'Review your week and plan for the next one',
-      'frequency': 'weekly',
-      'status': 'active',
-      'Doitat': '18:00',
-      'points': 20,
-    },
-    {
-      'title': 'Deep Work Session',
-      'description': 'Focus on important tasks without distractions',
-      'frequency': 'daily',
-      'status': 'active',
-      'Doitat': '10:00',
-      'points': 15,
-    },
-    {
-      'title': 'Healthy Breakfast',
-      'description': 'Start your day with a nutritious meal',
-      'frequency': 'daily',
-      'status': 'active',
-      'Doitat': '08:00',
-      'points': 5,
-    },
-  ];
-
-  for (var habit in habits) {
-    await db.insert('habits', {
-      'userId': userId,
-      'title': habit['title'],
-      'description': habit['description'],
-      'frequency': habit['frequency'],
-      'status': habit['status'],
-      'createdDate': createdDateStr,
-      'lastUpdated': createdDateStr,
-      'Doitat': habit['Doitat'],
-      'points': habit['points'],
-    });
+  // COMPREHENSIVE HABIT DATA
+  // Icon codepoints for Material Icons:
+  // self_improvement: 0xe5cc, fitness_center: 0xe2e4, local_drink: 0xe510
+  // phone_disabled: 0xe944, book: 0xe0bb, cleaning_services: 0xf03e
+  // timer_off: 0xe462, school: 0xea3b, account_balance: 0xe0a8
+  // smoke_free: 0xea45, local_hospital: 0xe50a, directions_walk: 0xe23b
+  // bedtime: 0xed37
+  
+  // Helper function to create date string
+  String _dateStr(DateTime date) {
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
   }
 
+  // ==================== DAILY HABITS ====================
+  
+  // 1. Morning Meditation (Daily) - Perfect streak, became a habit
+  final meditationDaily = {
+    'userId': userId,
+    'title': 'Morning Meditation',
+    'description': '58828', // self_improvement icon
+    'frequency': 'Daily',
+    'status': 'active',
+    'createdDate': _dateStr(today.subtract(Duration(days: 15))),
+    'lastUpdated': _dateStr(today),
+    'Doitat': '07:00',
+    'points': 10,
+    'remindMe': 1,
+    'habitType': 'good',
+    'streakCount': 15,
+    'bestStreak': 15,
+    'isTask': 0, // Became a habit
+    'taskCompletionCount': 15,
+    'lastCompletedDate': _dateStr(today.subtract(Duration(days: 1))),
+  };
+  await db.insert('habits', meditationDaily);
+
+  // 2. Exercise (Daily) - Active streak of 7 days, still a task
+  final exerciseDaily = {
+    'userId': userId,
+    'title': 'Exercise',
+    'description': '58084', // fitness_center icon
+    'frequency': 'Daily',
+    'status': 'active',
+    'createdDate': _dateStr(today.subtract(Duration(days: 10))),
+    'lastUpdated': _dateStr(today),
+    'Doitat': '06:30',
+    'points': 15,
+    'remindMe': 1,
+    'habitType': 'good',
+    'streakCount': 7,
+    'bestStreak': 7,
+    'isTask': 1,
+    'taskCompletionCount': 7,
+    'lastCompletedDate': _dateStr(today.subtract(Duration(days: 1))),
+  };
+  await db.insert('habits', exerciseDaily);
+
+  // 3. Drink Water (Daily) - Broken streak (missed yesterday), needs restoration
+  final waterDaily = {
+    'userId': userId,
+    'title': 'Drink 8 Glasses of Water',
+    'description': '58640', // local_drink icon
+    'frequency': 'Daily',
+    'status': 'active',
+    'createdDate': _dateStr(today.subtract(Duration(days: 12))),
+    'lastUpdated': _dateStr(today),
+    'Doitat': '09:00',
+    'points': 5,
+    'remindMe': 1,
+    'habitType': 'good',
+    'streakCount': 0, // Broken
+    'bestStreak': 8,
+    'isTask': 1,
+    'taskCompletionCount': 8,
+    'lastCompletedDate': _dateStr(today.subtract(Duration(days: 3))), // Missed 2 days
+  };
+  await db.insert('habits', waterDaily);
+
+  // 4. No Social Media (Daily, Bad Habit) - Perfect streak, became a habit
+  final socialMediaDaily = {
+    'userId': userId,
+    'title': 'No Social Media Scrolling',
+    'description': '59716', // phone_disabled icon
+    'frequency': 'Daily',
+    'status': 'active',
+    'createdDate': _dateStr(today.subtract(Duration(days: 14))),
+    'lastUpdated': _dateStr(today),
+    'Doitat': '20:00',
+    'points': 15,
+    'remindMe': 1,
+    'habitType': 'bad',
+    'streakCount': 14,
+    'bestStreak': 14,
+    'isTask': 0, // Became a habit
+    'taskCompletionCount': 14,
+    'lastCompletedDate': _dateStr(today.subtract(Duration(days: 1))),
+  };
+  await db.insert('habits', socialMediaDaily);
+
+  // 5. Reading (Daily) - Short streak, still building
+  final readDaily = {
+    'userId': userId,
+    'title': 'Read',
+    'description': '57531', // book icon
+    'frequency': 'Daily',
+    'status': 'active',
+    'createdDate': _dateStr(today.subtract(Duration(days: 5))),
+    'lastUpdated': _dateStr(today),
+    'Doitat': '21:00',
+    'points': 10,
+    'remindMe': 1,
+    'habitType': 'good',
+    'streakCount': 3,
+    'bestStreak': 3,
+    'isTask': 1,
+    'taskCompletionCount': 3,
+    'lastCompletedDate': _dateStr(today.subtract(Duration(days: 1))),
+  };
+  await db.insert('habits', readDaily);
+
+  // ==================== WEEKLY HABITS ====================
+  
+  // 6. Exercise (Weekly) - DIFFERENT from daily, independent streak
+  final exerciseWeekly = {
+    'userId': userId,
+    'title': 'Exercise',
+    'description': '58084', // fitness_center icon
+    'frequency': 'Weekly',
+    'status': 'active',
+    'createdDate': _dateStr(today.subtract(Duration(days: 35))),
+    'lastUpdated': _dateStr(today.subtract(Duration(days: 3))),
+    'Doitat': null,
+    'points': 50,
+    'remindMe': 0,
+    'habitType': 'good',
+    'streakCount': 4, // 4 weeks in a row
+    'bestStreak': 4,
+    'isTask': 1,
+    'taskCompletionCount': 4,
+    'lastCompletedDate': _dateStr(today.subtract(Duration(days: 4))),
+  };
+  await db.insert('habits', exerciseWeekly);
+
+  // 7. Deep Cleaning (Weekly)
+  final cleaningWeekly = {
+    'userId': userId,
+    'title': 'Deep Cleaning',
+    'description': '61502', // cleaning_services icon
+    'frequency': 'Weekly',
+    'status': 'active',
+    'createdDate': _dateStr(today.subtract(Duration(days: 21))),
+    'lastUpdated': _dateStr(today.subtract(Duration(days: 2))),
+    'Doitat': null,
+    'points': 50,
+    'remindMe': 0,
+    'habitType': 'good',
+    'streakCount': 2,
+    'bestStreak': 2,
+    'isTask': 1,
+    'taskCompletionCount': 2,
+    'lastCompletedDate': _dateStr(today.subtract(Duration(days: 9))),
+  };
+  await db.insert('habits', cleaningWeekly);
+
+  // 8. No Procrastination (Weekly, Bad Habit) - Broken streak
+  final procrastinationWeekly = {
+    'userId': userId,
+    'title': 'No Procrastination',
+    'description': '58466', // timer_off icon
+    'frequency': 'Weekly',
+    'status': 'active',
+    'createdDate': _dateStr(today.subtract(Duration(days: 42))),
+    'lastUpdated': _dateStr(today.subtract(Duration(days: 5))),
+    'Doitat': null,
+    'points': 75,
+    'remindMe': 0,
+    'habitType': 'bad',
+    'streakCount': 0, // Broken
+    'bestStreak': 5,
+    'isTask': 1,
+    'taskCompletionCount': 5,
+    'lastCompletedDate': _dateStr(today.subtract(Duration(days: 15))),
+  };
+  await db.insert('habits', procrastinationWeekly);
+
+  // 9. Study (Weekly)
+  final studyWeekly = {
+    'userId': userId,
+    'title': 'Study',
+    'description': '59963', // school icon
+    'frequency': 'Weekly',
+    'status': 'active',
+    'createdDate': _dateStr(today.subtract(Duration(days: 28))),
+    'lastUpdated': _dateStr(today.subtract(Duration(days: 1))),
+    'Doitat': null,
+    'points': 50,
+    'remindMe': 0,
+    'habitType': 'good',
+    'streakCount': 3,
+    'bestStreak': 3,
+    'isTask': 1,
+    'taskCompletionCount': 3,
+    'lastCompletedDate': _dateStr(today.subtract(Duration(days: 8))),
+  };
+  await db.insert('habits', studyWeekly);
+
+  // ==================== MONTHLY HABITS ====================
+  
+  // 10. Meditation (Monthly) - DIFFERENT from daily, independent
+  final meditationMonthly = {
+    'userId': userId,
+    'title': 'Morning Meditation',
+    'description': '58828', // self_improvement icon
+    'frequency': 'Monthly',
+    'status': 'active',
+    'createdDate': _dateStr(today.subtract(Duration(days: 90))),
+    'lastUpdated': _dateStr(today.subtract(Duration(days: 15))),
+    'Doitat': null,
+    'points': 200,
+    'remindMe': 0,
+    'habitType': 'good',
+    'streakCount': 2, // 2 months
+    'bestStreak': 2,
+    'isTask': 1,
+    'taskCompletionCount': 2,
+    'lastCompletedDate': _dateStr(today.subtract(Duration(days: 35))),
+  };
+  await db.insert('habits', meditationMonthly);
+
+  // 11. Financial Review (Monthly)
+  final financeMonthly = {
+    'userId': userId,
+    'title': 'Financial Review',
+    'description': '57512', // account_balance icon
+    'frequency': 'Monthly',
+    'status': 'active',
+    'createdDate': _dateStr(today.subtract(Duration(days: 120))),
+    'lastUpdated': _dateStr(today.subtract(Duration(days: 20))),
+    'Doitat': null,
+    'points': 200,
+    'remindMe': 0,
+    'habitType': 'good',
+    'streakCount': 3,
+    'bestStreak': 3,
+    'isTask': 1,
+    'taskCompletionCount': 3,
+    'lastCompletedDate': _dateStr(today.subtract(Duration(days: 32))),
+  };
+  await db.insert('habits', financeMonthly);
+
+  // 12. No Smoking (Monthly, Bad Habit) - Perfect 10 months, became a habit!
+  final smokingMonthly = {
+    'userId': userId,
+    'title': 'No Smoking',
+    'description': '59973', // smoke_free icon
+    'frequency': 'Monthly',
+    'status': 'active',
+    'createdDate': _dateStr(today.subtract(Duration(days: 300))),
+    'lastUpdated': _dateStr(today.subtract(Duration(days: 5))),
+    'Doitat': null,
+    'points': 300,
+    'remindMe': 0,
+    'habitType': 'bad',
+    'streakCount': 10,
+    'bestStreak': 10,
+    'isTask': 0, // Became a habit!
+    'taskCompletionCount': 10,
+    'lastCompletedDate': _dateStr(today.subtract(Duration(days: 35))),
+  };
+  await db.insert('habits', smokingMonthly);
+
+  // 13. Health Checkup (Monthly)
+  final healthMonthly = {
+    'userId': userId,
+    'title': 'Health Checkup',
+    'description': '58634', // local_hospital icon
+    'frequency': 'Monthly',
+    'status': 'active',
+    'createdDate': _dateStr(today.subtract(Duration(days: 60))),
+    'lastUpdated': _dateStr(today.subtract(Duration(days: 10))),
+    'Doitat': null,
+    'points': 200,
+    'remindMe': 0,
+    'habitType': 'good',
+    'streakCount': 1,
+    'bestStreak': 1,
+    'isTask': 1,
+    'taskCompletionCount': 1,
+    'lastCompletedDate': _dateStr(today.subtract(Duration(days: 32))),
+  };
+  await db.insert('habits', healthMonthly);
+
+  // 14. Walk (Daily) - Just started yesterday
+  final walkDaily = {
+    'userId': userId,
+    'title': 'Walk',
+    'description': '57915', // directions_walk icon
+    'frequency': 'Daily',
+    'status': 'completed',
+    'createdDate': _dateStr(today.subtract(Duration(days: 1))),
+    'lastUpdated': _dateStr(today),
+    'Doitat': '18:00',
+    'points': 10,
+    'remindMe': 1,
+    'habitType': 'good',
+    'streakCount': 1,
+    'bestStreak': 1,
+    'isTask': 1,
+    'taskCompletionCount': 1,
+    'lastCompletedDate': _dateStr(today.subtract(Duration(days: 1))),
+  };
+  await db.insert('habits', walkDaily);
+
+  // 15. Sleep Early (Daily) - Long streak, almost a habit (9/10)
+  final sleepDaily = {
+    'userId': userId,
+    'title': 'Sleep Early',
+    'description': '60727', // bedtime icon
+    'frequency': 'Daily',
+    'status': 'active',
+    'createdDate': _dateStr(today.subtract(Duration(days: 9))),
+    'lastUpdated': _dateStr(today),
+    'Doitat': '22:00',
+    'points': 10,
+    'remindMe': 1,
+    'habitType': 'good',
+    'streakCount': 9,
+    'bestStreak': 9,
+    'isTask': 1,
+    'taskCompletionCount': 9, // One more to become a habit!
+    'lastCompletedDate': _dateStr(today.subtract(Duration(days: 1))),
+  };
+  await db.insert('habits', sleepDaily);
+
   print('Demo data created successfully for user: $userId');
+  print('Created 15 habits across different frequencies with various states:');
+  print('- Daily habits: 7 (including tasks, habits, and broken streaks)');
+  print('- Weekly habits: 4 (with various completion states)');
+  print('- Monthly habits: 4 (including one that became a habit)');
   return userId;
 }
+  static Future<void> initializeDemoData() async {
+    final db = await database;
 
-/// Initialize demo data if no users exist (kept for backward compatibility)
-static Future<void> initializeDemoData() async {
-  final db = await database;
+    final userCount = Sqflite.firstIntValue(
+          await db.rawQuery('SELECT COUNT(*) as c FROM users'),
+        ) ??
+        0;
 
-  final userCount = Sqflite.firstIntValue(
-        await db.rawQuery('SELECT COUNT(*) as c FROM users'),
-      ) ??
-      0;
+    if (userCount != 0) return;
 
-  if (userCount != 0) return;
-
-  await createDemoUserWithData();
-}
+    await createDemoUserWithData();
+  }
 }
