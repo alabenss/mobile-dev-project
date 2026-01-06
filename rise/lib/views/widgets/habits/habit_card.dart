@@ -131,8 +131,8 @@ class HabitCard extends StatelessWidget {
                     const SizedBox(width: 12),
                     Text(
                       habit.time != null 
-                        ? '$frequencyText at ${habit.time!.format(context)}'
-                        : frequencyText,
+                        ? 'at ${habit.time!.format(context)}'
+                        : '',
                       style: const TextStyle(
                         color: AppColors.textSecondary,
                         fontSize: 12,
