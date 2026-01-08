@@ -5,11 +5,7 @@ class ExploreCard extends StatelessWidget {
   final Color color;
   final String title;
   final String cta;
-
-  // old
   final String? assetImage;
-
-  // ✅ new (online image)
   final String? imageUrl;
 
   const ExploreCard({
@@ -21,8 +17,24 @@ class ExploreCard extends StatelessWidget {
     this.imageUrl,
   });
 
+  bool _isValidHttpUrl(String url) {
+    final trimmed = url.trim();
+    if (trimmed.isEmpty) return false;
+    if (trimmed.contains('\n') || trimmed.contains('\r') || trimmed.contains('\t')) return false;
+
+    final uri = Uri.tryParse(trimmed);
+    if (uri == null) return false;
+    if (!(uri.scheme == 'http' || uri.scheme == 'https')) return false;
+    if (uri.host.isEmpty) return false;
+
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final trimmedUrl = imageUrl?.trim() ?? '';
+    final canUseNetwork = _isValidHttpUrl(trimmedUrl);
+
     return Container(
       height: 150,
       decoration: BoxDecoration(
@@ -32,18 +44,17 @@ class ExploreCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: Stack(
         children: [
-          if (imageUrl != null && imageUrl!.isNotEmpty)
+          if (canUseNetwork)
             Positioned(
               right: 8,
               bottom: 6,
               child: Image.network(
-  imageUrl!,
-  width: 90,
-  height: 90,
-  fit: BoxFit.contain,
-  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-)
-
+                trimmedUrl,
+                width: 90,
+                height: 90,
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+              ),
             )
           else if (assetImage != null)
             Positioned(
@@ -56,6 +67,7 @@ class ExploreCard extends StatelessWidget {
                 fit: BoxFit.contain,
               ),
             ),
+
           Padding(
             padding: const EdgeInsets.all(12),
             child: Column(

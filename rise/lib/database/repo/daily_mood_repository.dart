@@ -14,13 +14,13 @@ class DailyMoodRepository {
     required String moodLabel,
   }) async {
     try {
+      // Get user's LOCAL today date (no time component)
       final now = DateTime.now();
-      final todayStr = TimezoneHelper.formatDateForApi(now);
+      final todayDate = DateTime(now.year, now.month, now.day);
+      final todayStr = '${todayDate.year}-${todayDate.month.toString().padLeft(2, '0')}-${todayDate.day.toString().padLeft(2, '0')}';
 
-      print('🕐 DEBUG - Current DateTime: $now');
-      print('🕐 DEBUG - Current DateTime (local): ${now.toLocal()}');
-      print('🕐 DEBUG - Current DateTime (UTC): ${now.toUtc()}');
-      print('🕐 DEBUG - Date string being sent: $todayStr');
+      print('🕐 DEBUG - User local date: $todayStr');
+      print('🕐 DEBUG - User local DateTime: $todayDate');
       print('💾 DailyMoodRepository: Saving mood for userId: $userId, date: $todayStr');
 
       await _api.post(
@@ -33,7 +33,7 @@ class DailyMoodRepository {
         },
       );
 
-      print('✅ DailyMoodRepository: Mood saved successfully');
+      print('✅ DailyMoodRepository: Mood saved successfully for date: $todayStr');
     } catch (e) {
       print('❌ DailyMoodRepository: Error saving mood: $e');
       rethrow;
@@ -43,11 +43,12 @@ class DailyMoodRepository {
   /// Get today's mood for the user
   Future<DailyMoodModel?> getTodayMood(int userId) async {
     try {
+      // Get user's LOCAL today date (no time component)
       final now = DateTime.now();
-      final todayStr = TimezoneHelper.formatDateForApi(now);
+      final todayDate = DateTime(now.year, now.month, now.day);
+      final todayStr = '${todayDate.year}-${todayDate.month.toString().padLeft(2, '0')}-${todayDate.day.toString().padLeft(2, '0')}';
 
-      print('🕐 DEBUG - Getting mood for date: $todayStr');
-      print('🕐 DEBUG - Current time: $now');
+      print('🕐 DEBUG - Getting mood for LOCAL date: $todayStr');
       print('🔍 DailyMoodRepository: Getting mood for userId: $userId, date: $todayStr');
 
       final response = await _api.get(
@@ -67,7 +68,8 @@ class DailyMoodRepository {
           final mood = DailyMoodModel.fromMap(response['mood']);
           print('✅ DailyMoodRepository: Parsed mood successfully: ${mood.moodLabel}');
           print('🕐 DEBUG - Mood date from DB: ${mood.date}');
-          print('🕐 DEBUG - Mood created_at: ${mood.createdAt}');
+          print('🕐 DEBUG - Mood created_at (local): ${mood.createdAt}');
+          print('🕐 DEBUG - Mood created_at (UTC): ${mood.createdAt.toUtc()}');
           return mood;
         } catch (e) {
           print('❌ DailyMoodRepository: Error parsing mood: $e');
@@ -84,7 +86,7 @@ class DailyMoodRepository {
     }
   }
 
-  /// Get mood for a specific date
+  /// Get mood for a specific date - NO CHANGES HERE
   Future<DailyMoodModel?> getMoodByDate(int userId, DateTime date) async {
     try {
       final dateStr = TimezoneHelper.formatDateForApi(date);
@@ -115,10 +117,13 @@ class DailyMoodRepository {
     }
   }
 
-  /// Delete today's mood
+  /// Delete today's mood - UPDATED to use local date
   Future<void> deleteTodayMood(int userId) async {
     try {
-      final todayStr = TimezoneHelper.formatDateForApi(DateTime.now());
+      // Get user's LOCAL today date (no time component)
+      final now = DateTime.now();
+      final todayDate = DateTime(now.year, now.month, now.day);
+      final todayStr = '${todayDate.year}-${todayDate.month.toString().padLeft(2, '0')}-${todayDate.day.toString().padLeft(2, '0')}';
 
       print('🗑️ DailyMoodRepository: Deleting mood for userId: $userId, date: $todayStr');
 
@@ -130,14 +135,14 @@ class DailyMoodRepository {
         },
       );
 
-      print('✅ DailyMoodRepository: Mood deleted successfully');
+      print('✅ DailyMoodRepository: Mood deleted successfully for date: $todayStr');
     } catch (e) {
       print('❌ DailyMoodRepository: Error deleting mood: $e');
       rethrow;
     }
   }
 
-  /// Get all moods for a user
+  /// Get all moods for a user - NO CHANGES HERE
   Future<List<DailyMoodModel>> getAllMoods(int userId) async {
     try {
       print('📚 DailyMoodRepository: Getting all moods for userId: $userId');
@@ -169,7 +174,7 @@ class DailyMoodRepository {
     }
   }
 
-  /// Get moods for a specific month
+  /// Get moods for a specific month - NO CHANGES HERE
   Future<List<DailyMoodModel>> getMoodsByMonth(int userId, int month, int year) async {
     try {
       print('📅 DailyMoodRepository: Getting moods for month: $month, year: $year');
