@@ -131,14 +131,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               contentPadding: EdgeInsets.all(16),
                             ),
                             validator: (value) {
-  if (value == null || value.isEmpty) {
-    return 'Please enter your email';
-  }
-  if (!isValidEmail(value.trim())) {
-    return 'Please enter a valid email address';
-  }
-  return null;
-},
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your first name';
+                              }
+                              return null;
+                            },
+                            
 
                           ),
                         ),
@@ -214,14 +212,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               contentPadding: EdgeInsets.all(16),
                             ),
                             validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your email';
-                              }
-                              if (!value.contains('@')) {
-                                return 'Please enter a valid email';
-                              }
-                              return null;
-                            },
+  if (value == null || value.isEmpty) {
+    return 'Please enter your email';
+  }
+  if (!isValidEmail(value.trim())) {
+    return 'Please enter a valid email address';
+  }
+  return null;
+},
                           ),
                         ),
                         const SizedBox(height: 16),
