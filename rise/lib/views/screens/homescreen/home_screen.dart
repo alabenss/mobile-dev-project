@@ -30,6 +30,17 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  Future<void> _onRefresh() async {
+  final authState = context.read<AuthCubit>().state;
+
+  if (authState.isAuthenticated && authState.user != null) {
+    await context.read<HomeCubit>().loadInitial(
+      userName: authState.user!.fullName,
+      lang: 'en',
+    );
+  }
+}
+
   VoidCallback? get onViewAllHabits => widget.onViewAllHabits;
 
   // fallback assets/colors for known slugs (optional)
@@ -88,9 +99,14 @@ class _HomeScreenState extends State<HomeScreen> {
               colors: [AppColors.bgTop, AppColors.bgMid, AppColors.bgBottom],
             ),
           ),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-            child: Column(
+          child: RefreshIndicator(
+  color: AppColors.primary,
+  onRefresh: _onRefresh,
+  child: SingleChildScrollView(
+    physics: const AlwaysScrollableScrollPhysics(),
+    padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+    child: Column(
+
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 30),
@@ -253,6 +269,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
               ],
             ),
+          ),
           ),
         );
       },

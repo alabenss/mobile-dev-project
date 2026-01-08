@@ -24,6 +24,10 @@ class StatsScreen extends StatefulWidget {
 }
 
 class _StatsScreenState extends State<StatsScreen> {
+  Future<void> _onRefresh(BuildContext context) async {
+  await context.read<StatsCubit>().refresh();
+}
+
   static const Duration animDur = Duration(milliseconds: 420);
   static const Curve animCurve = Curves.easeInOutCubic;
 
@@ -57,46 +61,6 @@ class _StatsScreenState extends State<StatsScreen> {
                           fontWeight: FontWeight.w700,
                           color: AppColors.textPrimary,
                         ),
-                      ),
-                      BlocBuilder<StatsCubit, StatsState>(
-                        builder: (context, state) {
-                          return Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              // Debug button
-                              IconButton(
-                                icon: Icon(
-                                  Icons.bug_report,
-                                  color: AppColors.coral,
-                                ),
-                                onPressed: () async {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Database tables printed to console'),
-                                      duration: Duration(seconds: 1),
-                                    ),
-                                  );
-                                },
-                              ),
-                              // Refresh button
-                              IconButton(
-                                icon: Icon(
-                                  Icons.refresh,
-                                  color: AppColors.accentPurple,
-                                ),
-                                onPressed: () {
-                                  context.read<StatsCubit>().refresh();
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(t.statsRefreshingData),
-                                      duration: const Duration(seconds: 1),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          );
-                        },
                       ),
                     ],
                   ),
@@ -246,66 +210,71 @@ class _StatsScreenState extends State<StatsScreen> {
         state.moodData.isNotEmpty ||
         state.journalingCount > 0;
 
-    return SingleChildScrollView(
-      key: key,
-      physics: const BouncingScrollPhysics(),
-      child: Column(
-        children: [
-          if (!hasData) ...[
-            _buildEmptyState(t),
-            const SizedBox(height: 20),
-          ],
-
-          StatsCardWidget(
-            padding: const EdgeInsets.all(14),
-            child: WaterStatsWidget(
-              waterData: state.waterData,
-              labels: state.labels,
-              selectedRange: state.range,
-              animationDuration: animDur,
-              animationCurve: animCurve,
-            ),
-          ),
-          const SizedBox(height: 12),
-          
-          StatsCardWidget(
-            padding: const EdgeInsets.all(14),
-            child: MoodStatsWidget(
-              moodData: state.moodData,
-              labels: state.labels,
-              selectedRange: state.range,
-              animationDuration: animDur,
-              animationCurve: animCurve,
-            ),
-          ),
-          const SizedBox(height: 12),
-          
-          StatsCardWidget(
-            padding: const EdgeInsets.all(14),
-            child: JournalingStatsWidget(
-              journalingCount: state.journalingCount,
-              dailyJournalCounts: state.journalCounts,
-              selectedRange: state.range,
-              labels: state.labels,
-              animationDuration: animDur,
-              animationCurve: animCurve,
-            ),
-          ),
-          const SizedBox(height: 12),
-          
-          StatsCardWidget(
-            padding: const EdgeInsets.all(14),
-            child: ScreenTimeWidget(
-              screenTime: state.screenTime,
-              selectedRange: state.range,
-              animationDuration: animDur,
-              animationCurve: animCurve,
-            ),
-          ),
-          const SizedBox(height: 90),
+    return RefreshIndicator(
+  onRefresh: () => _onRefresh(context),
+  color: AppColors.accentPurple,
+  child: SingleChildScrollView(
+    key: key,
+    physics: const AlwaysScrollableScrollPhysics(),
+    child: Column(
+      children: [
+        if (!hasData) ...[
+          _buildEmptyState(t),
+          const SizedBox(height: 20),
         ],
-      ),
-    );
+
+        StatsCardWidget(
+          padding: const EdgeInsets.all(14),
+          child: WaterStatsWidget(
+            waterData: state.waterData,
+            labels: state.labels,
+            selectedRange: state.range,
+            animationDuration: animDur,
+            animationCurve: animCurve,
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        StatsCardWidget(
+          padding: const EdgeInsets.all(14),
+          child: MoodStatsWidget(
+            moodData: state.moodData,
+            labels: state.labels,
+            selectedRange: state.range,
+            animationDuration: animDur,
+            animationCurve: animCurve,
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        StatsCardWidget(
+          padding: const EdgeInsets.all(14),
+          child: JournalingStatsWidget(
+            journalingCount: state.journalingCount,
+            dailyJournalCounts: state.journalCounts,
+            selectedRange: state.range,
+            labels: state.labels,
+            animationDuration: animDur,
+            animationCurve: animCurve,
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        StatsCardWidget(
+          padding: const EdgeInsets.all(14),
+          child: ScreenTimeWidget(
+            screenTime: state.screenTime,
+            selectedRange: state.range,
+            animationDuration: animDur,
+            animationCurve: animCurve,
+          ),
+        ),
+        const SizedBox(height: 90),
+      ],
+    ),
+  ),
+);
+
   }
 
   Widget _buildEmptyState(AppLocalizations t) {
