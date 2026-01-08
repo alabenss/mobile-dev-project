@@ -19,7 +19,8 @@ class ArticlePreview {
     slug: (json['slug'] ?? '').toString(),
     title: (json['title'] ?? '').toString(),
     summary: json['summary']?.toString(),
-    heroImageUrl: rawUrl?.trim(),
+    heroImageUrl: json['hero_image_url']?.toString().trim(),
+
   );
 }
 
