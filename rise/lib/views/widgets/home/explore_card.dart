@@ -37,11 +37,13 @@ class ExploreCard extends StatelessWidget {
               right: 8,
               bottom: 6,
               child: Image.network(
-                imageUrl!,
-                width: 90,
-                height: 90,
-                fit: BoxFit.contain,
-              ),
+  imageUrl!,
+  width: 90,
+  height: 90,
+  fit: BoxFit.contain,
+  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+)
+
             )
           else if (assetImage != null)
             Positioned(
