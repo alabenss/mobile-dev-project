@@ -1,15 +1,67 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'auth_state.dart';
-import '../../models/user_model.dart';
+// ✅ CORRECT - Using aliases
+import 'auth_state.dart' as app_auth;
+import '../../models/user_model.dart' as app_user;
+
 import '../../services/api_service.dart';
 import '../../config/api_config.dart';
 
-class AuthCubit extends Cubit<AuthState> {
-  AuthCubit() : super(const AuthState());
+class AuthCubit extends Cubit<app_auth.AuthState> {
+  AuthCubit() : super(const app_auth.AuthState()) {
+    // Listen to auth state changes
+    _setupAuthListener();
+  }
 
   final ApiService _api = ApiService.instance;
+  SupabaseClient get _supabase => Supabase.instance.client;
+
+  /// Setup auth state listener
+  void _setupAuthListener() {
+    _supabase.auth.onAuthStateChange.listen((data) {
+      final session = data.session;
+      
+      if (session == null) {
+        // User logged out
+        print('AuthCubit: User logged out');
+        emit(const app_auth.AuthState(isAuthenticated: false));
+      } else {
+        // User logged in or token refreshed
+        print('AuthCubit: Auth state changed');
+        _loadUserProfile();
+      }
+    });
+  }
+
+  /// Load user profile from backend
+  Future<void> _loadUserProfile() async {
+    try {
+      final response = await _api.get(ApiConfig.USER_PROFILE);
+
+      if (response['success'] == true && response['user'] != null) {
+        final user = app_user.User.fromMap(response['user']);
+        
+        // Save userId to SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setInt('userId', user.id);
+        
+        emit(state.copyWith(
+          user: user,
+          isAuthenticated: true,
+          isLoading: false,
+        ));
+        print('AuthCubit: Profile loaded for user ${user.id}');
+      }
+    } catch (e) {
+      print('AuthCubit: Error loading profile: $e');
+      emit(state.copyWith(
+        isLoading: false,
+        error: e.toString(),
+      ));
+    }
+  }
 
   /// Check if user is already logged in
   Future<void> checkAuthStatus() async {
@@ -17,46 +69,24 @@ class AuthCubit extends Cubit<AuthState> {
     print('AuthCubit: checkAuthStatus started');
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getInt('userId');
-
-      print('AuthCubit: stored userId = $userId');
-
-      if (userId == null) {
-        print('AuthCubit: no userId -> show login');
+      final session = _supabase.auth.currentSession;
+      
+      if (session == null) {
+        print('AuthCubit: No active session');
         emit(state.copyWith(isLoading: false, isAuthenticated: false));
         return;
       }
 
-      print('AuthCubit: calling USER_PROFILE ${ApiConfig.BASE_URL}${ApiConfig.USER_PROFILE}');
-
-      final response = await _api
-          .get(
-            ApiConfig.USER_PROFILE,
-            params: {'userId': userId.toString()},
-          )
-          .timeout(const Duration(seconds: 8));
-
-      print('AuthCubit: USER_PROFILE response = $response');
-
-      if (response['success'] == true && response['user'] != null) {
-        final user = User.fromMap(response['user']);
-        emit(state.copyWith(
-          user: user,
-          isAuthenticated: true,
-          isLoading: false,
-        ));
-        print('AuthCubit: authenticated as ${user.id}');
-      } else {
-        print('AuthCubit: profile invalid -> logout local userId');
-        await prefs.remove('userId');
-        emit(state.copyWith(isLoading: false, isAuthenticated: false));
-      }
+      print('AuthCubit: Active session found, loading profile...');
+      await _loadUserProfile();
+      
     } catch (e) {
       print('AuthCubit: checkAuthStatus error: $e');
-
-      // ✅ critical: don't stay stuck loading forever
-      emit(state.copyWith(isLoading: false, isAuthenticated: false, error: e.toString()));
+      emit(state.copyWith(
+        isLoading: false,
+        isAuthenticated: false,
+        error: e.toString(),
+      ));
     }
   }
 
@@ -65,14 +95,11 @@ class AuthCubit extends Cubit<AuthState> {
     if (state.user == null) return;
 
     try {
-      final response = await _api.get(
-        ApiConfig.USER_PROFILE,
-        params: {'userId': state.user!.id.toString()},
-      );
+      final response = await _api.get(ApiConfig.USER_PROFILE);
 
       if (response['success'] == true && response['user'] != null) {
         emit(state.copyWith(
-          user: User.fromMap(response['user']),
+          user: app_user.User.fromMap(response['user']),
           isAuthenticated: true,
         ));
       }
@@ -81,7 +108,7 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
-  /// Register
+  /// Register new user
   Future<bool> signUp(
     String firstName,
     String lastName,
@@ -100,7 +127,7 @@ class AuthCubit extends Cubit<AuthState> {
         'password': password,
       });
 
-      if (response['success'] != true || response['user'] == null) {
+      if (response['success'] != true) {
         emit(state.copyWith(
           isLoading: false,
           error: response['error'] ?? 'Registration failed',
@@ -108,8 +135,10 @@ class AuthCubit extends Cubit<AuthState> {
         return false;
       }
 
-      final user = User.fromMap(response['user']);
-
+      // Session is automatically saved by Supabase
+      final user = app_user.User.fromMap(response['user']);
+      
+      // Save userId to SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt('userId', user.id);
 
@@ -118,14 +147,21 @@ class AuthCubit extends Cubit<AuthState> {
         isAuthenticated: true,
         isLoading: false,
       ));
+      
+      print('AuthCubit: Registration successful');
       return true;
+      
     } catch (e) {
-      emit(state.copyWith(isLoading: false, error: e.toString()));
+      print('AuthCubit: Registration error: $e');
+      emit(state.copyWith(
+        isLoading: false,
+        error: _formatError(e.toString()),
+      ));
       return false;
     }
   }
 
-  /// Login (email OR username)
+  /// Login user (email OR username)
   Future<bool> login(String identifier, String password) async {
     emit(state.copyWith(isLoading: true));
 
@@ -135,7 +171,7 @@ class AuthCubit extends Cubit<AuthState> {
         'password': password,
       });
 
-      if (response['success'] != true || response['user'] == null) {
+      if (response['success'] != true) {
         emit(state.copyWith(
           isLoading: false,
           error: 'Invalid credentials',
@@ -143,8 +179,10 @@ class AuthCubit extends Cubit<AuthState> {
         return false;
       }
 
-      final user = User.fromMap(response['user']);
-
+      // Session is automatically saved by Supabase
+      final user = app_user.User.fromMap(response['user']);
+      
+      // Save userId to SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt('userId', user.id);
 
@@ -153,18 +191,35 @@ class AuthCubit extends Cubit<AuthState> {
         isAuthenticated: true,
         isLoading: false,
       ));
+      
+      print('AuthCubit: Login successful');
       return true;
+      
     } catch (e) {
-      emit(state.copyWith(isLoading: false, error: e.toString()));
+      print('AuthCubit: Login error: $e');
+      emit(state.copyWith(
+        isLoading: false,
+        error: 'Invalid credentials',
+      ));
       return false;
     }
   }
 
-  /// Logout
+  /// Logout user
   Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('userId');
-    emit(const AuthState());
+    try {
+      // Sign out from Supabase
+      await _supabase.auth.signOut();
+      
+      // Clear local data
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('userId');
+      
+      emit(const app_auth.AuthState());
+      print('AuthCubit: Logout successful');
+    } catch (e) {
+      print('AuthCubit: Logout error: $e');
+    }
   }
 
   /// Clear error
@@ -178,7 +233,6 @@ class AuthCubit extends Cubit<AuthState> {
 
     try {
       await _api.put(ApiConfig.USER_UPDATE, {
-        'userId': state.user!.id,
         'firstName': newFirstName,
       });
 
@@ -195,7 +249,6 @@ class AuthCubit extends Cubit<AuthState> {
 
     try {
       await _api.put(ApiConfig.USER_UPDATE, {
-        'userId': state.user!.id,
         'lastName': newLastName,
       });
 
@@ -212,7 +265,6 @@ class AuthCubit extends Cubit<AuthState> {
 
     try {
       await _api.put(ApiConfig.USER_UPDATE, {
-        'userId': state.user!.id,
         'username': newUsername,
       });
 
@@ -229,7 +281,6 @@ class AuthCubit extends Cubit<AuthState> {
 
     try {
       await _api.put(ApiConfig.USER_UPDATE, {
-        'userId': state.user!.id,
         'email': newEmail,
       });
 
@@ -238,5 +289,19 @@ class AuthCubit extends Cubit<AuthState> {
       print('Error updating email: $e');
       rethrow;
     }
+  }
+
+  /// Format error message
+  String _formatError(String error) {
+    if (error.contains('already registered')) {
+      return 'Email already exists';
+    }
+    if (error.contains('Invalid login')) {
+      return 'Invalid credentials';
+    }
+    if (error.contains('already taken')) {
+      return 'Username already taken';
+    }
+    return error;
   }
 }

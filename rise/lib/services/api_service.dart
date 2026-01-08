@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config/api_config.dart';
 
 class ApiService {
@@ -14,7 +15,21 @@ class ApiService {
   // Get instance
   static ApiService get instance => _instance;
 
-  /// Get current user ID from SharedPreferences
+  // Supabase client
+  SupabaseClient get _supabase => Supabase.instance.client;
+
+  /// Get current access token
+  Future<String?> _getAccessToken() async {
+    try {
+      final session = _supabase.auth.currentSession;
+      return session?.accessToken;
+    } catch (e) {
+      print('ApiService: Error getting access token: $e');
+      return null;
+    }
+  }
+
+  /// Get current user ID from Supabase session
   Future<int?> _getUserId() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -23,6 +38,18 @@ class ApiService {
       print('ApiService: Error getting userId: $e');
       return null;
     }
+  }
+
+  /// Get headers with authentication
+  Future<Map<String, String>> _getHeaders() async {
+    final headers = {'Content-Type': 'application/json'};
+    
+    final token = await _getAccessToken();
+    if (token != null) {
+      headers['Authorization'] = 'Bearer $token';
+    }
+    
+    return headers;
   }
 
   /// Handle API response
@@ -36,9 +63,28 @@ class ApiService {
       } catch (e) {
         throw Exception('Failed to parse response: $e');
       }
+    } else if (response.statusCode == 401) {
+      // Token expired, try to refresh
+      print('ApiService: Token expired, attempting refresh...');
+      final refreshed = await _refreshToken();
+      if (!refreshed) {
+        throw Exception('Session expired. Please login again.');
+      }
+      throw Exception('TOKEN_REFRESH_REQUIRED');
     } else {
       final errorBody = response.body.isNotEmpty ? response.body : 'No error details';
       throw Exception('API Error ${response.statusCode}: $errorBody');
+    }
+  }
+
+  /// Refresh access token
+  Future<bool> _refreshToken() async {
+    try {
+      final session = await _supabase.auth.refreshSession();
+      return session.session != null;
+    } catch (e) {
+      print('ApiService: Error refreshing token: $e');
+      return false;
     }
   }
 
@@ -46,6 +92,7 @@ class ApiService {
   Future<Map<String, dynamic>> get(
     String endpoint, {
     Map<String, String>? params,
+    bool retry = true,
   }) async {
     try {
       final uri = Uri.parse('${ApiConfig.BASE_URL}$endpoint')
@@ -53,13 +100,18 @@ class ApiService {
 
       print('ApiService GET: $uri');
 
+      final headers = await _getHeaders();
       final response = await http.get(
         uri,
-        headers: {'Content-Type': 'application/json'},
+        headers: headers,
       ).timeout(const Duration(seconds: 30));
 
       return await _handleResponse(response);
     } catch (e) {
+      if (retry && e.toString().contains('TOKEN_REFRESH_REQUIRED')) {
+        // Retry once after token refresh
+        return await get(endpoint, params: params, retry: false);
+      }
       print('ApiService GET Error: $e');
       rethrow;
     }
@@ -68,22 +120,28 @@ class ApiService {
   /// POST request
   Future<Map<String, dynamic>> post(
     String endpoint,
-    Map<String, dynamic> body,
-  ) async {
+    Map<String, dynamic> body, {
+    bool retry = true,
+  }) async {
     try {
       final uri = Uri.parse('${ApiConfig.BASE_URL}$endpoint');
       
       print('ApiService POST: $uri');
       print('ApiService POST Body: ${jsonEncode(body)}');
 
+      final headers = await _getHeaders();
       final response = await http.post(
         uri,
-        headers: {'Content-Type': 'application/json'},
+        headers: headers,
         body: jsonEncode(body),
       ).timeout(const Duration(seconds: 30));
 
       return await _handleResponse(response);
     } catch (e) {
+      if (retry && e.toString().contains('TOKEN_REFRESH_REQUIRED')) {
+        // Retry once after token refresh
+        return await post(endpoint, body, retry: false);
+      }
       print('ApiService POST Error: $e');
       rethrow;
     }
@@ -92,22 +150,28 @@ class ApiService {
   /// PUT request
   Future<Map<String, dynamic>> put(
     String endpoint,
-    Map<String, dynamic> body,
-  ) async {
+    Map<String, dynamic> body, {
+    bool retry = true,
+  }) async {
     try {
       final uri = Uri.parse('${ApiConfig.BASE_URL}$endpoint');
       
       print('ApiService PUT: $uri');
       print('ApiService PUT Body: ${jsonEncode(body)}');
 
+      final headers = await _getHeaders();
       final response = await http.put(
         uri,
-        headers: {'Content-Type': 'application/json'},
+        headers: headers,
         body: jsonEncode(body),
       ).timeout(const Duration(seconds: 30));
 
       return await _handleResponse(response);
     } catch (e) {
+      if (retry && e.toString().contains('TOKEN_REFRESH_REQUIRED')) {
+        // Retry once after token refresh
+        return await put(endpoint, body, retry: false);
+      }
       print('ApiService PUT Error: $e');
       rethrow;
     }
@@ -117,6 +181,7 @@ class ApiService {
   Future<Map<String, dynamic>> delete(
     String endpoint, {
     Map<String, String>? params,
+    bool retry = true,
   }) async {
     try {
       final uri = Uri.parse('${ApiConfig.BASE_URL}$endpoint')
@@ -124,13 +189,18 @@ class ApiService {
 
       print('ApiService DELETE: $uri');
 
+      final headers = await _getHeaders();
       final response = await http.delete(
         uri,
-        headers: {'Content-Type': 'application/json'},
+        headers: headers,
       ).timeout(const Duration(seconds: 30));
 
       return await _handleResponse(response);
     } catch (e) {
+      if (retry && e.toString().contains('TOKEN_REFRESH_REQUIRED')) {
+        // Retry once after token refresh
+        return await delete(endpoint, params: params, retry: false);
+      }
       print('ApiService DELETE Error: $e');
       rethrow;
     }
