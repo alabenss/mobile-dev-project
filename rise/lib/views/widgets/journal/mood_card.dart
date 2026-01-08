@@ -18,7 +18,7 @@ class MoodCard extends StatefulWidget {
 class _MoodCardState extends State<MoodCard> {
   int? _lastLoadedUserId;
 
-  // Store mood key (language-independent) instead of label
+  // Mood data structure with keys for database storage
   List<Map<String, String>> _getMoods(AppLocalizations l10n) => [
     {'image': 'assets/images/happy.png', 'key': 'happy', 'label': l10n.journalMoodHappy},
     {'image': 'assets/images/good.png', 'key': 'good', 'label': l10n.journalMoodGood},
@@ -32,52 +32,49 @@ class _MoodCardState extends State<MoodCard> {
     {'image': 'assets/images/grateful.png', 'key': 'grateful', 'label': l10n.journalMoodGrateful},
   ];
 
-  // Get localized label from mood key
   String _getLocalizedMoodLabel(String moodKey, AppLocalizations l10n) {
-    switch (moodKey) {
-      case 'happy': return l10n.journalMoodHappy;
-      case 'good': return l10n.journalMoodGood;
-      case 'excited': return l10n.journalMoodExcited;
-      case 'calm': return l10n.journalMoodCalm;
-      case 'sad': return l10n.journalMoodSad;
-      case 'tired': return l10n.journalMoodTired;
-      case 'anxious': return l10n.journalMoodAnxious;
-      case 'angry': return l10n.journalMoodAngry;
-      case 'confused': return l10n.journalMoodConfused;
-      case 'grateful': return l10n.journalMoodGrateful;
-      default: return moodKey; // Fallback
-    }
+    final moods = _getMoods(l10n);
+    final mood = moods.firstWhere(
+      (m) => m['key'] == moodKey,
+      orElse: () => {'key': moodKey, 'label': moodKey},
+    );
+    return mood['label'] ?? moodKey;
   }
 
   @override
   void initState() {
     super.initState();
-    _loadMoodIfNeeded();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadMoodIfNeeded();
+    });
   }
 
   Future<int?> _getCurrentUserId() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getInt('userId');
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userId = prefs.getInt('userId');
+      print('🔍 MoodCard: Getting userId from SharedPreferences: $userId');
+      return userId;
+    } catch (e) {
+      print('❌ MoodCard: Error getting userId: $e');
+      return null;
+    }
   }
 
   void _loadMoodIfNeeded() async {
-    await Future.delayed(Duration.zero);
     if (!mounted) return;
 
     final currentUserId = await _getCurrentUserId();
-    print('MoodCard: Current userId from SharedPreferences: $currentUserId');
+    print('📱 MoodCard: Current userId: $currentUserId, Last loaded: $_lastLoadedUserId');
 
     if (currentUserId != null && _lastLoadedUserId != currentUserId) {
-      print(
-          'MoodCard: Loading mood for NEW user: $currentUserId (previous: $_lastLoadedUserId)');
+      print('🔄 MoodCard: Loading mood for user $currentUserId');
       setState(() {
         _lastLoadedUserId = currentUserId;
       });
       if (mounted) {
         context.read<DailyMoodCubit>().loadTodayMood();
       }
-    } else if (currentUserId != null && _lastLoadedUserId == currentUserId) {
-      print('MoodCard: User $currentUserId already loaded, skipping');
     }
   }
 
@@ -89,19 +86,15 @@ class _MoodCardState extends State<MoodCard> {
           listener: (context, authState) async {
             if (authState.isAuthenticated && authState.user != null) {
               final currentUserId = await _getCurrentUserId();
-              print(
-                  'MoodCard: Auth state changed, userId: $currentUserId, last loaded: $_lastLoadedUserId');
-
               if (currentUserId != null && _lastLoadedUserId != currentUserId) {
-                print(
-                    'MoodCard: User CHANGED from $_lastLoadedUserId to $currentUserId, reloading mood');
+                print('👤 MoodCard: Auth changed, reloading for user $currentUserId');
                 setState(() {
                   _lastLoadedUserId = currentUserId;
                 });
                 context.read<DailyMoodCubit>().loadTodayMood();
               }
             } else {
-              print('MoodCard: User logged out, clearing state');
+              print('🚪 MoodCard: User logged out');
               setState(() {
                 _lastLoadedUserId = null;
               });
@@ -111,6 +104,7 @@ class _MoodCardState extends State<MoodCard> {
         BlocListener<DailyMoodCubit, DailyMoodState>(
           listener: (context, state) {
             if (state.error != null) {
+              print('❌ MoodCard: Error - ${state.error}');
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(state.error!),
@@ -119,6 +113,11 @@ class _MoodCardState extends State<MoodCard> {
                 ),
               );
               context.read<DailyMoodCubit>().clearError();
+            }
+            
+            // Success feedback
+            if (state.status == DailyMoodStatus.loaded && state.todayMood != null) {
+              print('✅ MoodCard: Mood loaded successfully');
             }
           },
         ),
@@ -170,6 +169,7 @@ class _MoodCardState extends State<MoodCard> {
           const SizedBox(height: 8),
           ElevatedButton(
             onPressed: () {
+              print('🔄 Retry button pressed');
               context.read<DailyMoodCubit>().loadTodayMood();
             },
             child: Text(l10n.journalMoodCardRetry),
@@ -179,7 +179,6 @@ class _MoodCardState extends State<MoodCard> {
     }
 
     final hasSelectedMood = state.todayMood != null;
-
     return hasSelectedMood ? _buildSelectedMood(state) : _buildMoodSelector();
   }
 
@@ -187,13 +186,11 @@ class _MoodCardState extends State<MoodCard> {
     final l10n = AppLocalizations.of(context)!;
     final mood = state.todayMood!;
     final formattedTime = _formatDateTime(mood.updatedAt, l10n);
-    
-    // Get localized label from mood key
     final localizedLabel = _getLocalizedMoodLabel(mood.moodLabel, l10n);
 
     return Row(
       children: [
-        Image.asset(mood.moodImage, height: 40),
+        Image.asset(mood.moodImage, height: 40, width: 40),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -216,6 +213,7 @@ class _MoodCardState extends State<MoodCard> {
         IconButton(
           icon: const Icon(Icons.edit, color: AppColors.textSecondary),
           onPressed: () {
+            print('✏️ Edit mood button pressed');
             context.read<DailyMoodCubit>().clearTodayMood();
           },
         ),
@@ -248,12 +246,22 @@ class _MoodCardState extends State<MoodCard> {
               return Padding(
                 padding: const EdgeInsets.only(right: 16.0),
                 child: GestureDetector(
-                  onTap: () {
-                    // Save the key (language-independent) not the label
-                    context.read<DailyMoodCubit>().setTodayMood(
-                          mood['image']!,
-                          mood['key']!, // Use key instead of label
-                        );
+                  onTap: () async {
+                    print('😊 Mood selected: ${mood['key']} (${mood['label']})');
+                    
+                    // Show immediate feedback
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Saving mood: ${mood['label']}...'),
+                        duration: const Duration(seconds: 1),
+                      ),
+                    );
+                    
+                    // Save mood with KEY not label
+                    await context.read<DailyMoodCubit>().setTodayMood(
+                      mood['image']!,
+                      mood['key']!, // ✅ Save the key
+                    );
                   },
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -266,7 +274,7 @@ class _MoodCardState extends State<MoodCard> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        mood['label']!, // Display localized label
+                        mood['label']!,
                         style: const TextStyle(
                           fontSize: 11,
                           color: AppColors.textSecondary,
@@ -313,5 +321,3 @@ class _MoodCardState extends State<MoodCard> {
     return months[month - 1];
   }
 }
-
-

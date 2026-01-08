@@ -1,14 +1,11 @@
-// lib/data/repo/daily_mood_repository.dart
+// lib/database/repo/daily_mood_repository.dart
 import '../../services/api_service.dart';
 import '../../config/api_config.dart';
 import '../../views/widgets/journal/daily_mood_model.dart';
+import '../../utils/timezone_helper.dart';
 
 class DailyMoodRepository {
   final ApiService _api = ApiService.instance;
-
-  String _formatDate(DateTime date) {
-    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-  }
 
   /// Save or update today's mood for the user
   Future<void> saveTodayMood({
@@ -18,10 +15,13 @@ class DailyMoodRepository {
   }) async {
     try {
       final now = DateTime.now();
-      final today = DateTime(now.year, now.month, now.day);
-      final todayStr = _formatDate(today);
+      final todayStr = TimezoneHelper.formatDateForApi(now);
 
-      print('DailyMoodRepository: Saving mood for userId: $userId, date: $todayStr');
+      print('🕐 DEBUG - Current DateTime: $now');
+      print('🕐 DEBUG - Current DateTime (local): ${now.toLocal()}');
+      print('🕐 DEBUG - Current DateTime (UTC): ${now.toUtc()}');
+      print('🕐 DEBUG - Date string being sent: $todayStr');
+      print('💾 DailyMoodRepository: Saving mood for userId: $userId, date: $todayStr');
 
       await _api.post(
         ApiConfig.MOODS_SAVE,
@@ -33,9 +33,9 @@ class DailyMoodRepository {
         },
       );
 
-      print('DailyMoodRepository: Mood saved successfully');
+      print('✅ DailyMoodRepository: Mood saved successfully');
     } catch (e) {
-      print('DailyMoodRepository: Error saving mood: $e');
+      print('❌ DailyMoodRepository: Error saving mood: $e');
       rethrow;
     }
   }
@@ -44,10 +44,11 @@ class DailyMoodRepository {
   Future<DailyMoodModel?> getTodayMood(int userId) async {
     try {
       final now = DateTime.now();
-      final today = DateTime(now.year, now.month, now.day);
-      final todayStr = _formatDate(today);
+      final todayStr = TimezoneHelper.formatDateForApi(now);
 
-      print('DailyMoodRepository: Getting mood for userId: $userId, date: $todayStr');
+      print('🕐 DEBUG - Getting mood for date: $todayStr');
+      print('🕐 DEBUG - Current time: $now');
+      print('🔍 DailyMoodRepository: Getting mood for userId: $userId, date: $todayStr');
 
       final response = await _api.get(
         ApiConfig.MOODS_TODAY,
@@ -57,15 +58,28 @@ class DailyMoodRepository {
         },
       );
 
+      print('📦 DEBUG - API Response: $response');
+
       if (response['success'] == true && response['mood'] != null) {
-        print('DailyMoodRepository: Found mood: ${response['mood']}');
-        return DailyMoodModel.fromMap(response['mood']);
+        print('✅ DailyMoodRepository: Found mood data');
+        
+        try {
+          final mood = DailyMoodModel.fromMap(response['mood']);
+          print('✅ DailyMoodRepository: Parsed mood successfully: ${mood.moodLabel}');
+          print('🕐 DEBUG - Mood date from DB: ${mood.date}');
+          print('🕐 DEBUG - Mood created_at: ${mood.createdAt}');
+          return mood;
+        } catch (e) {
+          print('❌ DailyMoodRepository: Error parsing mood: $e');
+          print('📦 Raw mood data: ${response['mood']}');
+          return null;
+        }
       }
 
-      print('DailyMoodRepository: No mood found for today');
+      print('ℹ️ DailyMoodRepository: No mood found for today');
       return null;
     } catch (e) {
-      print('DailyMoodRepository: Error getting mood: $e');
+      print('❌ DailyMoodRepository: Error getting mood: $e');
       return null;
     }
   }
@@ -73,10 +87,9 @@ class DailyMoodRepository {
   /// Get mood for a specific date
   Future<DailyMoodModel?> getMoodByDate(int userId, DateTime date) async {
     try {
-      final dateOnly = DateTime(date.year, date.month, date.day);
-      final dateStr = _formatDate(dateOnly);
+      final dateStr = TimezoneHelper.formatDateForApi(date);
 
-      print('DailyMoodRepository: Getting mood for date: $dateStr');
+      print('🔍 DailyMoodRepository: Getting mood for date: $dateStr');
 
       final response = await _api.get(
         ApiConfig.MOODS_TODAY,
@@ -87,12 +100,17 @@ class DailyMoodRepository {
       );
 
       if (response['success'] == true && response['mood'] != null) {
-        return DailyMoodModel.fromMap(response['mood']);
+        try {
+          return DailyMoodModel.fromMap(response['mood']);
+        } catch (e) {
+          print('❌ DailyMoodRepository: Error parsing mood by date: $e');
+          return null;
+        }
       }
 
       return null;
     } catch (e) {
-      print('DailyMoodRepository: Error getting mood by date: $e');
+      print('❌ DailyMoodRepository: Error getting mood by date: $e');
       return null;
     }
   }
@@ -100,11 +118,9 @@ class DailyMoodRepository {
   /// Delete today's mood
   Future<void> deleteTodayMood(int userId) async {
     try {
-      final now = DateTime.now();
-      final today = DateTime(now.year, now.month, now.day);
-      final todayStr = _formatDate(today);
+      final todayStr = TimezoneHelper.formatDateForApi(DateTime.now());
 
-      print('DailyMoodRepository: Deleting mood for userId: $userId, date: $todayStr');
+      print('🗑️ DailyMoodRepository: Deleting mood for userId: $userId, date: $todayStr');
 
       await _api.delete(
         ApiConfig.MOODS_DELETE,
@@ -114,9 +130,9 @@ class DailyMoodRepository {
         },
       );
 
-      print('DailyMoodRepository: Mood deleted successfully');
+      print('✅ DailyMoodRepository: Mood deleted successfully');
     } catch (e) {
-      print('DailyMoodRepository: Error deleting mood: $e');
+      print('❌ DailyMoodRepository: Error deleting mood: $e');
       rethrow;
     }
   }
@@ -124,7 +140,7 @@ class DailyMoodRepository {
   /// Get all moods for a user
   Future<List<DailyMoodModel>> getAllMoods(int userId) async {
     try {
-      print('DailyMoodRepository: Getting all moods for userId: $userId');
+      print('📚 DailyMoodRepository: Getting all moods for userId: $userId');
 
       final response = await _api.get(
         ApiConfig.MOODS_GET_ALL,
@@ -133,12 +149,22 @@ class DailyMoodRepository {
 
       if (response['success'] == true && response['moods'] != null) {
         final moodsList = response['moods'] as List;
-        return moodsList.map((mood) => DailyMoodModel.fromMap(mood)).toList();
+        final moods = <DailyMoodModel>[];
+        
+        for (var moodMap in moodsList) {
+          try {
+            moods.add(DailyMoodModel.fromMap(moodMap));
+          } catch (e) {
+            print('⚠️ DailyMoodRepository: Skipping invalid mood entry: $e');
+          }
+        }
+        
+        return moods;
       }
 
       return [];
     } catch (e) {
-      print('DailyMoodRepository: Error getting all moods: $e');
+      print('❌ DailyMoodRepository: Error getting all moods: $e');
       return [];
     }
   }
@@ -146,7 +172,7 @@ class DailyMoodRepository {
   /// Get moods for a specific month
   Future<List<DailyMoodModel>> getMoodsByMonth(int userId, int month, int year) async {
     try {
-      print('DailyMoodRepository: Getting moods for month: $month, year: $year');
+      print('📅 DailyMoodRepository: Getting moods for month: $month, year: $year');
 
       final response = await _api.get(
         ApiConfig.MOODS_GET_BY_MONTH,
@@ -159,12 +185,22 @@ class DailyMoodRepository {
 
       if (response['success'] == true && response['moods'] != null) {
         final moodsList = response['moods'] as List;
-        return moodsList.map((mood) => DailyMoodModel.fromMap(mood)).toList();
+        final moods = <DailyMoodModel>[];
+        
+        for (var moodMap in moodsList) {
+          try {
+            moods.add(DailyMoodModel.fromMap(moodMap));
+          } catch (e) {
+            print('⚠️ DailyMoodRepository: Skipping invalid mood entry: $e');
+          }
+        }
+        
+        return moods;
       }
 
       return [];
     } catch (e) {
-      print('DailyMoodRepository: Error getting moods by month: $e');
+      print('❌ DailyMoodRepository: Error getting moods by month: $e');
       return [];
     }
   }
