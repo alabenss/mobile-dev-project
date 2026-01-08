@@ -9,6 +9,9 @@ from api.routes.moods import moods_bp
 from api.routes.home import home_bp
 import logging
 
+from api.routes.articles import articles_bp
+app.register_blueprint(articles_bp)
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,

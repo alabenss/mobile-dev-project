@@ -5,13 +5,20 @@ class ExploreCard extends StatelessWidget {
   final Color color;
   final String title;
   final String cta;
+
+  // old
   final String? assetImage;
+
+  // ✅ new (online image)
+  final String? imageUrl;
+
   const ExploreCard({
     super.key,
     required this.color,
     required this.title,
     required this.cta,
     this.assetImage,
+    this.imageUrl,
   });
 
   @override
@@ -25,11 +32,27 @@ class ExploreCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: Stack(
         children: [
-          if (assetImage != null)
+          if (imageUrl != null && imageUrl!.isNotEmpty)
             Positioned(
               right: 8,
               bottom: 6,
-              child: Image.asset(assetImage!, width: 90, height: 90, fit: BoxFit.contain),
+              child: Image.network(
+                imageUrl!,
+                width: 90,
+                height: 90,
+                fit: BoxFit.contain,
+              ),
+            )
+          else if (assetImage != null)
+            Positioned(
+              right: 8,
+              bottom: 6,
+              child: Image.asset(
+                assetImage!,
+                width: 90,
+                height: 90,
+                fit: BoxFit.contain,
+              ),
             ),
           Padding(
             padding: const EdgeInsets.all(12),
