@@ -120,8 +120,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           backgroundColor:
                               AppColors.accentPink.withOpacity(0.2),
                           child: Text(
-                            user.name.isNotEmpty
-                                ? user.name[0].toUpperCase()
+                            user.firstName.isNotEmpty
+                                ? user.firstName[0].toUpperCase()
                                 : 'U',
                             style: GoogleFonts.poppins(
                               fontSize: 48,
@@ -155,9 +155,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                     const SizedBox(height: 16),
 
-                    // Username
+                    // Full Name
                     Text(
-                      user.name,
+                      user.fullName,
                       style: GoogleFonts.poppins(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -165,7 +165,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 4),
+
+                    // Username
+                    Text(
+                      '@${user.username}',
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
 
                     // Points and Stars
                     Row(
@@ -235,6 +246,126 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                     // Editable Info Fields
                     _ProfileField(
+                      label: 'First Name',
+                      value: user.firstName,
+                      icon: Icons.person_outline,
+                      editable: true,
+                      onEdit: () {
+                        _showEditDialog(
+                          context,
+                          'Edit First Name',
+                          user.firstName,
+                          (newValue) async {
+                            try {
+                              await context
+                                  .read<AuthCubit>()
+                                  .updateUserFirstName(newValue);
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('First name updated'),
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Error: $e'),
+                                    backgroundColor: Colors.redAccent,
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                        );
+                      },
+                    ),
+                    _ProfileField(
+                      label: 'Last Name',
+                      value: user.lastName,
+                      icon: Icons.person_outline,
+                      editable: true,
+                      onEdit: () {
+                        _showEditDialog(
+                          context,
+                          'Edit Last Name',
+                          user.lastName,
+                          (newValue) async {
+                            try {
+                              await context
+                                  .read<AuthCubit>()
+                                  .updateUserLastName(newValue);
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Last name updated'),
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Error: $e'),
+                                    backgroundColor: Colors.redAccent,
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                        );
+                      },
+                    ),
+                    _ProfileField(
+                      label: 'Username',
+                      value: user.username,
+                      icon: Icons.alternate_email,
+                      editable: true,
+                      onEdit: () {
+                        _showEditDialog(
+                          context,
+                          'Edit Username',
+                          user.username,
+                          (newValue) async {
+                            try {
+                              await context
+                                  .read<AuthCubit>()
+                                  .updateUsername(newValue);
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Username updated'),
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Error: ${e.toString().contains('already taken') ? 'Username already taken' : e}'),
+                                    backgroundColor: Colors.redAccent,
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Username cannot be empty';
+                            }
+                            if (value.length < 3) {
+                              return 'Username must be at least 3 characters';
+                            }
+                            if (value.contains(' ')) {
+                              return 'Username cannot contain spaces';
+                            }
+                            return null;
+                          },
+                        );
+                      },
+                    ),
+                    _ProfileField(
                       label: l10n.profileEmailLabel,
                       value: user.email,
                       icon: Icons.email_outlined,
@@ -244,38 +375,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           context,
                           l10n.profileEditEmailTitle,
                           user.email,
-                          (newValue) {
-                            context
-                                .read<AuthCubit>()
-                                .updateUserEmail(newValue);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(l10n.profileEmailUpdated),
-                              ),
-                            );
+                          (newValue) async {
+                            try {
+                              await context
+                                  .read<AuthCubit>()
+                                  .updateUserEmail(newValue);
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(l10n.profileEmailUpdated),
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Error: ${e.toString().contains('already taken') ? 'Email already taken' : e}'),
+                                    backgroundColor: Colors.redAccent,
+                                  ),
+                                );
+                              }
+                            }
                           },
-                        );
-                      },
-                    ),
-                    _ProfileField(
-                      label: l10n.profileUsernameLabel,
-                      value: user.name,
-                      icon: Icons.person_outline,
-                      editable: true,
-                      onEdit: () {
-                        _showEditDialog(
-                          context,
-                          l10n.profileEditUsernameTitle,
-                          user.name,
-                          (newValue) {
-                            context
-                                .read<AuthCubit>()
-                                .updateUserName(newValue);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(l10n.profileUsernameUpdated),
-                              ),
-                            );
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Email cannot be empty';
+                            }
+                            if (!value.contains('@')) {
+                              return 'Please enter a valid email';
+                            }
+                            return null;
                           },
                         );
                       },
@@ -387,9 +517,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     BuildContext context,
     String title,
     String currentValue,
-    Function(String) onSave,
-  ) {
+    Function(String) onSave, {
+    String? Function(String?)? validator,
+  }) {
     final controller = TextEditingController(text: currentValue);
+    final formKey = GlobalKey<FormState>();
 
     showDialog(
       context: context,
@@ -401,21 +533,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
             title,
             style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
           ),
-          content: TextField(
-            controller: controller,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(
-                  color: AppColors.accentPink,
-                  width: 2,
+          content: Form(
+            key: formKey,
+            child: TextFormField(
+              controller: controller,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(
+                    color: AppColors.accentPink,
+                    width: 2,
+                  ),
                 ),
               ),
+              validator: validator,
+              autofocus: true,
             ),
-            autofocus: true,
           ),
           actions: [
             TextButton(
@@ -424,8 +560,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                onSave(controller.text);
-                Navigator.pop(context);
+                if (formKey.currentState!.validate()) {
+                  onSave(controller.text.trim());
+                  Navigator.pop(context);
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.accentPink,

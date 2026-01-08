@@ -5,11 +5,8 @@ import 'package:the_project/l10n/app_localizations.dart';
 import '../../../commons/config.dart';
 import '../../../commons/constants.dart';
 import '../../themes/style_simple/colors.dart';
-import '../articles/plant_article.dart';
-import '../articles/sport_article.dart';
 import '../../widgets/journal/mood_card.dart';
 
-// new, extracted widgets
 import '../../widgets/home/image_quote_card.dart';
 import '../../widgets/home/section_card.dart';
 import '../../widgets/home/water_card.dart';
@@ -22,6 +19,8 @@ import '../../../logic/home/home_state.dart';
 import '../../../logic/auth/auth_cubit.dart';
 import '../../../utils/habit_localization.dart';
 
+import '../articles/article_page.dart';
+
 class HomeScreen extends StatefulWidget {
   final VoidCallback? onViewAllHabits;
   const HomeScreen({super.key, this.onViewAllHabits});
@@ -33,6 +32,29 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   VoidCallback? get onViewAllHabits => widget.onViewAllHabits;
 
+  // fallback assets/colors for known slugs (optional)
+  String? _assetForSlug(String slug) {
+    switch (slug) {
+      case 'plants':
+        return AppImages.plantIcon;
+      case 'sports':
+        return AppImages.boostMoodIcon;
+      default:
+        return null;
+    }
+  }
+
+  Color _colorForSlug(String slug) {
+    switch (slug) {
+      case 'plants':
+        return AppColors.mint;
+      case 'sports':
+        return AppColors.primary;
+      default:
+        return Colors.white.withOpacity(.7);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -41,8 +63,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (authState.isAuthenticated && authState.user != null) {
         context.read<HomeCubit>().loadInitial(
-          userName: authState.user!.name,
-        );
+              userName: authState.user!.fullName,
+              lang: 'en', // later you can pass locale here
+            );
       }
     });
   }
@@ -55,6 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context, state) {
         final homeCubit = context.read<HomeCubit>();
         final habitsToShow = state.dailyHabits.take(2).toList();
+        final exploreToShow = state.exploreArticles.take(2).toList();
 
         return Container(
           decoration: const BoxDecoration(
@@ -114,8 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           lockEndTime: state.lockEndTime,
                           onDisableLock: homeCubit.disableLock,
                           permissionDenied: state.permissionDenied,
-                          onPermissionDeniedDismiss:
-                              homeCubit.clearPermissionDenied,
+                          onPermissionDeniedDismiss: homeCubit.clearPermissionDenied,
                         ),
                       ),
                     ],
@@ -169,8 +192,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   );
                                 },
                               ),
-                              if (i < habitsToShow.length - 1)
-                                const SizedBox(height: 8),
+                              if (i < habitsToShow.length - 1) const SizedBox(height: 8),
                             ],
                           ],
                         ),
@@ -189,47 +211,46 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 const SizedBox(height: 10),
 
-                Row(
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const PlantArticlePage(),
+                if (state.exploreLoading)
+                  const Center(child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12),
+                    child: CircularProgressIndicator(),
+                  ))
+                else if (exploreToShow.isEmpty)
+                  Text(
+                    state.exploreError ?? 'No articles yet.',
+                    style: const TextStyle(color: AppColors.textSecondary),
+                  )
+                else
+                  Row(
+                    children: [
+                      for (int i = 0; i < exploreToShow.length; i++) ...[
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => ArticlePage(
+                                    slug: exploreToShow[i].slug,
+                                    lang: 'en',
+                                  ),
+                                ),
+                              );
+                            },
+                            child: ExploreCard(
+                              color: _colorForSlug(exploreToShow[i].slug),
+                              title: exploreToShow[i].title,
+                              cta: l10n.exploreReadNow,
+                              assetImage: _assetForSlug(exploreToShow[i].slug),
+                              imageUrl: exploreToShow[i].heroImageUrl, // online if available
                             ),
-                          );
-                        },
-                        child: ExploreCard(
-                          color: AppColors.mint,
-                          title: l10n.explorePlantTitle,
-                          cta: l10n.exploreReadNow,
-                          assetImage: AppImages.plantIcon,
+                          ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const SportArticlePage(),
-                            ),
-                          );
-                        },
-                        child: ExploreCard(
-                          color: AppColors.primary,
-                          title: l10n.exploreSportsTitle,
-                          cta: '',
-                          assetImage: AppImages.boostMoodIcon,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                        if (i < exploreToShow.length - 1) const SizedBox(width: 12),
+                      ],
+                    ],
+                  ),
               ],
             ),
           ),

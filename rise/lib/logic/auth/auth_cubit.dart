@@ -14,20 +14,30 @@ class AuthCubit extends Cubit<AuthState> {
   /// Check if user is already logged in
   Future<void> checkAuthStatus() async {
     emit(state.copyWith(isLoading: true));
+    print('AuthCubit: checkAuthStatus started');
 
     try {
       final prefs = await SharedPreferences.getInstance();
       final userId = prefs.getInt('userId');
 
+      print('AuthCubit: stored userId = $userId');
+
       if (userId == null) {
+        print('AuthCubit: no userId -> show login');
         emit(state.copyWith(isLoading: false, isAuthenticated: false));
         return;
       }
 
-      final response = await _api.get(
-        ApiConfig.USER_PROFILE,
-        params: {'userId': userId.toString()},
-      );
+      print('AuthCubit: calling USER_PROFILE ${ApiConfig.BASE_URL}${ApiConfig.USER_PROFILE}');
+
+      final response = await _api
+          .get(
+            ApiConfig.USER_PROFILE,
+            params: {'userId': userId.toString()},
+          )
+          .timeout(const Duration(seconds: 8));
+
+      print('AuthCubit: USER_PROFILE response = $response');
 
       if (response['success'] == true && response['user'] != null) {
         final user = User.fromMap(response['user']);
@@ -36,11 +46,17 @@ class AuthCubit extends Cubit<AuthState> {
           isAuthenticated: true,
           isLoading: false,
         ));
+        print('AuthCubit: authenticated as ${user.id}');
       } else {
+        print('AuthCubit: profile invalid -> logout local userId');
+        await prefs.remove('userId');
         emit(state.copyWith(isLoading: false, isAuthenticated: false));
       }
     } catch (e) {
-      emit(state.copyWith(isLoading: false, error: e.toString()));
+      print('AuthCubit: checkAuthStatus error: $e');
+
+      // ✅ critical: don't stay stuck loading forever
+      emit(state.copyWith(isLoading: false, isAuthenticated: false, error: e.toString()));
     }
   }
 
@@ -66,12 +82,20 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   /// Register
-  Future<bool> signUp(String name, String email, String password) async {
+  Future<bool> signUp(
+    String firstName,
+    String lastName,
+    String username,
+    String email,
+    String password,
+  ) async {
     emit(state.copyWith(isLoading: true));
 
     try {
       final response = await _api.post(ApiConfig.AUTH_REGISTER, {
-        'name': name,
+        'firstName': firstName,
+        'lastName': lastName,
+        'username': username,
         'email': email,
         'password': password,
       });
@@ -107,7 +131,7 @@ class AuthCubit extends Cubit<AuthState> {
 
     try {
       final response = await _api.post(ApiConfig.AUTH_LOGIN, {
-        'email': identifier,
+        'email': identifier, // can be email or username
         'password': password,
       });
 
@@ -148,19 +172,54 @@ class AuthCubit extends Cubit<AuthState> {
     emit(state.copyWith(error: null));
   }
 
-  /// Update user name
-  Future<void> updateUserName(String newName) async {
+  /// Update user first name
+  Future<void> updateUserFirstName(String newFirstName) async {
     if (state.user == null) return;
 
     try {
       await _api.put(ApiConfig.USER_UPDATE, {
         'userId': state.user!.id,
-        'name': newName,
+        'firstName': newFirstName,
       });
 
       await refreshUserData();
     } catch (e) {
-      print('Error updating name: $e');
+      print('Error updating first name: $e');
+      rethrow;
+    }
+  }
+
+  /// Update user last name
+  Future<void> updateUserLastName(String newLastName) async {
+    if (state.user == null) return;
+
+    try {
+      await _api.put(ApiConfig.USER_UPDATE, {
+        'userId': state.user!.id,
+        'lastName': newLastName,
+      });
+
+      await refreshUserData();
+    } catch (e) {
+      print('Error updating last name: $e');
+      rethrow;
+    }
+  }
+
+  /// Update username
+  Future<void> updateUsername(String newUsername) async {
+    if (state.user == null) return;
+
+    try {
+      await _api.put(ApiConfig.USER_UPDATE, {
+        'userId': state.user!.id,
+        'username': newUsername,
+      });
+
+      await refreshUserData();
+    } catch (e) {
+      print('Error updating username: $e');
+      rethrow;
     }
   }
 

@@ -19,6 +19,10 @@ class HabitsScreen extends StatefulWidget {
 
 class _HabitsScreenState extends State<HabitsScreen>
     with SingleTickerProviderStateMixin {
+      Future<void> _onRefresh() async {
+  await context.read<HabitCubit>().loadHabits();
+}
+
   late TabController _tabController;
 
   @override
@@ -98,19 +102,26 @@ class _HabitsScreenState extends State<HabitsScreen>
                         .toList();
 
                     return TabBarView(
-                      controller: _tabController,
-                      children: [
-                        daily.isEmpty 
-                          ? _buildEmptyState(l10n, 'Daily')
-                          : HabitList(habits: daily),
-                        weekly.isEmpty 
-                          ? _buildEmptyState(l10n, 'Weekly')
-                          : HabitList(habits: weekly),
-                        monthly.isEmpty 
-                          ? _buildEmptyState(l10n, 'Monthly')
-                          : HabitList(habits: monthly),
-                      ],
-                    );
+  controller: _tabController,
+  children: [
+    _buildRefreshableTab(
+      daily,
+      l10n,
+      'Daily',
+    ),
+    _buildRefreshableTab(
+      weekly,
+      l10n,
+      'Weekly',
+    ),
+    _buildRefreshableTab(
+      monthly,
+      l10n,
+      'Monthly',
+    ),
+  ],
+);
+
                   },
                 ),
               ),
@@ -234,4 +245,28 @@ class _HabitsScreenState extends State<HabitsScreen>
       ),
     );
   }
+
+  Widget _buildRefreshableTab(
+  List<Habit> habits,
+  AppLocalizations l10n,
+  String frequency,
+) {
+  return RefreshIndicator(
+    onRefresh: _onRefresh,
+    color: AppColors.icon,
+    child: habits.isEmpty
+        // Needed so RefreshIndicator works even when empty
+        ? ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            children: [
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.5,
+                child: _buildEmptyState(l10n, frequency),
+              ),
+            ],
+          )
+        : HabitList(habits: habits),
+  );
+}
+
 }

@@ -18,6 +18,9 @@ import 'database/repo/habit_repo.dart';
 import 'database/repo/journal_repository.dart';
 import 'database/repo/daily_mood_repository.dart';
 
+// ✅ NEW import
+import 'database/repo/articles_repo.dart';
+
 import 'views/widgets/common/bottom_nav_wrapper.dart';
 import 'views/wrappers/phone_lock_wrapper.dart';
 import 'views/screens/settings/profile.dart';
@@ -58,18 +61,19 @@ void main() async {
         navigatorKey.currentState?.pushNamed('/home');
         bottomNavKey.currentState?.switchToTab(0);
       } else if (screen != null && screen.startsWith('habit_')) {
-        // Handle habit-specific navigation
         navigatorKey.currentState?.pushNamed('/home');
-        bottomNavKey.currentState?.switchToTab(1); // Assuming habits tab is at index 1
+        bottomNavKey.currentState?.switchToTab(1);
       }
     },
   );
 
   try {
-
     final homeRepo = AbstractHomeRepo.getInstance();
     final activitiesRepo = AbstractActivitiesRepo.getInstance();
     final habitRepo = HabitRepository();
+
+    // ✅ NEW: Articles repo instance
+    final articlesRepo = ArticlesRepo();
 
     // Reschedule all habit notifications
     await habitRepo.rescheduleAllNotifications();
@@ -80,7 +84,12 @@ void main() async {
         providers: [
           BlocProvider<LocaleCubit>(create: (_) => LocaleCubit()),
           BlocProvider<AuthCubit>(create: (_) => AuthCubit()..checkAuthStatus()),
-          BlocProvider<HomeCubit>(create: (_) => HomeCubit(homeRepo, habitRepo)),
+
+          // ✅ UPDATED: HomeCubit now needs ArticlesRepo
+          BlocProvider<HomeCubit>(
+            create: (_) => HomeCubit(homeRepo, habitRepo, articlesRepo),
+          ),
+
           BlocProvider<ActivitiesCubit>(
             create: (_) => ActivitiesCubit(activitiesRepo)..loadActivities(),
           ),
@@ -124,9 +133,7 @@ void main() async {
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton(
-                    onPressed: () async {
-                      
-                    },
+                    onPressed: () async {},
                     child: const Text('Retry'),
                   ),
                 ],
@@ -142,10 +149,18 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  String _langFromLocale(Locale? locale) {
+    final code = locale?.languageCode ?? 'en';
+    if (code == 'ar' || code == 'fr' || code == 'en') return code;
+    return 'en';
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<LocaleCubit, LocaleState>(
       builder: (context, localeState) {
+        final lang = _langFromLocale(localeState.locale);
+
         return MaterialApp(
           navigatorKey: navigatorKey,
           debugShowCheckedModeBanner: false,
@@ -164,9 +179,11 @@ class MyApp extends StatelessWidget {
           home: BlocListener<AuthCubit, AuthState>(
             listener: (context, state) {
               if (state.isAuthenticated && state.user != null) {
-                context
-                    .read<HomeCubit>()
-                    .loadInitial(userName: state.user!.name);
+                context.read<HomeCubit>().loadInitial(
+                      userName: state.user!.fullName,
+                      lang: lang, // ✅ pass language to load correct articles
+                    );
+
                 context.read<HabitCubit>().loadHabits();
                 context.read<ActivitiesCubit>().loadActivities();
               }
