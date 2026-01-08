@@ -1,5 +1,6 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
@@ -36,6 +37,7 @@ class NotificationService {
     tz.initializeTimeZones();
     // Set to local timezone - this is crucial for correct notification timing
     final locationName = tz.local.name;
+    debugPrint('Timezone local: $locationName');
 
     const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
     const iosInit = DarwinInitializationSettings(
@@ -59,19 +61,29 @@ class NotificationService {
         AndroidFlutterLocalNotificationsPlugin>();
     await androidPlatform?.createNotificationChannel(_channel);
 
-    await FirebaseMessaging.instance.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
+    // Ask notification permission (safe)
+    try {
+      await FirebaseMessaging.instance.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+    } catch (e) {
+      debugPrint('Firebase requestPermission error: $e');
+    }
 
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
       _handleFirebaseNotificationTap(message);
     });
 
-    final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
-    if (initialMessage != null) {
-      _handleFirebaseNotificationTap(initialMessage);
+    // ✅ getInitialMessage can fail sometimes — keep safe
+    try {
+      final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+      if (initialMessage != null) {
+        _handleFirebaseNotificationTap(initialMessage);
+      }
+    } catch (e) {
+      debugPrint('Firebase getInitialMessage error: $e');
     }
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
@@ -87,9 +99,22 @@ class NotificationService {
       );
     });
 
-    final token = await FirebaseMessaging.instance.getToken();
+    // ✅ CRITICAL FIX: getToken can throw SERVICE_NOT_AVAILABLE (emulator) -> don't crash app
+    try {
+      final token = await FirebaseMessaging.instance.getToken();
+      debugPrint('FCM token: $token');
+    } on PlatformException catch (e) {
+      debugPrint('FCM getToken PlatformException: ${e.code} ${e.message}');
+    } catch (e) {
+      debugPrint('FCM getToken error: $e');
+    }
 
-    await FirebaseMessaging.instance.subscribeToTopic('demo');
+    // ✅ Also safe
+    try {
+      await FirebaseMessaging.instance.subscribeToTopic('demo');
+    } catch (e) {
+      debugPrint('FCM subscribeToTopic error: $e');
+    }
 
     _initialized = true;
   }
@@ -104,7 +129,7 @@ class NotificationService {
   void _handleFirebaseNotificationTap(RemoteMessage message) {
     final screen = message.data['screen'];
     final habitKey = message.data['habitKey'];
-    
+
     if (_onTapAction != null) {
       _onTapAction!(screen ?? habitKey);
     }
@@ -143,11 +168,10 @@ class NotificationService {
     final notificationId = _generateNotificationId(habit, userId);
     final scheduledTime = _getNextScheduledTime(habit);
 
-
     // Get notification title based on habit type
     String notificationTitle;
     String notificationBody;
-    
+
     if (habit.habitType == 'bad') {
       notificationTitle = 'Resist ${habit.title}! 💪';
       notificationBody = 'Skip this habit and earn ${habit.points} points ⭐';
@@ -155,7 +179,7 @@ class NotificationService {
       notificationTitle = 'Time for ${habit.title}! 🎯';
       notificationBody = 'Complete your habit and earn ${habit.points} points ⭐';
     }
-    
+
     // Add task/habit indicator
     if (habit.isTask) {
       notificationBody += '\nTask Progress: ${habit.taskCompletionCount}/10';
@@ -173,7 +197,6 @@ class NotificationService {
       matchDateTimeComponents: _getDateTimeComponents(habit.frequency),
       payload: habit.habitKey,
     );
-
   }
 
   /// Get next scheduled time - FIXED to properly use local timezone
@@ -181,7 +204,6 @@ class NotificationService {
     // Get current time in local timezone
     final now = tz.TZDateTime.now(tz.local);
     final time = habit.time!;
-
 
     // Create scheduled time for today in LOCAL timezone
     tz.TZDateTime scheduledDate = tz.TZDateTime(
@@ -195,37 +217,31 @@ class NotificationService {
       0,
     );
 
-
     // If the time has already passed today, schedule for the next occurrence
     if (scheduledDate.isBefore(now)) {
-      
       switch (habit.frequency.toLowerCase()) {
         case 'daily':
-          // Schedule for tomorrow at the same time
           scheduledDate = scheduledDate.add(const Duration(days: 1));
           break;
-          
+
         case 'weekly':
-          // Schedule for next week same day
           scheduledDate = scheduledDate.add(const Duration(days: 7));
           break;
-          
+
         case 'monthly':
-          // Schedule for same day next month
           int nextMonth = scheduledDate.month + 1;
           int nextYear = scheduledDate.year;
           if (nextMonth > 12) {
             nextMonth = 1;
             nextYear++;
           }
-          
-          // Handle edge case where day doesn't exist in next month (e.g., Jan 31 -> Feb)
+
           int nextDay = scheduledDate.day;
           final daysInNextMonth = DateTime(nextYear, nextMonth + 1, 0).day;
           if (nextDay > daysInNextMonth) {
             nextDay = daysInNextMonth;
           }
-          
+
           scheduledDate = tz.TZDateTime(
             tz.local,
             nextYear,
@@ -237,9 +253,8 @@ class NotificationService {
             0,
           );
           break;
-          
+
         default:
-          // Default to daily
           scheduledDate = scheduledDate.add(const Duration(days: 1));
       }
     }
@@ -251,11 +266,11 @@ class NotificationService {
   DateTimeComponents? _getDateTimeComponents(String frequency) {
     switch (frequency.toLowerCase()) {
       case 'daily':
-        return DateTimeComponents.time; // Repeat at same time every day
+        return DateTimeComponents.time;
       case 'weekly':
-        return DateTimeComponents.dayOfWeekAndTime; // Repeat same day of week
+        return DateTimeComponents.dayOfWeekAndTime;
       case 'monthly':
-        return DateTimeComponents.dayOfMonthAndTime; // Repeat same day of month
+        return DateTimeComponents.dayOfMonthAndTime;
       default:
         return DateTimeComponents.time;
     }
@@ -263,7 +278,6 @@ class NotificationService {
 
   /// Generate unique notification ID for habit
   int _generateNotificationId(Habit habit, int userId) {
-    // Use a consistent hash that includes userId, habitKey, and frequency
     final uniqueString = '${userId}_${habit.habitKey}_${habit.frequency}';
     return uniqueString.hashCode;
   }
@@ -316,11 +330,19 @@ class NotificationService {
 
   /// Subscribe to FCM topic
   Future<void> subscribeToTopic(String topic) async {
-    await FirebaseMessaging.instance.subscribeToTopic(topic);
+    try {
+      await FirebaseMessaging.instance.subscribeToTopic(topic);
+    } catch (e) {
+      debugPrint('subscribeToTopic error: $e');
+    }
   }
 
   /// Unsubscribe from FCM topic
   Future<void> unsubscribeFromTopic(String topic) async {
-    await FirebaseMessaging.instance.unsubscribeFromTopic(topic);
+    try {
+      await FirebaseMessaging.instance.unsubscribeFromTopic(topic);
+    } catch (e) {
+      debugPrint('unsubscribeFromTopic error: $e');
+    }
   }
 }
