@@ -73,11 +73,27 @@ class _ArticlePageState extends State<ArticlePage> {
             ClipRRect(
               borderRadius: BorderRadius.circular(18),
               child: Image.network(
-                a.heroImageUrl!,
-                height: 180,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
+  a.heroImageUrl!,
+  height: 180,
+  width: double.infinity,
+  fit: BoxFit.cover,
+  loadingBuilder: (context, child, progress) {
+    if (progress == null) return child;
+    return SizedBox(
+      height: 180,
+      child: Center(child: CircularProgressIndicator()),
+    );
+  },
+  errorBuilder: (context, error, stack) {
+    return Container(
+      height: 180,
+      width: double.infinity,
+      alignment: Alignment.center,
+      child: const Text("Image failed to load"),
+    );
+  },
+)
+
             ),
             const SizedBox(height: 14),
           ],
