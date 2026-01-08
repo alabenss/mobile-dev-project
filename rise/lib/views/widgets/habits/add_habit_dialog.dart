@@ -202,7 +202,7 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
             
             // Habit Selection
             DropdownButtonFormField<String>(
-              value: currentOptions.containsKey(_selectedHabitKey) 
+              initialValue: currentOptions.containsKey(_selectedHabitKey) 
                   ? _selectedHabitKey 
                   : Habit.keyOther,
               items: currentOptions.entries.map((entry) {
@@ -232,7 +232,7 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
             const SizedBox(height: 12),
             
             DropdownButtonFormField<String>(
-              value: _frequency,
+              initialValue: _frequency,
               items: [
                 DropdownMenuItem(value: 'Daily', child: Text(l10n.today)),
                 DropdownMenuItem(value: 'Weekly', child: Text(l10n.weekly)),

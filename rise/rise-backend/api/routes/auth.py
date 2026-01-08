@@ -72,12 +72,12 @@ def register():
             return jsonify({'error': 'Failed to create user'}), 500
         
         # Get the created user from our users table (created by trigger)
-        user_record = select('users', filters={'auth_uid': str(auth_response.user.id)}, single=True)
+        user_record = select('users', filters={'auth_id': str(auth_response.user.id)}, single=True)
         
         # If trigger didn't work, create manually
         if not user_record:
             user_record = insert('users', {
-                'auth_uid': str(auth_response.user.id),
+                'auth_id': str(auth_response.user.id),
                 'first_name': first_name,
                 'last_name': last_name,
                 'username': username,
@@ -136,7 +136,7 @@ def login():
         user_record = select(
             'users',
             columns='id, first_name, last_name, username, email, total_points, stars, created_at',
-            filters={'auth_uid': str(auth_response.user.id)},
+            filters={'auth_id': str(auth_response.user.id)},
             single=True
         )
 
@@ -202,13 +202,13 @@ def refresh_token():
 def get_profile():
     """Get user profile (requires authentication)"""
     try:
-        # Get auth_uid from verified token
-        auth_uid = request.current_user.user.id
+        # Get auth_id from verified token
+        auth_id = request.current_user.user.id
         
         result = select(
             'users',
             columns='id, first_name, last_name, username, email, total_points, stars, created_at',
-            filters={'auth_uid': str(auth_uid)},
+            filters={'auth_id': str(auth_id)},
             single=True
         )
         
@@ -230,10 +230,10 @@ def update_profile():
     """Update user profile (requires authentication)"""
     try:
         data = request.get_json()
-        auth_uid = request.current_user.user.id
+        auth_id = request.current_user.user.id
         
         # Get current user
-        current_user = select('users', filters={'auth_uid': str(auth_uid)}, single=True)
+        current_user = select('users', filters={'auth_id': str(auth_id)}, single=True)
         if not current_user:
             return jsonify({'error': 'User not found'}), 404
         
@@ -265,7 +265,7 @@ def update_profile():
         if not update_data:
             return jsonify({'error': 'No fields to update'}), 400
         
-        result = update('users', update_data, filters={'auth_uid': str(auth_uid)})
+        result = update('users', update_data, filters={'auth_id': str(auth_id)})
         
         return jsonify({'success': True}), 200
         
@@ -303,12 +303,12 @@ def update_stars():
     try:
         data = request.get_json()
         stars = data.get('stars')
-        auth_uid = request.current_user.user.id
+        auth_id = request.current_user.user.id
         
         if stars is None:
             return jsonify({'error': 'Stars required'}), 400
         
-        result = update('users', {'stars': stars}, filters={'auth_uid': str(auth_uid)})
+        result = update('users', {'stars': stars}, filters={'auth_id': str(auth_id)})
         
         return jsonify({'success': True}), 200
         
@@ -323,12 +323,12 @@ def update_points():
     try:
         data = request.get_json()
         total_points = data.get('totalPoints')
-        auth_uid = request.current_user.user.id
+        auth_id = request.current_user.user.id
         
         if total_points is None:
             return jsonify({'error': 'totalPoints required'}), 400
         
-        result = update('users', {'total_points': total_points}, filters={'auth_uid': str(auth_uid)})
+        result = update('users', {'total_points': total_points}, filters={'auth_id': str(auth_id)})
         
         return jsonify({'success': True}), 200
         
@@ -343,13 +343,13 @@ def award_points():
     try:
         data = request.get_json()
         points = data.get('points')
-        auth_uid = request.current_user.user.id
+        auth_id = request.current_user.user.id
         
         if points is None:
             return jsonify({'error': 'Points required'}), 400
         
         # Get current points
-        user = select('users', filters={'auth_uid': str(auth_uid)}, single=True)
+        user = select('users', filters={'auth_id': str(auth_id)}, single=True)
         
         if not user:
             return jsonify({'error': 'User not found'}), 404
@@ -362,7 +362,7 @@ def award_points():
             new_points = 0
         
         # Update points
-        result = update('users', {'total_points': new_points}, filters={'auth_uid': str(auth_uid)})
+        result = update('users', {'total_points': new_points}, filters={'auth_id': str(auth_id)})
         
         return jsonify({
             'success': True,
