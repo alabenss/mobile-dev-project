@@ -13,13 +13,13 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  final _identifierController = TextEditingController(); // username or email
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _identifierController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -27,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
       final success = await context.read<AuthCubit>().login(
-        _emailController.text.trim(), // email or username
+        _identifierController.text.trim(), // username or email
         _passwordController.text,
       );
 
@@ -102,21 +102,17 @@ class _LoginScreenState extends State<LoginScreen> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: TextFormField(
-                            controller: _emailController,
+                            controller: _identifierController,
                             keyboardType: TextInputType.text,
                             decoration: const InputDecoration(
-                              labelText: 'Email or Username',
+                              labelText: 'Username or Email',
                               prefixIcon: Icon(Icons.person_outline),
                               border: InputBorder.none,
                               contentPadding: EdgeInsets.all(16),
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Please enter your email or username';
-                              }
-                              // Optional email validation
-                              if (value.contains('@') && !value.contains('.')) {
-                                return 'Please enter a valid email';
+                                return 'Please enter your username or email';
                               }
                               return null;
                             },

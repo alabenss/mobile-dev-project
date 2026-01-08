@@ -8,22 +8,30 @@ def register():
     """Register a new user"""
     try:
         data = request.get_json()
-        name = data.get('name')
+        first_name = data.get('firstName')
+        last_name = data.get('lastName')
+        username = data.get('username')
         email = data.get('email')
         password = data.get('password')
         
-        if not all([name, email, password]):
+        if not all([first_name, last_name, username, email, password]):
             return jsonify({'error': 'Missing required fields'}), 400
         
-        # Check if user exists
-        existing = select('users', filters={'email': email})
-        
-        if existing:
+        # Check if email exists
+        existing_email = select('users', filters={'email': email})
+        if existing_email:
             return jsonify({'error': 'Email already exists'}), 400
+        
+        # Check if username exists
+        existing_username = select('users', filters={'username': username})
+        if existing_username:
+            return jsonify({'error': 'Username already exists'}), 400
         
         # Create user
         result = insert('users', {
-            'name': name,
+            'first_name': first_name,
+            'last_name': last_name,
+            'username': username,
             'email': email,
             'password': password,
             'total_points': 0,
@@ -47,7 +55,7 @@ def login():
     """Login user (email OR username)"""
     try:
         data = request.get_json()
-        identifier = data.get('email')  # can be email or username from app
+        identifier = data.get('email')  # can be email or username
         password = data.get('password')
 
         if not all([identifier, password]):
@@ -56,17 +64,17 @@ def login():
         # First try login by email
         result = select(
             'users',
-            columns='id, name, email, total_points, stars',
+            columns='id, first_name, last_name, username, email, total_points, stars',
             filters={'email': identifier, 'password': password},
             single=True
         )
 
-        # If not found, try login by username (name)
+        # If not found, try login by username
         if not result:
             result = select(
                 'users',
-                columns='id, name, email, total_points, stars',
-                filters={'name': identifier, 'password': password},
+                columns='id, first_name, last_name, username, email, total_points, stars',
+                filters={'username': identifier, 'password': password},
                 single=True
             )
 
@@ -93,7 +101,7 @@ def get_profile():
         
         result = select(
             'users',
-            columns='id, name, email, total_points, stars',
+            columns='id, first_name, last_name, username, email, total_points, stars, created_at',
             filters={'id': int(user_id)},
             single=True
         )
@@ -112,7 +120,7 @@ def get_profile():
 
 @auth_bp.route('/user.updateProfile', methods=['PUT'])
 def update_profile():
-    """Update user profile (name, email)"""
+    """Update user profile (first_name, last_name, username, email)"""
     try:
         data = request.get_json()
         user_id = data.get('userId')
@@ -121,9 +129,21 @@ def update_profile():
             return jsonify({'error': 'userId required'}), 400
         
         update_data = {}
-        if 'name' in data:
-            update_data['name'] = data['name']
+        if 'firstName' in data:
+            update_data['first_name'] = data['firstName']
+        if 'lastName' in data:
+            update_data['last_name'] = data['lastName']
+        if 'username' in data:
+            # Check if username is already taken by another user
+            existing = select('users', filters={'username': data['username']})
+            if existing and existing[0]['id'] != user_id:
+                return jsonify({'error': 'Username already taken'}), 400
+            update_data['username'] = data['username']
         if 'email' in data:
+            # Check if email is already taken by another user
+            existing = select('users', filters={'email': data['email']})
+            if existing and existing[0]['id'] != user_id:
+                return jsonify({'error': 'Email already taken'}), 400
             update_data['email'] = data['email']
         
         if not update_data:

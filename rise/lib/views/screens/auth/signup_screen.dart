@@ -13,7 +13,9 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
+  final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -22,7 +24,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -32,7 +36,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Future<void> _signUp() async {
     if (_formKey.currentState!.validate()) {
       final success = await context.read<AuthCubit>().signUp(
-        _nameController.text.trim(),
+        _firstNameController.text.trim(),
+        _lastNameController.text.trim(),
+        _usernameController.text.trim(),
         _emailController.text.trim(),
         _passwordController.text,
       );
@@ -99,25 +105,79 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             color: Colors.white.withOpacity(0.8),
                           ),
                         ),
-                        const SizedBox(height: 48),
+                        const SizedBox(height: 32),
 
-                        // Name Field
+                        // First Name Field
                         Container(
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.9),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: TextFormField(
-                            controller: _nameController,
+                            controller: _firstNameController,
                             decoration: const InputDecoration(
-                              labelText: 'Full Name',
+                              labelText: 'First Name',
                               prefixIcon: Icon(Icons.person_outline),
                               border: InputBorder.none,
                               contentPadding: EdgeInsets.all(16),
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Please enter your name';
+                                return 'Please enter your first name';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Last Name Field
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.9),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: TextFormField(
+                            controller: _lastNameController,
+                            decoration: const InputDecoration(
+                              labelText: 'Last Name',
+                              prefixIcon: Icon(Icons.person_outline),
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.all(16),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your last name';
+                              }
+                              return null;
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Username Field
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.9),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: TextFormField(
+                            controller: _usernameController,
+                            decoration: const InputDecoration(
+                              labelText: 'Username',
+                              prefixIcon: Icon(Icons.alternate_email),
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.all(16),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter a username';
+                              }
+                              if (value.length < 3) {
+                                return 'Username must be at least 3 characters';
+                              }
+                              if (value.contains(' ')) {
+                                return 'Username cannot contain spaces';
                               }
                               return null;
                             },

@@ -178,7 +178,7 @@ class MyApp extends StatelessWidget {
             listener: (context, state) {
               if (state.isAuthenticated && state.user != null) {
                 context.read<HomeCubit>().loadInitial(
-                      userName: state.user!.name,
+                      userName: state.user!.fullName,
                       lang: lang, // ✅ pass language to load correct articles
                     );
 

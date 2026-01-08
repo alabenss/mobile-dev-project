@@ -66,12 +66,20 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   /// Register
-  Future<bool> signUp(String name, String email, String password) async {
+  Future<bool> signUp(
+    String firstName,
+    String lastName,
+    String username,
+    String email,
+    String password,
+  ) async {
     emit(state.copyWith(isLoading: true));
 
     try {
       final response = await _api.post(ApiConfig.AUTH_REGISTER, {
-        'name': name,
+        'firstName': firstName,
+        'lastName': lastName,
+        'username': username,
         'email': email,
         'password': password,
       });
@@ -107,7 +115,7 @@ class AuthCubit extends Cubit<AuthState> {
 
     try {
       final response = await _api.post(ApiConfig.AUTH_LOGIN, {
-        'email': identifier,
+        'email': identifier, // can be email or username
         'password': password,
       });
 
@@ -148,19 +156,54 @@ class AuthCubit extends Cubit<AuthState> {
     emit(state.copyWith(error: null));
   }
 
-  /// Update user name
-  Future<void> updateUserName(String newName) async {
+  /// Update user first name
+  Future<void> updateUserFirstName(String newFirstName) async {
     if (state.user == null) return;
 
     try {
       await _api.put(ApiConfig.USER_UPDATE, {
         'userId': state.user!.id,
-        'name': newName,
+        'firstName': newFirstName,
       });
 
       await refreshUserData();
     } catch (e) {
-      print('Error updating name: $e');
+      print('Error updating first name: $e');
+      rethrow;
+    }
+  }
+
+  /// Update user last name
+  Future<void> updateUserLastName(String newLastName) async {
+    if (state.user == null) return;
+
+    try {
+      await _api.put(ApiConfig.USER_UPDATE, {
+        'userId': state.user!.id,
+        'lastName': newLastName,
+      });
+
+      await refreshUserData();
+    } catch (e) {
+      print('Error updating last name: $e');
+      rethrow;
+    }
+  }
+
+  /// Update username
+  Future<void> updateUsername(String newUsername) async {
+    if (state.user == null) return;
+
+    try {
+      await _api.put(ApiConfig.USER_UPDATE, {
+        'userId': state.user!.id,
+        'username': newUsername,
+      });
+
+      await refreshUserData();
+    } catch (e) {
+      print('Error updating username: $e');
+      rethrow;
     }
   }
 

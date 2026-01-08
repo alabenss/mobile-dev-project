@@ -63,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (authState.isAuthenticated && authState.user != null) {
         context.read<HomeCubit>().loadInitial(
-              userName: authState.user!.name,
+              userName: authState.user!.fullName,
               lang: 'en', // later you can pass locale here
             );
       }
