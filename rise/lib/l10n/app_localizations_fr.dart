@@ -1170,4 +1170,82 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get languageArabic => 'Arabe';
+
+  @override
+  String get welcomeBack => 'Bon retour';
+
+  @override
+  String get loginSubtitle => 'Connectez-vous pour continuer votre parcours';
+
+  @override
+  String get usernameOrEmail => 'Nom d\'utilisateur ou Email';
+
+  @override
+  String get enterUsernameOrEmail => 'Veuillez entrer votre nom d\'utilisateur ou email';
+
+  @override
+  String get password => 'Mot de passe';
+
+  @override
+  String get enterPassword => 'Veuillez entrer un mot de passe';
+
+  @override
+  String get passwordTooShort => 'Le mot de passe doit comporter au moins 6 caractères';
+
+  @override
+  String get login => 'Se connecter';
+
+  @override
+  String get noAccount => 'Vous n\'avez pas de compte ? ';
+
+  @override
+  String get signUp => 'S\'inscrire';
+
+  @override
+  String get createAccount => 'Créer un compte';
+
+  @override
+  String get signUpSubtitle => 'Commencez votre parcours bien-être aujourd\'hui';
+
+  @override
+  String get firstName => 'Prénom';
+
+  @override
+  String get enterFirstName => 'Veuillez entrer votre prénom';
+
+  @override
+  String get lastName => 'Nom';
+
+  @override
+  String get enterLastName => 'Veuillez entrer votre nom';
+
+  @override
+  String get username => 'Nom d\'utilisateur';
+
+  @override
+  String get enterUsername => 'Veuillez entrer un nom d\'utilisateur';
+
+  @override
+  String get usernameTooShort => 'Le nom d\'utilisateur doit comporter au moins 3 caractères';
+
+  @override
+  String get usernameNoSpaces => 'Le nom d\'utilisateur ne peut pas contenir d\'espaces';
+
+  @override
+  String get email => 'Email';
+
+  @override
+  String get invalidEmail => 'Veuillez entrer une adresse email valide';
+
+  @override
+  String get confirmPassword => 'Confirmer le mot de passe';
+
+  @override
+  String get enterConfirmPassword => 'Veuillez confirmer votre mot de passe';
+
+  @override
+  String get passwordsDoNotMatch => 'Les mots de passe ne correspondent pas';
+
+  @override
+  String get alreadyHaveAccount => 'Vous avez déjà un compte ? ';
 }

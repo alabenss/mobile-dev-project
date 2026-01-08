@@ -528,7 +528,45 @@
   },
   "languageEnglish": "الإنجليزية",
   "languageFrench": "الفرنسية",
-  "languageArabic": "العربية"
+  "languageArabic": "العربية",
+
+
+  "welcomeBack": "مرحبًا بعودتك",
+  "loginSubtitle": "سجّل الدخول لمتابعة رحلتك",
+  "usernameOrEmail": "اسم المستخدم أو البريد الإلكتروني",
+  "enterUsernameOrEmail": "يرجى إدخال اسم المستخدم أو البريد الإلكتروني",
+  "password": "كلمة المرور",
+  "enterPassword": "يرجى إدخال كلمة المرور",
+  "passwordTooShort": "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل",
+  "login": "تسجيل الدخول",
+  "noAccount": "ليس لديك حساب؟ ",
+  "signUp": "إنشاء حساب",
+
+  
+  "createAccount": "إنشاء حساب",
+  "signUpSubtitle": "ابدأ رحلتك للعناية بنفسك اليوم",
+  "firstName": "الاسم الأول",
+  "enterFirstName": "يرجى إدخال الاسم الأول",
+  "lastName": "الاسم الأخير",
+  "enterLastName": "يرجى إدخال الاسم الأخير",
+  "username": "اسم المستخدم",
+  "enterUsername": "يرجى إدخال اسم المستخدم",
+  "usernameTooShort": "يجب أن يكون اسم المستخدم 3 أحرف على الأقل",
+  "usernameNoSpaces": "اسم المستخدم لا يمكن أن يحتوي على مسافات",
+  "email": "البريد الإلكتروني",
+  "invalidEmail": "يرجى إدخال بريد إلكتروني صالح",
+  "password": "كلمة المرور",
+  "enterPassword": "يرجى إدخال كلمة المرور",
+  "passwordTooShort": "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل",
+  "confirmPassword": "تأكيد كلمة المرور",
+  "enterConfirmPassword": "يرجى تأكيد كلمة المرور",
+  "passwordsDoNotMatch": "كلمات المرور غير متطابقة",
+  "signUp": "إنشاء حساب",
+  "alreadyHaveAccount": "هل لديك حساب بالفعل؟ ",
+  "login": "تسجيل الدخول"
+
+
+
 
 
 }

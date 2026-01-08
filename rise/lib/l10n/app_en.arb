@@ -617,7 +617,44 @@
   },
   "languageEnglish": "English",
   "languageFrench": "French",
-  "languageArabic": "Arabic"
+  "languageArabic": "Arabic",
+
+  "welcomeBack": "Welcome Back",
+  "loginSubtitle": "Login to continue your journey",
+  "usernameOrEmail": "Username or Email",
+  "enterUsernameOrEmail": "Please enter your username or email",
+  "password": "Password",
+  "enterPassword": "Please enter your password",
+  "passwordTooShort": "Password must be at least 6 characters",
+  "login": "Login",
+  "noAccount": "Don't have an account? ",
+  "signUp": "Sign Up",
+
+  
+  "createAccount": "Create Account",
+  "signUpSubtitle": "Start your wellness journey today",
+  "firstName": "First Name",
+  "enterFirstName": "Please enter your first name",
+  "lastName": "Last Name",
+  "enterLastName": "Please enter your last name",
+  "username": "Username",
+  "enterUsername": "Please enter a username",
+  "usernameTooShort": "Username must be at least 3 characters",
+  "usernameNoSpaces": "Username cannot contain spaces",
+  "email": "Email",
+  "invalidEmail": "Please enter a valid email address",
+  "password": "Password",
+  "enterPassword": "Please enter a password",
+  "passwordTooShort": "Password must be at least 6 characters",
+  "confirmPassword": "Confirm Password",
+  "enterConfirmPassword": "Please confirm your password",
+  "passwordsDoNotMatch": "Passwords do not match",
+  "signUp": "Sign Up",
+  "alreadyHaveAccount": "Already have an account? ",
+  "login": "Login"
+
+
+
 
 
   

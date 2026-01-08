@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../logic/auth/auth_cubit.dart';
 import '../../../logic/auth/auth_state.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../themes/style_simple/colors.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -13,7 +14,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _identifierController = TextEditingController(); // username or email
+  final _identifierController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
@@ -27,9 +28,9 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
       final success = await context.read<AuthCubit>().login(
-        _identifierController.text.trim(), // username or email
-        _passwordController.text,
-      );
+            _identifierController.text.trim(),
+            _passwordController.text,
+          );
 
       if (success && mounted) {
         Navigator.of(context).pushReplacementNamed('/home');
@@ -39,6 +40,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -70,16 +73,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // App Logo/Title
                         const Icon(
                           Icons.self_improvement,
                           size: 80,
                           color: AppColors.icon,
                         ),
                         const SizedBox(height: 16),
-                        const Text(
-                          'Welcome Back',
-                          style: TextStyle(
+                        Text(
+                          l10n.welcomeBack,
+                          style: const TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
@@ -87,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Login to continue your journey',
+                          l10n.loginSubtitle,
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.white.withOpacity(0.8),
@@ -95,7 +97,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 48),
 
-                        // Email or Username Field
+                        // Identifier field
                         Container(
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.9),
@@ -104,15 +106,15 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: TextFormField(
                             controller: _identifierController,
                             keyboardType: TextInputType.text,
-                            decoration: const InputDecoration(
-                              labelText: 'Username or Email',
-                              prefixIcon: Icon(Icons.person_outline),
+                            decoration: InputDecoration(
+                              labelText: l10n.usernameOrEmail,
+                              prefixIcon: const Icon(Icons.person_outline),
                               border: InputBorder.none,
-                              contentPadding: EdgeInsets.all(16),
+                              contentPadding: const EdgeInsets.all(16),
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Please enter your username or email';
+                                return l10n.enterUsernameOrEmail;
                               }
                               return null;
                             },
@@ -120,7 +122,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Password Field
+                        // Password field
                         Container(
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.9),
@@ -130,7 +132,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             controller: _passwordController,
                             obscureText: _obscurePassword,
                             decoration: InputDecoration(
-                              labelText: 'Password',
+                              labelText: l10n.password,
                               prefixIcon: const Icon(Icons.lock_outline),
                               suffixIcon: IconButton(
                                 icon: Icon(
@@ -149,10 +151,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Please enter your password';
+                                return l10n.enterPassword;
                               }
                               if (value.length < 6) {
-                                return 'Password must be at least 6 characters';
+                                return l10n.passwordTooShort;
                               }
                               return null;
                             },
@@ -160,7 +162,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 32),
 
-                        // Login Button
+                        // Login button
                         SizedBox(
                           width: double.infinity,
                           height: 50,
@@ -176,9 +178,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ? const CircularProgressIndicator(
                                     color: Colors.white,
                                   )
-                                : const Text(
-                                    'Login',
-                                    style: TextStyle(
+                                : Text(
+                                    l10n.login,
+                                    style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white,
@@ -188,23 +190,24 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 24),
 
-                        // Sign Up Link
+                        // Sign Up link
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              "Don't have an account? ",
+                              l10n.noAccount,
                               style: TextStyle(
                                 color: Colors.white.withOpacity(0.8),
                               ),
                             ),
                             TextButton(
                               onPressed: () {
-                                Navigator.of(context).pushReplacementNamed('/signup');
+                                Navigator.of(context)
+                                    .pushReplacementNamed('/signup');
                               },
-                              child: const Text(
-                                'Sign Up',
-                                style: TextStyle(
+                              child: Text(
+                                l10n.signUp,
+                                style: const TextStyle(
                                   color: AppColors.icon,
                                   fontWeight: FontWeight.bold,
                                 ),
