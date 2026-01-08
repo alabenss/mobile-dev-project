@@ -26,6 +26,12 @@ class HabitRepository {
           : null,
       'points': habit.points,
       'remindMe': habit.reminder,
+      'habitType': habit.habitType,
+      'streakCount': habit.streakCount,
+      'bestStreak': habit.bestStreak,
+      'isTask': habit.isTask,
+      'taskCompletionCount': habit.taskCompletionCount,
+      'lastCompletedDate': habit.lastCompletedDate?.toIso8601String(),
     };
   }
 
@@ -61,6 +67,16 @@ class HabitRepository {
     
     final status = (json['status'] as String?) ?? 'active';
     final remindMe = json['remind_me'];
+    final habitType = (json['habit_type'] as String?) ?? 'good';
+    final streakCount = (json['streak_count'] as int?) ?? 0;
+    final bestStreak = (json['best_streak'] as int?) ?? 0;
+    final isTask = json['is_task'] == true || json['is_task'] == 1;
+    final taskCompletionCount = (json['task_completion_count'] as int?) ?? 0;
+    
+    DateTime? lastCompletedDate;
+    if (json['last_completed_date'] != null) {
+      lastCompletedDate = DateTime.parse(json['last_completed_date'] as String);
+    }
     
     return Habit(
       title: displayTitle,
@@ -72,6 +88,12 @@ class HabitRepository {
       points: json['points'] as int? ?? 10,
       done: status == 'completed',
       skipped: status == 'skipped',
+      habitType: habitType,
+      streakCount: streakCount,
+      bestStreak: bestStreak,
+      isTask: isTask,
+      taskCompletionCount: taskCompletionCount,
+      lastCompletedDate: lastCompletedDate,
     );
   }
 
@@ -133,7 +155,7 @@ class HabitRepository {
     }
   }
 
-  /// Get habits by frequency (Daily, Weekly, Monthly, Yearly)
+  /// Get habits by frequency (Daily, Weekly, Monthly)
   Future<List<Habit>> getHabitsByFrequency(String frequency) async {
     try {
       final userId = await _getCurrentUserId();
@@ -150,18 +172,7 @@ class HabitRepository {
 
       if (response['success'] == true && response['habits'] != null) {
         final habitsList = response['habits'] as List;
-        final habits = habitsList.map((json) => _habitFromJson(json)).toList();
-
-        // Client-side filtering/reset logic (if needed)
-        final now = DateTime.now();
-        final List<Habit> filteredHabits = [];
-
-        for (var habit in habits) {
-          // You can add client-side date checking here if needed
-          filteredHabits.add(habit);
-        }
-
-        return filteredHabits;
+        return habitsList.map((json) => _habitFromJson(json)).toList();
       }
 
       return [];
@@ -171,38 +182,107 @@ class HabitRepository {
     }
   }
 
-  /// Update habit status
+  /// Update habit status with streak tracking and task-to-habit conversion
   Future<int> updateHabitStatus(String habitKeyOrTitle, String status) async {
     try {
       final userId = await _getCurrentUserId();
       
       print('HabitRepo: Updating habit status: $habitKeyOrTitle -> $status');
 
-      // Award/remove points based on status
+      final habit = await getHabitByKey(habitKeyOrTitle);
+      if (habit == null) return 0;
+
+      int newStreak = habit.streakCount;
+      int newBestStreak = habit.bestStreak;
+      int newTaskCompletion = habit.taskCompletionCount;
+      bool newIsTask = habit.isTask;
+
+      // Handle completion
       if (status == 'completed') {
-        final habit = await getHabitByKey(habitKeyOrTitle);
-        if (habit != null) {
-          await _awardPoints(habit.points);
+        await _awardPoints(habit.points);
+        
+        // For good habits, completion increments streak
+        if (habit.habitType == 'good') {
+          newStreak++;
+          newTaskCompletion++;
+          if (newStreak > newBestStreak) {
+            newBestStreak = newStreak;
+          }
+        }
+        
+        // Check if task should become habit (10 consecutive completions)
+        if (newIsTask && newTaskCompletion >= 10) {
+          newIsTask = false;
+          // Bonus points for establishing a habit!
+          await _awardPoints(50);
         }
       }
-
-      if (status == 'active') {
-        final habit = await getHabitByKey(habitKeyOrTitle);
-        if (habit != null) {
-          await _awardPoints(-habit.points);
+      
+      // Handle skipping
+      else if (status == 'skipped') {
+        // For bad habits, skipping increments streak
+        if (habit.habitType == 'bad') {
+          newStreak++;
+          newTaskCompletion++;
+          await _awardPoints(habit.points); // Award points for resisting
+          if (newStreak > newBestStreak) {
+            newBestStreak = newStreak;
+          }
+          
+          // Check if task should become habit
+          if (newIsTask && newTaskCompletion >= 10) {
+            newIsTask = false;
+            await _awardPoints(50);
+          }
         }
+        // For good habits, skipping breaks the streak
+        else {
+          newStreak = 0;
+        }
+      }
+      
+      // Handle reset (undoing completion)
+      else if (status == 'active') {
+        await _awardPoints(-habit.points);
       }
 
       await _api.put(ApiConfig.HABITS_UPDATE_STATUS, {
         'userId': userId,
         'title': habitKeyOrTitle,
         'status': status,
+        'streakCount': newStreak,
+        'bestStreak': newBestStreak,
+        'taskCompletionCount': newTaskCompletion,
+        'isTask': newIsTask,
+        'lastCompletedDate': (status == 'completed' || status == 'skipped')
+            ? DateTime.now().toIso8601String()
+            : habit.lastCompletedDate?.toIso8601String(),
       });
 
       return 1;
     } catch (e) {
       print('HabitRepo: Error updating habit status: $e');
       return 0;
+    }
+  }
+
+  /// Restore streak using points
+  Future<bool> restoreStreak(String habitKey) async {
+    try {
+      final userId = await _getCurrentUserId();
+      
+      final habit = await getHabitByKey(habitKey);
+      if (habit == null || !habit.needsStreakRestoration) return false;
+      
+      final response = await _api.post(ApiConfig.HABITS_RESTORE_STREAK, {
+        'userId': userId,
+        'habitKey': habitKey,
+      });
+
+      return response['success'] == true;
+    } catch (e) {
+      print('HabitRepo: Error restoring streak: $e');
+      return false;
     }
   }
 
@@ -364,7 +444,7 @@ class HabitRepository {
 
       await _api.put(ApiConfig.HABITS_UPDATE, {
         'userId': userId,
-        'habitId': habitKey, // This should ideally be the actual ID
+        'habitKey': habitKey,
         'remindMe': reminder,
         'doItAt': time != null
             ? '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}'
@@ -407,26 +487,15 @@ class HabitRepository {
     try {
       final userId = await _getCurrentUserId();
       
-      // You'll need to create a user points endpoint
-      // For now, we'll call the user profile to get current points
-      final profileResponse = await _api.get(
-        ApiConfig.USER_PROFILE,
-        params: {'userId': userId.toString()},
-      );
-
-      if (profileResponse['success'] == true && profileResponse['user'] != null) {
-        final currentPoints = profileResponse['user']['total_points'] as int? ?? 0;
-        final newPoints = currentPoints + points;
-
-        // Update points (you'll need to add this endpoint)
-        // await _api.put('/user.updatePoints', {'userId': userId, 'points': newPoints});
-      }
+      await _api.post(ApiConfig.USER_AWARD_POINTS, {
+        'userId': userId,
+        'points': points,
+      });
     } catch (e) {
       print('HabitRepo: Error awarding points: $e');
     }
   }
 
-  /// Get total habit points
   /// Get total habit points
   Future<int> getTotalHabitPoints() async {
     try {
@@ -435,10 +504,7 @@ class HabitRepository {
       int total = 0;
       for (final habit in habits) {
         if (!habit.done) continue;
-
-        // Handles int OR Future<int> safely
-        final pts = await Future.value(habit.points);
-        total += pts;
+        total += habit.points;
       }
 
       return total;
@@ -448,6 +514,20 @@ class HabitRepository {
     }
   }
 
+  /// Check and reset old habits (backend should handle this)
+  Future<void> checkAndResetOldHabits() async {
+    try {
+      final userId = await _getCurrentUserId();
+      
+      await _api.post(ApiConfig.HABITS_CHECK_RESET, {
+        'userId': userId,
+      });
+      
+      print('HabitRepo: Checked and reset old habits');
+    } catch (e) {
+      print('HabitRepo: Error checking and resetting old habits: $e');
+    }
+  }
 
   // Legacy methods for compatibility
   Future<int> deleteAllHabits() async {
@@ -465,20 +545,13 @@ class HabitRepository {
 
   Future<void> resetDailyHabits() async {
     try {
-      final dailyHabits = await getHabitsByFrequency('Daily');
-      for (var habit in dailyHabits) {
-        if (habit.done || habit.skipped) {
-          await updateHabitStatus(habit.habitKey, 'active');
-        }
-      }
+      final userId = await _getCurrentUserId();
+      
+      await _api.post(ApiConfig.HABITS_RESET_DAILY, {
+        'userId': userId,
+      });
     } catch (e) {
       print('HabitRepo: Error resetting daily habits: $e');
     }
-  }
-
-  Future<void> checkAndResetOldHabits() async {
-    // This logic should ideally be handled by the backend
-    // For now, we'll just refresh the data
-    print('HabitRepo: checkAndResetOldHabits - handled by backend');
   }
 }

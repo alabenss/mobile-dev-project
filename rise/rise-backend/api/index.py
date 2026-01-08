@@ -1,6 +1,8 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
 from api.routes.auth import auth_bp
+from api.routes.app_lock import app_lock_bp  
+from api.routes.plant import plant_bp  
 from api.routes.journals import journals_bp
 from api.routes.habits import habits_bp
 from api.routes.moods import moods_bp
@@ -26,10 +28,13 @@ CORS(app, resources={
 
 # Register all blueprints
 app.register_blueprint(auth_bp)
+app.register_blueprint(app_lock_bp)  
+app.register_blueprint(plant_bp)  
 app.register_blueprint(journals_bp)
 app.register_blueprint(habits_bp)
 app.register_blueprint(moods_bp)
 app.register_blueprint(home_bp)
+
 
 # Error handlers
 @app.errorhandler(404)
@@ -47,11 +52,17 @@ def index():
         'version': '1.0',
         'status': 'running',
         'endpoints': {
-            'auth': ['/user.register', '/user.login', '/user.profile'],
+            'auth': ['/user.register', '/user.login', '/user.profile', '/user.updateProfile', 
+                     '/user.updatePassword', '/user.updateStars', '/user.updatePoints', '/user.awardPoints'],
+            'app_lock': ['/lock.get', '/lock.save', '/lock.remove'],
+            'plant': ['/plant.get', '/plant.update', '/plant.reset'],
             'journals': ['/journals.get', '/journals.add', '/journals.update', '/journals.delete'],
-            'habits': ['/habits.get', '/habits.add', '/habits.update', '/habits.delete'],
-            'moods': ['/moods.today', '/moods.save', '/moods.delete', '/moods.getAll'],
-            'home': ['/home.status (GET/POST)', '/home.incrementWater', '/home.decrementWater']
+            'habits': ['/habits.get', '/habits.add', '/habits.update', '/habits.updateStatus', 
+                       '/habits.delete', '/habits.getByTitle', '/habits.checkExists', 
+                       '/habits.getCompleted', '/habits.restoreStreak', '/habits.checkReset', '/habits.resetDaily'],
+            'moods': ['/moods.today', '/moods.save', '/moods.delete', '/moods.getAll', '/moods.getByMonth'],
+            'home': ['/home.status (GET/POST)', '/home.incrementWater', '/home.decrementWater', 
+                     '/home.updateDetox', '/home.getRange']
         }
     }
 

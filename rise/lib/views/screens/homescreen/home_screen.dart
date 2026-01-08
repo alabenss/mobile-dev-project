@@ -22,9 +22,6 @@ import '../../../logic/home/home_state.dart';
 import '../../../logic/auth/auth_cubit.dart';
 import '../../../utils/habit_localization.dart';
 
-// 🔔 notification service
-import '../../../services/notification_service.dart';
-
 class HomeScreen extends StatefulWidget {
   final VoidCallback? onViewAllHabits;
   const HomeScreen({super.key, this.onViewAllHabits});
@@ -85,33 +82,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
 
                 const SizedBox(height: 12),
-
-                // 🔔 TEST BUTTONS (EASIEST DEMO)
-                ElevatedButton(
-                  onPressed: () async {
-                    await NotificationService.instance.showTestNotification(
-                      title: "Don’t forget to journal today!",
-                      body: "Tap to open Journal 📝",
-                      screen: "journal",
-                    );
-                  },
-                  child: const Text("TEST JOURNAL NOTIFICATION"),
-                ),
-
-                const SizedBox(height: 8),
-
-                ElevatedButton(
-                  onPressed: () async {
-                    await NotificationService.instance.showTestNotification(
-                      title: "What is your mood today?",
-                      body: "Tap to check in 😊",
-                      screen: "home",
-                    );
-                  },
-                  child: const Text("TEST MOOD NOTIFICATION"),
-                ),
-
-                const SizedBox(height: 16),
 
                 ImageQuoteCard(
                   imagePath: AppImages.quotes,

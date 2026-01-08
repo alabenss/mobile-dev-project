@@ -15,7 +15,6 @@ import 'package:the_project/views/themes/style_simple/colors.dart';
 import 'package:the_project/database/repo/stats_repo.dart';
 import 'package:the_project/logic/statistics/stats_cubit.dart';
 import 'package:the_project/logic/statistics/stats_state.dart';
-import 'package:the_project/database/db_helper.dart';
 
 class StatsScreen extends StatefulWidget {
   const StatsScreen({super.key});
@@ -31,13 +30,6 @@ class _StatsScreenState extends State<StatsScreen> {
   @override
   void initState() {
     super.initState();
-    // Debug: Print all tables when stats screen opens
-    _debugPrintTables();
-  }
-
-  Future<void> _debugPrintTables() async {
-    print('\n🔍 Stats Screen Opened - Printing Database Tables...');
-    await DBHelper.debugPrintAllTables();
   }
 
   @override
@@ -78,7 +70,6 @@ class _StatsScreenState extends State<StatsScreen> {
                                   color: AppColors.coral,
                                 ),
                                 onPressed: () async {
-                                  await DBHelper.debugPrintAllTables();
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
                                       content: Text('Database tables printed to console'),

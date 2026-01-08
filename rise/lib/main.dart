@@ -17,7 +17,6 @@ import 'database/repo/activities_repo.dart';
 import 'database/repo/habit_repo.dart';
 import 'database/repo/journal_repository.dart';
 import 'database/repo/daily_mood_repository.dart';
-import 'database/db_helper.dart';
 
 import 'views/widgets/common/bottom_nav_wrapper.dart';
 import 'views/wrappers/phone_lock_wrapper.dart';
@@ -65,8 +64,6 @@ void main() async {
   );
 
   try {
-    await DBHelper.database;
-    await DBHelper.initializeDemoData();
 
     final homeRepo = AbstractHomeRepo.getInstance();
     final activitiesRepo = AbstractActivitiesRepo.getInstance();
@@ -126,10 +123,7 @@ void main() async {
                   const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () async {
-                      try {
-                        await DBHelper.clearAll();
-                        await DBHelper.initializeDemoData();
-                      } catch (_) {}
+                      
                     },
                     child: const Text('Retry'),
                   ),

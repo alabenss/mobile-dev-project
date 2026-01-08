@@ -189,7 +189,7 @@ def update_stars():
 
 @auth_bp.route('/user.updatePoints', methods=['PUT'])
 def update_points():
-    """Update user total points"""
+    """Update user total points (absolute value)"""
     try:
         data = request.get_json()
         user_id = data.get('userId')
@@ -208,4 +208,44 @@ def update_points():
         
     except Exception as e:
         print(f"Error in update_points: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@auth_bp.route('/user.awardPoints', methods=['POST'])
+def award_points():
+    """Award points to user (can be positive or negative)"""
+    try:
+        data = request.get_json()
+        user_id = data.get('userId')
+        points = data.get('points')
+        
+        if not all([user_id, points is not None]):
+            return jsonify({'error': 'userId and points required'}), 400
+        
+        # Get current points
+        user = select('users', filters={'id': user_id}, single=True)
+        
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+        
+        current_points = user.get('total_points', 0)
+        new_points = current_points + points
+        
+        # Don't let points go below 0
+        if new_points < 0:
+            new_points = 0
+        
+        # Update points
+        result = update(
+            'users',
+            {'total_points': new_points},
+            filters={'id': user_id}
+        )
+        
+        return jsonify({
+            'success': True,
+            'newTotal': new_points
+        }), 200
+        
+    except Exception as e:
+        print(f"Error in award_points: {e}")
         return jsonify({'error': str(e)}), 500

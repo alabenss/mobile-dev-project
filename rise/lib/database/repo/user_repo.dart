@@ -31,8 +31,7 @@ class UserRepo {
     try {
       print('UserRepo: Updating stars for userId: $userId to $newStars');
 
-      // You'll need to add this endpoint to your backend
-      await _api.put('/user.updateStars', {
+      await _api.put(ApiConfig.USER_UPDATE_STARS, {
         'userId': userId,
         'stars': newStars,
       });
@@ -65,13 +64,12 @@ class UserRepo {
     }
   }
 
-  /// Update user total points
+  /// Update user total points (absolute value)
   Future<void> updateUserTotalPoints(int userId, int newPoints) async {
     try {
       print('UserRepo: Updating total points for userId: $userId to $newPoints');
 
-      // You'll need to add this endpoint to your backend
-      await _api.put('/user.updatePoints', {
+      await _api.put(ApiConfig.USER_UPDATE_POINTS, {
         'userId': userId,
         'totalPoints': newPoints,
       });
@@ -79,6 +77,23 @@ class UserRepo {
       print('UserRepo: Total points updated successfully');
     } catch (e) {
       print('UserRepo: Error updating user total points: $e');
+      rethrow;
+    }
+  }
+
+  /// Award points (positive or negative delta)
+  Future<void> awardPoints(int userId, int points) async {
+    try {
+      print('UserRepo: Awarding $points points to userId: $userId');
+
+      await _api.post(ApiConfig.USER_AWARD_POINTS, {
+        'userId': userId,
+        'points': points,
+      });
+
+      print('UserRepo: Points awarded successfully');
+    } catch (e) {
+      print('UserRepo: Error awarding points: $e');
       rethrow;
     }
   }
@@ -109,7 +124,7 @@ class UserRepo {
     try {
       print('UserRepo: Updating name for userId: $userId');
 
-      await _api.put('/user.updateProfile', {
+      await _api.put(ApiConfig.USER_UPDATE, {
         'userId': userId,
         'name': newName,
       });
@@ -126,7 +141,7 @@ class UserRepo {
     try {
       print('UserRepo: Updating email for userId: $userId');
 
-      await _api.put('/user.updateProfile', {
+      await _api.put(ApiConfig.USER_UPDATE, {
         'userId': userId,
         'email': newEmail,
       });
@@ -143,7 +158,7 @@ class UserRepo {
     try {
       print('UserRepo: Updating password for userId: $userId');
 
-      await _api.put('/user.updatePassword', {
+      await _api.put(ApiConfig.USER_UPDATE_PASSWORD, {
         'userId': userId,
         'password': newPassword,
       });

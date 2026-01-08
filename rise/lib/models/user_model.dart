@@ -20,7 +20,7 @@ class User {
       id: map['id'] as int,
       name: map['name'] as String? ?? '',
       email: map['email'] as String? ?? '',
-      totalPoints: map['totalPoints'] as int? ?? 0,
+      totalPoints: map['total_points'] as int? ?? 0,
       stars: map['stars'] as int? ?? 0,
       createdAt: map['createdAt'] as String?,
     );
@@ -31,7 +31,7 @@ class User {
       'id': id,
       'name': name,
       'email': email,
-      'totalPoints': totalPoints,
+      'total_points': totalPoints,
       'stars':stars,
       'createdAt': createdAt,
     };
