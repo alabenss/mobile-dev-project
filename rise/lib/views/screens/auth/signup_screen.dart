@@ -4,6 +4,15 @@ import '../../../logic/auth/auth_cubit.dart';
 import '../../../logic/auth/auth_state.dart';
 import '../../themes/style_simple/colors.dart';
 
+
+bool isValidEmail(String email) {
+  final emailRegex = RegExp(
+    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+  );
+  return emailRegex.hasMatch(email);
+}
+
+
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
 
@@ -122,11 +131,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               contentPadding: EdgeInsets.all(16),
                             ),
                             validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your first name';
-                              }
-                              return null;
-                            },
+  if (value == null || value.isEmpty) {
+    return 'Please enter your email';
+  }
+  if (!isValidEmail(value.trim())) {
+    return 'Please enter a valid email address';
+  }
+  return null;
+},
+
                           ),
                         ),
                         const SizedBox(height: 16),
