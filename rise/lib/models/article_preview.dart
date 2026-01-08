@@ -13,11 +13,14 @@ class ArticlePreview {
   });
 
   factory ArticlePreview.fromJson(Map<String, dynamic> json) {
-    return ArticlePreview(
-      slug: (json['slug'] ?? '').toString(),
-      title: (json['title'] ?? '').toString(),
-      summary: json['summary']?.toString(),
-      heroImageUrl: json['hero_image_url']?.toString(),
-    );
-  }
+  final rawUrl = json['hero_image_url']?.toString();
+
+  return ArticlePreview(
+    slug: (json['slug'] ?? '').toString(),
+    title: (json['title'] ?? '').toString(),
+    summary: json['summary']?.toString(),
+    heroImageUrl: rawUrl?.trim(),
+  );
+}
+
 }

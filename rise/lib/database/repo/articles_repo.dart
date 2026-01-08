@@ -19,14 +19,17 @@ class ArticleFull {
   });
 
   factory ArticleFull.fromJson(Map<String, dynamic> json) {
-    return ArticleFull(
-      slug: (json['slug'] ?? '').toString(),
-      title: (json['title'] ?? '').toString(),
-      summary: json['summary']?.toString(),
-      heroImageUrl: json['hero_image_url']?.toString(),
-      content: (json['content'] ?? []) as List<dynamic>,
-    );
-  }
+  final rawUrl = json['hero_image_url']?.toString();
+
+  return ArticleFull(
+    slug: (json['slug'] ?? '').toString(),
+    title: (json['title'] ?? '').toString(),
+    summary: json['summary']?.toString(),
+    heroImageUrl: rawUrl?.trim(),
+    content: (json['content'] ?? []) as List<dynamic>,
+  );
+}
+
 }
 
 class ArticlesRepo {
