@@ -8,17 +8,16 @@ class DailyMoodCubit extends Cubit<DailyMoodState> {
 
   DailyMoodCubit(this._repository) : super(DailyMoodState());
 
-  /// Clears only in-memory mood state (does NOT delete anythingg from the database)
-  /// (We are NOT calling this from UI)
+  /// Reset in-memory state only
   void resetInMemory() {
     emit(DailyMoodState());
   }
 
-  /// Load today's mood from database for the logged-in user
+  /// Load today's mood from database
   Future<void> loadTodayMood() async {
-    emit(state.copyWith(status: DailyMoodStatus.loading));
-
     try {
+      emit(state.copyWith(status: DailyMoodStatus.loading));
+
       final userId = await _getUserId();
       if (userId == null) {
         emit(state.copyWith(
@@ -29,69 +28,93 @@ class DailyMoodCubit extends Cubit<DailyMoodState> {
         return;
       }
 
-      print('DailyMoodCubit: Loading mood for userId: $userId');
+      print('🔄 DailyMoodCubit: Loading mood for userId: $userId');
 
       final mood = await _repository.getTodayMood(userId);
 
       if (mood != null) {
-        print('DailyMoodCubit: Found mood for user $userId: ${mood.moodLabel}');
+        print('✅ DailyMoodCubit: Mood loaded: ${mood.moodLabel}');
+        emit(state.copyWith(
+          status: DailyMoodStatus.loaded,
+          todayMood: mood,
+          clearError: true,
+        ));
       } else {
-        print('DailyMoodCubit: No mood found for user $userId');
+        print('ℹ️ DailyMoodCubit: No mood found for today');
+        emit(state.copyWith(
+          status: DailyMoodStatus.loaded,
+          clearMood: true,
+          clearError: true,
+        ));
       }
-
-      emit(state.copyWith(
-        status: DailyMoodStatus.loaded,
-        todayMood: mood,
-        clearMood: mood == null, // ✅ clears mood if this user has none
-        clearError: true,
-      ));
     } catch (e) {
-      print('DailyMoodCubit: Error loading mood: $e');
+      print('❌ DailyMoodCubit: Error loading mood: $e');
       emit(state.copyWith(
         status: DailyMoodStatus.error,
-        error: e.toString(),
+        error: 'Failed to load mood: $e',
         clearMood: true,
       ));
     }
   }
 
-  /// Save or update today's mood for the logged-in user
+  /// Save or update today's mood
   Future<void> setTodayMood(String moodImage, String moodLabel) async {
     try {
+      emit(state.copyWith(status: DailyMoodStatus.loading));
+
       final userId = await _getUserId();
       if (userId == null) {
-        emit(state.copyWith(error: 'User not logged in'));
+        emit(state.copyWith(
+          status: DailyMoodStatus.error,
+          error: 'User not logged in',
+        ));
         return;
       }
 
-      print('DailyMoodCubit: Saving mood for userId: $userId - $moodLabel');
+      print('💾 DailyMoodCubit: Saving mood - userId: $userId, label: $moodLabel');
 
+      // Save to backend
       await _repository.saveTodayMood(
         userId: userId,
         moodImage: moodImage,
         moodLabel: moodLabel,
       );
 
-      // Reload mood after saving
+      print('✅ DailyMoodCubit: Mood saved to backend');
+
+      // Reload to get the updated mood with timestamps
+      await Future.delayed(const Duration(milliseconds: 300)); // Small delay for backend
       final updatedMood = await _repository.getTodayMood(userId);
 
-      emit(state.copyWith(
-        status: DailyMoodStatus.loaded,
-        todayMood: updatedMood,
-        clearError: true,
-      ));
+      if (updatedMood != null) {
+        print('✅ DailyMoodCubit: Mood reloaded successfully');
+        emit(state.copyWith(
+          status: DailyMoodStatus.loaded,
+          todayMood: updatedMood,
+          clearError: true,
+        ));
+      } else {
+        print('⚠️ DailyMoodCubit: Mood saved but failed to reload');
+        emit(state.copyWith(
+          status: DailyMoodStatus.error,
+          error: 'Mood saved but failed to reload',
+        ));
+      }
     } catch (e) {
-      emit(state.copyWith(error: e.toString()));
+      print('❌ DailyMoodCubit: Error saving mood: $e');
+      emit(state.copyWith(
+        status: DailyMoodStatus.error,
+        error: 'Failed to save mood: $e',
+      ));
     }
   }
 
-  /// ✅ This is required because your UI calls clearTodayMood()
-  /// It deletes today's mood for THIS logged-in user, then clears state.
+  /// Clear today's mood (delete from backend)
   Future<void> clearTodayMood() async {
     await deleteTodayMood();
   }
 
-  /// Delete today's mood for the logged-in user
+  /// Delete today's mood
   Future<void> deleteTodayMood() async {
     try {
       final userId = await _getUserId();
@@ -100,9 +123,11 @@ class DailyMoodCubit extends Cubit<DailyMoodState> {
         return;
       }
 
-      print('DailyMoodCubit: Deleting mood for userId: $userId');
+      print('🗑️ DailyMoodCubit: Deleting mood for userId: $userId');
 
       await _repository.deleteTodayMood(userId);
+
+      print('✅ DailyMoodCubit: Mood deleted successfully');
 
       emit(state.copyWith(
         status: DailyMoodStatus.loaded,
@@ -110,62 +135,39 @@ class DailyMoodCubit extends Cubit<DailyMoodState> {
         clearError: true,
       ));
     } catch (e) {
-      emit(state.copyWith(error: e.toString()));
+      print('❌ DailyMoodCubit: Error deleting mood: $e');
+      emit(state.copyWith(error: 'Failed to delete mood: $e'));
     }
   }
 
-  /// Get userId from SharedPreferences (logged-in user)
+  /// Get userId from SharedPreferences
   Future<int?> _getUserId() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-
-      // Debug: Print all keys and values
-      final allKeys = prefs.getKeys();
-      print('DailyMoodCubit: All SharedPreferences keys: $allKeys');
-
-      // Try different possible keys for userId
+      
+      // Try different possible keys
       int? userId;
-
-      // Check for 'userId' key
+      
       if (prefs.containsKey('userId')) {
         userId = prefs.getInt('userId');
-        print('DailyMoodCubit: Found userId in "userId" key: $userId');
-      }
-      // Check for 'user_id' key
-      else if (prefs.containsKey('user_id')) {
+      } else if (prefs.containsKey('user_id')) {
         userId = prefs.getInt('user_id');
-        print('DailyMoodCubit: Found userId in "user_id" key: $userId');
-      }
-      // Check for 'id' key
-      else if (prefs.containsKey('id')) {
+      } else if (prefs.containsKey('id')) {
         userId = prefs.getInt('id');
-        print('DailyMoodCubit: Found userId in "id" key: $userId');
-      }
-      // Check for 'auth_user_id' key
-      else if (prefs.containsKey('auth_user_id')) {
+      } else if (prefs.containsKey('auth_user_id')) {
         userId = prefs.getInt('auth_user_id');
-        print('DailyMoodCubit: Found userId in "auth_user_id" key: $userId');
-      }
-      // Check for 'loggedInUserId' key
-      else if (prefs.containsKey('loggedInUserId')) {
+      } else if (prefs.containsKey('loggedInUserId')) {
         userId = prefs.getInt('loggedInUserId');
-        print('DailyMoodCubit: Found userId in "loggedInUserId" key: $userId');
       }
-
-      // Debug: Print the selected userId
-      print('DailyMoodCubit: Selected userId: $userId');
-
-      final allKeysAgain = prefs.getKeys();
-      print('DailyMoodCubit: All SharedPreferences keys: $allKeysAgain');
 
       return userId;
     } catch (e) {
-      print('DailyMoodCubit: Error getting userId: $e');
+      print('❌ DailyMoodCubit: Error getting userId: $e');
       return null;
     }
   }
 
-  /// Clear error
+  /// Clear error message
   void clearError() {
     emit(state.copyWith(clearError: true));
   }

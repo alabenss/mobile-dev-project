@@ -1,11 +1,14 @@
 from flask import Blueprint, request, jsonify
 from ..database import select, insert, update, delete
-from datetime import datetime
-
-from datetime import datetime
+from datetime import datetime, timezone
 
 def normalize_date(date_str: str) -> str:
+    """Normalize date string to YYYY-MM-DD format"""
     return datetime.fromisoformat(date_str[:10]).date().isoformat()
+
+def get_utc_timestamp() -> str:
+    """Get current UTC timestamp with Z suffix"""
+    return datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
 
 moods_bp = Blueprint('moods', __name__)
 
@@ -24,6 +27,21 @@ def get_today_mood():
             filters={'user_id': int(user_id), 'date': date},
             single=True
         )
+        
+        # Add Z suffix to timestamps if they exist
+        if result:
+            if 'created_at' in result and result['created_at']:
+                # If it's already a datetime object from Supabase
+                if isinstance(result['created_at'], datetime):
+                    result['created_at'] = result['created_at'].replace(tzinfo=timezone.utc).isoformat().replace('+00:00', 'Z')
+                elif isinstance(result['created_at'], str) and not result['created_at'].endswith('Z'):
+                    result['created_at'] = result['created_at'] + 'Z'
+            
+            if 'updated_at' in result and result['updated_at']:
+                if isinstance(result['updated_at'], datetime):
+                    result['updated_at'] = result['updated_at'].replace(tzinfo=timezone.utc).isoformat().replace('+00:00', 'Z')
+                elif isinstance(result['updated_at'], str) and not result['updated_at'].endswith('Z'):
+                    result['updated_at'] = result['updated_at'] + 'Z'
         
         return jsonify({
             'success': True,
@@ -54,7 +72,7 @@ def save_mood():
             single=True
         )
         
-        now = datetime.now().isoformat()
+        now = get_utc_timestamp()
         
         if existing:
             # Update existing mood
@@ -119,8 +137,22 @@ def get_all_moods():
             filters={'user_id': int(user_id)}
         )
         
-        # Sort by date descending
+        # Fix timestamps for all moods
         if result:
+            for mood in result:
+                if 'created_at' in mood and mood['created_at']:
+                    if isinstance(mood['created_at'], datetime):
+                        mood['created_at'] = mood['created_at'].replace(tzinfo=timezone.utc).isoformat().replace('+00:00', 'Z')
+                    elif isinstance(mood['created_at'], str) and not mood['created_at'].endswith('Z'):
+                        mood['created_at'] = mood['created_at'] + 'Z'
+                
+                if 'updated_at' in mood and mood['updated_at']:
+                    if isinstance(mood['updated_at'], datetime):
+                        mood['updated_at'] = mood['updated_at'].replace(tzinfo=timezone.utc).isoformat().replace('+00:00', 'Z')
+                    elif isinstance(mood['updated_at'], str) and not mood['updated_at'].endswith('Z'):
+                        mood['updated_at'] = mood['updated_at'] + 'Z'
+            
+            # Sort by date descending
             result = sorted(result, key=lambda x: x.get('date', ''), reverse=True)
         
         return jsonify({
@@ -153,6 +185,19 @@ def get_moods_by_month():
         if result:
             filtered = []
             for mood in result:
+                # Fix timestamps
+                if 'created_at' in mood and mood['created_at']:
+                    if isinstance(mood['created_at'], datetime):
+                        mood['created_at'] = mood['created_at'].replace(tzinfo=timezone.utc).isoformat().replace('+00:00', 'Z')
+                    elif isinstance(mood['created_at'], str) and not mood['created_at'].endswith('Z'):
+                        mood['created_at'] = mood['created_at'] + 'Z'
+                
+                if 'updated_at' in mood and mood['updated_at']:
+                    if isinstance(mood['updated_at'], datetime):
+                        mood['updated_at'] = mood['updated_at'].replace(tzinfo=timezone.utc).isoformat().replace('+00:00', 'Z')
+                    elif isinstance(mood['updated_at'], str) and not mood['updated_at'].endswith('Z'):
+                        mood['updated_at'] = mood['updated_at'] + 'Z'
+                
                 mood_date = mood.get('date', '')
                 if mood_date:
                     # Parse date (format: yyyy-MM-dd)
