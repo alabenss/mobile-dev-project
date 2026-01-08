@@ -4,7 +4,9 @@ from datetime import datetime, timezone
 
 def normalize_date(date_str: str) -> str:
     """Normalize date string to YYYY-MM-DD format"""
-    return datetime.fromisoformat(date_str[:10]).date().isoformat()
+    # Just take the first 10 characters (YYYY-MM-DD)
+    # This handles both "2026-01-08" and "2026-01-08T17:37:32.918067Z"
+    return date_str[:10]
 
 def get_utc_timestamp() -> str:
     """Get current UTC timestamp with Z suffix"""

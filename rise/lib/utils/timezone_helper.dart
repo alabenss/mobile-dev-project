@@ -33,10 +33,15 @@ class TimezoneHelper {
   }
   
   /// Parse timestamp from API (full ISO8601 with time)
+  /// IMPORTANT: API sends UTC timestamps (with Z suffix)
   /// Returns a local DateTime with the correct time
   static DateTime parseTimestamp(String timestamp) {
-    // DateTime.parse handles both "2026-01-08T16:47:18.214761Z" and without Z
-    return DateTime.parse(timestamp).toLocal();
+    // Handle UTC timestamps (ending with Z) properly
+    if (timestamp.endsWith('Z')) {
+      return DateTime.parse(timestamp).toLocal();
+    }
+    // If no timezone indicator, assume UTC
+    return DateTime.parse('${timestamp}Z').toLocal();
   }
   
   /// Get today's date as a string in YYYY-MM-DD format

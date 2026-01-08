@@ -3,7 +3,7 @@
 class DailyMoodModel {
   final int? id;
   final int userId;
-  final String date;
+  final String date;  // This should be just YYYY-MM-DD (date only)
   final String moodImage;
   final String moodLabel;
   final DateTime createdAt;
@@ -23,16 +23,24 @@ class DailyMoodModel {
     try {
       // Parse dates safely
       DateTime parseDateTime(dynamic value) {
-        if (value == null) return DateTime.now();
-        if (value is DateTime) return value;
-        if (value is String) return DateTime.parse(value);
-        return DateTime.now();
+        if (value == null) return DateTime.now().toUtc();
+        if (value is DateTime) return value.toUtc();
+        if (value is String) {
+          // If it ends with 'Z', it's UTC, parse as UTC and convert to local
+          if (value.endsWith('Z')) {
+            return DateTime.parse(value).toLocal();
+          } else {
+            // No timezone indicator, assume UTC and convert to local
+            return DateTime.parse('${value}Z').toLocal();
+          }
+        }
+        return DateTime.now().toUtc();
       }
 
       return DailyMoodModel(
         id: map['id'] as int?,
         userId: map['user_id'] as int,
-        date: map['date'] as String,
+        date: map['date'] as String,  // This is just "YYYY-MM-DD"
         moodImage: map['mood_image'] as String,
         moodLabel: map['mood_label'] as String,
         createdAt: parseDateTime(map['created_at']),
@@ -52,8 +60,8 @@ class DailyMoodModel {
       'date': date,
       'mood_image': moodImage,
       'mood_label': moodLabel,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
+      'created_at': createdAt.toUtc().toIso8601String(),
+      'updated_at': updatedAt.toUtc().toIso8601String(),
     };
   }
 
