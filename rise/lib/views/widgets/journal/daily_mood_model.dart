@@ -1,7 +1,9 @@
+// lib/views/widgets/journal/daily_mood_model.dart
+
 class DailyMoodModel {
   final int? id;
   final int userId;
-  final DateTime date;
+  final String date;
   final String moodImage;
   final String moodLabel;
   final DateTime createdAt;
@@ -17,10 +19,48 @@ class DailyMoodModel {
     required this.updatedAt,
   });
 
+  factory DailyMoodModel.fromMap(Map<String, dynamic> map) {
+    try {
+      // Parse dates safely
+      DateTime parseDateTime(dynamic value) {
+        if (value == null) return DateTime.now();
+        if (value is DateTime) return value;
+        if (value is String) return DateTime.parse(value);
+        return DateTime.now();
+      }
+
+      return DailyMoodModel(
+        id: map['id'] as int?,
+        userId: map['user_id'] as int,
+        date: map['date'] as String,
+        moodImage: map['mood_image'] as String,
+        moodLabel: map['mood_label'] as String,
+        createdAt: parseDateTime(map['created_at']),
+        updatedAt: parseDateTime(map['updated_at']),
+      );
+    } catch (e) {
+      print('❌ Error parsing DailyMoodModel: $e');
+      print('📦 Raw map data: $map');
+      rethrow;
+    }
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'user_id': userId,
+      'date': date,
+      'mood_image': moodImage,
+      'mood_label': moodLabel,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+    };
+  }
+
   DailyMoodModel copyWith({
     int? id,
     int? userId,
-    DateTime? date,
+    String? date,
     String? moodImage,
     String? moodLabel,
     DateTime? createdAt,
@@ -37,41 +77,8 @@ class DailyMoodModel {
     );
   }
 
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'userId': userId,
-      'date': _formatDate(date),
-      'moodImage': moodImage,
-      'moodLabel': moodLabel,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
-    };
-  }
-
-  factory DailyMoodModel.fromMap(Map<String, dynamic> map) {
-    return DailyMoodModel(
-      id: map['id'] as int?,
-      userId: map['userId'] as int,
-      date: _parseDate(map['date'] as String),
-      moodImage: map['moodImage'] as String,
-      moodLabel: map['moodLabel'] as String,
-      createdAt: DateTime.parse(map['createdAt'] as String),
-      updatedAt: DateTime.parse(map['updatedAt'] as String),
-    );
-  }
-
-  // Format date as YYYY-MM-DD for database storage
-  static String _formatDate(DateTime date) {
-    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-  }
-
-  static DateTime _parseDate(String dateStr) {
-    final parts = dateStr.split('-');
-    return DateTime(
-      int.parse(parts[0]),
-      int.parse(parts[1]),
-      int.parse(parts[2]),
-    );
+  @override
+  String toString() {
+    return 'DailyMoodModel(id: $id, userId: $userId, date: $date, moodLabel: $moodLabel, moodImage: $moodImage)';
   }
 }

@@ -37,7 +37,7 @@ def get_article():
         row = select(
             'articles',
             columns='id, slug, title, summary, hero_image_url, content, language, is_published, updated_at',
-            filters={'slug': slug},
+            filters={'slug': slug, 'language': lang},
             single=True
         )
 
