@@ -104,11 +104,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             child: SafeArea(
-              child: SingleChildScrollView(
-                physics: const ClampingScrollPhysics(),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                child: Column(
+              child: RefreshIndicator(
+  color: AppColors.accentPink,
+  onRefresh: () async {
+    await context.read<AuthCubit>().refreshUserData();
+  },
+  child: SingleChildScrollView(
+    physics: const AlwaysScrollableScrollPhysics(),
+    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+    child: Column(
+
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     // Profile Picture
@@ -506,6 +511,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
               ),
+            ),
             ),
           );
         },
