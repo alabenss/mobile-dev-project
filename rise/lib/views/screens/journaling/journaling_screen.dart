@@ -21,6 +21,22 @@ class JournalingScreen extends StatefulWidget {
 
 class _JournalingScreenState extends State<JournalingScreen> {
   @override
+
+Future<void> _onRefresh() async {
+  final cubit = context.read<JournalCubit>();
+  final state = cubit.state;
+
+  await cubit.loadJournalsByMonth(
+    state.selectedMonth,
+    state.selectedYear,
+  );
+
+  if (state.selectedDate != null) {
+    cubit.filterByDate(state.selectedDate!);
+  }
+}
+
+
   void initState() {
     super.initState();
     final now = DateTime.now();
@@ -141,107 +157,127 @@ class _JournalingScreenState extends State<JournalingScreen> {
   }
 
   Widget _buildJournalList(JournalState state, AppLocalizations l10n) {
-    if (state.status == JournalStatus.loading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+  return RefreshIndicator(
+    onRefresh: _onRefresh,
+    color: AppColors.icon,
+    child: _buildJournalListContent(state, l10n),
+  );
+}
 
-    if (state.selectedDate == null) {
-      return Center(
-        child: Text(
-          l10n.journalSelectDay,
-          style: TextStyle(
-            color: AppColors.textSecondary,
-            fontSize: 16,
-          ),
-        ),
-      );
-    }
+Widget _buildJournalListContent(JournalState state, AppLocalizations l10n) {
+  if (state.status == JournalStatus.loading) {
+    return const Center(child: CircularProgressIndicator());
+  }
 
-    if (state.filteredJournals.isEmpty) {
-      return Center(
-        child: Text(
-          l10n.journalNoEntries,
-          style: TextStyle(
-            color: AppColors.textSecondary,
-            fontSize: 16,
-          ),
-        ),
-      );
-    }
-
-    return ListView.builder(
-      itemCount: state.filteredJournals.length,
-      itemBuilder: (context, index) {
-        final entry = state.filteredJournals[index];
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 10.0),
-          child: Dismissible(
-            key: Key(entry.id.toString()),
-            direction: DismissDirection.endToStart,
-            background: Container(
-              alignment: Alignment.centerRight,
-              padding: const EdgeInsets.only(right: 20),
-              decoration: BoxDecoration(
-                color: AppColors.error,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const Icon(
-                Icons.delete,
-                color: AppColors.card,
-                size: 28,
-              ),
-            ),
-            confirmDismiss: (direction) async {
-              return await showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Text(l10n.journalDeleteTitle),
-                    content: Text(l10n.journalDeleteMessage),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(false),
-                        child: Text(l10n.commonCancel),
-                      ),
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(true),
-                        style: TextButton.styleFrom(
-                          foregroundColor: AppColors.error,
-                        ),
-                        child: Text(l10n.commonDelete),
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
-            onDismissed: (direction) async {
-              if (entry.id != null) {
-                final success = await context
-                    .read<JournalCubit>()
-                    .deleteJournal(entry.id!);
-                
-                if (success && mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(l10n.journalDeletedSuccessfully),
-                      backgroundColor: AppColors.accentGreen,
-                    ),
-                  );
-                }
-              }
-            },
-            child: JournalEntryTemplate(
-              title: entry.title,
-              time: _formatTime(entry.date),
-              moodImage: entry.moodImage,
-              onTap: () => _openEditPage(entry),
+  if (state.selectedDate == null) {
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: [
+        const SizedBox(height: 120),
+        Center(
+          child: Text(
+            l10n.journalSelectDay,
+            style: TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 16,
             ),
           ),
-        );
-      },
+        ),
+      ],
     );
   }
+
+  if (state.filteredJournals.isEmpty) {
+    return ListView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      children: [
+        const SizedBox(height: 120),
+        Center(
+          child: Text(
+            l10n.journalNoEntries,
+            style: TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 16,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  return ListView.builder(
+    physics: const AlwaysScrollableScrollPhysics(),
+    itemCount: state.filteredJournals.length,
+    itemBuilder: (context, index) {
+      final entry = state.filteredJournals[index];
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 10.0),
+        child: Dismissible(
+          key: Key(entry.id.toString()),
+          direction: DismissDirection.endToStart,
+          background: Container(
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.only(right: 20),
+            decoration: BoxDecoration(
+              color: AppColors.error,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(
+              Icons.delete,
+              color: AppColors.card,
+              size: 28,
+            ),
+          ),
+          confirmDismiss: (direction) async {
+            return await showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: Text(l10n.journalDeleteTitle),
+                content: Text(l10n.journalDeleteMessage),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: Text(l10n.commonCancel),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.error,
+                    ),
+                    child: Text(l10n.commonDelete),
+                  ),
+                ],
+              ),
+            );
+          },
+          onDismissed: (_) async {
+            if (entry.id != null) {
+              final success = await context
+                  .read<JournalCubit>()
+                  .deleteJournal(entry.id!);
+
+              if (success && mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(l10n.journalDeletedSuccessfully),
+                    backgroundColor: AppColors.accentGreen,
+                  ),
+                );
+              }
+            }
+          },
+          child: JournalEntryTemplate(
+            title: entry.title,
+            time: _formatTime(entry.date),
+            moodImage: entry.moodImage,
+            onTap: () => _openEditPage(entry),
+          ),
+        ),
+      );
+    },
+  );
+}
+
 
   String _formatTime(DateTime date) {
     final hour = date.hour > 12 ? date.hour - 12 : (date.hour == 0 ? 12 : date.hour);

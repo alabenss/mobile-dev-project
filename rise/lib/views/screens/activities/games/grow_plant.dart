@@ -25,26 +25,32 @@ class _GrowPlantView extends StatelessWidget {
   const _GrowPlantView();
 
   @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!; // <-- added
+Widget build(BuildContext context) {
+  final l10n = AppLocalizations.of(context)!;
 
-    return ActivityShell(
-      title: l10n.growPlantTitle, // was: 'Grow the plant'
+  return ActivityShell(
+    title: l10n.growPlantTitle,
+    child: RefreshIndicator(
+      color: AppColors.accentGreen,
+      onRefresh: () async {
+        await context.read<PlantCubit>().loadInitial();
+      },
       child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
         child: BlocBuilder<PlantCubit, PlantState>(
           builder: (context, state) {
             final cubit = context.read<PlantCubit>();
+
             return Column(
               children: [
-                // Headline / helper text
+                // Headline
                 _SoftCard(
                   child: Column(
                     children: [
                       const SizedBox(height: 6),
                       Text(
                         l10n.growPlantHeadline,
-                        // was: 'Nurture your plant with water and sunlight.\nSpend activity points to help it grow!'
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           fontSize: 15,
@@ -56,8 +62,10 @@ class _GrowPlantView extends StatelessWidget {
                     ],
                   ),
                 ),
+
                 const SizedBox(height: 14),
 
+                // Stars
                 _SoftCard(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -70,7 +78,6 @@ class _GrowPlantView extends StatelessWidget {
                       const SizedBox(width: 8),
                       Text(
                         l10n.growPlantStars(state.stars),
-                        // was: 'Stars: ${state.stars}'
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -80,9 +87,10 @@ class _GrowPlantView extends StatelessWidget {
                     ],
                   ),
                 ),
+
                 const SizedBox(height: 14),
 
-                // Plant preview - RIVE ANIMATION
+                // Plant preview
                 _SoftCard(
                   padding: const EdgeInsets.fromLTRB(18, 18, 18, 22),
                   child: Column(
@@ -110,7 +118,6 @@ class _GrowPlantView extends StatelessWidget {
                       const SizedBox(height: 14),
                       Text(
                         '${l10n.growPlantStage}: ${state.stageLabel}',
-                        // was: 'Stage: ${state.stageLabel}'
                         style: const TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 16,
@@ -120,9 +127,10 @@ class _GrowPlantView extends StatelessWidget {
                     ],
                   ),
                 ),
+
                 const SizedBox(height: 14),
 
-                // Points summary
+                // Available points
                 _SoftCard(
                   child: Row(
                     children: [
@@ -136,7 +144,6 @@ class _GrowPlantView extends StatelessWidget {
                           l10n.growPlantAvailablePoints(
                             state.availablePoints,
                           ),
-                          // was: 'Available points: ${state.availablePoints}'
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
                             color: AppColors.textPrimary,
@@ -160,11 +167,11 @@ class _GrowPlantView extends StatelessWidget {
                           ),
                         ),
                         child: Text(l10n.growPlantGetPoints),
-                        // was: const Text('Get points')
                       ),
                     ],
                   ),
                 ),
+
                 const SizedBox(height: 14),
 
                 // Meters
@@ -172,38 +179,39 @@ class _GrowPlantView extends StatelessWidget {
                   child: Column(
                     children: [
                       _MeterTile(
-                        label: l10n.growPlantWaterLabel, // 'Water'
+                        label: l10n.growPlantWaterLabel,
                         icon: Icons.water_drop_rounded,
                         color: AppColors.accentBlue,
                         value: state.water,
-                        actionLabel: l10n.growPlantWaterAction(30),
-                        // was: 'Water (30)'
-                        helper: l10n.growPlantWaterHelper(30),
-                        // was: 'Spend 30 pts'
+                        actionLabel:
+                            l10n.growPlantWaterAction(30),
+                        helper:
+                            l10n.growPlantWaterHelper(30),
                         enabled: state.availablePoints >= 30 &&
                             state.water < 1.0,
-                        onPressed: () => cubit.spendWater(),
+                        onPressed: cubit.spendWater,
                       ),
                       const SizedBox(height: 12),
                       _MeterTile(
-                        label: l10n.growPlantSunlightLabel, // 'Sunlight'
+                        label: l10n.growPlantSunlightLabel,
                         icon: Icons.wb_sunny_rounded,
                         color: AppColors.accentOrange,
                         value: state.sunlight,
-                        actionLabel: l10n.growPlantSunAction(25),
-                        // was: 'Sun (25)'
-                        helper: l10n.growPlantSunHelper(25),
-                        // was: 'Spend 25 pts'
+                        actionLabel:
+                            l10n.growPlantSunAction(25),
+                        helper:
+                            l10n.growPlantSunHelper(25),
                         enabled: state.availablePoints >= 25 &&
                             state.sunlight < 1.0,
-                        onPressed: () => cubit.spendSun(),
+                        onPressed: cubit.spendSun,
                       ),
                     ],
                   ),
                 ),
+
                 const SizedBox(height: 14),
 
-                // Tip card
+                // Tip
                 _SoftCard(
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -216,7 +224,6 @@ class _GrowPlantView extends StatelessWidget {
                       Expanded(
                         child: Text(
                           l10n.growPlantTip,
-                          // was: 'Tip: when both bars are full, your plant will grow to the next stage.'
                           style: const TextStyle(
                             color: AppColors.textPrimary,
                             height: 1.35,
@@ -231,8 +238,10 @@ class _GrowPlantView extends StatelessWidget {
           },
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
 }
 
 class _SoftCard extends StatelessWidget {
