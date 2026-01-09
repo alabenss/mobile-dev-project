@@ -7,6 +7,7 @@ class ApiConfig {
   static const String AUTH_LOGIN = '/user.login';
   static const String AUTH_REGISTER = '/user.register';
   static const String AUTH_LOGOUT = '/user.logout';
+  static const String AUTH_REFRESH = '/user.refresh'; // NEW
   static const String AUTH_VERIFY_TOKEN = '/user.verifyToken';
 
   // User endpoints
@@ -62,7 +63,7 @@ class ApiConfig {
   static const String PLANT_UPDATE = '/plant.update';
   static const String PLANT_RESET = '/plant.reset';
 
-  // ✅ Articles endpoints (NEW)
+  // Articles endpoints
   static const String ARTICLES_GET_ALL = '/articles.getAll';
   static const String ARTICLES_GET = '/articles.get';
 

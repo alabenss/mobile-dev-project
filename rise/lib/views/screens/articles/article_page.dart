@@ -17,6 +17,9 @@ class ArticlePage extends StatefulWidget {
 }
 
 class _ArticlePageState extends State<ArticlePage> {
+  // 🔧 Set this to false to REMOVE ALL hero images (fastest way to run)
+  static const bool kShowHeroImages = true;
+
   final ArticlesRepo _repo = ArticlesRepo();
   ArticleFull? _article;
   String? _error;
@@ -31,16 +34,26 @@ class _ArticlePageState extends State<ArticlePage> {
   Future<void> _load() async {
     try {
       final a = await _repo.getBySlug(slug: widget.slug, lang: widget.lang);
+      if (!mounted) return;
       setState(() {
         _article = a;
         _loading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _error = e.toString();
         _loading = false;
       });
     }
+  }
+
+  String _safeUrl(String? url) {
+    final s = (url ?? '').trim();
+    if (s.isEmpty) return '';
+    // cache-bust to avoid flutter reusing a previously failed cached image
+    final sep = s.contains('?') ? '&' : '?';
+    return '$s${sep}v=${DateTime.now().millisecondsSinceEpoch}';
   }
 
   @override
@@ -59,6 +72,8 @@ class _ArticlePageState extends State<ArticlePage> {
     }
 
     final a = _article!;
+    final heroUrl = _safeUrl(a.heroImageUrl);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(a.title),
@@ -69,14 +84,23 @@ class _ArticlePageState extends State<ArticlePage> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
         children: [
-          if (a.heroImageUrl != null && a.heroImageUrl!.isNotEmpty) ...[
+          if (kShowHeroImages && heroUrl.isNotEmpty) ...[
             ClipRRect(
               borderRadius: BorderRadius.circular(18),
               child: Image.network(
-                a.heroImageUrl!,
+                heroUrl,
                 height: 180,
                 width: double.infinity,
                 fit: BoxFit.cover,
+                // never crash the page if image fails
+                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                loadingBuilder: (context, child, progress) {
+                  if (progress == null) return child;
+                  return const SizedBox(
+                    height: 180,
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                },
               ),
             ),
             const SizedBox(height: 14),
@@ -131,7 +155,11 @@ class _ArticlePageState extends State<ArticlePage> {
                   Expanded(
                     child: Text(
                       '$t',
-                      style: const TextStyle(fontSize: 15, height: 1.45, color: AppColors.textPrimary),
+                      style: const TextStyle(
+                        fontSize: 15,
+                        height: 1.45,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
                   ),
                 ],

@@ -18,4 +18,14 @@ class ActivitiesCubit extends Cubit<ActivitiesState> {
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
   }
+// Add this method to your ActivitiesCubit class
+
+/// ✅ Clear all activities when user logs out
+void clearActivities() {
+  emit(ActivitiesState(
+    activities: [],
+    isLoading: false,
+    error: null,
+  ));
+}
 }

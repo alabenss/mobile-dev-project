@@ -52,7 +52,7 @@ class LocalStorageService {
       final appDir = await getAppDirectory();
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final extension = path.extension(sourcePath);
-      final fileName = 'img_${timestamp}$extension';
+      final fileName = 'img_$timestamp$extension';
       final targetPath = '${appDir.path}/journals/images/$fileName';
 
       // Copy file to app directory
@@ -96,7 +96,7 @@ class LocalStorageService {
       final appDir = await getAppDirectory();
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final extension = path.extension(sourcePath);
-      final fileName = 'voice_${timestamp}$extension';
+      final fileName = 'voice_$timestamp$extension';
       final targetPath = '${appDir.path}/journals/voice/$fileName';
 
       // Copy file to app directory

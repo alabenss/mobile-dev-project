@@ -131,7 +131,7 @@ class HabitRepository {
     }
   }
 
-  /// Retrieve all habits
+  /// Retrieve all habits (deprecated - use getHabitsByFrequencyAndDate instead)
   Future<List<Habit>> getAllHabits() async {
     try {
       final userId = await _getCurrentUserId();
@@ -155,7 +155,7 @@ class HabitRepository {
     }
   }
 
-  /// Get habits by frequency (Daily, Weekly, Monthly)
+  /// Get habits by frequency (Daily, Weekly, Monthly) - deprecated
   Future<List<Habit>> getHabitsByFrequency(String frequency) async {
     try {
       final userId = await _getCurrentUserId();
@@ -180,6 +180,79 @@ class HabitRepository {
       print('HabitRepo: Error getting habits by frequency: $e');
       return [];
     }
+  }
+
+  /// Get habits by frequency with date filtering
+  /// For Daily: returns habits from today
+  /// For Weekly: returns habits from current week (Monday-Sunday)
+  /// For Monthly: returns habits from current month
+  Future<List<Habit>> getHabitsByFrequencyAndDate(String frequency) async {
+    try {
+      final userId = await _getCurrentUserId();
+      final now = DateTime.now();
+      
+      String? startDate;
+      String? endDate;
+      
+      switch (frequency) {
+        case 'Daily':
+          // Today only
+          startDate = DateTime(now.year, now.month, now.day).toIso8601String();
+          endDate = DateTime(now.year, now.month, now.day, 23, 59, 59).toIso8601String();
+          break;
+          
+        case 'Weekly':
+          // Current week (Monday to Sunday)
+          final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+          final endOfWeek = startOfWeek.add(const Duration(days: 6));
+          startDate = DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day).toIso8601String();
+          endDate = DateTime(endOfWeek.year, endOfWeek.month, endOfWeek.day, 23, 59, 59).toIso8601String();
+          break;
+          
+        case 'Monthly':
+          // Current month
+          startDate = DateTime(now.year, now.month, 1).toIso8601String();
+          endDate = DateTime(now.year, now.month + 1, 0, 23, 59, 59).toIso8601String();
+          break;
+      }
+      
+      print('HabitRepo: Getting habits for $frequency from $startDate to $endDate');
+
+      final response = await _api.get(
+        ApiConfig.HABITS_GET,
+        params: {
+          'userId': userId.toString(),
+          'frequency': frequency,
+          'startDate': startDate!,
+          'endDate': endDate!,
+        },
+      );
+
+      if (response['success'] == true && response['habits'] != null) {
+        final habitsList = response['habits'] as List;
+        return habitsList.map((json) => _habitFromJson(json)).toList();
+      }
+
+      return [];
+    } catch (e) {
+      print('HabitRepo: Error getting habits by frequency and date: $e');
+      return [];
+    }
+  }
+
+  /// Get today's habits (filtered by date)
+  Future<List<Habit>> getTodayHabits() async {
+    return await getHabitsByFrequencyAndDate('Daily');
+  }
+
+  /// Get this week's habits
+  Future<List<Habit>> getWeeklyHabits() async {
+    return await getHabitsByFrequencyAndDate('Weekly');
+  }
+
+  /// Get this month's habits
+  Future<List<Habit>> getMonthlyHabits() async {
+    return await getHabitsByFrequencyAndDate('Monthly');
   }
 
   /// Update habit status with streak tracking and task-to-habit conversion
@@ -379,11 +452,6 @@ class HabitRepository {
       print('HabitRepo: Error getting completed habits count: $e');
       return 0;
     }
-  }
-
-  /// Get today's habits
-  Future<List<Habit>> getTodayHabits() async {
-    return await getHabitsByFrequency('Daily');
   }
 
   /// Check if a habit exists

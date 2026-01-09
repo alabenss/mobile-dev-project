@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../../logic/auth/auth_cubit.dart';
 import '../../../logic/auth/auth_state.dart';
+import '../../../l10n/app_localizations.dart';
+
 import '../../themes/style_simple/colors.dart';
+import '../../screens/welcome_screens/welcome_provider.dart';
 import '../../widgets/error_dialog.dart';
+
+bool isValidEmail(String email) {
+  final emailRegex = RegExp(r'^[\w\-\.]+@([\w\-]+\.)+[\w\-]{2,4}$');
+  return emailRegex.hasMatch(email);
+}
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -20,6 +29,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
@@ -34,27 +44,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
-  // Helper to show API error dialogs (matches the call site)
-
-
   Future<void> _signUp() async {
-    if (_formKey.currentState!.validate()) {
-      final success = await context.read<AuthCubit>().signUp(
-        _firstNameController.text.trim(),
-        _lastNameController.text.trim(),
-        _usernameController.text.trim(),
-        _emailController.text.trim(),
-        _passwordController.text,
-      );
+    if (!_formKey.currentState!.validate()) return;
 
-      if (success && mounted) {
-        Navigator.of(context).pushReplacementNamed('/home');
-      }
+    final success = await context.read<AuthCubit>().signUp(
+          _firstNameController.text.trim(),
+          _lastNameController.text.trim(),
+          _usernameController.text.trim(),
+          _emailController.text.trim(),
+          _passwordController.text,
+        );
+
+    if (success && mounted) {
+      // ✅ Prevent welcome screens from showing again
+      await WelcomeProvider.markUserLoggedIn();
+      Navigator.of(context).pushReplacementNamed('/home');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -66,30 +77,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
         child: SafeArea(
           child: BlocConsumer<AuthCubit, AuthState>(
-         listener: (context, state) {
-  if (state.error != null && state.error!.isNotEmpty) {
-    // Show custom error dialog when there's an error
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-     showDialog(
-  context: context,
-  barrierDismissible: false,
-  builder: (_) => AppErrorDialog(
-    title: 'Sign Up Error',
-    message: state.error!,
-  ),
-);
+            listener: (context, state) {
+              if (state.error != null && state.error!.isNotEmpty) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (_) => AppErrorDialog(
+                      title: l10n.signUp,
+                      message: state.error!,
+                    ),
+                  );
+                  context.read<AuthCubit>().clearError();
+                });
+              }
 
-      // Clear the error after showing it
-      context.read<AuthCubit>().clearError();
-    });
-  }
-  
-  // Navigate on successful signup
-  if (state.isAuthenticated && !state.isLoading) {
-    Navigator.of(context).pushReplacementNamed('/home');
-  }
-},
-
+              if (state.isAuthenticated && !state.isLoading) {
+                Navigator.of(context).pushReplacementNamed('/home');
+              }
+            },
             builder: (context, state) {
               return Center(
                 child: SingleChildScrollView(
@@ -99,16 +105,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // App Logo/Title
-                        const Icon(
-                          Icons.self_improvement,
-                          size: 80,
-                          color: AppColors.icon,
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'Create Account',
-                          style: TextStyle(
+                        Text(
+                          l10n.createAccount,
+                          style: const TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
@@ -116,7 +115,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Start your wellness journey today',
+                          l10n.signUpSubtitle,
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.white.withOpacity(0.8),
@@ -124,212 +123,107 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         const SizedBox(height: 32),
 
-                        // First Name Field
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.9),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: TextFormField(
-                            controller: _firstNameController,
-                            decoration: const InputDecoration(
-                              labelText: 'First Name',
-                              prefixIcon: Icon(Icons.person_outline),
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.all(16),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your first name';
-                              }
-                              return null;
-                            },
-                          ),
+                        _buildTextField(
+                          controller: _firstNameController,
+                          label: l10n.firstName,
+                          icon: Icons.person_outline,
+                          validatorMessage: l10n.enterFirstName,
                         ),
                         const SizedBox(height: 16),
 
-                        // Last Name Field
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.9),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: TextFormField(
-                            controller: _lastNameController,
-                            decoration: const InputDecoration(
-                              labelText: 'Last Name',
-                              prefixIcon: Icon(Icons.person_outline),
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.all(16),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your last name';
-                              }
-                              return null;
-                            },
-                          ),
+                        _buildTextField(
+                          controller: _lastNameController,
+                          label: l10n.lastName,
+                          icon: Icons.person_outline,
+                          validatorMessage: l10n.enterLastName,
                         ),
                         const SizedBox(height: 16),
 
-                        // Username Field
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.9),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: TextFormField(
-                            controller: _usernameController,
-                            decoration: const InputDecoration(
-                              labelText: 'Username',
-                              prefixIcon: Icon(Icons.alternate_email),
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.all(16),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter a username';
-                              }
-                              if (value.length < 3) {
-                                return 'Username must be at least 3 characters';
-                              }
-                              if (value.contains(' ')) {
-                                return 'Username cannot contain spaces';
-                              }
-                              return null;
-                            },
-                          ),
+                        _buildTextField(
+                          controller: _usernameController,
+                          label: l10n.username,
+                          icon: Icons.alternate_email,
+                          validatorMessage: l10n.enterUsername,
+                          customValidator: (value) {
+                            if (value!.length < 3) {
+                              return l10n.usernameTooShort;
+                            }
+                            if (value.contains(' ')) {
+                              return l10n.usernameNoSpaces;
+                            }
+                            return null;
+                          },
                         ),
                         const SizedBox(height: 16),
 
-                        // Email Field
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.9),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: TextFormField(
-                            controller: _emailController,
-                            keyboardType: TextInputType.emailAddress,
-                            decoration: const InputDecoration(
-                              labelText: 'Email',
-                              prefixIcon: Icon(Icons.email_outlined),
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.all(16),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your email';
-                              }
-                              if (!value.contains('@')) {
-                                return 'Please enter a valid email';
-                              }
-                              return null;
-                            },
-                          ),
+                        _buildTextField(
+                          controller: _emailController,
+                          label: l10n.email,
+                          icon: Icons.email_outlined,
+                          keyboardType: TextInputType.emailAddress,
+                          customValidator: (value) {
+                            if (!isValidEmail(value!)) {
+                              return l10n.invalidEmail;
+                            }
+                            return null;
+                          },
                         ),
                         const SizedBox(height: 16),
 
-                        // Password Field
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.9),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: TextFormField(
-                            controller: _passwordController,
-                            obscureText: _obscurePassword,
-                            decoration: InputDecoration(
-                              labelText: 'Password',
-                              prefixIcon: const Icon(Icons.lock_outline),
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  _obscurePassword
-                                      ? Icons.visibility_off
-                                      : Icons.visibility,
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    _obscurePassword = !_obscurePassword;
-                                  });
-                                },
-                              ),
-                              border: InputBorder.none,
-                              contentPadding: const EdgeInsets.all(16),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter a password';
-                              }
-                              if (value.length < 6) {
-                                return 'Password must be at least 6 characters';
-                              }
-                              return null;
-                            },
-                          ),
+                        _buildPasswordField(
+                          controller: _passwordController,
+                          label: l10n.password,
+                          obscure: _obscurePassword,
+                          onToggle: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                          validatorMessage: l10n.enterPassword,
+                          minLengthMessage: l10n.passwordTooShort,
                         ),
                         const SizedBox(height: 16),
 
-                        // Confirm Password Field
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.9),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: TextFormField(
-                            controller: _confirmPasswordController,
-                            obscureText: _obscureConfirmPassword,
-                            decoration: InputDecoration(
-                              labelText: 'Confirm Password',
-                              prefixIcon: const Icon(Icons.lock_outline),
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  _obscureConfirmPassword
-                                      ? Icons.visibility_off
-                                      : Icons.visibility,
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    _obscureConfirmPassword =
-                                        !_obscureConfirmPassword;
-                                  });
-                                },
-                              ),
-                              border: InputBorder.none,
-                              contentPadding: const EdgeInsets.all(16),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please confirm your password';
-                              }
-                              if (value != _passwordController.text) {
-                                return 'Passwords do not match';
-                              }
-                              return null;
-                            },
-                          ),
+                        _buildPasswordField(
+                          controller: _confirmPasswordController,
+                          label: l10n.confirmPassword,
+                          obscure: _obscureConfirmPassword,
+                          onToggle: () {
+                            setState(() {
+                              _obscureConfirmPassword =
+                                  !_obscureConfirmPassword;
+                            });
+                          },
+                          validatorMessage: l10n.enterConfirmPassword,
+                          customValidator: (value) {
+                            if (value != _passwordController.text) {
+                              return l10n.passwordsDoNotMatch;
+                            }
+                            return null;
+                          },
                         ),
                         const SizedBox(height: 32),
 
-                        // Sign Up Button
                         SizedBox(
                           width: double.infinity,
                           height: 50,
                           child: ElevatedButton(
-                            onPressed: state.isLoading ? null : _signUp,
+                            onPressed:
+                                state.isLoading ? null : _signUp,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.icon,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius:
+                                    BorderRadius.circular(12),
                               ),
                             ),
                             child: state.isLoading
                                 ? const CircularProgressIndicator(
                                     color: Colors.white,
                                   )
-                                : const Text(
-                                    'Sign Up',
-                                    style: TextStyle(
+                                : Text(
+                                    l10n.signUp,
+                                    style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white,
@@ -339,23 +233,24 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         const SizedBox(height: 24),
 
-                        // Login Link
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'Already have an account? ',
+                              l10n.alreadyHaveAccount,
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.8),
+                                color:
+                                    Colors.white.withOpacity(0.8),
                               ),
                             ),
                             TextButton(
                               onPressed: () {
-                                Navigator.of(context).pushReplacementNamed('/login');
+                                Navigator.of(context)
+                                    .pushReplacementNamed('/login');
                               },
-                              child: const Text(
-                                'Login',
-                                style: TextStyle(
+                              child: Text(
+                                l10n.login,
+                                style: const TextStyle(
                                   color: AppColors.icon,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -371,6 +266,80 @@ class _SignUpScreenState extends State<SignUpScreen> {
             },
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    String? validatorMessage,
+    String? Function(String?)? customValidator,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.9),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: TextFormField(
+        controller: controller,
+        keyboardType: keyboardType,
+        decoration: InputDecoration(
+          labelText: label,
+          prefixIcon: Icon(icon),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.all(16),
+        ),
+        validator: customValidator ??
+            (value) {
+              if (value == null || value.isEmpty) {
+                return validatorMessage;
+              }
+              return null;
+            },
+      ),
+    );
+  }
+
+  Widget _buildPasswordField({
+    required TextEditingController controller,
+    required String label,
+    required bool obscure,
+    required VoidCallback onToggle,
+    String? validatorMessage,
+    String? minLengthMessage,
+    String? Function(String?)? customValidator,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.9),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: TextFormField(
+        controller: controller,
+        obscureText: obscure,
+        decoration: InputDecoration(
+          labelText: label,
+          prefixIcon: const Icon(Icons.lock_outline),
+          suffixIcon: IconButton(
+            icon: Icon(obscure ? Icons.visibility_off : Icons.visibility),
+            onPressed: onToggle,
+          ),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.all(16),
+        ),
+        validator: customValidator ??
+            (value) {
+              if (value == null || value.isEmpty) {
+                return validatorMessage;
+              }
+              if (minLengthMessage != null && value.length < 6) {
+                return minLengthMessage;
+              }
+              return null;
+            },
       ),
     );
   }

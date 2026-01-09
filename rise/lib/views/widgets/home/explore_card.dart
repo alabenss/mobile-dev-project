@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import '../../themes/style_simple/colors.dart';
 
 class ExploreCard extends StatelessWidget {
+  // 🔧 Set this to false to REMOVE ALL images in explore cards
+  static const bool kShowExploreImages = true;
+
   final Color color;
   final String title;
   final String cta;
 
-  // old
   final String? assetImage;
-
-  // ✅ new (online image)
   final String? imageUrl;
 
   const ExploreCard({
@@ -21,8 +21,43 @@ class ExploreCard extends StatelessWidget {
     this.imageUrl,
   });
 
+  String _clean(String? u) => (u ?? '').trim();
+
   @override
   Widget build(BuildContext context) {
+    final url = _clean(imageUrl);
+
+    Widget imageWidget = const SizedBox.shrink();
+
+    if (kShowExploreImages) {
+      if (url.isNotEmpty) {
+        imageWidget = Image.network(
+          url,
+          width: 90,
+          height: 90,
+          fit: BoxFit.contain,
+          errorBuilder: (_, __, ___) {
+            if (assetImage != null) {
+              return Image.asset(
+                assetImage!,
+                width: 90,
+                height: 90,
+                fit: BoxFit.contain,
+              );
+            }
+            return const SizedBox.shrink();
+          },
+        );
+      } else if (assetImage != null) {
+        imageWidget = Image.asset(
+          assetImage!,
+          width: 90,
+          height: 90,
+          fit: BoxFit.contain,
+        );
+      }
+    }
+
     return Container(
       height: 150,
       decoration: BoxDecoration(
@@ -32,28 +67,11 @@ class ExploreCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: Stack(
         children: [
-          if (imageUrl != null && imageUrl!.isNotEmpty)
-            Positioned(
-              right: 8,
-              bottom: 6,
-              child: Image.network(
-                imageUrl!,
-                width: 90,
-                height: 90,
-                fit: BoxFit.contain,
-              ),
-            )
-          else if (assetImage != null)
-            Positioned(
-              right: 8,
-              bottom: 6,
-              child: Image.asset(
-                assetImage!,
-                width: 90,
-                height: 90,
-                fit: BoxFit.contain,
-              ),
-            ),
+          Positioned(
+            right: 8,
+            bottom: 6,
+            child: imageWidget,
+          ),
           Padding(
             padding: const EdgeInsets.all(12),
             child: Column(

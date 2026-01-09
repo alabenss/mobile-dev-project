@@ -1,11 +1,44 @@
 from flask import Blueprint, request, jsonify
-from ..database import select, insert, update
+from functools import wraps
+import jwt
+from ..database import select, insert, update, supabase
 
 auth_bp = Blueprint('auth', __name__)
 
+def verify_token(f):
+    """Decorator to verify JWT token"""
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = request.headers.get('Authorization')
+        
+        if not token:
+            return jsonify({'error': 'No token provided'}), 401
+        
+        try:
+            # Remove 'Bearer ' prefix if present
+            if token.startswith('Bearer '):
+                token = token[7:]
+            
+            # Verify token with Supabase
+            user = supabase.auth.get_user(token)
+            
+            if not user:
+                return jsonify({'error': 'Invalid token'}), 401
+            
+            # Add user to request context
+            request.current_user = user
+            
+        except Exception as e:
+            print(f"Token verification error: {e}")
+            return jsonify({'error': 'Invalid token'}), 401
+        
+        return f(*args, **kwargs)
+    
+    return decorated
+
 @auth_bp.route('/user.register', methods=['POST'])
 def register():
-    """Register a new user"""
+    """Register a new user with Supabase Auth"""
     try:
         data = request.get_json()
         first_name = data.get('firstName')
@@ -17,42 +50,62 @@ def register():
         if not all([first_name, last_name, username, email, password]):
             return jsonify({'error': 'Missing required fields'}), 400
         
-        # Check if email exists
-        existing_email = select('users', filters={'email': email})
-        if existing_email:
-            return jsonify({'error': 'Email already exists'}), 400
-        
-        # Check if username exists
+        # Check if username exists in our users table
         existing_username = select('users', filters={'username': username})
         if existing_username:
             return jsonify({'error': 'Username already exists'}), 400
         
-        # Create user
-        result = insert('users', {
-            'first_name': first_name,
-            'last_name': last_name,
-            'username': username,
+        # Create user in Supabase Auth
+        auth_response = supabase.auth.sign_up({
             'email': email,
             'password': password,
-            'total_points': 0,
-            'stars': 0
+            'options': {
+                'data': {
+                    'first_name': first_name,
+                    'last_name': last_name,
+                    'username': username
+                }
+            }
         })
         
-        if result:
-            return jsonify({
-                'success': True,
-                'user': result[0]
-            }), 201
-        else:
+        if not auth_response.user:
             return jsonify({'error': 'Failed to create user'}), 500
+        
+        # Get the created user from our users table (created by trigger)
+        user_record = select('users', filters={'auth_id': str(auth_response.user.id)}, single=True)
+        
+        # If trigger didn't work, create manually
+        if not user_record:
+            user_record = insert('users', {
+                'auth_id': str(auth_response.user.id),
+                'first_name': first_name,
+                'last_name': last_name,
+                'username': username,
+                'email': email,
+                'total_points': 0,
+                'stars': 0
+            })[0]
+        
+        return jsonify({
+            'success': True,
+            'user': user_record,
+            'session': {
+                'access_token': auth_response.session.access_token,
+                'refresh_token': auth_response.session.refresh_token,
+                'expires_at': auth_response.session.expires_at
+            }
+        }), 201
         
     except Exception as e:
         print(f"Error in register: {e}")
-        return jsonify({'error': str(e)}), 500
+        error_msg = str(e)
+        if 'already registered' in error_msg.lower():
+            return jsonify({'error': 'Email already exists'}), 400
+        return jsonify({'error': error_msg}), 500
 
 @auth_bp.route('/user.login', methods=['POST'])
 def login():
-    """Login user (email OR username)"""
+    """Login user with Supabase Auth"""
     try:
         data = request.get_json()
         identifier = data.get('email')  # can be email or username
@@ -61,48 +114,101 @@ def login():
         if not all([identifier, password]):
             return jsonify({'error': 'Missing credentials'}), 400
 
-        # First try login by email
-        result = select(
+        # Check if identifier is username, then get email
+        email = identifier
+        if '@' not in identifier:
+            # It's a username, get the email
+            user_record = select('users', columns='email', filters={'username': identifier}, single=True)
+            if not user_record:
+                return jsonify({'error': 'Invalid credentials'}), 401
+            email = user_record['email']
+
+        # Sign in with Supabase Auth
+        auth_response = supabase.auth.sign_in_with_password({
+            'email': email,
+            'password': password
+        })
+
+        if not auth_response.user:
+            return jsonify({'error': 'Invalid credentials'}), 401
+
+        # Get user data from our users table
+        user_record = select(
             'users',
-            columns='id, first_name, last_name, username, email, total_points, stars',
-            filters={'email': identifier, 'password': password},
+            columns='id, first_name, last_name, username, email, total_points, stars, created_at',
+            filters={'auth_id': str(auth_response.user.id)},
             single=True
         )
 
-        # If not found, try login by username
-        if not result:
-            result = select(
-                'users',
-                columns='id, first_name, last_name, username, email, total_points, stars',
-                filters={'username': identifier, 'password': password},
-                single=True
-            )
-
-        if not result:
-            return jsonify({'error': 'Invalid credentials'}), 401
+        if not user_record:
+            return jsonify({'error': 'User profile not found'}), 404
 
         return jsonify({
             'success': True,
-            'user': result
+            'user': user_record,
+            'session': {
+                'access_token': auth_response.session.access_token,
+                'refresh_token': auth_response.session.refresh_token,
+                'expires_at': auth_response.session.expires_at
+            }
         }), 200
 
     except Exception as e:
         print(f"Error in login: {e}")
+        return jsonify({'error': 'Invalid credentials'}), 401
+
+@auth_bp.route('/user.logout', methods=['POST'])
+@verify_token
+def logout():
+    """Logout user from Supabase Auth"""
+    try:
+        supabase.auth.sign_out()
+        return jsonify({'success': True}), 200
+    except Exception as e:
+        print(f"Error in logout: {e}")
         return jsonify({'error': str(e)}), 500
 
-@auth_bp.route('/user.profile', methods=['GET'])
-def get_profile():
-    """Get user profile"""
+@auth_bp.route('/user.refresh', methods=['POST'])
+def refresh_token():
+    """Refresh access token using refresh token"""
     try:
-        user_id = request.args.get('userId')
+        data = request.get_json()
+        refresh_token = data.get('refreshToken')
         
-        if not user_id:
-            return jsonify({'error': 'userId required'}), 400
+        if not refresh_token:
+            return jsonify({'error': 'Refresh token required'}), 400
+        
+        # Refresh session
+        auth_response = supabase.auth.refresh_session(refresh_token)
+        
+        if not auth_response.session:
+            return jsonify({'error': 'Failed to refresh token'}), 401
+        
+        return jsonify({
+            'success': True,
+            'session': {
+                'access_token': auth_response.session.access_token,
+                'refresh_token': auth_response.session.refresh_token,
+                'expires_at': auth_response.session.expires_at
+            }
+        }), 200
+        
+    except Exception as e:
+        print(f"Error refreshing token: {e}")
+        return jsonify({'error': str(e)}), 401
+
+@auth_bp.route('/user.profile', methods=['GET'])
+@verify_token
+def get_profile():
+    """Get user profile (requires authentication)"""
+    try:
+        # Get auth_id from verified token
+        auth_id = request.current_user.user.id
         
         result = select(
             'users',
             columns='id, first_name, last_name, username, email, total_points, stars, created_at',
-            filters={'id': int(user_id)},
+            filters={'auth_id': str(auth_id)},
             single=True
         )
         
@@ -119,16 +225,20 @@ def get_profile():
         return jsonify({'error': str(e)}), 500
 
 @auth_bp.route('/user.updateProfile', methods=['PUT'])
+@verify_token
 def update_profile():
-    """Update user profile (first_name, last_name, username, email)"""
+    """Update user profile (requires authentication)"""
     try:
         data = request.get_json()
-        user_id = data.get('userId')
+        auth_id = request.current_user.user.id
         
-        if not user_id:
-            return jsonify({'error': 'userId required'}), 400
+        # Get current user
+        current_user = select('users', filters={'auth_id': str(auth_id)}, single=True)
+        if not current_user:
+            return jsonify({'error': 'User not found'}), 404
         
         update_data = {}
+        
         if 'firstName' in data:
             update_data['first_name'] = data['firstName']
         if 'lastName' in data:
@@ -136,24 +246,26 @@ def update_profile():
         if 'username' in data:
             # Check if username is already taken by another user
             existing = select('users', filters={'username': data['username']})
-            if existing and existing[0]['id'] != user_id:
+            if existing and existing[0]['id'] != current_user['id']:
                 return jsonify({'error': 'Username already taken'}), 400
             update_data['username'] = data['username']
         if 'email' in data:
-            # Check if email is already taken by another user
+            # Check if email is already taken
             existing = select('users', filters={'email': data['email']})
-            if existing and existing[0]['id'] != user_id:
+            if existing and existing[0]['id'] != current_user['id']:
                 return jsonify({'error': 'Email already taken'}), 400
             update_data['email'] = data['email']
+            
+            # Also update email in Supabase Auth
+            try:
+                supabase.auth.update_user({'email': data['email']})
+            except Exception as e:
+                print(f"Error updating email in Supabase Auth: {e}")
         
         if not update_data:
             return jsonify({'error': 'No fields to update'}), 400
         
-        result = update(
-            'users',
-            update_data,
-            filters={'id': user_id}
-        )
+        result = update('users', update_data, filters={'auth_id': str(auth_id)})
         
         return jsonify({'success': True}), 200
         
@@ -162,21 +274,21 @@ def update_profile():
         return jsonify({'error': str(e)}), 500
 
 @auth_bp.route('/user.updatePassword', methods=['PUT'])
+@verify_token
 def update_password():
-    """Update user password"""
+    """Update user password in Supabase Auth"""
     try:
         data = request.get_json()
-        user_id = data.get('userId')
         password = data.get('password')
         
-        if not all([user_id, password]):
-            return jsonify({'error': 'userId and password required'}), 400
+        if not password:
+            return jsonify({'error': 'Password required'}), 400
         
-        result = update(
-            'users',
-            {'password': password},
-            filters={'id': user_id}
-        )
+        if len(password) < 6:
+            return jsonify({'error': 'Password must be at least 6 characters'}), 400
+        
+        # Update password in Supabase Auth
+        supabase.auth.update_user({'password': password})
         
         return jsonify({'success': True}), 200
         
@@ -185,21 +297,18 @@ def update_password():
         return jsonify({'error': str(e)}), 500
 
 @auth_bp.route('/user.updateStars', methods=['PUT'])
+@verify_token
 def update_stars():
     """Update user stars"""
     try:
         data = request.get_json()
-        user_id = data.get('userId')
         stars = data.get('stars')
+        auth_id = request.current_user.user.id
         
-        if not all([user_id, stars is not None]):
-            return jsonify({'error': 'userId and stars required'}), 400
+        if stars is None:
+            return jsonify({'error': 'Stars required'}), 400
         
-        result = update(
-            'users',
-            {'stars': stars},
-            filters={'id': user_id}
-        )
+        result = update('users', {'stars': stars}, filters={'auth_id': str(auth_id)})
         
         return jsonify({'success': True}), 200
         
@@ -208,21 +317,18 @@ def update_stars():
         return jsonify({'error': str(e)}), 500
 
 @auth_bp.route('/user.updatePoints', methods=['PUT'])
+@verify_token
 def update_points():
     """Update user total points (absolute value)"""
     try:
         data = request.get_json()
-        user_id = data.get('userId')
         total_points = data.get('totalPoints')
+        auth_id = request.current_user.user.id
         
-        if not all([user_id, total_points is not None]):
-            return jsonify({'error': 'userId and totalPoints required'}), 400
+        if total_points is None:
+            return jsonify({'error': 'totalPoints required'}), 400
         
-        result = update(
-            'users',
-            {'total_points': total_points},
-            filters={'id': user_id}
-        )
+        result = update('users', {'total_points': total_points}, filters={'auth_id': str(auth_id)})
         
         return jsonify({'success': True}), 200
         
@@ -231,18 +337,19 @@ def update_points():
         return jsonify({'error': str(e)}), 500
 
 @auth_bp.route('/user.awardPoints', methods=['POST'])
+@verify_token
 def award_points():
     """Award points to user (can be positive or negative)"""
     try:
         data = request.get_json()
-        user_id = data.get('userId')
         points = data.get('points')
+        auth_id = request.current_user.user.id
         
-        if not all([user_id, points is not None]):
-            return jsonify({'error': 'userId and points required'}), 400
+        if points is None:
+            return jsonify({'error': 'Points required'}), 400
         
         # Get current points
-        user = select('users', filters={'id': user_id}, single=True)
+        user = select('users', filters={'auth_id': str(auth_id)}, single=True)
         
         if not user:
             return jsonify({'error': 'User not found'}), 404
@@ -255,11 +362,7 @@ def award_points():
             new_points = 0
         
         # Update points
-        result = update(
-            'users',
-            {'total_points': new_points},
-            filters={'id': user_id}
-        )
+        result = update('users', {'total_points': new_points}, filters={'auth_id': str(auth_id)})
         
         return jsonify({
             'success': True,

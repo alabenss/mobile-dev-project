@@ -1170,4 +1170,82 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get languageArabic => 'Arabic';
+
+  @override
+  String get welcomeBack => 'Welcome Back';
+
+  @override
+  String get loginSubtitle => 'Login to continue your journey';
+
+  @override
+  String get usernameOrEmail => 'Username or Email';
+
+  @override
+  String get enterUsernameOrEmail => 'Please enter your username or email';
+
+  @override
+  String get password => 'Password';
+
+  @override
+  String get enterPassword => 'Please enter a password';
+
+  @override
+  String get passwordTooShort => 'Password must be at least 6 characters';
+
+  @override
+  String get login => 'Login';
+
+  @override
+  String get noAccount => 'Don\'t have an account? ';
+
+  @override
+  String get signUp => 'Sign Up';
+
+  @override
+  String get createAccount => 'Create Account';
+
+  @override
+  String get signUpSubtitle => 'Start your wellness journey today';
+
+  @override
+  String get firstName => 'First Name';
+
+  @override
+  String get enterFirstName => 'Please enter your first name';
+
+  @override
+  String get lastName => 'Last Name';
+
+  @override
+  String get enterLastName => 'Please enter your last name';
+
+  @override
+  String get username => 'Username';
+
+  @override
+  String get enterUsername => 'Please enter a username';
+
+  @override
+  String get usernameTooShort => 'Username must be at least 3 characters';
+
+  @override
+  String get usernameNoSpaces => 'Username cannot contain spaces';
+
+  @override
+  String get email => 'Email';
+
+  @override
+  String get invalidEmail => 'Please enter a valid email address';
+
+  @override
+  String get confirmPassword => 'Confirm Password';
+
+  @override
+  String get enterConfirmPassword => 'Please confirm your password';
+
+  @override
+  String get passwordsDoNotMatch => 'Passwords do not match';
+
+  @override
+  String get alreadyHaveAccount => 'Already have an account? ';
 }
