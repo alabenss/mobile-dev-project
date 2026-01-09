@@ -208,34 +208,37 @@ class MyApp extends StatelessWidget {
             Locale('fr'),
             Locale('ar'),
           ],
-          home: FutureBuilder<bool>(
-            future: WelcomeProvider.shouldShowWelcome(),
-            builder: (context, welcomeSnapshot) {
-              // If still checking, show loading
-              if (welcomeSnapshot.connectionState == ConnectionState.waiting) {
-                return const Scaffold(
-                  body: Center(child: CircularProgressIndicator()),
-                );
-              }
+          // Find this section in your main.dart and replace it:
 
-              // If should show welcome screens
-              if (welcomeSnapshot.hasData && welcomeSnapshot.data == true) {
-                return WelcomeScreen(
-                  onCompleted: () {
-                    // User skipped welcome, go to login
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) => const AppEntryPoint(),
-                      ),
-                    );
-                  },
-                );
-              }
+// Change from this in the MyApp build method:
+home: FutureBuilder<bool>(
+  future: WelcomeProvider.shouldShowWelcome(),
+  builder: (context, welcomeSnapshot) {
+    // If still checking, show loading
+    if (welcomeSnapshot.connectionState == ConnectionState.waiting) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
 
-              // Otherwise go to normal app flow
-              return const AppEntryPoint();
-            },
-          ),
+    // If should show welcome screens
+    if (welcomeSnapshot.hasData && welcomeSnapshot.data == true) {
+      return WelcomeScreen(
+        onCompleted: () {
+          // âœ… CHANGED: User completed welcome, go to SIGNUP instead of login
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => const SignUpScreen(), // Changed from AppEntryPoint
+            ),
+          );
+        },
+      );
+    }
+
+    // Otherwise go to normal app flow
+    return const AppEntryPoint();
+  },
+),
           routes: {
             '/login': (context) => const LoginScreen(),
             '/signup': (context) => const SignUpScreen(),
@@ -256,7 +259,7 @@ class AppEntryPoint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthCubit, AuthState>(
+    return BlocListener<AuthCubit, app_auth.AuthState>(
       listener: (context, state) {
         final lang = 'en'; // Get from locale cubit if needed
         
