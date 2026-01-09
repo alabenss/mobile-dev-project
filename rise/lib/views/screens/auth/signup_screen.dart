@@ -40,9 +40,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
-  // Helper to show API error dialogs (matches the call site)
-
-
   Future<void> _signUp() async {
     if (_formKey.currentState!.validate()) {
       final success = await context.read<AuthCubit>().signUp(
@@ -63,6 +60,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -105,7 +104,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Start your wellness journey today',
+                          l10n.signUpSubtitle,
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.white.withOpacity(0.8),
@@ -218,7 +217,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              'Already have an account? ',
+                              l10n.alreadyHaveAccount,
                               style: TextStyle(
                                 color: Colors.white.withOpacity(0.8),
                               ),
@@ -227,9 +226,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               onPressed: () {
                                 Navigator.of(context).pushReplacementNamed('/login');
                               },
-                              child: const Text(
-                                'Login',
-                                style: TextStyle(
+                              child: Text(
+                                l10n.login,
+                                style: const TextStyle(
                                   color: AppColors.icon,
                                   fontWeight: FontWeight.bold,
                                 ),

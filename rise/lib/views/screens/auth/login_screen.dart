@@ -15,7 +15,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _identifierController = TextEditingController(); // username or email
+  final _identifierController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
@@ -34,7 +34,6 @@ class _LoginScreenState extends State<LoginScreen> {
           );
 
       if (success && mounted) {
-        // ✅ Mark user as logged in so welcome screens don't show again
         await WelcomeProvider.markUserLoggedIn();
         Navigator.of(context).pushReplacementNamed('/home');
       }
@@ -43,6 +42,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -74,16 +75,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // App Logo/Title
                         const Icon(
                           Icons.self_improvement,
                           size: 80,
                           color: AppColors.icon,
                         ),
                         const SizedBox(height: 16),
-                        const Text(
-                          'Welcome Back',
-                          style: TextStyle(
+                        Text(
+                          l10n.welcomeBack,
+                          style: const TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
@@ -91,7 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Login to continue your journey',
+                          l10n.loginSubtitle,
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.white.withOpacity(0.8),
@@ -153,10 +153,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Please enter your password';
+                                return l10n.enterPassword;
                               }
                               if (value.length < 6) {
-                                return 'Password must be at least 6 characters';
+                                return l10n.passwordTooShort;
                               }
                               return null;
                             },
@@ -164,7 +164,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 32),
 
-                        // Login Button
+                        // Login button
                         SizedBox(
                           width: double.infinity,
                           height: 50,
@@ -180,9 +180,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ? const CircularProgressIndicator(
                                     color: Colors.white,
                                   )
-                                : const Text(
-                                    'Login',
-                                    style: TextStyle(
+                                : Text(
+                                    l10n.login,
+                                    style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white,
@@ -197,7 +197,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              "Don't have an account? ",
+                              l10n.noAccount,
                               style: TextStyle(
                                 color: Colors.white.withOpacity(0.8),
                               ),
@@ -207,9 +207,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 Navigator.of(context)
                                     .pushReplacementNamed('/signup');
                               },
-                              child: const Text(
-                                'Sign Up',
-                                style: TextStyle(
+                              child: Text(
+                                l10n.signUp,
+                                style: const TextStyle(
                                   color: AppColors.icon,
                                   fontWeight: FontWeight.bold,
                                 ),
