@@ -8,7 +8,7 @@ import '../../themes/style_simple/colors.dart';
 class WelcomeScreen extends StatefulWidget {
   final VoidCallback onCompleted;
 
-  const WelcomeScreen({Key? key, required this.onCompleted}) : super(key: key);
+  const WelcomeScreen({super.key, required this.onCompleted});
 
   @override
   _WelcomeScreenState createState() => _WelcomeScreenState();

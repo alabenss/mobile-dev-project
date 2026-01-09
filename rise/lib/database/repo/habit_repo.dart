@@ -223,8 +223,8 @@ class HabitRepository {
         params: {
           'userId': userId.toString(),
           'frequency': frequency,
-          'startDate': startDate,
-          'endDate': endDate,
+          'startDate': startDate!,
+          'endDate': endDate!,
         },
       );
 
