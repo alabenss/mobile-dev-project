@@ -135,7 +135,7 @@ flutter:
   # see https://flutter.dev/to/font-from-package
 
 flutter_native_splash:
-  color: "#E8F5E9"
+  color: "#FFFFFF"
   image: assets/images/logo_rise.png
 
   android: true
@@ -143,5 +143,5 @@ flutter_native_splash:
   web: false
 
   android_12:
-    color: "#E8F5E9"
+    color: "#FFFFFF"
     image: assets/images/logo_rise.png
