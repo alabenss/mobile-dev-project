@@ -108,7 +108,7 @@ def get_habits():
             end = datetime.fromisoformat(end_date)
             result = [
                 h for h in result
-                if h['last_updated'] and start <= datetime.fromisoformat(h['last_updated']) <= end
+                if h['last_created'] and start <= datetime.fromisoformat(h['last_created']) <= end
             ]
         
         if not result:
