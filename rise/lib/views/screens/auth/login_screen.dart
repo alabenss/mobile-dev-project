@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../logic/auth/auth_cubit.dart';
 import '../../../logic/auth/auth_state.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../themes/style_simple/colors.dart';
-import '../../widgets/error_dialog.dart';
+import '../../screens/welcome_screens/welcome_provider.dart';
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -27,11 +29,13 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
       final success = await context.read<AuthCubit>().login(
-        _identifierController.text.trim(), // username or email
-        _passwordController.text,
-      );
+            _identifierController.text.trim(),
+            _passwordController.text,
+          );
 
       if (success && mounted) {
+        // ✅ Mark user as logged in so welcome screens don't show again
+        await WelcomeProvider.markUserLoggedIn();
         Navigator.of(context).pushReplacementNamed('/home');
       }
     }
@@ -50,27 +54,17 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         child: SafeArea(
           child: BlocConsumer<AuthCubit, AuthState>(
-           listener: (context, state) {
-  if (state.error != null && state.error!.isNotEmpty) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) => AppErrorDialog(
-          title: 'Login Failed',
-          message: state.error!,
-        ),
-      );
-
-      context.read<AuthCubit>().clearError();
-    });
-  }
-
-  if (state.isAuthenticated && !state.isLoading) {
-    Navigator.of(context).pushReplacementNamed('/home');
-  }
-},
-
+            listener: (context, state) {
+              if (state.error != null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(state.error!),
+                    backgroundColor: Colors.redAccent,
+                  ),
+                );
+                context.read<AuthCubit>().clearError();
+              }
+            },
             builder: (context, state) {
               return Center(
                 child: SingleChildScrollView(
@@ -105,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 48),
 
-                        // Email or Username Field
+                        // Identifier field
                         Container(
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.9),
@@ -114,15 +108,15 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: TextFormField(
                             controller: _identifierController,
                             keyboardType: TextInputType.text,
-                            decoration: const InputDecoration(
-                              labelText: 'Username or Email',
-                              prefixIcon: Icon(Icons.person_outline),
+                            decoration: InputDecoration(
+                              labelText: l10n.usernameOrEmail,
+                              prefixIcon: const Icon(Icons.person_outline),
                               border: InputBorder.none,
-                              contentPadding: EdgeInsets.all(16),
+                              contentPadding: const EdgeInsets.all(16),
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Please enter your username or email';
+                                return l10n.enterUsernameOrEmail;
                               }
                               return null;
                             },
@@ -130,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Password Field
+                        // Password field
                         Container(
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.9),
@@ -140,7 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             controller: _passwordController,
                             obscureText: _obscurePassword,
                             decoration: InputDecoration(
-                              labelText: 'Password',
+                              labelText: l10n.password,
                               prefixIcon: const Icon(Icons.lock_outline),
                               suffixIcon: IconButton(
                                 icon: Icon(
@@ -198,7 +192,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 24),
 
-                        // Sign Up Link
+                        // Sign Up link
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -210,7 +204,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             TextButton(
                               onPressed: () {
-                                Navigator.of(context).pushReplacementNamed('/signup');
+                                Navigator.of(context)
+                                    .pushReplacementNamed('/signup');
                               },
                               child: const Text(
                                 'Sign Up',
