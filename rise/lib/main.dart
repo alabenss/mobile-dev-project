@@ -256,7 +256,7 @@ class AppEntryPoint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthCubit, AuthState>(
+    return BlocListener<AuthCubit, app_auth.AuthState>(
       listener: (context, state) {
         final lang = 'en'; // Get from locale cubit if needed
         
