@@ -30,9 +30,18 @@ class StatsLoaded extends StatsState {
   final List<double> waterData;
   final List<double> moodData;
   final int journalingCount;
-  final List<int> journalCounts; // NEW: counts per day/period
+  final List<int> journalCounts;
   final Map<String, double> screenTime;
   final List<String> labels;
+  
+  // NEW: Habit statistics fields
+  final int totalHabits;
+  final int completedHabits;
+  final double completionRate;
+  final int currentStreak;
+  final int bestStreak;
+  final List<double> habitCompletionData;
+  final int tasksConvertedToHabits;
 
   const StatsLoaded({
     required StatsRange range,
@@ -42,6 +51,13 @@ class StatsLoaded extends StatsState {
     required this.journalCounts,
     required this.screenTime,
     required this.labels,
+    this.totalHabits = 0,
+    this.completedHabits = 0,
+    this.completionRate = 0.0,
+    this.currentStreak = 0,
+    this.bestStreak = 0,
+    this.habitCompletionData = const [],
+    this.tasksConvertedToHabits = 0,
   }) : super(range);
 
   @override
@@ -52,6 +68,13 @@ class StatsLoaded extends StatsState {
     journalingCount,
     journalCounts,
     screenTime, 
-    labels
+    labels,
+    totalHabits,
+    completedHabits,
+    completionRate,
+    currentStreak,
+    bestStreak,
+    habitCompletionData,
+    tasksConvertedToHabits,
   ];
 }

@@ -10,6 +10,7 @@ import 'package:the_project/views/widgets/stats/water_stats_widget.dart';
 import 'package:the_project/views/widgets/stats/mood_stats_widget.dart';
 import 'package:the_project/views/widgets/stats/journaling_stats_widget.dart';
 import 'package:the_project/views/widgets/stats/screen_time_widget.dart';
+import 'package:the_project/views/widgets/stats/habits_stats_widget.dart'; // NEW
 import 'package:the_project/views/themes/style_simple/colors.dart';
 
 import 'package:the_project/database/repo/stats_repo.dart';
@@ -24,12 +25,11 @@ class StatsScreen extends StatefulWidget {
 }
 
 class _StatsScreenState extends State<StatsScreen> {
+  static const Duration animDur = Duration(milliseconds: 420);
+  static const Curve animCurve = Curves.easeInOutCubic;
   Future<void> _onRefresh(BuildContext context) async {
   await context.read<StatsCubit>().refresh();
 }
-
-  static const Duration animDur = Duration(milliseconds: 420);
-  static const Curve animCurve = Curves.easeInOutCubic;
 
   @override
   void initState() {
@@ -62,6 +62,7 @@ class _StatsScreenState extends State<StatsScreen> {
                           color: AppColors.textPrimary,
                         ),
                       ),
+                     
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -208,73 +209,92 @@ class _StatsScreenState extends State<StatsScreen> {
   }) {
     final hasData = state.waterData.isNotEmpty ||
         state.moodData.isNotEmpty ||
-        state.journalingCount > 0;
+        state.journalingCount > 0 ||
+        state.totalHabits > 0;
 
     return RefreshIndicator(
   onRefresh: () => _onRefresh(context),
   color: AppColors.accentPurple,
   child: SingleChildScrollView(
-    key: key,
-    physics: const AlwaysScrollableScrollPhysics(),
-    child: Column(
-      children: [
-        if (!hasData) ...[
-          _buildEmptyState(t),
-          const SizedBox(height: 20),
+      key: key,
+      physics: const BouncingScrollPhysics(),
+      child: Column(
+        children: [
+          if (!hasData) ...[
+            _buildEmptyState(t),
+            const SizedBox(height: 20),
+          ],
+
+          // NEW: Habits Statistics Card
+          StatsCardWidget(
+            padding: const EdgeInsets.all(14),
+            child: HabitsStatsWidget(
+              totalHabits: state.totalHabits,
+              completedHabits: state.completedHabits,
+              completionRate: state.completionRate,
+              currentStreak: state.currentStreak,
+              bestStreak: state.bestStreak,
+              habitCompletionData: state.habitCompletionData,
+              tasksConvertedToHabits: state.tasksConvertedToHabits,
+              selectedRange: state.range,
+              labels: state.labels,
+              animationDuration: animDur,
+              animationCurve: animCurve,
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          StatsCardWidget(
+            padding: const EdgeInsets.all(14),
+            child: WaterStatsWidget(
+              waterData: state.waterData,
+              labels: state.labels,
+              selectedRange: state.range,
+              animationDuration: animDur,
+              animationCurve: animCurve,
+            ),
+          ),
+          const SizedBox(height: 12),
+          
+          StatsCardWidget(
+            padding: const EdgeInsets.all(14),
+            child: MoodStatsWidget(
+              moodData: state.moodData,
+              labels: state.labels,
+              selectedRange: state.range,
+              animationDuration: animDur,
+              animationCurve: animCurve,
+            ),
+          ),
+          const SizedBox(height: 12),
+          
+          StatsCardWidget(
+            padding: const EdgeInsets.all(14),
+            child: JournalingStatsWidget(
+              journalingCount: state.journalingCount,
+              dailyJournalCounts: state.journalCounts,
+              selectedRange: state.range,
+              labels: state.labels,
+              animationDuration: animDur,
+              animationCurve: animCurve,
+            ),
+          ),
+          const SizedBox(height: 12),
+          
+          StatsCardWidget(
+            padding: const EdgeInsets.all(14),
+            child: ScreenTimeWidget(
+              screenTime: state.screenTime,
+              selectedRange: state.range,
+              animationDuration: animDur,
+              animationCurve: animCurve,
+            ),
+          ),
+          const SizedBox(height: 90),
         ],
-
-        StatsCardWidget(
-          padding: const EdgeInsets.all(14),
-          child: WaterStatsWidget(
-            waterData: state.waterData,
-            labels: state.labels,
-            selectedRange: state.range,
-            animationDuration: animDur,
-            animationCurve: animCurve,
-          ),
-        ),
-        const SizedBox(height: 12),
-
-        StatsCardWidget(
-          padding: const EdgeInsets.all(14),
-          child: MoodStatsWidget(
-            moodData: state.moodData,
-            labels: state.labels,
-            selectedRange: state.range,
-            animationDuration: animDur,
-            animationCurve: animCurve,
-          ),
-        ),
-        const SizedBox(height: 12),
-
-        StatsCardWidget(
-          padding: const EdgeInsets.all(14),
-          child: JournalingStatsWidget(
-            journalingCount: state.journalingCount,
-            dailyJournalCounts: state.journalCounts,
-            selectedRange: state.range,
-            labels: state.labels,
-            animationDuration: animDur,
-            animationCurve: animCurve,
-          ),
-        ),
-        const SizedBox(height: 12),
-
-        StatsCardWidget(
-          padding: const EdgeInsets.all(14),
-          child: ScreenTimeWidget(
-            screenTime: state.screenTime,
-            selectedRange: state.range,
-            animationDuration: animDur,
-            animationCurve: animCurve,
-          ),
-        ),
-        const SizedBox(height: 90),
-      ],
-    ),
+      ),
   ),
-);
-
+    );
   }
 
   Widget _buildEmptyState(AppLocalizations t) {

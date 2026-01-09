@@ -5,11 +5,20 @@ import '../../views/widgets/stats/range_selector_widget.dart';
 
 class StatsData {
   final List<double> waterData;
-  final List<double> moodData; // 0..1
+  final List<double> moodData;
   final int journalingCount;
   final List<int> journalCounts;
   final Map<String, double> screenTime;
   final List<String> labels;
+  
+  // NEW: Habit statistics
+  final int totalHabits;
+  final int completedHabits;
+  final double completionRate;
+  final int currentStreak;
+  final int bestStreak;
+  final List<double> habitCompletionData; // completion rate per period
+  final int tasksConvertedToHabits;
 
   StatsData({
     required this.waterData,
@@ -18,13 +27,19 @@ class StatsData {
     required this.journalCounts,
     required this.screenTime,
     required this.labels,
+    this.totalHabits = 0,
+    this.completedHabits = 0,
+    this.completionRate = 0.0,
+    this.currentStreak = 0,
+    this.bestStreak = 0,
+    this.habitCompletionData = const [],
+    this.tasksConvertedToHabits = 0,
   });
 }
 
 class StatsRepo {
   final ApiService _api = ApiService.instance;
 
-  /// Get current logged-in user ID
   Future<int?> _getCurrentUserId() async {
     try {
       return await _api.getCurrentUserId();
@@ -34,39 +49,32 @@ class StatsRepo {
     }
   }
 
-  /// Format date as yyyy-MM-dd
   String _formatDate(DateTime d) => _api.formatDate(d);
 
-  /// Convert mood label to numeric value
   double _moodLabelToValue(String? label) {
     if (label == null || label.isEmpty) return 0.5;
     final l = label.toLowerCase();
 
-    // Positive moods (0.75-1.0)
     if (l.contains('happy') || l.contains('joy') || l.contains('great') || 
         l.contains('excited') || l.contains('awesome') || l.contains('amazing')) {
       return 0.9;
     }
     
-    // Good moods (0.6-0.75)
     if (l.contains('good') || l.contains('nice') || l.contains('calm') || 
         l.contains('peaceful') || l.contains('content') || l.contains('bien')) {
       return 0.7;
     }
     
-    // Neutral moods (0.45-0.6)
     if (l.contains('ok') || l.contains('neutral') || l.contains('average') || 
         l.contains('meh') || l.contains('fine') || l.contains('moyen') || l.contains('confus')) {
       return 0.5;
     }
     
-    // Low moods (0.25-0.45)
     if (l.contains('sad') || l.contains('low') || l.contains('tired') || 
         l.contains('anxious') || l.contains('stressed') || l.contains('triste')) {
       return 0.35;
     }
     
-    // Very low moods (0.0-0.25)
     if (l.contains('bad') || l.contains('terrible') || l.contains('angry') || 
         l.contains('depressed') || l.contains('awful') || l.contains('mauvais')) {
       return 0.1;
@@ -75,12 +83,10 @@ class StatsRepo {
     return 0.5;
   }
 
-  /// Get mood value for a specific date (combines daily_moods and journals)
   Future<double> _getMoodForDate(int userId, String dateStr) async {
     try {
       final moodValues = <double>[];
       
-      // Get mood from daily_moods
       final moodResponse = await _api.get(
         ApiConfig.MOODS_TODAY,
         params: {
@@ -94,7 +100,6 @@ class StatsRepo {
         moodValues.add(_moodLabelToValue(label));
       }
 
-      // Get moods from journals for this date
       final journalsResponse = await _api.get(
         ApiConfig.JOURNALS_GET,
         params: {'userId': userId.toString()},
@@ -113,12 +118,144 @@ class StatsRepo {
         }
       }
 
-      // Return average or default
       if (moodValues.isEmpty) return 0.5;
       return moodValues.reduce((a, b) => a + b) / moodValues.length;
     } catch (e) {
       print('StatsRepo: Error getting mood for date $dateStr: $e');
       return 0.5;
+    }
+  }
+
+  // NEW: Get habit statistics for a date range
+  Future<Map<String, dynamic>> _getHabitStats(int userId, DateTime start, DateTime end) async {
+    try {
+      print('StatsRepo: Getting habit stats from $start to $end');
+      
+      final response = await _api.get(
+        ApiConfig.HABITS_GET,
+        params: {'userId': userId.toString()},
+      );
+
+      if (response['success'] != true || response['habits'] == null) {
+        return {
+          'totalHabits': 0,
+          'completedHabits': 0,
+          'completionRate': 0.0,
+          'currentStreak': 0,
+          'bestStreak': 0,
+          'tasksConverted': 0,
+        };
+      }
+
+      final habits = response['habits'] as List;
+      int totalHabits = habits.length;
+      int completedHabits = 0;
+      int maxStreak = 0;
+      int avgStreak = 0;
+      int tasksConverted = 0;
+
+      for (var habit in habits) {
+        final status = habit['status'] as String?;
+        final streakCount = (habit['streak_count'] as int?) ?? 0;
+        final bestStreak = (habit['best_streak'] as int?) ?? 0;
+        final isTask = habit['is_task'] == true || habit['is_task'] == 1;
+        final taskCompletionCount = (habit['task_completion_count'] as int?) ?? 0;
+
+        if (status == 'completed') {
+          completedHabits++;
+        }
+
+        if (streakCount > avgStreak) {
+          avgStreak = streakCount;
+        }
+
+        if (bestStreak > maxStreak) {
+          maxStreak = bestStreak;
+        }
+
+        // Count habits that were tasks but became habits (task_completion >= 10)
+        if (!isTask && taskCompletionCount >= 10) {
+          tasksConverted++;
+        }
+      }
+
+      final completionRate = totalHabits > 0 
+          ? (completedHabits / totalHabits * 100).clamp(0.0, 100.0) 
+          : 0.0;
+
+      return {
+        'totalHabits': totalHabits,
+        'completedHabits': completedHabits,
+        'completionRate': completionRate,
+        'currentStreak': avgStreak,
+        'bestStreak': maxStreak,
+        'tasksConverted': tasksConverted,
+      };
+    } catch (e) {
+      print('StatsRepo: Error getting habit stats: $e');
+      return {
+        'totalHabits': 0,
+        'completedHabits': 0,
+        'completionRate': 0.0,
+        'currentStreak': 0,
+        'bestStreak': 0,
+        'tasksConverted': 0,
+      };
+    }
+  }
+
+  // NEW: Get habit completion data per period
+  Future<List<double>> _getHabitCompletionData(
+    int userId, 
+    List<DateTime> dates,
+  ) async {
+    try {
+      final response = await _api.get(
+        ApiConfig.HABITS_GET,
+        params: {'userId': userId.toString()},
+      );
+
+      if (response['success'] != true || response['habits'] == null) {
+        return List.filled(dates.length, 0.0);
+      }
+
+      final habits = response['habits'] as List;
+      final completionData = <double>[];
+
+      for (var date in dates) {
+        int totalForDate = 0;
+        int completedForDate = 0;
+
+        for (var habit in habits) {
+          final lastCompletedStr = habit['last_completed_date'] as String?;
+          if (lastCompletedStr != null) {
+            try {
+              final lastCompleted = DateTime.parse(lastCompletedStr);
+              if (lastCompleted.year == date.year &&
+                  lastCompleted.month == date.month &&
+                  lastCompleted.day == date.day) {
+                totalForDate++;
+                final status = habit['status'] as String?;
+                if (status == 'completed') {
+                  completedForDate++;
+                }
+              }
+            } catch (e) {
+              // Skip invalid dates
+            }
+          }
+        }
+
+        final rate = totalForDate > 0 
+            ? (completedForDate / totalForDate * 100).clamp(0.0, 100.0)
+            : 0.0;
+        completionData.add(rate);
+      }
+
+      return completionData;
+    } catch (e) {
+      print('StatsRepo: Error getting habit completion data: $e');
+      return List.filled(dates.length, 0.0);
     }
   }
 
@@ -153,7 +290,6 @@ class StatsRepo {
     }
   }
 
-  /// Generate empty placeholder data
   StatsData _generateEmptyData(StatsRange range) {
     final today = DateTime.now();
 
@@ -166,6 +302,7 @@ class StatsRepo {
           journalCounts: [0],
           screenTime: {'detox': 0.0},
           labels: ['Today'],
+          habitCompletionData: [0.0],
         );
       case StatsRange.weekly:
         final labels = <String>[];
@@ -180,6 +317,7 @@ class StatsRepo {
           journalCounts: List.filled(7, 0),
           screenTime: {'detox': 0.0},
           labels: labels,
+          habitCompletionData: List.filled(7, 0.0),
         );
       case StatsRange.monthly:
         return StatsData(
@@ -189,6 +327,7 @@ class StatsRepo {
           journalCounts: List.filled(4, 0),
           screenTime: {'detox': 0.0},
           labels: ['W1', 'W2', 'W3', 'W4'],
+          habitCompletionData: List.filled(4, 0.0),
         );
       case StatsRange.yearly:
         return StatsData(
@@ -198,11 +337,11 @@ class StatsRepo {
           journalCounts: List.filled(12, 0),
           screenTime: {'detox': 0.0},
           labels: List.generate(12, (i) => _monthFr(i + 1)),
+          habitCompletionData: List.filled(12, 0.0),
         );
     }
   }
 
-  /// Load data for today
   Future<StatsData> _loadTodayData(int userId) async {
     try {
       final today = DateTime.now();
@@ -210,7 +349,6 @@ class StatsRepo {
       
       print('StatsRepo: Loading today data for date: $todayStr');
 
-      // Get water data
       double water = 0.0;
       try {
         final homeResponse = await _api.get(
@@ -228,10 +366,8 @@ class StatsRepo {
         print('StatsRepo: Error getting water data: $e');
       }
 
-      // Get mood data
       final mood = await _getMoodForDate(userId, todayStr);
 
-      // Get journal count
       int journalCount = 0;
       try {
         final journalsResponse = await _api.get(
@@ -250,7 +386,6 @@ class StatsRepo {
         print('StatsRepo: Error getting journal count: $e');
       }
 
-      // Get detox progress
       double detox = 0.0;
       try {
         final homeResponse = await _api.get(
@@ -268,6 +403,10 @@ class StatsRepo {
         print('StatsRepo: Error getting detox data: $e');
       }
 
+      // NEW: Get habit stats for today
+      final habitStats = await _getHabitStats(userId, today, today);
+      final habitCompletionData = await _getHabitCompletionData(userId, [today]);
+
       return StatsData(
         waterData: [water],
         moodData: [mood],
@@ -275,6 +414,13 @@ class StatsRepo {
         journalCounts: [journalCount],
         screenTime: {'detox': detox},
         labels: ['Today'],
+        totalHabits: habitStats['totalHabits'],
+        completedHabits: habitStats['completedHabits'],
+        completionRate: habitStats['completionRate'],
+        currentStreak: habitStats['currentStreak'],
+        bestStreak: habitStats['bestStreak'],
+        habitCompletionData: habitCompletionData,
+        tasksConvertedToHabits: habitStats['tasksConverted'],
       );
     } catch (e) {
       print('StatsRepo: Error loading today data: $e');
@@ -282,7 +428,6 @@ class StatsRepo {
     }
   }
 
-  /// Load data for weekly range (last 7 days)
   Future<StatsData> _loadWeeklyData(int userId) async {
     try {
       final today = DateTime.now();
@@ -290,12 +435,12 @@ class StatsRepo {
       final moodData = <double>[];
       final journalCounts = <int>[];
       final labels = <String>[];
+      final dates = <DateTime>[];
       int totalJournals = 0;
       double totalDetox = 0.0;
 
       print('StatsRepo: Loading weekly data');
 
-      // Get all journals once
       List<dynamic> allJournals = [];
       try {
         final journalsResponse = await _api.get(
@@ -309,7 +454,6 @@ class StatsRepo {
         print('StatsRepo: Error fetching journals: $e');
       }
 
-      // Get home status range
       final startDate = _formatDate(today.subtract(const Duration(days: 6)));
       final endDate = _formatDate(today);
       List<dynamic> allHomeStatus = [];
@@ -329,13 +473,12 @@ class StatsRepo {
         print('StatsRepo: Error fetching home status range: $e');
       }
 
-      // Process each day
       for (int i = 6; i >= 0; i--) {
         final date = today.subtract(Duration(days: i));
         final dateStr = _formatDate(date);
         labels.add(_weekdayFr(date.weekday));
+        dates.add(date);
 
-        // Water data
         double water = 0.0;
         final dayStatus = allHomeStatus.firstWhere(
           (s) => s['date'] == dateStr,
@@ -347,11 +490,9 @@ class StatsRepo {
         }
         waterData.add(water);
 
-        // Mood data
         final mood = await _getMoodForDate(userId, dateStr);
         moodData.add(mood);
 
-        // Journal count
         final dayJournals = allJournals.where((j) {
           final jDate = j['date'] as String?;
           return jDate != null && jDate.startsWith(dateStr);
@@ -360,6 +501,11 @@ class StatsRepo {
         totalJournals += dayJournals;
       }
 
+      // NEW: Get habit stats for the week
+      final weekStart = today.subtract(const Duration(days: 6));
+      final habitStats = await _getHabitStats(userId, weekStart, today);
+      final habitCompletionData = await _getHabitCompletionData(userId, dates);
+
       return StatsData(
         waterData: waterData,
         moodData: moodData,
@@ -367,6 +513,13 @@ class StatsRepo {
         journalCounts: journalCounts,
         screenTime: {'detox': totalDetox},
         labels: labels,
+        totalHabits: habitStats['totalHabits'],
+        completedHabits: habitStats['completedHabits'],
+        completionRate: habitStats['completionRate'],
+        currentStreak: habitStats['currentStreak'],
+        bestStreak: habitStats['bestStreak'],
+        habitCompletionData: habitCompletionData,
+        tasksConvertedToHabits: habitStats['tasksConverted'],
       );
     } catch (e) {
       print('StatsRepo: Error loading weekly data: $e');
@@ -374,7 +527,6 @@ class StatsRepo {
     }
   }
 
-  /// Load data for monthly range (last 4 weeks)
   Future<StatsData> _loadMonthlyData(int userId) async {
     try {
       final today = DateTime.now();
@@ -382,12 +534,12 @@ class StatsRepo {
       final moodData = <double>[];
       final journalCounts = <int>[];
       final labels = <String>[];
+      final weekDates = <DateTime>[];
       int totalJournals = 0;
       double totalDetox = 0.0;
 
       print('StatsRepo: Loading monthly data');
 
-      // Get all journals once
       List<dynamic> allJournals = [];
       try {
         final journalsResponse = await _api.get(
@@ -401,7 +553,6 @@ class StatsRepo {
         print('StatsRepo: Error fetching journals: $e');
       }
 
-      // Get home status range
       final startDate = _formatDate(today.subtract(const Duration(days: 27)));
       final endDate = _formatDate(today);
       List<dynamic> allHomeStatus = [];
@@ -421,19 +572,20 @@ class StatsRepo {
         print('StatsRepo: Error fetching home status range: $e');
       }
 
-      // Process each week (4 weeks)
       for (int week = 3; week >= 0; week--) {
         double weekWater = 0.0;
         double weekMood = 0.0;
         int weekJournals = 0;
         int daysWithWater = 0;
 
+        final weekStartDate = today.subtract(Duration(days: week * 7));
+        weekDates.add(weekStartDate);
+
         for (int day = 0; day < 7; day++) {
           final daysAgo = (week * 7) + day;
           final date = today.subtract(Duration(days: daysAgo));
           final dateStr = _formatDate(date);
 
-          // Water
           final dayStatus = allHomeStatus.firstWhere(
             (s) => s['date'] == dateStr,
             orElse: () => null,
@@ -444,11 +596,9 @@ class StatsRepo {
             daysWithWater++;
           }
 
-          // Mood
           final mood = await _getMoodForDate(userId, dateStr);
           weekMood += mood;
 
-          // Journals
           final dayJournals = allJournals.where((j) {
             final jDate = j['date'] as String?;
             return jDate != null && jDate.startsWith(dateStr);
@@ -463,6 +613,11 @@ class StatsRepo {
         labels.insert(0, 'W${4 - week}');
       }
 
+      // NEW: Get habit stats for the month
+      final monthStart = today.subtract(const Duration(days: 27));
+      final habitStats = await _getHabitStats(userId, monthStart, today);
+      final habitCompletionData = await _getHabitCompletionData(userId, weekDates.reversed.toList());
+
       return StatsData(
         waterData: waterData,
         moodData: moodData,
@@ -470,6 +625,13 @@ class StatsRepo {
         journalCounts: journalCounts,
         screenTime: {'detox': totalDetox},
         labels: labels,
+        totalHabits: habitStats['totalHabits'],
+        completedHabits: habitStats['completedHabits'],
+        completionRate: habitStats['completionRate'],
+        currentStreak: habitStats['currentStreak'],
+        bestStreak: habitStats['bestStreak'],
+        habitCompletionData: habitCompletionData,
+        tasksConvertedToHabits: habitStats['tasksConverted'],
       );
     } catch (e) {
       print('StatsRepo: Error loading monthly data: $e');
@@ -477,7 +639,6 @@ class StatsRepo {
     }
   }
 
-  /// Load data for yearly range (last 12 months)
   Future<StatsData> _loadYearlyData(int userId) async {
     try {
       final today = DateTime.now();
@@ -485,14 +646,13 @@ class StatsRepo {
       final moodData = <double>[];
       final journalCounts = <int>[];
       final labels = <String>[];
+      final monthDates = <DateTime>[];
       int totalJournals = 0;
       double totalDetox = 0.0;
 
       print('StatsRepo: Loading yearly data');
 
-      // Get all data once
       List<dynamic> allJournals = [];
-      List<dynamic> allHomeStatus = [];
 
       try {
         final journalsResponse = await _api.get(
@@ -506,8 +666,6 @@ class StatsRepo {
         print('StatsRepo: Error fetching journals: $e');
       }
 
-      // For yearly, we need to make multiple range calls or get all data
-      // This is a simplified version - you might want to optimize
       for (int monthOffset = 11; monthOffset >= 0; monthOffset--) {
         int targetYear = today.year;
         int targetMonth = today.month - monthOffset;
@@ -519,6 +677,7 @@ class StatsRepo {
 
         final monthStart = DateTime(targetYear, targetMonth, 1);
         final monthEnd = DateTime(targetYear, targetMonth + 1, 0);
+        monthDates.add(monthStart);
 
         double monthWater = 0.0;
         double monthMood = 0.0;
@@ -526,13 +685,10 @@ class StatsRepo {
         int waterDays = 0;
         int moodDays = 0;
 
-        // Process each day in month
         for (int day = 1; day <= monthEnd.day; day++) {
           final date = DateTime(targetYear, targetMonth, day);
           final dateStr = _formatDate(date);
 
-          // This would be more efficient with a single month query
-          // For now, we filter from all data
           final dayJournals = allJournals.where((j) {
             final jDate = j['date'] as String?;
             return jDate != null && jDate.startsWith(dateStr);
@@ -551,6 +707,11 @@ class StatsRepo {
         labels.add(_monthFr(targetMonth));
       }
 
+      // NEW: Get habit stats for the year
+      final yearStart = DateTime(today.year - 1, today.month, today.day);
+      final habitStats = await _getHabitStats(userId, yearStart, today);
+      final habitCompletionData = await _getHabitCompletionData(userId, monthDates);
+
       return StatsData(
         waterData: waterData,
         moodData: moodData,
@@ -558,6 +719,13 @@ class StatsRepo {
         journalCounts: journalCounts,
         screenTime: {'detox': totalDetox},
         labels: labels,
+        totalHabits: habitStats['totalHabits'],
+        completedHabits: habitStats['completedHabits'],
+        completionRate: habitStats['completionRate'],
+        currentStreak: habitStats['currentStreak'],
+        bestStreak: habitStats['bestStreak'],
+        habitCompletionData: habitCompletionData,
+        tasksConvertedToHabits: habitStats['tasksConverted'],
       );
     } catch (e) {
       print('StatsRepo: Error loading yearly data: $e');
@@ -565,7 +733,6 @@ class StatsRepo {
     }
   }
 
-  /// Main method to load data for any range
   Future<StatsData> loadForRange(StatsRange range) async {
     try {
       final userId = await _getCurrentUserId();

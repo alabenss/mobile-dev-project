@@ -8,6 +8,8 @@ import '../../themes/style_simple/colors.dart';
 import '../../../logic/auth/auth_cubit.dart';
 import '../../../logic/auth/auth_state.dart';
 import '../../../logic/locale/locale_cubit.dart';
+import '../../widgets/error_dialog.dart';
+
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -85,8 +87,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
           borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
         ),
       ),
-      body: BlocBuilder<AuthCubit, AuthState>(
-        builder: (context, authState) {
+body: BlocConsumer<AuthCubit, AuthState>(
+listener: (context, state) {
+  if (!state.isLoading &&
+      state.error != null &&
+      state.error!.isNotEmpty) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => AppErrorDialog(
+          title: 'Profile Error',
+          message: state.error!,
+        ),
+      );
+
+      context.read<AuthCubit>().clearError();
+    });
+  }
+},
+
+  builder: (context, authState) {
+
           final user = authState.user;
 
           if (user == null) {
@@ -105,14 +127,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             child: SafeArea(
               child: RefreshIndicator(
-  color: AppColors.accentPink,
-  onRefresh: () async {
-    await context.read<AuthCubit>().refreshUserData();
-  },
-  child: SingleChildScrollView(
-    physics: const AlwaysScrollableScrollPhysics(),
-    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-    child: Column(
+                            color: AppColors.accentPink,
+                            onRefresh: () async {
+                              await context.read<AuthCubit>().refreshUserData();
+                            },
+                            child: SingleChildScrollView(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                              child: Column(
 
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -144,14 +166,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             icon: const Icon(Icons.edit,
                                 color: Colors.white, size: 20),
                             onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    l10n.profileEditPictureComingSoon,
-                                  ),
-                                  duration: const Duration(seconds: 2),
-                                ),
-                              );
                             },
                           ),
                         ),
@@ -266,20 +280,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   .read<AuthCubit>()
                                   .updateUserFirstName(newValue);
                               if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('First name updated'),
-                                  ),
-                                );
                               }
                             } catch (e) {
                               if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Error: $e'),
-                                    backgroundColor: Colors.redAccent,
-                                  ),
-                                );
                               }
                             }
                           },
@@ -302,20 +305,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   .read<AuthCubit>()
                                   .updateUserLastName(newValue);
                               if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Last name updated'),
-                                  ),
-                                );
                               }
                             } catch (e) {
                               if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Error: $e'),
-                                    backgroundColor: Colors.redAccent,
-                                  ),
-                                );
                               }
                             }
                           },
@@ -338,20 +330,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   .read<AuthCubit>()
                                   .updateUsername(newValue);
                               if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Username updated'),
-                                  ),
-                                );
                               }
                             } catch (e) {
                               if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Error: ${e.toString().contains('already taken') ? 'Username already taken' : e}'),
-                                    backgroundColor: Colors.redAccent,
-                                  ),
-                                );
                               }
                             }
                           },
@@ -386,20 +367,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   .read<AuthCubit>()
                                   .updateUserEmail(newValue);
                               if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(l10n.profileEmailUpdated),
-                                  ),
-                                );
                               }
                             } catch (e) {
                               if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Error: ${e.toString().contains('already taken') ? 'Email already taken' : e}'),
-                                    backgroundColor: Colors.redAccent,
-                                  ),
-                                );
                               }
                             }
                           },

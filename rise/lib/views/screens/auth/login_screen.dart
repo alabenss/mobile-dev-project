@@ -15,7 +15,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _identifierController = TextEditingController();
+  final _identifierController = TextEditingController(); // username or email
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
@@ -43,8 +43,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -76,15 +74,16 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        // App Logo/Title
                         const Icon(
                           Icons.self_improvement,
                           size: 80,
                           color: AppColors.icon,
                         ),
                         const SizedBox(height: 16),
-                        Text(
-                          l10n.welcomeBack,
-                          style: const TextStyle(
+                        const Text(
+                          'Welcome Back',
+                          style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
@@ -92,7 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          l10n.loginSubtitle,
+                          'Login to continue your journey',
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.white.withOpacity(0.8),
@@ -154,10 +153,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return l10n.enterPassword;
+                                return 'Please enter your password';
                               }
                               if (value.length < 6) {
-                                return l10n.passwordTooShort;
+                                return 'Password must be at least 6 characters';
                               }
                               return null;
                             },
@@ -165,7 +164,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 32),
 
-                        // Login button
+                        // Login Button
                         SizedBox(
                           width: double.infinity,
                           height: 50,
@@ -181,9 +180,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ? const CircularProgressIndicator(
                                     color: Colors.white,
                                   )
-                                : Text(
-                                    l10n.login,
-                                    style: const TextStyle(
+                                : const Text(
+                                    'Login',
+                                    style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white,
@@ -198,7 +197,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              l10n.noAccount,
+                              "Don't have an account? ",
                               style: TextStyle(
                                 color: Colors.white.withOpacity(0.8),
                               ),
@@ -208,9 +207,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 Navigator.of(context)
                                     .pushReplacementNamed('/signup');
                               },
-                              child: Text(
-                                l10n.signUp,
-                                style: const TextStyle(
+                              child: const Text(
+                                'Sign Up',
+                                style: TextStyle(
                                   color: AppColors.icon,
                                   fontWeight: FontWeight.bold,
                                 ),

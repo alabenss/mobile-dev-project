@@ -52,6 +52,11 @@ class AuthCubit extends Cubit<app_auth.AuthState> {
           isAuthenticated: true,
           isLoading: false,
         ));
+        print('AuthCubit: authenticated as ${user.id}');
+      } else {
+        print('AuthCubit: profile invalid -> logout local userId');
+        await prefs.remove('userId');
+        emit(state.copyWith(isLoading: false, isAuthenticated: false));
         print('AuthCubit: Profile loaded for user ${user.id}');
       }
     } catch (e) {
@@ -121,10 +126,22 @@ Future<void> checkAuthStatus() async {
         ));
       }
     } catch (e) {
+  emit(state.copyWith(error: _mapErrorToMessage(e)));
+}
+
       print('Error refreshing user: $e');
     }
   }
 
+  /// Register
+  Future<bool> signUp(
+    String firstName,
+    String lastName,
+    String username,
+    String email,
+    String password,
+  ) async {
+    emit(state.copyWith(isLoading: true));
   /// Register new user
   /// Register new user
 Future<bool> signUp(
