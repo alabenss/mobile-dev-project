@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../../logic/auth/auth_cubit.dart';
 import '../../../logic/auth/auth_state.dart';
 import '../../../l10n/app_localizations.dart';
-
 import '../../themes/style_simple/colors.dart';
 import '../../screens/welcome_screens/welcome_provider.dart';
-import '../../widgets/error_dialog.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -30,17 +27,17 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _login() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (_formKey.currentState!.validate()) {
+      final success = await context.read<AuthCubit>().login(
+            _identifierController.text.trim(),
+            _passwordController.text,
+          );
 
-    final success = await context.read<AuthCubit>().login(
-          _identifierController.text.trim(),
-          _passwordController.text,
-        );
-
-    if (success && mounted) {
-      // ✅ Prevent welcome screens from showing again
-      await WelcomeProvider.markUserLoggedIn();
-      Navigator.of(context).pushReplacementNamed('/home');
+      if (success && mounted) {
+        // ✅ Mark user as logged in so welcome screens don't show again
+        await WelcomeProvider.markUserLoggedIn();
+        Navigator.of(context).pushReplacementNamed('/home');
+      }
     }
   }
 
@@ -60,24 +57,14 @@ class _LoginScreenState extends State<LoginScreen> {
         child: SafeArea(
           child: BlocConsumer<AuthCubit, AuthState>(
             listener: (context, state) {
-              // ❗ Error dialog (from file 2)
-              if (state.error != null && state.error!.isNotEmpty) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (_) => AppErrorDialog(
-                      title: l10n.loginFailed,
-                      message: state.error!,
-                    ),
-                  );
-                  context.read<AuthCubit>().clearError();
-                });
-              }
-
-              // ✅ Defensive navigation guard
-              if (state.isAuthenticated && !state.isLoading) {
-                Navigator.of(context).pushReplacementNamed('/home');
+              if (state.error != null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(state.error!),
+                    backgroundColor: Colors.redAccent,
+                  ),
+                );
+                context.read<AuthCubit>().clearError();
               }
             },
             builder: (context, state) {
@@ -113,35 +100,43 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 48),
 
-                        // Username / Email
-                        _inputContainer(
+                        // Identifier field
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.9),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                           child: TextFormField(
                             controller: _identifierController,
+                            keyboardType: TextInputType.text,
                             decoration: InputDecoration(
                               labelText: l10n.usernameOrEmail,
-                              prefixIcon:
-                                  const Icon(Icons.person_outline),
+                              prefixIcon: const Icon(Icons.person_outline),
                               border: InputBorder.none,
-                              contentPadding:
-                                  const EdgeInsets.all(16),
+                              contentPadding: const EdgeInsets.all(16),
                             ),
-                            validator: (value) =>
-                                value == null || value.isEmpty
-                                    ? l10n.enterUsernameOrEmail
-                                    : null,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return l10n.enterUsernameOrEmail;
+                              }
+                              return null;
+                            },
                           ),
                         ),
                         const SizedBox(height: 16),
 
-                        // Password
-                        _inputContainer(
+                        // Password field
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.9),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                           child: TextFormField(
                             controller: _passwordController,
                             obscureText: _obscurePassword,
                             decoration: InputDecoration(
                               labelText: l10n.password,
-                              prefixIcon:
-                                  const Icon(Icons.lock_outline),
+                              prefixIcon: const Icon(Icons.lock_outline),
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   _obscurePassword
@@ -150,14 +145,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 onPressed: () {
                                   setState(() {
-                                    _obscurePassword =
-                                        !_obscurePassword;
+                                    _obscurePassword = !_obscurePassword;
                                   });
                                 },
                               ),
                               border: InputBorder.none,
-                              contentPadding:
-                                  const EdgeInsets.all(16),
+                              contentPadding: const EdgeInsets.all(16),
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -177,13 +170,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           width: double.infinity,
                           height: 50,
                           child: ElevatedButton(
-                            onPressed:
-                                state.isLoading ? null : _login,
+                            onPressed: state.isLoading ? null : _login,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.icon,
                               shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(12),
                               ),
                             ),
                             child: state.isLoading
@@ -202,22 +193,20 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 24),
 
-                        // Sign up
+                        // Sign Up link
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
                               l10n.noAccount,
                               style: TextStyle(
-                                color:
-                                    Colors.white.withOpacity(0.8),
+                                color: Colors.white.withOpacity(0.8),
                               ),
                             ),
                             TextButton(
                               onPressed: () {
                                 Navigator.of(context)
-                                    .pushReplacementNamed(
-                                        '/signup');
+                                    .pushReplacementNamed('/signup');
                               },
                               child: Text(
                                 l10n.signUp,
@@ -238,16 +227,6 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _inputContainer({required Widget child}) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.9),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: child,
     );
   }
 }
