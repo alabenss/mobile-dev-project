@@ -135,7 +135,33 @@ class AuthCubit extends Cubit<app_auth.AuthState> {
         return false;
       }
 
-      // Session is automatically saved by Supabase
+      // 🔥 Check if email confirmation is required
+      if (response['requires_confirmation'] == true) {
+        emit(state.copyWith(
+          isLoading: false,
+          error: response['message'] ?? 'Please check your email to confirm your account',
+        ));
+        return false;
+      }
+
+      // 🔥 BEST SOLUTION: Sign in directly with Supabase using email/password
+      // This creates a proper session in the Flutter Supabase client
+      try {
+        await _supabase.auth.signInWithPassword(
+          email: email,
+          password: password,
+        );
+        print('AuthCubit: Signed in with Supabase successfully');
+      } catch (e) {
+        print('AuthCubit: Supabase sign in error: $e');
+        emit(state.copyWith(
+          isLoading: false,
+          error: 'Registration succeeded but sign in failed. Please try logging in.',
+        ));
+        return false;
+      }
+
+      // Now get the user data
       final user = app_user.User.fromMap(response['user']);
       
       // Save userId to SharedPreferences
@@ -179,7 +205,37 @@ class AuthCubit extends Cubit<app_auth.AuthState> {
         return false;
       }
 
-      // Session is automatically saved by Supabase
+      // 🔥 CRITICAL FIX: Set the session in Supabase client
+      if (response['session'] != null) {
+        final sessionData = response['session'];
+        
+        // Supabase Flutter v2 requires calling setSession with just the access token
+        // It will automatically use the refresh token if it's stored
+        // But we need to manually reconstruct the session or use recoverSession
+        try {
+          await _supabase.auth.recoverSession(sessionData['access_token']);
+          print('AuthCubit: Session set successfully');
+        } catch (e) {
+          // If recoverSession doesn't work, try alternative approach
+          print('AuthCubit: recoverSession failed, trying manual token storage: $e');
+          
+          // Store tokens manually for the ApiService to use
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('access_token', sessionData['access_token']);
+          await prefs.setString('refresh_token', sessionData['refresh_token']);
+          
+          print('AuthCubit: Tokens stored manually');
+        }
+      } else {
+        // No session returned - this shouldn't happen if confirmation is disabled
+        emit(state.copyWith(
+          isLoading: false,
+          error: 'Registration succeeded but no session was created. Please try logging in.',
+        ));
+        return false;
+      }
+
+      // Now the user data
       final user = app_user.User.fromMap(response['user']);
       
       // Save userId to SharedPreferences
@@ -299,8 +355,11 @@ class AuthCubit extends Cubit<app_auth.AuthState> {
     if (error.contains('Invalid login')) {
       return 'Invalid credentials';
     }
-    if (error.contains('already taken')) {
+    if (error.contains('already taken') || error.contains('already exists')) {
       return 'Username already taken';
+    }
+    if (error.contains('confirm your email')) {
+      return 'Please confirm your email first';
     }
     return error;
   }
