@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../logic/auth/auth_cubit.dart';
 import '../../../logic/auth/auth_state.dart';
 import '../../themes/style_simple/colors.dart';
+import '../../widgets/error_dialog.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -33,6 +34,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
+  // Helper to show API error dialogs (matches the call site)
+
+
   Future<void> _signUp() async {
     if (_formKey.currentState!.validate()) {
       final success = await context.read<AuthCubit>().signUp(
@@ -62,17 +66,30 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
         child: SafeArea(
           child: BlocConsumer<AuthCubit, AuthState>(
-            listener: (context, state) {
-              if (state.error != null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(state.error!),
-                    backgroundColor: Colors.redAccent,
-                  ),
-                );
-                context.read<AuthCubit>().clearError();
-              }
-            },
+         listener: (context, state) {
+  if (state.error != null && state.error!.isNotEmpty) {
+    // Show custom error dialog when there's an error
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+     showDialog(
+  context: context,
+  barrierDismissible: false,
+  builder: (_) => AppErrorDialog(
+    title: 'Sign Up Error',
+    message: state.error!,
+  ),
+);
+
+      // Clear the error after showing it
+      context.read<AuthCubit>().clearError();
+    });
+  }
+  
+  // Navigate on successful signup
+  if (state.isAuthenticated && !state.isLoading) {
+    Navigator.of(context).pushReplacementNamed('/home');
+  }
+},
+
             builder: (context, state) {
               return Center(
                 child: SingleChildScrollView(

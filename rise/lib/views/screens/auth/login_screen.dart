@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../logic/auth/auth_cubit.dart';
 import '../../../logic/auth/auth_state.dart';
 import '../../themes/style_simple/colors.dart';
-
+import '../../widgets/error_dialog.dart';
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -50,17 +50,27 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         child: SafeArea(
           child: BlocConsumer<AuthCubit, AuthState>(
-            listener: (context, state) {
-              if (state.error != null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(state.error!),
-                    backgroundColor: Colors.redAccent,
-                  ),
-                );
-                context.read<AuthCubit>().clearError();
-              }
-            },
+           listener: (context, state) {
+  if (state.error != null && state.error!.isNotEmpty) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => AppErrorDialog(
+          title: 'Login Failed',
+          message: state.error!,
+        ),
+      );
+
+      context.read<AuthCubit>().clearError();
+    });
+  }
+
+  if (state.isAuthenticated && !state.isLoading) {
+    Navigator.of(context).pushReplacementNamed('/home');
+  }
+},
+
             builder: (context, state) {
               return Center(
                 child: SingleChildScrollView(

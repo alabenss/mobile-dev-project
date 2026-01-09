@@ -10,6 +10,44 @@ class AuthCubit extends Cubit<AuthState> {
   AuthCubit() : super(const AuthState());
 
   final ApiService _api = ApiService.instance;
+  String _mapErrorToMessage(Object e) {
+  final error = e.toString().toLowerCase();
+
+  // 🔐 Auth
+  if (error.contains('401') || error.contains('invalid credentials')) {
+    return 'Invalid credentials. Please check your username and password and try again.';
+  }
+
+  // 🧾 Already exists (SIGN UP)
+  if (error.contains('email') && error.contains('exist')) {
+    return 'This email is already registered. Please use another email.';
+  }
+  if (error.contains('username') && error.contains('exist')) {
+    return 'This username is already taken. Please choose another one.';
+  }
+
+  // 🌐 Network / DNS
+  if (error.contains('sockete') ||
+      error.contains('failed host lookup') ||
+      error.contains('no address associated with hostname')) {
+    return 'Unable to connect to the server. Please check your internet connection and try again.';
+  }
+
+  // ⏱ Timeout
+  if (error.contains('timeout')) {
+    return 'The request took too long. Please try again later.';
+  }
+
+  // 🔌 Server
+  if (error.contains('500') || error.contains('server')) {
+    return 'Server error. Please try again later.';
+  }
+
+  // ❓ Fallback
+  return 'Something went wrong. Please try again.';
+}
+
+
 
   /// Check if user is already logged in
   Future<void> checkAuthStatus() async {
@@ -53,10 +91,11 @@ class AuthCubit extends Cubit<AuthState> {
         emit(state.copyWith(isLoading: false, isAuthenticated: false));
       }
     } catch (e) {
+    
       print('AuthCubit: checkAuthStatus error: $e');
 
       // ✅ critical: don't stay stuck loading forever
-      emit(state.copyWith(isLoading: false, isAuthenticated: false, error: e.toString()));
+      emit(state.copyWith(isLoading: false, isAuthenticated: false, error: _mapErrorToMessage(e)));
     }
   }
 
@@ -77,8 +116,9 @@ class AuthCubit extends Cubit<AuthState> {
         ));
       }
     } catch (e) {
-      print('Error refreshing user: $e');
-    }
+  emit(state.copyWith(error: _mapErrorToMessage(e)));
+}
+
   }
 
   /// Register
@@ -120,9 +160,13 @@ class AuthCubit extends Cubit<AuthState> {
       ));
       return true;
     } catch (e) {
-      emit(state.copyWith(isLoading: false, error: e.toString()));
-      return false;
-    }
+  emit(state.copyWith(
+    isLoading: false,
+    error: _mapErrorToMessage(e),
+  ));
+  return false;
+}
+
   }
 
   /// Login (email OR username)
@@ -154,10 +198,14 @@ class AuthCubit extends Cubit<AuthState> {
         isLoading: false,
       ));
       return true;
-    } catch (e) {
-      emit(state.copyWith(isLoading: false, error: e.toString()));
-      return false;
-    }
+    }catch (e) {
+  emit(state.copyWith(
+    isLoading: false,
+    error: _mapErrorToMessage(e),
+  ));
+  return false;
+}
+
   }
 
   /// Logout
@@ -184,9 +232,9 @@ class AuthCubit extends Cubit<AuthState> {
 
       await refreshUserData();
     } catch (e) {
-      print('Error updating first name: $e');
-      rethrow;
-    }
+  emit(state.copyWith(error: _mapErrorToMessage(e)));
+}
+
   }
 
   /// Update user last name
@@ -201,9 +249,9 @@ class AuthCubit extends Cubit<AuthState> {
 
       await refreshUserData();
     } catch (e) {
-      print('Error updating last name: $e');
-      rethrow;
-    }
+  emit(state.copyWith(error: _mapErrorToMessage(e)));
+}
+
   }
 
   /// Update username
@@ -217,10 +265,10 @@ class AuthCubit extends Cubit<AuthState> {
       });
 
       await refreshUserData();
-    } catch (e) {
-      print('Error updating username: $e');
-      rethrow;
-    }
+    }catch (e) {
+  emit(state.copyWith(error: _mapErrorToMessage(e)));
+}
+
   }
 
   /// Update user email
@@ -235,8 +283,8 @@ class AuthCubit extends Cubit<AuthState> {
 
       await refreshUserData();
     } catch (e) {
-      print('Error updating email: $e');
-      rethrow;
-    }
+  emit(state.copyWith(error: _mapErrorToMessage(e)));
+}
+
   }
 }
