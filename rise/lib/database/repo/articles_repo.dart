@@ -25,7 +25,7 @@ class ArticleFull {
     slug: (json['slug'] ?? '').toString(),
     title: (json['title'] ?? '').toString(),
     summary: json['summary']?.toString(),
-    heroImageUrl: rawUrl?.trim(),
+    heroImageUrl: json['hero_image_url']?.toString().trim(),
     content: (json['content'] ?? []) as List<dynamic>,
   );
 }

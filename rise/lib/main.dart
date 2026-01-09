@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:the_project/l10n/app_localizations.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';  // ✅ NEW
 
 import 'logic/home/home_cubit.dart';
 import 'logic/activities/activities_cubit.dart';
 import 'logic/habits/habit_cubit.dart';
 import 'logic/auth/auth_cubit.dart';
-import 'logic/auth/auth_state.dart';
+import 'logic/auth/auth_state.dart' as app_auth;
 import 'logic/journal/journal_cubit.dart';
 import 'logic/journal/daily_mood_cubit.dart';
 import 'logic/locale/locale_cubit.dart';
@@ -17,8 +18,6 @@ import 'database/repo/activities_repo.dart';
 import 'database/repo/habit_repo.dart';
 import 'database/repo/journal_repository.dart';
 import 'database/repo/daily_mood_repository.dart';
-
-// ✅ NEW import
 import 'database/repo/articles_repo.dart';
 
 import 'views/widgets/common/bottom_nav_wrapper.dart';
@@ -47,6 +46,29 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // ============================================================
+  // ✅ STEP 1: Initialize Supabase FIRST (before Firebase)
+  // ============================================================
+  try {
+    await Supabase.initialize(
+      url: 'https://ycwdtlehjnrpikenlpji.supabase.co',  // TODO: Replace with your Supabase project URL
+      anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inljd2R0bGVoam5ycGlrZW5scGppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2NDQxMTUsImV4cCI6MjA4MzIyMDExNX0.ada24MOrDI-g7OznNSfcTvQ3_ghUFl4rufcMMWmeXOU',  // TODO: Replace with your Supabase anon key
+      authOptions: const FlutterAuthClientOptions(
+        authFlowType: AuthFlowType.pkce,
+        autoRefreshToken: true,
+      ),
+      debug: true,  // Set to false in production
+    );
+    print('✅ Supabase initialized successfully');
+  } catch (e) {
+    print('❌ Supabase initialization failed: $e');
+    // Continue anyway - will show error in UI
+  }
+
+  // ============================================================
+  // STEP 2: Initialize Firebase (keep your existing code)
+  // ============================================================
   await Firebase.initializeApp();
   await LocalStorageService.instance.initializeFolders();
 
@@ -68,12 +90,13 @@ void main() async {
     },
   );
 
+  // ============================================================
+  // STEP 3: Initialize repositories and run app
+  // ============================================================
   try {
     final homeRepo = AbstractHomeRepo.getInstance();
     final activitiesRepo = AbstractActivitiesRepo.getInstance();
     final habitRepo = HabitRepository();
-
-    // ✅ NEW: Articles repo instance
     final articlesRepo = ArticlesRepo();
 
     // Reschedule all habit notifications
@@ -84,9 +107,12 @@ void main() async {
       MultiBlocProvider(
         providers: [
           BlocProvider<LocaleCubit>(create: (_) => LocaleCubit()),
-          BlocProvider<AuthCubit>(create: (_) => AuthCubit()..checkAuthStatus()),
+          
+          // ✅ AuthCubit will now use Supabase auth
+          BlocProvider<AuthCubit>(
+            create: (_) => AuthCubit()..checkAuthStatus(),
+          ),
 
-          // ✅ UPDATED: HomeCubit now needs ArticlesRepo
           BlocProvider<HomeCubit>(
             create: (_) => HomeCubit(homeRepo, habitRepo, articlesRepo),
           ),
@@ -94,12 +120,15 @@ void main() async {
           BlocProvider<ActivitiesCubit>(
             create: (_) => ActivitiesCubit(activitiesRepo)..loadActivities(),
           ),
+          
           BlocProvider<HabitCubit>(
             create: (_) => HabitCubit(habitRepo)..loadHabits(),
           ),
+          
           BlocProvider<JournalCubit>(
             create: (_) => JournalCubit(JournalRepository()),
           ),
+          
           BlocProvider<DailyMoodCubit>(
             create: (_) => DailyMoodCubit(DailyMoodRepository()),
           ),
@@ -134,7 +163,9 @@ void main() async {
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton(
-                    onPressed: () async {},
+                    onPressed: () async {
+                      // Could trigger a restart or retry mechanism
+                    },
                     child: const Text('Retry'),
                   ),
                 ],
@@ -238,17 +269,17 @@ class AppEntryPoint extends StatelessWidget {
                 lang: lang,
               );
 
-          context.read<HabitCubit>().loadHabits();
-          context.read<ActivitiesCubit>().loadActivities();
-        }
-      },
-      child: BlocBuilder<AuthCubit, AuthState>(
-        builder: (context, state) {
-          if (state.isLoading) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
+                context.read<HabitCubit>().loadHabits();
+                context.read<ActivitiesCubit>().loadActivities();
+              }
+            },
+            child: BlocBuilder<AuthCubit, app_auth.AuthState>(
+              builder: (context, state) {
+                if (state.isLoading) {
+                  return const Scaffold(
+                    body: Center(child: CircularProgressIndicator()),
+                  );
+                }
 
           if (!state.isAuthenticated) {
             return const LoginScreen();

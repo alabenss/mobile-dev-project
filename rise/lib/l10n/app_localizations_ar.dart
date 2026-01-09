@@ -1170,4 +1170,82 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get languageArabic => 'العربية';
+
+  @override
+  String get welcomeBack => 'مرحبًا بعودتك';
+
+  @override
+  String get loginSubtitle => 'سجّل الدخول لمتابعة رحلتك';
+
+  @override
+  String get usernameOrEmail => 'اسم المستخدم أو البريد الإلكتروني';
+
+  @override
+  String get enterUsernameOrEmail => 'يرجى إدخال اسم المستخدم أو البريد الإلكتروني';
+
+  @override
+  String get password => 'كلمة المرور';
+
+  @override
+  String get enterPassword => 'يرجى إدخال كلمة المرور';
+
+  @override
+  String get passwordTooShort => 'يجب أن تتكون كلمة المرور من 6 أحرف على الأقل';
+
+  @override
+  String get login => 'تسجيل الدخول';
+
+  @override
+  String get noAccount => 'ليس لديك حساب؟ ';
+
+  @override
+  String get signUp => 'إنشاء حساب';
+
+  @override
+  String get createAccount => 'إنشاء حساب';
+
+  @override
+  String get signUpSubtitle => 'ابدأ رحلتك للعناية بنفسك اليوم';
+
+  @override
+  String get firstName => 'الاسم الأول';
+
+  @override
+  String get enterFirstName => 'يرجى إدخال الاسم الأول';
+
+  @override
+  String get lastName => 'الاسم الأخير';
+
+  @override
+  String get enterLastName => 'يرجى إدخال الاسم الأخير';
+
+  @override
+  String get username => 'اسم المستخدم';
+
+  @override
+  String get enterUsername => 'يرجى إدخال اسم المستخدم';
+
+  @override
+  String get usernameTooShort => 'يجب أن يكون اسم المستخدم 3 أحرف على الأقل';
+
+  @override
+  String get usernameNoSpaces => 'اسم المستخدم لا يمكن أن يحتوي على مسافات';
+
+  @override
+  String get email => 'البريد الإلكتروني';
+
+  @override
+  String get invalidEmail => 'يرجى إدخال بريد إلكتروني صالح';
+
+  @override
+  String get confirmPassword => 'تأكيد كلمة المرور';
+
+  @override
+  String get enterConfirmPassword => 'يرجى تأكيد كلمة المرور';
+
+  @override
+  String get passwordsDoNotMatch => 'كلمات المرور غير متطابقة';
+
+  @override
+  String get alreadyHaveAccount => 'هل لديك حساب بالفعل؟ ';
 }
