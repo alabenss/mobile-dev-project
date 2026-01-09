@@ -90,6 +90,9 @@ def get_habits():
     try:
         user_id = request.args.get('userId')
         frequency = request.args.get('frequency')
+        start_date = request.args.get('startDate')
+        end_date = request.args.get('endDate')
+
         
         if not user_id:
             return jsonify({'error': 'userId required'}), 400
@@ -99,6 +102,14 @@ def get_habits():
             filters['frequency'] = frequency
         
         result = select('habits', filters=filters)
+
+        if start_date and end_date:
+            start = datetime.fromisoformat(start_date)
+            end = datetime.fromisoformat(end_date)
+            result = [
+                h for h in result
+                if h['last_updated'] and start <= datetime.fromisoformat(h['last_updated']) <= end
+            ]
         
         if not result:
             return jsonify({'success': True, 'habits': []}), 200

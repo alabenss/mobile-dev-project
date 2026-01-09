@@ -64,32 +64,49 @@ class AuthCubit extends Cubit<app_auth.AuthState> {
   }
 
   /// Check if user is already logged in
-  Future<void> checkAuthStatus() async {
-    emit(state.copyWith(isLoading: true));
-    print('AuthCubit: checkAuthStatus started');
+  /// Check if user is already logged in
+/// Check if user is already logged in
+Future<void> checkAuthStatus() async {
+  emit(state.copyWith(isLoading: true));
+  print('AuthCubit: checkAuthStatus started');
 
-    try {
-      final session = _supabase.auth.currentSession;
-      
-      if (session == null) {
-        print('AuthCubit: No active session');
-        emit(state.copyWith(isLoading: false, isAuthenticated: false));
-        return;
-      }
-
+  try {
+    final session = _supabase.auth.currentSession;
+    
+    if (session != null) {
+      // Session exists, load profile
       print('AuthCubit: Active session found, loading profile...');
       await _loadUserProfile();
-      
-    } catch (e) {
-      print('AuthCubit: checkAuthStatus error: $e');
-      emit(state.copyWith(
-        isLoading: false,
-        isAuthenticated: false,
-        error: e.toString(),
-      ));
+      return;
     }
-  }
 
+    // 🔥 No current session - try to restore from local storage
+    print('AuthCubit: No active session, trying to restore...');
+    
+    // Supabase automatically restores sessions from local storage
+    // Just wait a moment for it to initialize
+    await Future.delayed(const Duration(milliseconds: 500));
+    
+    final restoredSession = _supabase.auth.currentSession;
+    if (restoredSession != null) {
+      print('AuthCubit: Session restored from storage');
+      await _loadUserProfile();
+      return;
+    }
+    
+    // No session found at all
+    print('AuthCubit: No session found');
+    emit(state.copyWith(isLoading: false, isAuthenticated: false));
+    
+  } catch (e) {
+    print('AuthCubit: checkAuthStatus error: $e');
+    emit(state.copyWith(
+      isLoading: false,
+      isAuthenticated: false,
+      error: e.toString(),
+    ));
+  }
+}
   /// Refresh user data
   Future<void> refreshUserData() async {
     if (state.user == null) return;
@@ -109,157 +126,150 @@ class AuthCubit extends Cubit<app_auth.AuthState> {
   }
 
   /// Register new user
-  Future<bool> signUp(
-    String firstName,
-    String lastName,
-    String username,
-    String email,
-    String password,
-  ) async {
-    emit(state.copyWith(isLoading: true));
+  /// Register new user
+Future<bool> signUp(
+  String firstName,
+  String lastName,
+  String username,
+  String email,
+  String password,
+) async {
+  emit(state.copyWith(isLoading: true));
 
-    try {
-      final response = await _api.post(ApiConfig.AUTH_REGISTER, {
-        'firstName': firstName,
-        'lastName': lastName,
-        'username': username,
-        'email': email,
-        'password': password,
-      });
+  try {
+    final response = await _api.post(ApiConfig.AUTH_REGISTER, {
+      'firstName': firstName,
+      'lastName': lastName,
+      'username': username,
+      'email': email,
+      'password': password,
+    });
 
-      if (response['success'] != true) {
-        emit(state.copyWith(
-          isLoading: false,
-          error: response['error'] ?? 'Registration failed',
-        ));
-        return false;
-      }
-
-      // 🔥 Check if email confirmation is required
-      if (response['requires_confirmation'] == true) {
-        emit(state.copyWith(
-          isLoading: false,
-          error: response['message'] ?? 'Please check your email to confirm your account',
-        ));
-        return false;
-      }
-
-      // 🔥 BEST SOLUTION: Sign in directly with Supabase using email/password
-      // This creates a proper session in the Flutter Supabase client
-      try {
-        await _supabase.auth.signInWithPassword(
-          email: email,
-          password: password,
-        );
-        print('AuthCubit: Signed in with Supabase successfully');
-      } catch (e) {
-        print('AuthCubit: Supabase sign in error: $e');
-        emit(state.copyWith(
-          isLoading: false,
-          error: 'Registration succeeded but sign in failed. Please try logging in.',
-        ));
-        return false;
-      }
-
-      // Now get the user data
-      final user = app_user.User.fromMap(response['user']);
-      
-      // Save userId to SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt('userId', user.id);
-
-      emit(state.copyWith(
-        user: user,
-        isAuthenticated: true,
-        isLoading: false,
-      ));
-      
-      print('AuthCubit: Registration successful');
-      return true;
-      
-    } catch (e) {
-      print('AuthCubit: Registration error: $e');
+    if (response['success'] != true) {
       emit(state.copyWith(
         isLoading: false,
-        error: _formatError(e.toString()),
+        error: response['error'] ?? 'Registration failed',
       ));
       return false;
     }
-  }
 
-  /// Login user (email OR username)
-  Future<bool> login(String identifier, String password) async {
-    emit(state.copyWith(isLoading: true));
-
-    try {
-      final response = await _api.post(ApiConfig.AUTH_LOGIN, {
-        'email': identifier, // can be email or username
-        'password': password,
-      });
-
-      if (response['success'] != true) {
-        emit(state.copyWith(
-          isLoading: false,
-          error: 'Invalid credentials',
-        ));
-        return false;
-      }
-
-      // 🔥 CRITICAL FIX: Set the session in Supabase client
-      if (response['session'] != null) {
-        final sessionData = response['session'];
-        
-        // Supabase Flutter v2 requires calling setSession with just the access token
-        // It will automatically use the refresh token if it's stored
-        // But we need to manually reconstruct the session or use recoverSession
-        try {
-          await _supabase.auth.recoverSession(sessionData['access_token']);
-          print('AuthCubit: Session set successfully');
-        } catch (e) {
-          // If recoverSession doesn't work, try alternative approach
-          print('AuthCubit: recoverSession failed, trying manual token storage: $e');
-          
-          // Store tokens manually for the ApiService to use
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setString('access_token', sessionData['access_token']);
-          await prefs.setString('refresh_token', sessionData['refresh_token']);
-          
-          print('AuthCubit: Tokens stored manually');
-        }
-      } else {
-        // No session returned - this shouldn't happen if confirmation is disabled
-        emit(state.copyWith(
-          isLoading: false,
-          error: 'Registration succeeded but no session was created. Please try logging in.',
-        ));
-        return false;
-      }
-
-      // Now the user data
-      final user = app_user.User.fromMap(response['user']);
-      
-      // Save userId to SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt('userId', user.id);
-
+    // Check if email confirmation is required
+    if (response['requires_confirmation'] == true) {
       emit(state.copyWith(
-        user: user,
-        isAuthenticated: true,
         isLoading: false,
+        error: response['message'] ?? 'Please check your email to confirm your account',
       ));
+      return false;
+    }
+
+    // 🔥 Sign in with Supabase to create persistent session
+    try {
+      final authResponse = await _supabase.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
       
-      print('AuthCubit: Login successful');
-      return true;
-      
+      if (authResponse.session != null) {
+        print('AuthCubit: Supabase session created successfully');
+      }
     } catch (e) {
-      print('AuthCubit: Login error: $e');
+      print('AuthCubit: Supabase sign in error: $e');
+      emit(state.copyWith(
+        isLoading: false,
+        error: 'Registration succeeded but sign in failed. Please try logging in.',
+      ));
+      return false;
+    }
+
+    // Load user data
+    final user = app_user.User.fromMap(response['user']);
+    
+    // Save userId
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('userId', user.id);
+
+    emit(state.copyWith(
+      user: user,
+      isAuthenticated: true,
+      isLoading: false,
+    ));
+    
+    print('AuthCubit: Registration successful');
+    return true;
+    
+  } catch (e) {
+    print('AuthCubit: Registration error: $e');
+    emit(state.copyWith(
+      isLoading: false,
+      error: _formatError(e.toString()),
+    ));
+    return false;
+  }
+}
+  /// Login user (email OR username)
+  /// Login user (email OR username)
+Future<bool> login(String identifier, String password) async {
+  emit(state.copyWith(isLoading: true));
+
+  try {
+    final response = await _api.post(ApiConfig.AUTH_LOGIN, {
+      'email': identifier, // can be email or username
+      'password': password,
+    });
+
+    if (response['success'] != true) {
       emit(state.copyWith(
         isLoading: false,
         error: 'Invalid credentials',
       ));
       return false;
     }
+
+    // 🔥 Set the session properly in Supabase
+    if (response['session'] != null) {
+      final sessionData = response['session'];
+      
+      try {
+        // Use setSession to properly store the session
+        await _supabase.auth.setSession(sessionData['access_token']);
+        print('AuthCubit: Session set successfully');
+      } catch (e) {
+        print('AuthCubit: setSession failed: $e');
+        
+        // Fallback: Store tokens manually
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('access_token', sessionData['access_token']);
+        if (sessionData['refresh_token'] != null) {
+          await prefs.setString('refresh_token', sessionData['refresh_token']);
+        }
+      }
+    }
+
+    // Load user data
+    final user = app_user.User.fromMap(response['user']);
+    
+    // Save userId to SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('userId', user.id);
+
+    emit(state.copyWith(
+      user: user,
+      isAuthenticated: true,
+      isLoading: false,
+    ));
+    
+    print('AuthCubit: Login successful');
+    return true;
+    
+  } catch (e) {
+    print('AuthCubit: Login error: $e');
+    emit(state.copyWith(
+      isLoading: false,
+      error: 'Invalid credentials',
+    ));
+    return false;
   }
+}
 
   /// Logout user
   Future<void> logout() async {
