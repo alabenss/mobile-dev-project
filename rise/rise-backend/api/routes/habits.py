@@ -33,46 +33,62 @@ def _handle_period_transition(habit, frequency, now):
     streak_broken = False
     
     if frequency.lower() == 'daily':
+        # Check if yesterday was completed
         yesterday = now - timedelta(days=1)
+        
         if last_completed_date:
             last_completed = datetime.fromisoformat(last_completed_date)
-            if not _is_same_day(last_completed, yesterday):
-                if habit_type == 'good':
+            
+            # For good habits: streak breaks if yesterday wasn't completed
+            if habit_type == 'good':
+                if not _is_same_day(last_completed, yesterday):
                     streak_broken = True
-            elif status == 'completed' or (habit_type == 'bad' and status == 'skipped'):
-                current_streak += 1
-                if current_streak > best_streak:
-                    best_streak = current_streak
-        elif habit_type == 'good' and current_streak > 0:
-            streak_broken = True
+            # For bad habits: streak continues if skipped yesterday
+            else:
+                if not _is_same_day(last_completed, yesterday):
+                    streak_broken = True
+        else:
+            # No completion date and we have a streak = streak broken
+            if current_streak > 0:
+                streak_broken = True
             
     elif frequency.lower() == 'weekly':
-        last_week = now - timedelta(days=7)
+        # Check if last week was completed
+        last_week_start = now - timedelta(days=now.weekday() + 7)
+        
         if last_completed_date:
             last_completed = datetime.fromisoformat(last_completed_date)
-            if not _is_same_week(last_completed, last_week):
-                if habit_type == 'good':
+            
+            # Check if completion was in the previous week
+            if habit_type == 'good':
+                if not _is_same_week(last_completed, last_week_start):
                     streak_broken = True
-            elif status == 'completed' or (habit_type == 'bad' and status == 'skipped'):
-                current_streak += 1
-                if current_streak > best_streak:
-                    best_streak = current_streak
-        elif habit_type == 'good' and current_streak > 0:
-            streak_broken = True
+            else:
+                if not _is_same_week(last_completed, last_week_start):
+                    streak_broken = True
+        else:
+            if current_streak > 0:
+                streak_broken = True
             
     elif frequency.lower() == 'monthly':
+        # Check if last month was completed
+        if now.month == 1:
+            last_month = datetime(now.year - 1, 12, 1)
+        else:
+            last_month = datetime(now.year, now.month - 1, 1)
+        
         if last_completed_date:
             last_completed = datetime.fromisoformat(last_completed_date)
-            last_month = datetime(now.year, now.month - 1 if now.month > 1 else 12, now.day)
-            if not _is_same_month(last_completed, last_month):
-                if habit_type == 'good':
+            
+            if habit_type == 'good':
+                if not _is_same_month(last_completed, last_month):
                     streak_broken = True
-            elif status == 'completed' or (habit_type == 'bad' and status == 'skipped'):
-                current_streak += 1
-                if current_streak > best_streak:
-                    best_streak = current_streak
-        elif habit_type == 'good' and current_streak > 0:
-            streak_broken = True
+            else:
+                if not _is_same_month(last_completed, last_month):
+                    streak_broken = True
+        else:
+            if current_streak > 0:
+                streak_broken = True
     
     if streak_broken:
         current_streak = 0
@@ -84,6 +100,35 @@ def _handle_period_transition(habit, frequency, now):
         'best_streak': best_streak
     }
 
+def _filter_habits_by_date_range(habits, start_date, end_date, frequency):
+    """Filter habits based on creation date and frequency period"""
+    filtered = []
+    
+    for habit in habits:
+        created_at = habit.get('created_at')
+        if not created_at:
+            continue
+            
+        habit_created = datetime.fromisoformat(created_at)
+        
+        # Check if habit was created within the date range
+        if frequency.lower() == 'daily':
+            # Only show habits created today
+            if _is_same_day(habit_created, start_date):
+                filtered.append(habit)
+                
+        elif frequency.lower() == 'weekly':
+            # Show habits created this week
+            if _is_same_week(habit_created, start_date):
+                filtered.append(habit)
+                
+        elif frequency.lower() == 'monthly':
+            # Show habits created this month
+            if _is_same_month(habit_created, start_date):
+                filtered.append(habit)
+    
+    return filtered
+
 @habits_bp.route('/habits.get', methods=['GET'])
 def get_habits():
     """Get all habits for a user with automatic period resets"""
@@ -93,7 +138,6 @@ def get_habits():
         start_date = request.args.get('startDate')
         end_date = request.args.get('endDate')
 
-        
         if not user_id:
             return jsonify({'error': 'userId required'}), 400
         
@@ -103,16 +147,14 @@ def get_habits():
         
         result = select('habits', filters=filters)
 
-        if start_date and end_date:
-            start = datetime.fromisoformat(start_date)
-            end = datetime.fromisoformat(end_date)
-            result = [
-                h for h in result
-                if h['last_created'] and start <= datetime.fromisoformat(h['last_created']) <= end
-            ]
-        
         if not result:
             return jsonify({'success': True, 'habits': []}), 200
+        
+        # Filter by date range if provided
+        if start_date and end_date and frequency:
+            start = datetime.fromisoformat(start_date)
+            end = datetime.fromisoformat(end_date)
+            result = _filter_habits_by_date_range(result, start, end, frequency)
         
         # Check if habits need reset based on period
         now = datetime.now()
@@ -152,6 +194,7 @@ def add_habit():
     """Add a new habit"""
     try:
         data = request.get_json()
+        now = datetime.now()
         
         habit_data = {
             'user_id': data.get('userId'),
@@ -168,7 +211,8 @@ def add_habit():
             'is_task': data.get('isTask', True),
             'task_completion_count': 0,
             'last_completed_date': None,
-            'last_updated': datetime.now().isoformat()
+            'created_at': now.isoformat(),
+            'last_updated': now.isoformat()
         }
         
         result = insert('habits', habit_data)
@@ -234,20 +278,48 @@ def update_habit_status():
         if not habit:
             return jsonify({'error': 'Habit not found'}), 404
         
-        new_streak = data.get('streakCount', habit.get('streak_count', 0))
-        new_best_streak = data.get('bestStreak', habit.get('best_streak', 0))
+        now = datetime.now()
+        current_streak = habit.get('streak_count', 0)
+        best_streak = habit.get('best_streak', 0)
+        habit_type = habit.get('habit_type', 'good')
+        last_completed = habit.get('last_completed_date')
+        
+        # Calculate new streak based on status
+        new_streak = current_streak
+        new_best_streak = best_streak
+        
+        if status == 'completed':
+            # For good habits, increment streak
+            if habit_type == 'good':
+                new_streak = current_streak + 1
+                if new_streak > best_streak:
+                    new_best_streak = new_streak
+        
+        elif status == 'skipped':
+            # For bad habits, increment streak (resisting the bad habit)
+            if habit_type == 'bad':
+                new_streak = current_streak + 1
+                if new_streak > best_streak:
+                    new_best_streak = new_streak
+            # For good habits, break the streak
+            else:
+                new_streak = 0
+        
+        elif status == 'active':
+            # Resetting - keep current streak but don't increment
+            pass
+        
         new_task_completion = data.get('taskCompletionCount', habit.get('task_completion_count', 0))
         new_is_task = data.get('isTask', habit.get('is_task', True))
-        last_completed_date = data.get('lastCompletedDate', habit.get('last_completed_date'))
         
         update_data = {
             'status': status,
-            'last_updated': datetime.now().isoformat(),
+            'last_updated': now.isoformat(),
             'streak_count': new_streak,
             'best_streak': new_best_streak,
             'task_completion_count': new_task_completion,
             'is_task': new_is_task,
-            'last_completed_date': last_completed_date
+            'last_completed_date': now.isoformat() if status in ['completed', 'skipped'] else last_completed
         }
         
         result = update(
