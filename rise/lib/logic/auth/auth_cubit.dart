@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'auth_state.dart';
 import '../../models/user_model.dart';
@@ -8,127 +7,121 @@ import '../../services/api_service.dart';
 import '../../config/api_config.dart';
 
 class AuthCubit extends Cubit<AuthState> {
-  AuthCubit() : super(const AuthState()) {
-    _setupAuthListener();
-  }
+  AuthCubit() : super(const AuthState());
 
   final ApiService _api = ApiService.instance;
-  SupabaseClient get _supabase => Supabase.instance.client;
-
-  /* ----------------------------- ERROR HANDLING ----------------------------- */
-
   String _mapErrorToMessage(Object e) {
-    final error = e.toString().toLowerCase();
+  final error = e.toString().toLowerCase();
 
-    if (error.contains('401') || error.contains('invalid credentials')) {
-      return 'Invalid credentials. Please check your email or password.';
-    }
-    if (error.contains('email') && error.contains('exist')) {
-      return 'This email is already registered.';
-    }
-    if (error.contains('username') && error.contains('exist')) {
-      return 'This username is already taken.';
-    }
-    if (error.contains('socket') ||
-        error.contains('failed host lookup') ||
-        error.contains('no address associated')) {
-      return 'No internet connection. Please check your network.';
-    }
-    if (error.contains('timeout')) {
-      return 'Request timed out. Please try again.';
-    }
-    if (error.contains('500') || error.contains('server')) {
-      return 'Server error. Please try again later.';
-    }
-    return 'Something went wrong. Please try again.';
+  // 🔐 Auth
+  if (error.contains('401') || error.contains('invalid credentials')) {
+    return 'Invalid credentials. Please check your username and password and try again.';
   }
 
-  /* ----------------------------- AUTH LISTENER ------------------------------ */
-
-  void _setupAuthListener() {
-    _supabase.auth.onAuthStateChange.listen((data) {
-      final session = data.session;
-      if (session == null) {
-        emit(const AuthState(isAuthenticated: false));
-      } else {
-        _loadUserProfile();
-      }
-    });
+  // 🧾 Already exists (SIGN UP)
+  if (error.contains('email') && error.contains('exist')) {
+    return 'This email is already registered. Please use another email.';
+  }
+  if (error.contains('username') && error.contains('exist')) {
+    return 'This username is already taken. Please choose another one.';
   }
 
-  /* ----------------------------- LOAD PROFILE ------------------------------- */
+  // 🌐 Network / DNS
+  if (error.contains('sockete') ||
+      error.contains('failed host lookup') ||
+      error.contains('no address associated with hostname')) {
+    return 'Unable to connect to the server. Please check your internet connection and try again.';
+  }
 
-  Future<void> _loadUserProfile() async {
+  // ⏱ Timeout
+  if (error.contains('timeout')) {
+    return 'The request took too long. Please try again later.';
+  }
+
+  // 🔌 Server
+  if (error.contains('500') || error.contains('server')) {
+    return 'Server error. Please try again later.';
+  }
+
+  // ❓ Fallback
+  return 'Something went wrong. Please try again.';
+}
+
+
+
+  /// Check if user is already logged in
+  Future<void> checkAuthStatus() async {
+    emit(state.copyWith(isLoading: true));
+    print('AuthCubit: checkAuthStatus started');
+
     try {
-      final response = await _api.get(ApiConfig.USER_PROFILE);
+      final prefs = await SharedPreferences.getInstance();
+      final userId = prefs.getInt('userId');
+
+      print('AuthCubit: stored userId = $userId');
+
+      if (userId == null) {
+        print('AuthCubit: no userId -> show login');
+        emit(state.copyWith(isLoading: false, isAuthenticated: false));
+        return;
+      }
+
+      print('AuthCubit: calling USER_PROFILE ${ApiConfig.BASE_URL}${ApiConfig.USER_PROFILE}');
+
+      final response = await _api
+          .get(
+            ApiConfig.USER_PROFILE,
+            params: {'userId': userId.toString()},
+          )
+          .timeout(const Duration(seconds: 8));
+
+      print('AuthCubit: USER_PROFILE response = $response');
 
       if (response['success'] == true && response['user'] != null) {
         final user = User.fromMap(response['user']);
-
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setInt('userId', user.id);
-
         emit(state.copyWith(
           user: user,
           isAuthenticated: true,
           isLoading: false,
         ));
+        print('AuthCubit: authenticated as ${user.id}');
+      } else {
+        print('AuthCubit: profile invalid -> logout local userId');
+        await prefs.remove('userId');
+        emit(state.copyWith(isLoading: false, isAuthenticated: false));
       }
     } catch (e) {
-      emit(state.copyWith(
-        isLoading: false,
-        error: _mapErrorToMessage(e),
-      ));
+    
+      print('AuthCubit: checkAuthStatus error: $e');
+
+      // ✅ critical: don't stay stuck loading forever
+      emit(state.copyWith(isLoading: false, isAuthenticated: false, error: _mapErrorToMessage(e)));
     }
   }
 
-  /* ----------------------------- CHECK AUTH -------------------------------- */
-
-  Future<void> checkAuthStatus() async {
-    emit(state.copyWith(isLoading: true));
+  /// Refresh user data
+  Future<void> refreshUserData() async {
+    if (state.user == null) return;
 
     try {
-      final session = _supabase.auth.currentSession;
-      if (session != null) {
-        await _loadUserProfile();
-        return;
-      }
-
-      // fallback → stored userId
-      final prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getInt('userId');
-
-      if (userId == null) {
-        emit(state.copyWith(isLoading: false, isAuthenticated: false));
-        return;
-      }
-
       final response = await _api.get(
         ApiConfig.USER_PROFILE,
-        params: {'userId': userId.toString()},
+        params: {'userId': state.user!.id.toString()},
       );
 
       if (response['success'] == true && response['user'] != null) {
         emit(state.copyWith(
           user: User.fromMap(response['user']),
           isAuthenticated: true,
-          isLoading: false,
         ));
-      } else {
-        await prefs.remove('userId');
-        emit(state.copyWith(isLoading: false, isAuthenticated: false));
       }
     } catch (e) {
-      emit(state.copyWith(
-        isLoading: false,
-        isAuthenticated: false,
-        error: _mapErrorToMessage(e),
-      ));
-    }
+  emit(state.copyWith(error: _mapErrorToMessage(e)));
+}
+
   }
 
-  /* ----------------------------- AUTH ACTIONS ------------------------------- */
-
+  /// Register
   Future<bool> signUp(
     String firstName,
     String lastName,
@@ -147,40 +140,46 @@ class AuthCubit extends Cubit<AuthState> {
         'password': password,
       });
 
-      if (response['success'] != true) {
+      if (response['success'] != true || response['user'] == null) {
         emit(state.copyWith(
           isLoading: false,
-          error: response['message'] ?? 'Registration failed',
+          error: response['error'] ?? 'Registration failed',
         ));
         return false;
       }
 
-      await _supabase.auth.signInWithPassword(
-        email: email,
-        password: password,
-      );
+      final user = User.fromMap(response['user']);
 
-      await _loadUserProfile();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('userId', user.id);
+
+      emit(state.copyWith(
+        user: user,
+        isAuthenticated: true,
+        isLoading: false,
+      ));
       return true;
     } catch (e) {
-      emit(state.copyWith(
-        isLoading: false,
-        error: _mapErrorToMessage(e),
-      ));
-      return false;
-    }
+  emit(state.copyWith(
+    isLoading: false,
+    error: _mapErrorToMessage(e),
+  ));
+  return false;
+}
+
   }
 
+  /// Login (email OR username)
   Future<bool> login(String identifier, String password) async {
     emit(state.copyWith(isLoading: true));
 
     try {
       final response = await _api.post(ApiConfig.AUTH_LOGIN, {
-        'email': identifier,
+        'email': identifier, // can be email or username
         'password': password,
       });
 
-      if (response['success'] != true) {
+      if (response['success'] != true || response['user'] == null) {
         emit(state.copyWith(
           isLoading: false,
           error: 'Invalid credentials',
@@ -188,38 +187,104 @@ class AuthCubit extends Cubit<AuthState> {
         return false;
       }
 
-      if (response['session'] != null) {
-        await _supabase.auth.setSession(
-          response['session']['access_token'],
-        );
-      }
+      final user = User.fromMap(response['user']);
 
-      await _loadUserProfile();
-      return true;
-    } catch (e) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('userId', user.id);
+
       emit(state.copyWith(
+        user: user,
+        isAuthenticated: true,
         isLoading: false,
-        error: _mapErrorToMessage(e),
       ));
-      return false;
-    }
+      return true;
+    }catch (e) {
+  emit(state.copyWith(
+    isLoading: false,
+    error: _mapErrorToMessage(e),
+  ));
+  return false;
+}
+
   }
 
-  /* ----------------------------- USER UPDATE ------------------------------- */
-
-  Future<void> refreshUserData() async {
-    if (state.user == null) return;
-    await _loadUserProfile();
-  }
-
+  /// Logout
   Future<void> logout() async {
-    await _supabase.auth.signOut();
     final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    await prefs.remove('userId');
     emit(const AuthState());
   }
 
+  /// Clear error
   void clearError() {
     emit(state.copyWith(error: null));
+  }
+
+  /// Update user first name
+  Future<void> updateUserFirstName(String newFirstName) async {
+    if (state.user == null) return;
+
+    try {
+      await _api.put(ApiConfig.USER_UPDATE, {
+        'userId': state.user!.id,
+        'firstName': newFirstName,
+      });
+
+      await refreshUserData();
+    } catch (e) {
+  emit(state.copyWith(error: _mapErrorToMessage(e)));
+}
+
+  }
+
+  /// Update user last name
+  Future<void> updateUserLastName(String newLastName) async {
+    if (state.user == null) return;
+
+    try {
+      await _api.put(ApiConfig.USER_UPDATE, {
+        'userId': state.user!.id,
+        'lastName': newLastName,
+      });
+
+      await refreshUserData();
+    } catch (e) {
+  emit(state.copyWith(error: _mapErrorToMessage(e)));
+}
+
+  }
+
+  /// Update username
+  Future<void> updateUsername(String newUsername) async {
+    if (state.user == null) return;
+
+    try {
+      await _api.put(ApiConfig.USER_UPDATE, {
+        'userId': state.user!.id,
+        'username': newUsername,
+      });
+
+      await refreshUserData();
+    }catch (e) {
+  emit(state.copyWith(error: _mapErrorToMessage(e)));
+}
+
+  }
+
+  /// Update user email
+  Future<void> updateUserEmail(String newEmail) async {
+    if (state.user == null) return;
+
+    try {
+      await _api.put(ApiConfig.USER_UPDATE, {
+        'userId': state.user!.id,
+        'email': newEmail,
+      });
+
+      await refreshUserData();
+    } catch (e) {
+  emit(state.copyWith(error: _mapErrorToMessage(e)));
+}
+
   }
 }

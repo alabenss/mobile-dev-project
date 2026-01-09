@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../../logic/auth/auth_cubit.dart';
 import '../../../logic/auth/auth_state.dart';
-import '../../../l10n/app_localizations.dart';
-
 import '../../themes/style_simple/colors.dart';
-import '../../screens/welcome_screens/welcome_provider.dart';
 import '../../widgets/error_dialog.dart';
-
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -18,7 +13,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _identifierController = TextEditingController();
+  final _identifierController = TextEditingController(); // username or email
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
@@ -30,24 +25,20 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _login() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (_formKey.currentState!.validate()) {
+      final success = await context.read<AuthCubit>().login(
+        _identifierController.text.trim(), // username or email
+        _passwordController.text,
+      );
 
-    final success = await context.read<AuthCubit>().login(
-          _identifierController.text.trim(),
-          _passwordController.text,
-        );
-
-    if (success && mounted) {
-      // ✅ Prevent welcome screens from showing again
-      await WelcomeProvider.markUserLoggedIn();
-      Navigator.of(context).pushReplacementNamed('/home');
+      if (success && mounted) {
+        Navigator.of(context).pushReplacementNamed('/home');
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -59,27 +50,27 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         child: SafeArea(
           child: BlocConsumer<AuthCubit, AuthState>(
-            listener: (context, state) {
-              // ❗ Error dialog (from file 2)
-              if (state.error != null && state.error!.isNotEmpty) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (_) => AppErrorDialog(
-                      title: l10n.loginFailed,
-                      message: state.error!,
-                    ),
-                  );
-                  context.read<AuthCubit>().clearError();
-                });
-              }
+           listener: (context, state) {
+  if (state.error != null && state.error!.isNotEmpty) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => AppErrorDialog(
+          title: 'Login Failed',
+          message: state.error!,
+        ),
+      );
 
-              // ✅ Defensive navigation guard
-              if (state.isAuthenticated && !state.isLoading) {
-                Navigator.of(context).pushReplacementNamed('/home');
-              }
-            },
+      context.read<AuthCubit>().clearError();
+    });
+  }
+
+  if (state.isAuthenticated && !state.isLoading) {
+    Navigator.of(context).pushReplacementNamed('/home');
+  }
+},
+
             builder: (context, state) {
               return Center(
                 child: SingleChildScrollView(
@@ -89,15 +80,16 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        // App Logo/Title
                         const Icon(
                           Icons.self_improvement,
                           size: 80,
                           color: AppColors.icon,
                         ),
                         const SizedBox(height: 16),
-                        Text(
-                          l10n.welcomeBack,
-                          style: const TextStyle(
+                        const Text(
+                          'Welcome Back',
+                          style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
@@ -105,7 +97,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          l10n.loginSubtitle,
+                          'Login to continue your journey',
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.white.withOpacity(0.8),
@@ -113,35 +105,43 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 48),
 
-                        // Username / Email
-                        _inputContainer(
+                        // Email or Username Field
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.9),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                           child: TextFormField(
                             controller: _identifierController,
-                            decoration: InputDecoration(
-                              labelText: l10n.usernameOrEmail,
-                              prefixIcon:
-                                  const Icon(Icons.person_outline),
+                            keyboardType: TextInputType.text,
+                            decoration: const InputDecoration(
+                              labelText: 'Username or Email',
+                              prefixIcon: Icon(Icons.person_outline),
                               border: InputBorder.none,
-                              contentPadding:
-                                  const EdgeInsets.all(16),
+                              contentPadding: EdgeInsets.all(16),
                             ),
-                            validator: (value) =>
-                                value == null || value.isEmpty
-                                    ? l10n.enterUsernameOrEmail
-                                    : null,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your username or email';
+                              }
+                              return null;
+                            },
                           ),
                         ),
                         const SizedBox(height: 16),
 
-                        // Password
-                        _inputContainer(
+                        // Password Field
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.9),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                           child: TextFormField(
                             controller: _passwordController,
                             obscureText: _obscurePassword,
                             decoration: InputDecoration(
-                              labelText: l10n.password,
-                              prefixIcon:
-                                  const Icon(Icons.lock_outline),
+                              labelText: 'Password',
+                              prefixIcon: const Icon(Icons.lock_outline),
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   _obscurePassword
@@ -150,21 +150,19 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 onPressed: () {
                                   setState(() {
-                                    _obscurePassword =
-                                        !_obscurePassword;
+                                    _obscurePassword = !_obscurePassword;
                                   });
                                 },
                               ),
                               border: InputBorder.none,
-                              contentPadding:
-                                  const EdgeInsets.all(16),
+                              contentPadding: const EdgeInsets.all(16),
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return l10n.enterPassword;
+                                return 'Please enter your password';
                               }
                               if (value.length < 6) {
-                                return l10n.passwordTooShort;
+                                return 'Password must be at least 6 characters';
                               }
                               return null;
                             },
@@ -172,27 +170,25 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 32),
 
-                        // Login button
+                        // Login Button
                         SizedBox(
                           width: double.infinity,
                           height: 50,
                           child: ElevatedButton(
-                            onPressed:
-                                state.isLoading ? null : _login,
+                            onPressed: state.isLoading ? null : _login,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.icon,
                               shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(12),
                               ),
                             ),
                             child: state.isLoading
                                 ? const CircularProgressIndicator(
                                     color: Colors.white,
                                   )
-                                : Text(
-                                    l10n.login,
-                                    style: const TextStyle(
+                                : const Text(
+                                    'Login',
+                                    style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white,
@@ -202,26 +198,23 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 24),
 
-                        // Sign up
+                        // Sign Up Link
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              l10n.noAccount,
+                              "Don't have an account? ",
                               style: TextStyle(
-                                color:
-                                    Colors.white.withOpacity(0.8),
+                                color: Colors.white.withOpacity(0.8),
                               ),
                             ),
                             TextButton(
                               onPressed: () {
-                                Navigator.of(context)
-                                    .pushReplacementNamed(
-                                        '/signup');
+                                Navigator.of(context).pushReplacementNamed('/signup');
                               },
-                              child: Text(
-                                l10n.signUp,
-                                style: const TextStyle(
+                              child: const Text(
+                                'Sign Up',
+                                style: TextStyle(
                                   color: AppColors.icon,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -238,16 +231,6 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _inputContainer({required Widget child}) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.9),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: child,
     );
   }
 }
