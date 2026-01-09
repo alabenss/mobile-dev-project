@@ -4,6 +4,7 @@ import '../../../logic/auth/auth_cubit.dart';
 import '../../../logic/auth/auth_state.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../themes/style_simple/colors.dart';
+import '../../screens/welcome_screens/welcome_provider.dart';
 
 bool isValidEmail(String email) {
   final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
@@ -50,6 +51,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
           );
 
       if (success && mounted) {
+        // ✅ Mark user as logged in so welcome screens don't show again
+        await WelcomeProvider.markUserLoggedIn();
         Navigator.of(context).pushReplacementNamed('/home');
       }
     }
