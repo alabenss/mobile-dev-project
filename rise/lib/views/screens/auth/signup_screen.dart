@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../logic/auth/auth_cubit.dart';
 import '../../../logic/auth/auth_state.dart';
 import '../../themes/style_simple/colors.dart';
-
+import '../../screens/welcome_screens/welcome_provider.dart';
 
 bool isValidEmail(String email) {
   final emailRegex = RegExp(
@@ -11,7 +11,6 @@ bool isValidEmail(String email) {
   );
   return emailRegex.hasMatch(email);
 }
-
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -53,6 +52,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
       );
 
       if (success && mounted) {
+        // ✅ Mark user as logged in so welcome screens don't show again
+        await WelcomeProvider.markUserLoggedIn();
         Navigator.of(context).pushReplacementNamed('/home');
       }
     }
@@ -116,7 +117,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         const SizedBox(height: 32),
 
-                        // First Name Field
+                        // First Name Field - ✅ FIXED VALIDATION
                         Container(
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.9),
@@ -131,15 +132,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               contentPadding: EdgeInsets.all(16),
                             ),
                             validator: (value) {
-  if (value == null || value.isEmpty) {
-    return 'Please enter your email';
-  }
-  if (!isValidEmail(value.trim())) {
-    return 'Please enter a valid email address';
-  }
-  return null;
-},
-
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your first name';
+                              }
+                              return null;
+                            },
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -217,8 +214,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               if (value == null || value.isEmpty) {
                                 return 'Please enter your email';
                               }
-                              if (!value.contains('@')) {
-                                return 'Please enter a valid email';
+                              if (!isValidEmail(value.trim())) {
+                                return 'Please enter a valid email address';
                               }
                               return null;
                             },

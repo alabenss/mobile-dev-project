@@ -37,7 +37,7 @@ dependencies:
   path_drawing: ^1.0.1
   vector_math: ^2.1.4
   http: ^1.1.0
-
+  smooth_page_indicator: ^1.1.0
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
@@ -82,6 +82,7 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  
   assets:
     - assets/images/
     - assets/icons/
@@ -90,7 +91,14 @@ flutter:
     - assets/images/background/
     - assets/rive/
     - assets/coloring/
-    
+  
+  fonts:
+    - family: Pacifico
+      fonts:
+        - asset: assets/fonts/Pacifico-Regular.ttf
+    - family: JosefinSans
+      fonts:
+        - asset: assets/fonts/JosefinSans-VariableFont_wght.ttf    
 
   # To add assets to your application, add an assets section, like this:
   # assets:

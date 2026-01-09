@@ -28,7 +28,8 @@ import 'views/screens/settings/app_lock_screen.dart';
 import 'views/screens/settings/language_selection_screen.dart';
 import 'views/screens/auth/login_screen.dart';
 import 'views/screens/auth/signup_screen.dart';
-
+import 'views/screens/welcome_screens/welcome_screen.dart';
+import 'views/screens/welcome_screens/welcome_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
@@ -145,7 +146,7 @@ void main() async {
     );
   }
 }
-
+// Update your main.dart MyApp class
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -176,35 +177,33 @@ class MyApp extends StatelessWidget {
             Locale('fr'),
             Locale('ar'),
           ],
-          home: BlocListener<AuthCubit, AuthState>(
-            listener: (context, state) {
-              if (state.isAuthenticated && state.user != null) {
-                context.read<HomeCubit>().loadInitial(
-                      userName: state.user!.fullName,
-                      lang: lang, // ✅ pass language to load correct articles
-                    );
-
-                context.read<HabitCubit>().loadHabits();
-                context.read<ActivitiesCubit>().loadActivities();
-              }
-            },
-            child: BlocBuilder<AuthCubit, AuthState>(
-              builder: (context, state) {
-                if (state.isLoading) {
-                  return const Scaffold(
-                    body: Center(child: CircularProgressIndicator()),
-                  );
-                }
-
-                if (!state.isAuthenticated) {
-                  return const LoginScreen();
-                }
-
-                return PhoneLockWrapper(
-                  child: BottomNavWrapper(key: bottomNavKey),
+          home: FutureBuilder<bool>(
+            future: WelcomeProvider.shouldShowWelcome(),
+            builder: (context, welcomeSnapshot) {
+              // If still checking, show loading
+              if (welcomeSnapshot.connectionState == ConnectionState.waiting) {
+                return const Scaffold(
+                  body: Center(child: CircularProgressIndicator()),
                 );
-              },
-            ),
+              }
+
+              // If should show welcome screens
+              if (welcomeSnapshot.hasData && welcomeSnapshot.data == true) {
+                return WelcomeScreen(
+                  onCompleted: () {
+                    // User skipped welcome, go to login
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) => const AppEntryPoint(),
+                      ),
+                    );
+                  },
+                );
+              }
+
+              // Otherwise go to normal app flow
+              return const AppEntryPoint();
+            },
           ),
           routes: {
             '/login': (context) => const LoginScreen(),
@@ -216,6 +215,50 @@ class MyApp extends StatelessWidget {
           },
         );
       },
+    );
+  }
+}
+
+// NEW: Separate entry point for auth flow
+class AppEntryPoint extends StatelessWidget {
+  const AppEntryPoint({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<AuthCubit, AuthState>(
+      listener: (context, state) {
+        final lang = 'en'; // Get from locale cubit if needed
+        
+        if (state.isAuthenticated && state.user != null) {
+          // Mark user as logged in (so welcome won't show again)
+          WelcomeProvider.markUserLoggedIn();
+          
+          context.read<HomeCubit>().loadInitial(
+                userName: state.user!.fullName,
+                lang: lang,
+              );
+
+          context.read<HabitCubit>().loadHabits();
+          context.read<ActivitiesCubit>().loadActivities();
+        }
+      },
+      child: BlocBuilder<AuthCubit, AuthState>(
+        builder: (context, state) {
+          if (state.isLoading) {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+
+          if (!state.isAuthenticated) {
+            return const LoginScreen();
+          }
+
+          return PhoneLockWrapper(
+            child: BottomNavWrapper(key: bottomNavKey),
+          );
+        },
+      ),
     );
   }
 }

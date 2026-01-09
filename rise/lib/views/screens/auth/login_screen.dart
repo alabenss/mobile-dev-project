@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../logic/auth/auth_cubit.dart';
 import '../../../logic/auth/auth_state.dart';
 import '../../themes/style_simple/colors.dart';
+import '../../screens/welcome_screens/welcome_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -32,6 +33,8 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (success && mounted) {
+        // ✅ Mark user as logged in so welcome screens don't show again
+        await WelcomeProvider.markUserLoggedIn();
         Navigator.of(context).pushReplacementNamed('/home');
       }
     }
