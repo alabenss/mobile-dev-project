@@ -111,19 +111,19 @@ def _filter_habits_by_date_range(habits, start_date, end_date, frequency):
             
         habit_created = datetime.fromisoformat(created_at)
         
-        # Check if habit was created within the date range
+        # Check if habit was created within the appropriate time period
         if frequency.lower() == 'daily':
             # Only show habits created today
             if _is_same_day(habit_created, start_date):
                 filtered.append(habit)
                 
         elif frequency.lower() == 'weekly':
-            # Show habits created this week
+            # Show habits created anytime this week (Monday-Sunday)
             if _is_same_week(habit_created, start_date):
                 filtered.append(habit)
                 
         elif frequency.lower() == 'monthly':
-            # Show habits created this month
+            # Show habits created anytime this month
             if _is_same_month(habit_created, start_date):
                 filtered.append(habit)
     
