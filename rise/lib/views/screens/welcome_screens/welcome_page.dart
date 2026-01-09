@@ -12,7 +12,7 @@ class WelcomePage extends StatefulWidget {
   final bool isLogoOnlyPage;
 
   const WelcomePage({
-    Key? key,
+    super.key,
     required this.title,
     required this.description,
     this.imageAsset = '',
@@ -20,7 +20,7 @@ class WelcomePage extends StatefulWidget {
     this.gradientColors,
     this.isFirstPage = false,
     this.isLogoOnlyPage = false,
-  }) : super(key: key);
+  });
 
   @override
   State<WelcomePage> createState() => _WelcomePageState();
