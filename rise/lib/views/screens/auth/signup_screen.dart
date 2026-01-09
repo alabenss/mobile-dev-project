@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../../logic/auth/auth_cubit.dart';
 import '../../../logic/auth/auth_state.dart';
 import '../../../l10n/app_localizations.dart';
-
 import '../../themes/style_simple/colors.dart';
 import '../../screens/welcome_screens/welcome_provider.dart';
-import '../../widgets/error_dialog.dart';
 
 bool isValidEmail(String email) {
-  final emailRegex = RegExp(r'^[\w\-\.]+@([\w\-]+\.)+[\w\-]{2,4}$');
+  final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
   return emailRegex.hasMatch(email);
 }
 
@@ -29,7 +26,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
@@ -45,20 +41,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   Future<void> _signUp() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (_formKey.currentState!.validate()) {
+      final success = await context.read<AuthCubit>().signUp(
+            _firstNameController.text.trim(),
+            _lastNameController.text.trim(),
+            _usernameController.text.trim(),
+            _emailController.text.trim(),
+            _passwordController.text,
+          );
 
-    final success = await context.read<AuthCubit>().signUp(
-          _firstNameController.text.trim(),
-          _lastNameController.text.trim(),
-          _usernameController.text.trim(),
-          _emailController.text.trim(),
-          _passwordController.text,
-        );
-
-    if (success && mounted) {
-      // ✅ Prevent welcome screens from showing again
-      await WelcomeProvider.markUserLoggedIn();
-      Navigator.of(context).pushReplacementNamed('/home');
+      if (success && mounted) {
+        // ✅ Mark user as logged in so welcome screens don't show again
+        await WelcomeProvider.markUserLoggedIn();
+        Navigator.of(context).pushReplacementNamed('/home');
+      }
     }
   }
 
@@ -78,22 +74,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
         child: SafeArea(
           child: BlocConsumer<AuthCubit, AuthState>(
             listener: (context, state) {
-              if (state.error != null && state.error!.isNotEmpty) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (_) => AppErrorDialog(
-                      title: l10n.signUp,
-                      message: state.error!,
-                    ),
-                  );
-                  context.read<AuthCubit>().clearError();
-                });
-              }
-
-              if (state.isAuthenticated && !state.isLoading) {
-                Navigator.of(context).pushReplacementNamed('/home');
+              if (state.error != null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(state.error!),
+                    backgroundColor: Colors.redAccent,
+                  ),
+                );
+                context.read<AuthCubit>().clearError();
               }
             },
             builder: (context, state) {
@@ -105,6 +93,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        const SizedBox(height: 2),
                         Text(
                           l10n.createAccount,
                           style: const TextStyle(
@@ -123,6 +112,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         const SizedBox(height: 32),
 
+                        // First Name Field
                         _buildTextField(
                           controller: _firstNameController,
                           label: l10n.firstName,
@@ -131,6 +121,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         const SizedBox(height: 16),
 
+                        // Last Name Field
                         _buildTextField(
                           controller: _lastNameController,
                           label: l10n.lastName,
@@ -139,88 +130,76 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         const SizedBox(height: 16),
 
+                        // Username Field
                         _buildTextField(
                           controller: _usernameController,
                           label: l10n.username,
                           icon: Icons.alternate_email,
                           validatorMessage: l10n.enterUsername,
                           customValidator: (value) {
-                            if (value!.length < 3) {
-                              return l10n.usernameTooShort;
-                            }
-                            if (value.contains(' ')) {
-                              return l10n.usernameNoSpaces;
-                            }
+                            if (value!.length < 3) return l10n.usernameTooShort;
+                            if (value.contains(' ')) return l10n.usernameNoSpaces;
                             return null;
                           },
                         ),
                         const SizedBox(height: 16),
 
+                        // Email Field
                         _buildTextField(
                           controller: _emailController,
                           label: l10n.email,
                           icon: Icons.email_outlined,
                           keyboardType: TextInputType.emailAddress,
                           customValidator: (value) {
-                            if (!isValidEmail(value!)) {
-                              return l10n.invalidEmail;
-                            }
+                            if (!isValidEmail(value!)) return l10n.invalidEmail;
                             return null;
                           },
                         ),
                         const SizedBox(height: 16),
 
+                        // Password Field
                         _buildPasswordField(
                           controller: _passwordController,
                           label: l10n.password,
                           obscure: _obscurePassword,
                           onToggle: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
+                            setState(() => _obscurePassword = !_obscurePassword);
                           },
                           validatorMessage: l10n.enterPassword,
                           minLengthMessage: l10n.passwordTooShort,
                         ),
                         const SizedBox(height: 16),
 
+                        // Confirm Password Field
                         _buildPasswordField(
                           controller: _confirmPasswordController,
                           label: l10n.confirmPassword,
                           obscure: _obscureConfirmPassword,
                           onToggle: () {
-                            setState(() {
-                              _obscureConfirmPassword =
-                                  !_obscureConfirmPassword;
-                            });
+                            setState(() => _obscureConfirmPassword = !_obscureConfirmPassword);
                           },
                           validatorMessage: l10n.enterConfirmPassword,
                           customValidator: (value) {
-                            if (value != _passwordController.text) {
-                              return l10n.passwordsDoNotMatch;
-                            }
+                            if (value != _passwordController.text) return l10n.passwordsDoNotMatch;
                             return null;
                           },
                         ),
                         const SizedBox(height: 32),
 
+                        // Sign Up Button
                         SizedBox(
                           width: double.infinity,
                           height: 50,
                           child: ElevatedButton(
-                            onPressed:
-                                state.isLoading ? null : _signUp,
+                            onPressed: state.isLoading ? null : _signUp,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.icon,
                               shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(12),
                               ),
                             ),
                             child: state.isLoading
-                                ? const CircularProgressIndicator(
-                                    color: Colors.white,
-                                  )
+                                ? const CircularProgressIndicator(color: Colors.white)
                                 : Text(
                                     l10n.signUp,
                                     style: const TextStyle(
@@ -233,20 +212,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         const SizedBox(height: 24),
 
+                        // Login Link
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
                               l10n.alreadyHaveAccount,
                               style: TextStyle(
-                                color:
-                                    Colors.white.withOpacity(0.8),
+                                color: Colors.white.withOpacity(0.8),
                               ),
                             ),
                             TextButton(
                               onPressed: () {
-                                Navigator.of(context)
-                                    .pushReplacementNamed('/login');
+                                Navigator.of(context).pushReplacementNamed('/login');
                               },
                               child: Text(
                                 l10n.login,
@@ -292,13 +270,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
           border: InputBorder.none,
           contentPadding: const EdgeInsets.all(16),
         ),
-        validator: customValidator ??
-            (value) {
-              if (value == null || value.isEmpty) {
-                return validatorMessage;
-              }
-              return null;
-            },
+        validator: customValidator ?? (value) {
+          if (value == null || value.isEmpty) return validatorMessage;
+          return null;
+        },
       ),
     );
   }
@@ -332,12 +307,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
         validator: customValidator ??
             (value) {
-              if (value == null || value.isEmpty) {
-                return validatorMessage;
-              }
-              if (minLengthMessage != null && value.length < 6) {
-                return minLengthMessage;
-              }
+              if (value == null || value.isEmpty) return validatorMessage;
+              if (minLengthMessage != null && value.length < 6) return minLengthMessage;
               return null;
             },
       ),
