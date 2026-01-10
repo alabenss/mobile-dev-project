@@ -25,7 +25,7 @@ import 'database/repo/journal_repository.dart';
 import 'database/repo/daily_mood_repository.dart';
 import 'database/repo/articles_repo.dart';
 
-import 'views/widgets/common/bottom_nav_wrapper.dart';
+import 'views/widgets/common/bottom_nav_wrapper.dart' show bottomNavKey;
 import 'views/wrappers/phone_lock_wrapper.dart';
 import 'views/screens/settings/profile.dart';
 import 'views/screens/settings/app_lock_screen.dart';
@@ -34,12 +34,10 @@ import 'views/screens/auth/login_screen.dart';
 import 'views/screens/auth/signup_screen.dart';
 import 'views/screens/welcome_screens/welcome_screen.dart';
 import 'views/screens/welcome_screens/welcome_provider.dart';
+import 'views/widgets/common/bottom_nav_wrapper.dart';
 
 import 'services/notification_service.dart';
 import 'services/local_storage_service.dart';
-
-// Make sure this exists in your project (it seems you already have it)
-import 'views/widgets/common/bottom_nav_wrapper.dart' show bottomNavKey;
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -52,7 +50,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
-    // ✅ Supabase first
+    // Initialize Supabase
     await Supabase.initialize(
       url: 'https://ycwdtlehjnrpikenlpji.supabase.co',
       anonKey:
@@ -64,18 +62,17 @@ Future<void> main() async {
       debug: true,
     );
 
-    // ✅ Firebase
+    // Initialize Firebase
     await Firebase.initializeApp();
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-    // ✅ Local storage
+    // Initialize local storage
     await LocalStorageService.instance.initializeFolders();
 
-    // ✅ Notifications
+    // Initialize notifications
     await NotificationService.instance.init(
       navigatorKey: navigatorKey,
       onTapAction: (screen) {
-        // Friend's behavior: go home then switch tabs
         navigatorKey.currentState?.pushNamedAndRemoveUntil('/home', (r) => false);
 
         if (screen == 'journal') {
@@ -104,17 +101,13 @@ class RootApp extends StatelessWidget {
     final habitRepo = HabitRepository();
     final articlesRepo = ArticlesRepo();
 
-    // This can be awaited in main, but keeping it here is okay if it's safe.
     habitRepo.rescheduleAllNotifications();
 
     return MultiBlocProvider(
       providers: [
-        // ✅ MUST be global
         BlocProvider<AppLockCubit>(create: (_) => AppLockCubit()..loadLock()),
-
         BlocProvider<LocaleCubit>(create: (_) => LocaleCubit()),
         BlocProvider<AuthCubit>(create: (_) => AuthCubit()..checkAuthStatus()),
-
         BlocProvider<HomeCubit>(
           create: (_) => HomeCubit(homeRepo, habitRepo, articlesRepo),
         ),
@@ -167,7 +160,6 @@ class MyApp extends StatelessWidget {
             GlobalCupertinoLocalizations.delegate,
           ],
 
-          // ✅ One global wrapper + one global auth redirect listener (prevents duplicated redirects)
           builder: (context, child) {
             return BlocListener<AuthCubit, app_auth.AuthState>(
               listenWhen: (prev, curr) =>
@@ -190,7 +182,6 @@ class MyApp extends StatelessWidget {
             );
           },
 
-          // ✅ Single entry point
           home: AppEntryPoint(lang: lang),
 
           routes: {
@@ -223,20 +214,12 @@ class AppEntryPoint extends StatelessWidget {
           return const LoginScreen();
         }
 
-        // Once authenticated:
+        // User is authenticated, check if welcome screen should show
         return FutureBuilder<bool>(
           future: WelcomeProvider.shouldShowWelcome(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               return const SplashScreen();
-            }
-
-            // ✅ Load initial data once (safe here because we’re authenticated)
-            if (state.user != null) {
-              context.read<HomeCubit>().loadInitial(
-                    userName: state.user!.fullName,
-                    lang: lang,
-                  );
             }
 
             if (snapshot.data == true) {
@@ -249,6 +232,7 @@ class AppEntryPoint extends StatelessWidget {
               );
             }
 
+            // Go directly to home (data will be loaded by HomeScreen itself)
             return BottomNavWrapper(key: bottomNavKey);
           },
         );

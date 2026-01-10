@@ -6,7 +6,6 @@ import 'package:the_project/views/themes/style_simple/colors.dart';
 import 'package:the_project/views/widgets/applock/pattern_lock_widget.dart';
 import 'package:the_project/logic/applock/app_lock_cubit.dart';
 import 'package:the_project/logic/auth/auth_cubit.dart';
-import 'package:the_project/main.dart';
 
 class VerifyLockScreen extends StatefulWidget {
   const VerifyLockScreen({super.key});
@@ -72,70 +71,64 @@ class _VerifyLockScreenState extends State<VerifyLockScreen> {
 
     final newState = cubit.state;
 
-    // ✅ If correct: just unlock, and try to close route ONLY if possible
     if (newState.isAuthenticated) {
       if (!mounted) return;
 
-      // If it was pushed as a route, close it.
       if (Navigator.of(context, rootNavigator: true).canPop()) {
         Navigator.of(context, rootNavigator: true).pop(true);
       }
-      // If it was not pushed (used inside wrapper), do nothing.
       return;
     }
 
-    // ❌ wrong code
     setState(() => _showError = true);
     _clearInput();
     _clearPattern();
   }
 
-void _showForgotLockDialog(
-  BuildContext context,
-  AppLockState state,
-  AppLocalizations l10n,
-) {
-  final rootNav = Navigator.of(context, rootNavigator: true);
+  void _showForgotLockDialog(
+    BuildContext context,
+    AppLockState state,
+    AppLocalizations l10n,
+  ) {
+    // Capture the cubits before opening dialog
+    final appLockCubit = context.read<AppLockCubit>();
+    final authCubit = context.read<AuthCubit>();
 
-  showDialog(
-    context: rootNav.context,
-    useRootNavigator: true,
-    builder: (dialogCtx) => AlertDialog(
-      title: Text(
-        'Forgot ${_getLockTypeLabel(state.lockType, l10n)}?',
-        style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
-      ),
-      content: Text(
-        'To reset your lock, you must log out and log back in to confirm your identity.',
-        style: GoogleFonts.poppins(),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => rootNav.pop(),
-          child: Text('No', style: GoogleFonts.poppins()),
+    showDialog(
+      context: context,
+      useRootNavigator: true,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(
+          'Forgot ${_getLockTypeLabel(state.lockType, l10n)}?',
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
         ),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-          onPressed: () async {
-  rootNav.pop(); // close dialog
-
-  await context.read<AppLockCubit>().removeLock();
-  await context.read<AuthCubit>().logout();
-
-  // ✅ no navigation here — main.dart listener will redirect
-},
-
-          child: Text(
-            'Log out',
-            style: GoogleFonts.poppins(color: Colors.white),
+        content: Text(
+          'To reset your lock, you must log out and log back in to confirm your identity.',
+          style: GoogleFonts.poppins(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text('No', style: GoogleFonts.poppins()),
           ),
-        ),
-      ],
-    ),
-  );
-}
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+            onPressed: () async {
+              Navigator.of(dialogContext).pop();
 
-
+              await appLockCubit.removeLock();
+              await authCubit.logout();
+              // Navigation handled by main.dart listener
+            },
+            child: Text(
+              'Log out',
+              style: GoogleFonts.poppins(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildHeader(AppLockState state, AppLocalizations l10n) {
     return Column(
@@ -373,7 +366,6 @@ void _showForgotLockDialog(
                       ),
                     ),
 
-                    // ✅ Forgot button (works now)
                     GestureDetector(
                       behavior: HitTestBehavior.opaque,
                       onTap: () {

@@ -1,5 +1,3 @@
-// lib/services/api_service.dart
-
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,15 +5,12 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config/api_config.dart';
 
 class ApiService {
-  // Singleton pattern
   static final ApiService _instance = ApiService._internal();
   factory ApiService() => _instance;
   ApiService._internal();
 
-  // Get instance
   static ApiService get instance => _instance;
 
-  // Supabase client
   SupabaseClient get _supabase => Supabase.instance.client;
 
   /// Get current access token
@@ -29,7 +24,7 @@ class ApiService {
     }
   }
 
-  /// Get current user ID from Supabase session
+  /// Get current user ID from SharedPreferences
   Future<int?> _getUserId() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -64,7 +59,6 @@ class ApiService {
         throw Exception('Failed to parse response: $e');
       }
     } else if (response.statusCode == 401) {
-      // Token expired, try to refresh
       print('ApiService: Token expired, attempting refresh...');
       final refreshed = await _refreshToken();
       if (!refreshed) {
@@ -92,7 +86,7 @@ class ApiService {
   Future<Map<String, dynamic>> get(
     String endpoint, {
     Map<String, String>? params,
-    bool retry = true,
+    int retryCount = 0,
   }) async {
     try {
       final uri = Uri.parse('${ApiConfig.BASE_URL}$endpoint')
@@ -108,9 +102,9 @@ class ApiService {
 
       return await _handleResponse(response);
     } catch (e) {
-      if (retry && e.toString().contains('TOKEN_REFRESH_REQUIRED')) {
-        // Retry once after token refresh
-        return await get(endpoint, params: params, retry: false);
+      if (retryCount < 1 && e.toString().contains('TOKEN_REFRESH_REQUIRED')) {
+        print('ApiService: Retrying GET after token refresh...');
+        return await get(endpoint, params: params, retryCount: retryCount + 1);
       }
       print('ApiService GET Error: $e');
       rethrow;
@@ -121,7 +115,7 @@ class ApiService {
   Future<Map<String, dynamic>> post(
     String endpoint,
     Map<String, dynamic> body, {
-    bool retry = true,
+    int retryCount = 0,
   }) async {
     try {
       final uri = Uri.parse('${ApiConfig.BASE_URL}$endpoint');
@@ -138,9 +132,9 @@ class ApiService {
 
       return await _handleResponse(response);
     } catch (e) {
-      if (retry && e.toString().contains('TOKEN_REFRESH_REQUIRED')) {
-        // Retry once after token refresh
-        return await post(endpoint, body, retry: false);
+      if (retryCount < 1 && e.toString().contains('TOKEN_REFRESH_REQUIRED')) {
+        print('ApiService: Retrying POST after token refresh...');
+        return await post(endpoint, body, retryCount: retryCount + 1);
       }
       print('ApiService POST Error: $e');
       rethrow;
@@ -151,7 +145,7 @@ class ApiService {
   Future<Map<String, dynamic>> put(
     String endpoint,
     Map<String, dynamic> body, {
-    bool retry = true,
+    int retryCount = 0,
   }) async {
     try {
       final uri = Uri.parse('${ApiConfig.BASE_URL}$endpoint');
@@ -168,9 +162,9 @@ class ApiService {
 
       return await _handleResponse(response);
     } catch (e) {
-      if (retry && e.toString().contains('TOKEN_REFRESH_REQUIRED')) {
-        // Retry once after token refresh
-        return await put(endpoint, body, retry: false);
+      if (retryCount < 1 && e.toString().contains('TOKEN_REFRESH_REQUIRED')) {
+        print('ApiService: Retrying PUT after token refresh...');
+        return await put(endpoint, body, retryCount: retryCount + 1);
       }
       print('ApiService PUT Error: $e');
       rethrow;
@@ -181,7 +175,7 @@ class ApiService {
   Future<Map<String, dynamic>> delete(
     String endpoint, {
     Map<String, String>? params,
-    bool retry = true,
+    int retryCount = 0,
   }) async {
     try {
       final uri = Uri.parse('${ApiConfig.BASE_URL}$endpoint')
@@ -197,16 +191,14 @@ class ApiService {
 
       return await _handleResponse(response);
     } catch (e) {
-      if (retry && e.toString().contains('TOKEN_REFRESH_REQUIRED')) {
-        // Retry once after token refresh
-        return await delete(endpoint, params: params, retry: false);
+      if (retryCount < 1 && e.toString().contains('TOKEN_REFRESH_REQUIRED')) {
+        print('ApiService: Retrying DELETE after token refresh...');
+        return await delete(endpoint, params: params, retryCount: retryCount + 1);
       }
       print('ApiService DELETE Error: $e');
       rethrow;
     }
   }
-
-  // ============ Convenience Methods ============
 
   /// Get current user ID (helper for repositories)
   Future<int> getCurrentUserId() async {
