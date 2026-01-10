@@ -204,42 +204,43 @@ class AppEntryPoint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AuthCubit, app_auth.AuthState>(
-      builder: (context, state) {
-        if (state.isLoading) {
+    // First check if welcome screen should be shown (app-level, not user-level)
+    return FutureBuilder<bool>(
+      future: WelcomeProvider.shouldShowWelcome(),
+      builder: (context, welcomeSnapshot) {
+        if (!welcomeSnapshot.hasData) {
           return const SplashScreen();
         }
 
-        if (!state.isAuthenticated) {
-          return const LoginScreen();
+        // Welcome screen takes priority - show it first before anything else
+        if (welcomeSnapshot.data == true) {
+          return WelcomeScreen(
+            onCompleted: () {
+              // After welcome, navigate to login screen
+              navigatorKey.currentState
+                  ?.pushNamedAndRemoveUntil('/login', (r) => false);
+            },
+          );
         }
 
-        // User is authenticated, check if welcome screen should show
-        return FutureBuilder<bool>(
-          future: WelcomeProvider.shouldShowWelcome(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
+        // Welcome screen already seen, now check auth status
+        return BlocBuilder<AuthCubit, app_auth.AuthState>(
+          builder: (context, authState) {
+            if (authState.isLoading) {
               return const SplashScreen();
             }
 
-            if (snapshot.data == true) {
-              return WelcomeScreen(
-                onCompleted: () async {
-                  await WelcomeProvider.markUserLoggedIn();
-                  navigatorKey.currentState
-                      ?.pushNamedAndRemoveUntil('/home', (r) => false);
-                },
-              );
+            // User not authenticated - show login
+            if (!authState.isAuthenticated) {
+              return const LoginScreen();
             }
 
-            // FIXED: Don't create another instance with the same key
-            // Instead, navigate to the /home route
+            // User authenticated - navigate to home
             WidgetsBinding.instance.addPostFrameCallback((_) {
               navigatorKey.currentState
                   ?.pushNamedAndRemoveUntil('/home', (r) => false);
             });
             
-            // Show splash while navigating
             return const SplashScreen();
           },
         );
@@ -247,6 +248,7 @@ class AppEntryPoint extends StatelessWidget {
     );
   }
 }
+
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});

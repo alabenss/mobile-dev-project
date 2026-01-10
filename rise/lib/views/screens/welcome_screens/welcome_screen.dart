@@ -22,7 +22,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   late Animation<double> _buttonAnimation;
 
   final List<WelcomePage> _pages = [
-    // Page 1 - Welcome with logo
     const WelcomePage(
       title: "Welcome to Rise",
       description:
@@ -35,8 +34,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         AppColors.bgBottom,
       ],
     ),
-    
-    // Page 2 - Balance & Focus
     WelcomePage(
       title: "Balance & Focus",
       description:
@@ -48,8 +45,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         AppColors.bgBottom.withOpacity(0.9),
       ],
     ),
-    
-    // Page 3 - Emotional Awareness - REMOVED const
     WelcomePage(
       title: "Emotional Awareness",
       description:
@@ -61,8 +56,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         AppColors.bgBottom,
       ],
     ),
-    
-    // Page 4 - Gamified Growth
     WelcomePage(
       title: "Gamified Growth",
       description:
@@ -107,7 +100,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     return Scaffold(
       body: Stack(
         children: [
-          // Main Content - Full Screen Background
           PageView.builder(
             controller: _pageController,
             itemCount: _pages.length,
@@ -123,7 +115,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
             },
           ),
 
-          // Bottom Navigation Area - FLOATING BAR ABOVE THE BACKGROUND
           Positioned(
             left: 15,
             right: 15,
@@ -148,7 +139,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Skip Button
                     if (_currentPage < _pages.length - 1)
                       Align(
                         alignment: Alignment.centerRight,
@@ -175,11 +165,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
                     const SizedBox(height: 4),
 
-                    // Navigation Row
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // Page Indicator
                         SmoothPageIndicator(
                           controller: _pageController,
                           count: _pages.length,
@@ -193,7 +181,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                           ),
                         ),
 
-                        // Skip or Get Started Button
                         ScaleTransition(
                           scale: _buttonAnimation,
                           child: ElevatedButton(

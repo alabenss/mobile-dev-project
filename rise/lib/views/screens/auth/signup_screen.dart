@@ -4,7 +4,6 @@ import '../../../logic/auth/auth_cubit.dart';
 import '../../../logic/auth/auth_state.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../themes/style_simple/colors.dart';
-import '../../screens/welcome_screens/welcome_provider.dart';
 import '../../widgets/error_dialog.dart';
 
 bool isValidEmail(String email) {
@@ -93,7 +92,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String _getErrorMessage(String error) {
     final l10n = AppLocalizations.of(context)!;
     
-    // Username taken
     if (error.toLowerCase().contains('username') && 
         (error.toLowerCase().contains('taken') || 
          error.toLowerCase().contains('exists') ||
@@ -101,7 +99,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return l10n.errorMessageUsernameTaken;
     }
     
-    // Email exists
     if (error.toLowerCase().contains('email') && 
         (error.toLowerCase().contains('taken') || 
          error.toLowerCase().contains('exists') ||
@@ -110,7 +107,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return l10n.errorMessageEmailExists;
     }
     
-    // Network/Connection errors
     if (error.toLowerCase().contains('network') || 
         error.toLowerCase().contains('connection') ||
         error.toLowerCase().contains('internet') ||
@@ -119,19 +115,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return l10n.errorMessageNoInternet;
     }
     
-    // Session expired
     if (error.toLowerCase().contains('session') || 
         error.toLowerCase().contains('expired')) {
       return l10n.errorMessageSessionExpired;
     }
     
-    // Email confirmation required
     if (error.toLowerCase().contains('confirm') && 
         error.toLowerCase().contains('email')) {
       return l10n.errorMessageEmailConfirmation;
     }
     
-    // Default friendly message
     return l10n.errorMessageSignUpFailed;
   }
 
@@ -147,8 +140,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
             );
 
         if (success && mounted) {
-          await WelcomeProvider.markUserLoggedIn();
-          Navigator.of(context).pushReplacementNamed('/home');
+          // Navigation is handled by BlocListener in main.dart
+          // No need to manually navigate or call markUserLoggedIn
         }
       } catch (e) {
         if (mounted) {
@@ -213,7 +206,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         const SizedBox(height: 32),
 
-                        // First Name Field
                         _buildTextField(
                           controller: _firstNameController,
                           label: l10n.firstName,
@@ -222,7 +214,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Last Name Field
                         _buildTextField(
                           controller: _lastNameController,
                           label: l10n.lastName,
@@ -231,7 +222,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Username Field
                         _buildTextField(
                           controller: _usernameController,
                           label: l10n.username,
@@ -245,7 +235,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Email Field
                         _buildTextField(
                           controller: _emailController,
                           label: l10n.email,
@@ -258,7 +247,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Password Field
                         _buildPasswordField(
                           controller: _passwordController,
                           label: l10n.password,
@@ -271,7 +259,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Confirm Password Field
                         _buildPasswordField(
                           controller: _confirmPasswordController,
                           label: l10n.confirmPassword,
@@ -287,7 +274,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         const SizedBox(height: 32),
 
-                        // Sign Up Button
                         SizedBox(
                           width: double.infinity,
                           height: 50,
@@ -313,7 +299,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         const SizedBox(height: 24),
 
-                        // Login Link
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [

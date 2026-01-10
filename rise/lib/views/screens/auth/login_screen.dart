@@ -4,7 +4,6 @@ import '../../../logic/auth/auth_cubit.dart';
 import '../../../logic/auth/auth_state.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../themes/style_simple/colors.dart';
-import '../../screens/welcome_screens/welcome_provider.dart';
 import '../../widgets/error_dialog.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -65,7 +64,6 @@ class _LoginScreenState extends State<LoginScreen> {
   String _getErrorMessage(String error) {
     final l10n = AppLocalizations.of(context)!;
     
-    // Network/Connection errors
     if (error.toLowerCase().contains('network') || 
         error.toLowerCase().contains('connection') ||
         error.toLowerCase().contains('internet') ||
@@ -74,20 +72,17 @@ class _LoginScreenState extends State<LoginScreen> {
       return l10n.errorMessageNoInternet;
     }
     
-    // Invalid credentials
     if (error.toLowerCase().contains('invalid') || 
         error.toLowerCase().contains('incorrect') ||
         error.toLowerCase().contains('wrong')) {
       return l10n.errorMessageInvalidCredentials;
     }
     
-    // Session expired
     if (error.toLowerCase().contains('session') || 
         error.toLowerCase().contains('expired')) {
       return l10n.errorMessageSessionExpired;
     }
     
-    // Default friendly message
     return l10n.errorMessageLoginFailed;
   }
 
@@ -100,8 +95,8 @@ class _LoginScreenState extends State<LoginScreen> {
             );
 
         if (success && mounted) {
-          await WelcomeProvider.markUserLoggedIn();
-          Navigator.of(context).pushReplacementNamed('/home');
+          // Navigation is handled by BlocListener in main.dart
+          // No need to manually navigate or call markUserLoggedIn
         }
       } catch (e) {
         if (mounted) {
@@ -171,7 +166,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 48),
 
-                        // Identifier field
                         Container(
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.9),
@@ -196,7 +190,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Password field
                         Container(
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.9),
@@ -236,7 +229,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 32),
 
-                        // Login button
                         SizedBox(
                           width: double.infinity,
                           height: 50,
@@ -264,7 +256,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         const SizedBox(height: 24),
 
-                        // Sign Up link
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [

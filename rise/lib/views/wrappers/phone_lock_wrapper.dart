@@ -27,9 +27,6 @@ class _PhoneLockWrapperState extends State<PhoneLockWrapper>
     WidgetsBinding.instance.addObserver(this);
 
     _appLockCubit = context.read<AppLockCubit>();
-
-    // Load lock settings at startup
-    // Note: This is already called in RootApp, but calling again is safe
     _appLockCubit.loadLock();
   }
 
@@ -59,7 +56,7 @@ class _PhoneLockWrapperState extends State<PhoneLockWrapper>
 
   @override
   Widget build(BuildContext context) {
-    // First check if user is logged in
+    // Check if user is logged in
     return BlocBuilder<AuthCubit, app_auth.AuthState>(
       builder: (context, authState) {
         // Don't show lock screen if user is not authenticated
@@ -67,7 +64,7 @@ class _PhoneLockWrapperState extends State<PhoneLockWrapper>
           return widget.child;
         }
 
-        // User is authenticated, check lock status
+        // User is authenticated, check their lock settings
         return BlocBuilder<AppLockCubit, AppLockState>(
           builder: (context, lockState) {
             // Show loading only during initial load
@@ -82,18 +79,17 @@ class _PhoneLockWrapperState extends State<PhoneLockWrapper>
               return widget.child;
             }
 
-            // No lock configured => allow access
+            // No lock configured for this user => allow access
             if (lockState.lockType == null || lockState.lockValue == null) {
               return widget.child;
             }
 
-            // User authenticated with lock => allow access
+            // User authenticated with their lock => allow access
             if (lockState.isAuthenticated) {
               return widget.child;
             }
 
             // Lock is enabled but user not authenticated => show verify screen
-            // Use a Navigator to prevent navigation issues
             return Navigator(
               onGenerateRoute: (_) => MaterialPageRoute(
                 builder: (_) => BlocProvider.value(
