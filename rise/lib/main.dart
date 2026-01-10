@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:the_project/l10n/app_localizations.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';  // ✅ NEW
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'logic/home/home_cubit.dart';
 import 'logic/activities/activities_cubit.dart';
@@ -12,6 +12,7 @@ import 'logic/auth/auth_state.dart' as app_auth;
 import 'logic/journal/journal_cubit.dart';
 import 'logic/journal/daily_mood_cubit.dart';
 import 'logic/locale/locale_cubit.dart';
+import 'logic/applock/app_lock_cubit.dart';
 
 import 'database/repo/home_repo.dart';
 import 'database/repo/activities_repo.dart';
@@ -29,6 +30,7 @@ import 'views/screens/auth/login_screen.dart';
 import 'views/screens/auth/signup_screen.dart';
 import 'views/screens/welcome_screens/welcome_screen.dart';
 import 'views/screens/welcome_screens/welcome_provider.dart';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
@@ -37,7 +39,6 @@ import '/services/local_storage_service.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-// Background message handler (must be top-level function)
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -47,28 +48,24 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // ============================================================
-  // ✅ STEP 1: Initialize Supabase FIRST (before Firebase)
-  // ============================================================
+  // ✅ Supabase first
   try {
     await Supabase.initialize(
-      url: 'https://ycwdtlehjnrpikenlpji.supabase.co',  // TODO: Replace with your Supabase project URL
-      anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inljd2R0bGVoam5ycGlrZW5scGppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2NDQxMTUsImV4cCI6MjA4MzIyMDExNX0.ada24MOrDI-g7OznNSfcTvQ3_ghUFl4rufcMMWmeXOU',  // TODO: Replace with your Supabase anon key
+      url: 'https://ycwdtlehjnrpikenlpji.supabase.co',
+      anonKey:
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inljd2R0bGVoam5ycGlrZW5scGppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2NDQxMTUsImV4cCI6MjA4MzIyMDExNX0.ada24MOrDI-g7OznNSfcTvQ3_ghUFl4rufcMMWmeXOU',
       authOptions: const FlutterAuthClientOptions(
         authFlowType: AuthFlowType.pkce,
         autoRefreshToken: true,
       ),
-      debug: true,  // Set to false in production
+      debug: true,
     );
     print('✅ Supabase initialized successfully');
   } catch (e) {
     print('❌ Supabase initialization failed: $e');
-    // Continue anyway - will show error in UI
   }
 
-  // ============================================================
-  // STEP 2: Initialize Firebase (keep your existing code)
-  // ============================================================
+  // ✅ Firebase
   await Firebase.initializeApp();
   await LocalStorageService.instance.initializeFolders();
 
@@ -90,25 +87,25 @@ void main() async {
     },
   );
 
-  // ============================================================
-  // STEP 3: Initialize repositories and run app
-  // ============================================================
   try {
     final homeRepo = AbstractHomeRepo.getInstance();
     final activitiesRepo = AbstractActivitiesRepo.getInstance();
     final habitRepo = HabitRepository();
     final articlesRepo = ArticlesRepo();
 
-    // Reschedule all habit notifications
     await habitRepo.rescheduleAllNotifications();
     print('Habit notifications rescheduled');
 
     runApp(
       MultiBlocProvider(
         providers: [
+          // ✅ AppLockCubit's provider must be GLOBAL
+          BlocProvider<AppLockCubit>(
+            create: (_) => AppLockCubit()..loadLock(),
+          ),
+
           BlocProvider<LocaleCubit>(create: (_) => LocaleCubit()),
-          
-          // ✅ AuthCubit will now use Supabase auth
+
           BlocProvider<AuthCubit>(
             create: (_) => AuthCubit()..checkAuthStatus(),
           ),
@@ -120,15 +117,15 @@ void main() async {
           BlocProvider<ActivitiesCubit>(
             create: (_) => ActivitiesCubit(activitiesRepo)..loadActivities(),
           ),
-          
+
           BlocProvider<HabitCubit>(
             create: (_) => HabitCubit(habitRepo)..loadHabits(),
           ),
-          
+
           BlocProvider<JournalCubit>(
             create: (_) => JournalCubit(JournalRepository()),
           ),
-          
+
           BlocProvider<DailyMoodCubit>(
             create: (_) => DailyMoodCubit(DailyMoodRepository()),
           ),
@@ -163,9 +160,7 @@ void main() async {
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton(
-                    onPressed: () async {
-                      // Could trigger a restart or retry mechanism
-                    },
+                    onPressed: () async {},
                     child: const Text('Retry'),
                   ),
                 ],
@@ -177,7 +172,7 @@ void main() async {
     );
   }
 }
-// Update your main.dart MyApp class
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -194,9 +189,38 @@ class MyApp extends StatelessWidget {
         final lang = _langFromLocale(localeState.locale);
 
         return MaterialApp(
-          navigatorKey: navigatorKey,
-          debugShowCheckedModeBanner: false,
-          locale: localeState.locale,
+  navigatorKey: navigatorKey,
+  debugShowCheckedModeBanner: false,
+  locale: localeState.locale,
+
+  // ✅ GLOBAL auth redirect (THIS IS THE FIX)
+  builder: (context, child) {
+    return BlocListener<AuthCubit, app_auth.AuthState>(
+      listenWhen: (prev, curr) =>
+          prev.isAuthenticated != curr.isAuthenticated,
+      listener: (context, state) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          final nav = navigatorKey.currentState;
+          if (nav == null) return;
+
+          // 🔒 Logged out → ALWAYS go to login
+          if (!state.isAuthenticated) {
+            nav.pushNamedAndRemoveUntil('/login', (route) => false);
+          }
+
+          // 🔓 Logged in → go to home
+          if (state.isAuthenticated) {
+            nav.pushNamedAndRemoveUntil('/home', (route) => false);
+          }
+        });
+      },
+      child: PhoneLockWrapper(
+        child: child ?? const SizedBox.shrink(),
+      ),
+    );
+  },
+
+
           localizationsDelegates: const [
             AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
@@ -211,18 +235,15 @@ class MyApp extends StatelessWidget {
           home: FutureBuilder<bool>(
             future: WelcomeProvider.shouldShowWelcome(),
             builder: (context, welcomeSnapshot) {
-              // If still checking, show loading
               if (welcomeSnapshot.connectionState == ConnectionState.waiting) {
                 return const Scaffold(
                   body: Center(child: CircularProgressIndicator()),
                 );
               }
 
-              // If should show welcome screens
               if (welcomeSnapshot.hasData && welcomeSnapshot.data == true) {
                 return WelcomeScreen(
                   onCompleted: () {
-                    // User skipped welcome, go to login
                     Navigator.of(context).pushReplacement(
                       MaterialPageRoute(
                         builder: (context) => const AppEntryPoint(),
@@ -232,14 +253,16 @@ class MyApp extends StatelessWidget {
                 );
               }
 
-              // Otherwise go to normal app flow
               return const AppEntryPoint();
             },
           ),
           routes: {
             '/login': (context) => const LoginScreen(),
             '/signup': (context) => const SignUpScreen(),
+
+            // ✅ NO wrapper here anymore
             '/home': (context) => BottomNavWrapper(key: bottomNavKey),
+
             '/profile': (context) => const ProfileScreen(),
             '/app-lock': (context) => const AppLockScreen(),
             '/language': (context) => const LanguageSelectionScreen(),
@@ -250,7 +273,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// NEW: Separate entry point for auth flow
 class AppEntryPoint extends StatelessWidget {
   const AppEntryPoint({super.key});
 
@@ -258,36 +280,34 @@ class AppEntryPoint extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<AuthCubit, app_auth.AuthState>(
       listener: (context, state) {
-        final lang = 'en'; // Get from locale cubit if needed
-        
+        final lang = 'en';
+
         if (state.isAuthenticated && state.user != null) {
-          // Mark user as logged in (so welcome won't show again)
           WelcomeProvider.markUserLoggedIn();
-          
+
           context.read<HomeCubit>().loadInitial(
                 userName: state.user!.fullName,
                 lang: lang,
               );
 
-                context.read<HabitCubit>().loadHabits();
-                context.read<ActivitiesCubit>().loadActivities();
-              }
-            },
-            child: BlocBuilder<AuthCubit, app_auth.AuthState>(
-              builder: (context, state) {
-                if (state.isLoading) {
-                  return const Scaffold(
-                    body: Center(child: CircularProgressIndicator()),
-                  );
-                }
+          context.read<HabitCubit>().loadHabits();
+          context.read<ActivitiesCubit>().loadActivities();
+        }
+      },
+      child: BlocBuilder<AuthCubit, app_auth.AuthState>(
+        builder: (context, state) {
+          if (state.isLoading) {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
 
           if (!state.isAuthenticated) {
             return const LoginScreen();
           }
 
-          return PhoneLockWrapper(
-            child: BottomNavWrapper(key: bottomNavKey),
-          );
+          // ✅ NO wrapper here anymore
+          return BottomNavWrapper(key: bottomNavKey);
         },
       ),
     );

@@ -1,5 +1,12 @@
+import 'dart:io';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gal/gal.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:the_project/l10n/app_localizations.dart';
 
 import '../../../widgets/activities/activity_shell.dart';
@@ -8,21 +15,143 @@ import '../../../themes/style_simple/colors.dart';
 import '../../../../logic/activities/games/coloring_cubit.dart';
 import '../../../../logic/activities/games/coloring_state.dart';
 
-// NEW: helper that loads SVG templates
+// helper that loads SVG templates
 import 'svg_template_loader.dart';
 
-class ColoringPage extends StatelessWidget {
+class ColoringPage extends StatefulWidget {
   const ColoringPage({super.key});
 
   @override
+  State<ColoringPage> createState() => _ColoringPageState();
+}
+
+class _ColoringPageState extends State<ColoringPage> {
+  final GlobalKey _repaintKey = GlobalKey();
+
+  Future<void> _saveToGallery(Color bgColor) async {
+    final l10n = AppLocalizations.of(context)!;
+
+    try {
+      // Permissions (Android 13+ uses photos/media; older Android may need storage)
+      PermissionStatus status;
+      if (Platform.isIOS) {
+        status = await Permission.photosAddOnly.request();
+      } else {
+        status = await Permission.photos.request();
+        if (!status.isGranted) {
+          status = await Permission.storage.request();
+        }
+      }
+
+      if (!status.isGranted) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              (l10n as dynamic).coloringPermissionDenied ??
+                  'Permission denied. Please allow gallery access.',
+            ),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
+
+      // Capture the RepaintBoundary safely
+      final renderObject = _repaintKey.currentContext?.findRenderObject();
+      if (renderObject is! RenderRepaintBoundary) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              (l10n as dynamic).coloringSaveFailed ??
+                  'Failed to capture coloring.',
+            ),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
+
+      // 1) Capture widget
+      final ui.Image captured = await renderObject.toImage(pixelRatio: 3.0);
+
+      // 2) Flatten onto solid background (fixes black background in file viewers)
+      final recorder = ui.PictureRecorder();
+      final canvas = Canvas(recorder);
+
+      final bgPaint = Paint()..color = bgColor;
+      canvas.drawRect(
+        Rect.fromLTWH(
+          0,
+          0,
+          captured.width.toDouble(),
+          captured.height.toDouble(),
+        ),
+        bgPaint,
+      );
+
+      canvas.drawImage(captured, Offset.zero, Paint());
+
+      final picture = recorder.endRecording();
+      final ui.Image finalImage =
+          await picture.toImage(captured.width, captured.height);
+
+      final ByteData? byteData =
+          await finalImage.toByteData(format: ui.ImageByteFormat.png);
+
+      if (byteData == null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              (l10n as dynamic).coloringSaveFailed ?? 'Failed to save image.',
+            ),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
+
+      final Uint8List pngBytes = byteData.buffer.asUint8List();
+
+      await Gal.putImageBytes(
+        pngBytes,
+        album: 'Rise',
+        name: "coloring_${DateTime.now().millisecondsSinceEpoch}.png",
+      );
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.coloringSaved),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            (AppLocalizations.of(context) as dynamic).coloringSaveFailed ??
+                'Failed to save image: $e',
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!; // <-- added
+    final l10n = AppLocalizations.of(context)!;
 
     return ActivityShell(
-      title: l10n.coloringTitle, // was: 'Coloring'
+      title: l10n.coloringTitle,
       child: BlocBuilder<ColoringCubit, ColoringState>(
         builder: (context, state) {
           final cubit = context.read<ColoringCubit>();
+          final bg = _templateBg(state.template);
 
           return Column(
             children: [
@@ -40,7 +169,7 @@ class ColoringPage extends StatelessWidget {
                     child: Row(
                       children: List.generate(6, (i) {
                         return _TemplateChip(
-                          label: _templateLabel(context, i), // <-- localized
+                          label: _templateLabel(context, i),
                           emoji: _templateEmojis[i],
                           selected: state.template == i,
                           onTap: () => cubit.selectTemplate(i),
@@ -119,15 +248,9 @@ class ColoringPage extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _Tool(
-                      icon: Icons.undo_rounded,
-                      onTap: cubit.undo,
-                    ),
+                    _Tool(icon: Icons.undo_rounded, onTap: cubit.undo),
                     const SizedBox(width: 12),
-                    _Tool(
-                      icon: Icons.redo_rounded,
-                      onTap: cubit.redo,
-                    ),
+                    _Tool(icon: Icons.redo_rounded, onTap: cubit.redo),
                     const SizedBox(width: 12),
                     _Tool(
                       icon: Icons.cleaning_services_rounded,
@@ -136,16 +259,7 @@ class ColoringPage extends StatelessWidget {
                     const SizedBox(width: 12),
                     _Tool(
                       icon: Icons.download_rounded,
-                      onTap: () =>
-                          ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar( // <-- was const SnackBar
-                          content: Text(
-                            AppLocalizations.of(context)!
-                                .coloringSaved, // localized
-                          ),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      ),
+                      onTap: () => _saveToGallery(bg),
                     ),
                   ],
                 ),
@@ -158,13 +272,16 @@ class ColoringPage extends StatelessWidget {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(22),
                     child: Container(
-                      color: _templateBg(state.template),
-                      child: _ColoringCanvas(
-                        template: state.template,
-                        currentColor: state.currentColor,
-                        history: state.history,
-                        onFill: (idx, prev, next) =>
-                            cubit.onFill(idx, prev, next),
+                      color: bg,
+                      child: RepaintBoundary(
+                        key: _repaintKey,
+                        child: _ColoringCanvas(
+                          template: state.template,
+                          currentColor: state.currentColor,
+                          history: state.history,
+                          onFill: (idx, prev, next) =>
+                              cubit.onFill(idx, prev, next),
+                        ),
                       ),
                     ),
                   ),
@@ -352,7 +469,6 @@ class _ColoringCanvasState extends State<_ColoringCanvas> {
   SvgTemplate? _svgTemplate;
   String? _loadingError;
 
-  // template index -> SVG asset path
   static const _templateAssets = [
     'assets/coloring/space.svg',
     'assets/coloring/garden.svg',
@@ -412,7 +528,6 @@ class _ColoringCanvasState extends State<_ColoringCanvas> {
 
     final initial = <_Region>[];
 
-    // 1. base regions: one per SVG path, transparent color
     for (final path in tpl.paths) {
       initial.add(
         _Region(
@@ -422,7 +537,6 @@ class _ColoringCanvasState extends State<_ColoringCanvas> {
       );
     }
 
-    // 2. apply fill history for this template
     for (final a in widget.history.where(
       (a) => a.template == widget.template,
     )) {
@@ -435,7 +549,7 @@ class _ColoringCanvasState extends State<_ColoringCanvas> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!; // <-- added
+    final l10n = AppLocalizations.of(context)!;
 
     if (_loadingError != null) {
       return Center(
@@ -443,7 +557,6 @@ class _ColoringCanvasState extends State<_ColoringCanvas> {
           padding: const EdgeInsets.all(16),
           child: Text(
             l10n.coloringLoadError(_loadingError!),
-            // was: 'Error loading coloring page:\n$_loadingError'
             textAlign: TextAlign.center,
             style: const TextStyle(color: Colors.red),
           ),
@@ -500,11 +613,9 @@ class _ScenePainter extends CustomPainter {
     for (final r in regions) {
       final path = r.pathBuilder(size);
 
-      // Fill (may be transparent)
       final fill = Paint()..color = r.color;
       canvas.drawPath(path, fill);
 
-      // Comic outline
       final stroke = Paint()
         ..style = PaintingStyle.stroke
         ..strokeWidth = 3
@@ -531,10 +642,10 @@ class _ColorPickerDialog extends StatefulWidget {
 }
 
 class _ColorPickerDialogState extends State<_ColorPickerDialog> {
-  late double h; // 0..360
-  late double s; // 0..1
-  late double v; // 0..1
-  late double a; // 0..1
+  late double h;
+  late double s;
+  late double v;
+  late double a;
 
   @override
   void initState() {
@@ -550,7 +661,7 @@ class _ColorPickerDialogState extends State<_ColorPickerDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!; // <-- added
+    final l10n = AppLocalizations.of(context)!;
 
     return Dialog(
       insetPadding: const EdgeInsets.all(18),
@@ -560,7 +671,7 @@ class _ColorPickerDialogState extends State<_ColorPickerDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              l10n.coloringPickColorTitle, // was: 'Pick a color'
+              l10n.coloringPickColorTitle,
               style:
                   const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
@@ -568,28 +679,28 @@ class _ColorPickerDialogState extends State<_ColorPickerDialog> {
             _Preview(color: color),
             const SizedBox(height: 12),
             _LabeledSlider(
-              label: l10n.coloringHue, // was: 'Hue'
+              label: l10n.coloringHue,
               value: h,
               min: 0,
               max: 360,
               onChanged: (x) => setState(() => h = x),
             ),
             _LabeledSlider(
-              label: l10n.coloringSaturation, // was: 'Saturation'
+              label: l10n.coloringSaturation,
               value: s,
               min: 0,
               max: 1,
               onChanged: (x) => setState(() => s = x),
             ),
             _LabeledSlider(
-              label: l10n.coloringBrightness, // was: 'Brightness'
+              label: l10n.coloringBrightness,
               value: v,
               min: 0,
               max: 1,
               onChanged: (x) => setState(() => v = x),
             ),
             _LabeledSlider(
-              label: l10n.coloringOpacity, // was: 'Opacity'
+              label: l10n.coloringOpacity,
               value: a,
               min: 0,
               max: 1,
@@ -600,7 +711,7 @@ class _ColorPickerDialogState extends State<_ColorPickerDialog> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                  child: Text(l10n.cancel), // already exists in ARB
+                  child: Text(l10n.cancel),
                   onPressed: () => Navigator.pop(context),
                 ),
                 const SizedBox(width: 8),
@@ -609,7 +720,7 @@ class _ColorPickerDialogState extends State<_ColorPickerDialog> {
                     backgroundColor: AppColors.accentPink,
                     foregroundColor: Colors.white,
                   ),
-                  child: Text(l10n.coloringUseColor), // was: 'Use color'
+                  child: Text(l10n.coloringUseColor),
                   onPressed: () => Navigator.pop(context, color),
                 ),
               ],
@@ -669,7 +780,6 @@ class _LabeledSlider extends StatelessWidget {
   }
 }
 
-// Keep emojis as-is, only labels are localized via _templateLabel
 const _templateEmojis = ['🪐', '🌼', '🐟', '🦋', '🏠', '🌀'];
 
 Color _templateBg(int t) {
@@ -691,7 +801,6 @@ Color _templateBg(int t) {
   }
 }
 
-/// Helper to localize template names
 String _templateLabel(BuildContext context, int index) {
   final l10n = AppLocalizations.of(context)!;
   switch (index) {

@@ -36,7 +36,7 @@ class _WelcomePageState extends State<WelcomePage>
   @override
   void initState() {
     super.initState();
-    
+
     _controller = AnimationController(
       duration: const Duration(milliseconds: 1200),
       vsync: this,
@@ -107,41 +107,55 @@ class _WelcomePageState extends State<WelcomePage>
       );
     }
 
-    // Regular pages with gradient
+    // Regular pages with gradient (FIX 1: scrollable + proper bottom padding)
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: widget.gradientColors ?? [
-            AppColors.bgTop,
-            AppColors.bgMid,
-            AppColors.bgBottom,
-          ],
+          colors: widget.gradientColors ??
+              [
+                AppColors.bgTop,
+                AppColors.bgMid,
+                AppColors.bgBottom,
+              ],
         ),
       ),
       child: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            
-            // Logo/Image Section with animation
-            Expanded(
-              flex: 4,
-              child: _buildAnimatedImageSection(),
-            ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            // Reserve space so the floating bottom bar doesn't overlap content.
+            // Adjust if you change the bottom bar height.
+            const double bottomBarSpace = 160;
 
-            // Content Section with animation
-            Expanded(
-              flex: 2,
-              child: _buildAnimatedContentSection(),
-            ),
-            
-            // Extra space at bottom
-            const Spacer(flex: 2),
-            
-            const SizedBox(height: 100), // Space for floating bottom bar
-          ],
+            return SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: bottomBarSpace),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 20),
+
+                      // Image / Logo area (adaptive height)
+                      SizedBox(
+                        height: constraints.maxHeight * 0.45,
+                        child: _buildAnimatedImageSection(),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Content (can grow; will scroll if needed)
+                      _buildAnimatedContentSection(),
+
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -168,7 +182,6 @@ class _WelcomePageState extends State<WelcomePage>
       height: 200,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(40),
-        
       ),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -201,10 +214,8 @@ class _WelcomePageState extends State<WelcomePage>
     return Container(
       width: 250,
       height: 250,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         shape: BoxShape.circle,
-        
-        // Shadow removed
       ),
       child: Center(
         child: Container(

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,15 +8,15 @@ import 'package:the_project/views/widgets/applock/set_lock_step_widget.dart';
 import 'package:the_project/views/widgets/applock/confirm_lock_step_widget.dart';
 import 'package:the_project/logic/applock/app_lock_cubit.dart';
 
+// ✅ IMPORTANT: needed to push Verify screen when user returns from background
+import 'package:the_project/views/screens/auth/verify_lock_screen.dart';
+
 class AppLockScreen extends StatelessWidget {
   const AppLockScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => AppLockCubit()..loadLock(),
-      child: const _AppLockScreenBody(),
-    );
+    return const _AppLockScreenBody();
   }
 }
 
@@ -28,7 +27,8 @@ class _AppLockScreenBody extends StatefulWidget {
   State<_AppLockScreenBody> createState() => _AppLockScreenBodyState();
 }
 
-class _AppLockScreenBodyState extends State<_AppLockScreenBody> {
+class _AppLockScreenBodyState extends State<_AppLockScreenBody>
+    with WidgetsBindingObserver {
   String? selectedLockType;
   int _currentStep = 0;
   bool _isChangingExistingLock = false;
@@ -36,17 +36,99 @@ class _AppLockScreenBodyState extends State<_AppLockScreenBody> {
   final TextEditingController _pinController = TextEditingController();
   final TextEditingController _confirmPinController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+
   List<int> _patternPoints = [];
   List<int> _confirmPatternPoints = [];
 
+  late final AppLockCubit _appLockCubit;
+
+  // ✅ guards
+  bool _needsLockOnResume = false;
+  bool _isPushingVerify = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
+    _appLockCubit = context.read<AppLockCubit>();
+
+    // ✅ Allow opening AppLock settings page WITHOUT asking for code
+    // (inside the app). Outside app / when resuming, we will still lock.
+    _appLockCubit.setBypassLock(true);
+
+    // Load current lock info for showing status card etc.
+    _appLockCubit.loadLock();
+  }
+
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+
+    // ✅ Re-enable lock everywhere else
+    _appLockCubit.setBypassLock(false);
+
     _pinController.dispose();
     _confirmPinController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.detached) {
+      // ✅ leaving app => next time require verify
+      _needsLockOnResume = true;
+
+      // do NOT keep bypass on when app goes background
+      _appLockCubit.setBypassLock(false);
+      _appLockCubit.resetAuthentication();
+    }
+
+    if (state == AppLifecycleState.resumed) {
+      // Only lock if we actually left the app
+      if (!_needsLockOnResume) return;
+      _needsLockOnResume = false;
+
+      // ✅ push verify safely after frame
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) return;
+        if (_isPushingVerify) return;
+
+        await _appLockCubit.loadLock();
+        final s = _appLockCubit.state;
+
+        // If no lock exists, just allow settings
+        if (s.lockType == null || s.lockValue == null) {
+          _appLockCubit.setBypassLock(true);
+          return;
+        }
+
+        // If already authenticated, allow settings
+        if (s.isAuthenticated) {
+          _appLockCubit.setBypassLock(true);
+          return;
+        }
+
+        _isPushingVerify = true;
+
+        await Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const VerifyLockScreen()),
+        );
+
+        _isPushingVerify = false;
+
+        if (!mounted) return;
+
+        // ✅ After user verifies, allow using settings page normally
+        _appLockCubit.setBypassLock(true);
+      });
+    }
   }
 
   void _selectLockType(String type) {
@@ -159,7 +241,10 @@ class _AppLockScreenBodyState extends State<_AppLockScreenBody> {
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-            child: Text(l10n.appLockRemove, style: const TextStyle(color: Colors.white)),
+            child: Text(
+              l10n.appLockRemove,
+              style: const TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -198,7 +283,7 @@ class _AppLockScreenBodyState extends State<_AppLockScreenBody> {
 
   Widget _buildLockStatusCard(AppLockState lockState, BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -287,7 +372,9 @@ class _AppLockScreenBodyState extends State<_AppLockScreenBody> {
 
   Widget _buildStepContent(AppLockState lockState, BuildContext context) {
     // If user has existing lock and not changing it, show status card
-    if (lockState.lockType != null && !_isChangingExistingLock && _currentStep == 0) {
+    if (lockState.lockType != null &&
+        !_isChangingExistingLock &&
+        _currentStep == 0) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -306,7 +393,6 @@ class _AppLockScreenBodyState extends State<_AppLockScreenBody> {
       );
     }
 
-    // Otherwise show the normal flow
     switch (_currentStep) {
       case 1:
         return SetLockStepWidget(
@@ -325,7 +411,8 @@ class _AppLockScreenBodyState extends State<_AppLockScreenBody> {
           confirmPinController: _confirmPinController,
           confirmPasswordController: _confirmPasswordController,
           confirmPatternPoints: _confirmPatternPoints,
-          onPatternDraw: (points) => setState(() => _confirmPatternPoints = points),
+          onPatternDraw: (points) =>
+              setState(() => _confirmPatternPoints = points),
           onClearPattern: _clearConfirmPattern,
           onSaveLock: () => _saveLock(context),
           validateStep: _validateStep2,
@@ -357,11 +444,13 @@ class _AppLockScreenBodyState extends State<_AppLockScreenBody> {
         elevation: 0,
         leading: _currentStep > 0 || _isChangingExistingLock
             ? IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87),
+                icon: const Icon(Icons.arrow_back_ios_new,
+                    color: Colors.black87),
                 onPressed: _goBack,
               )
             : IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87),
+                icon: const Icon(Icons.arrow_back_ios_new,
+                    color: Colors.black87),
                 onPressed: () => Navigator.pop(context),
               ),
       ),
