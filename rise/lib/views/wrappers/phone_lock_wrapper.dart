@@ -1,8 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:the_project/logic/applock/app_lock_cubit.dart';
-import 'package:the_project/views/screens/auth/verify_lock_screen.dart';
+import '../../logic/applock/app_lock_cubit.dart';
+import '../../logic/auth/auth_cubit.dart';
+import '../../logic/auth/auth_state.dart' as app_auth;
+import '../screens/auth/verify_lock_screen.dart';
 
 class PhoneLockWrapper extends StatefulWidget {
   final Widget child;
@@ -16,56 +17,90 @@ class PhoneLockWrapper extends StatefulWidget {
   State<PhoneLockWrapper> createState() => _PhoneLockWrapperState();
 }
 
-class _PhoneLockWrapperState extends State<PhoneLockWrapper> {
+class _PhoneLockWrapperState extends State<PhoneLockWrapper>
+    with WidgetsBindingObserver {
   late AppLockCubit _appLockCubit;
 
   @override
   void initState() {
     super.initState();
-    _appLockCubit = AppLockCubit();
+    WidgetsBinding.instance.addObserver(this);
+
+    _appLockCubit = context.read<AppLockCubit>();
     _appLockCubit.loadLock();
   }
 
   @override
   void dispose() {
-    _appLockCubit.close();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    
+    // When app goes to background, reset authentication
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.detached) {
+      _appLockCubit.setBypassLock(false);
+      _appLockCubit.resetAuthentication();
+    }
+
+    // When app comes back to foreground, reload lock settings
+    if (state == AppLifecycleState.resumed) {
+      _appLockCubit.loadLock();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _appLockCubit,
-      child: BlocBuilder<AppLockCubit, AppLockState>(
-        builder: (context, lockState) {
-          print('AppLock State: isLoading=${lockState.isLoading}, lockType=${lockState.lockType}, isAuthenticated=${lockState.isAuthenticated}');
-          
-          // Show loading while checking lock status
-          if (lockState.isLoading) {
-            return const Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
+    // Check if user is logged in
+    return BlocBuilder<AuthCubit, app_auth.AuthState>(
+      builder: (context, authState) {
+        // Don't show lock screen if user is not authenticated
+        if (!authState.isAuthenticated) {
+          return widget.child;
+        }
+
+        // User is authenticated, check their lock settings
+        return BlocBuilder<AppLockCubit, AppLockState>(
+          builder: (context, lockState) {
+            // Show loading only during initial load
+            if (lockState.isLoading) {
+              return const Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              );
+            }
+
+            // Bypass lock (e.g., when in AppLock settings page)
+            if (lockState.bypassLock) {
+              return widget.child;
+            }
+
+            // No lock configured for this user => allow access
+            if (lockState.lockType == null || lockState.lockValue == null) {
+              return widget.child;
+            }
+
+            // User authenticated with their lock => allow access
+            if (lockState.isAuthenticated) {
+              return widget.child;
+            }
+
+            // Lock is enabled but user not authenticated => show verify screen
+            return Navigator(
+              onGenerateRoute: (_) => MaterialPageRoute(
+                builder: (_) => BlocProvider.value(
+                  value: _appLockCubit,
+                  child: const VerifyLockScreen(),
+                ),
               ),
             );
-          }
-
-          // If no lock is set, show the app directly
-          if (lockState.lockType == null || lockState.lockValue == null) {
-            print('No app lock set, showing app directly');
-            return widget.child;
-          }
-
-          // If lock is set but user is authenticated, show the app
-          if (lockState.isAuthenticated) {
-            print('App lock set and user authenticated, showing app');
-            return widget.child;
-          }
-
-          // If lock is set but not authenticated, show verification screen
-          print('App lock set but user not authenticated, showing verify screen');
-          return VerifyLockScreen();
-        },
-      ),
+          },
+        );
+      },
     );
   }
 }

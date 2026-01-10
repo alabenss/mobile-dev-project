@@ -31,6 +31,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  bool _hasLoadedData = false;
+
   Future<void> _onRefresh() async {
     final authState = context.read<AuthCubit>().state;
 
@@ -69,13 +71,15 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // ✅ Load data immediately when screen loads
+    // Load data only once when screen is first created
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadHomeData();
+      if (!_hasLoadedData) {
+        _loadHomeData();
+        _hasLoadedData = true;
+      }
     });
   }
 
-  // ✅ Helper method to load home data
   void _loadHomeData() {
     final authState = context.read<AuthCubit>().state;
 
@@ -91,14 +95,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    // ✅ Listen to auth state changes and reload data
     return BlocListener<AuthCubit, app_auth.AuthState>(
       listener: (context, authState) {
-        if (authState.isAuthenticated && authState.user != null) {
-          // User just logged in, reload data
-          _loadHomeData();
-        } else if (!authState.isAuthenticated) {
-          // User logged out, navigate to login
+        // Only handle logout, not login (to avoid double loading)
+        if (!authState.isAuthenticated) {
           Navigator.of(context).pushNamedAndRemoveUntil(
             '/login',
             (route) => false,

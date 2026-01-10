@@ -8,62 +8,12 @@ class HabitCubit extends Cubit<HabitState> {
 
   HabitCubit(this._repository) : super(const HabitState());
 
-  /// Load all habits (unfiltered) - use loadHabitsByFrequency instead for better performance
+  /// Load all habits from the database
   Future<void> loadHabits() async {
     emit(state.copyWith(isLoading: true));
     try {
       final habits = await _repository.getAllHabits();
       emit(state.copyWith(habits: habits, isLoading: false));
-    } catch (e) {
-      emit(state.copyWith(isLoading: false, error: e.toString()));
-    }
-  }
-
-  /// Load habits filtered by frequency and date range
-  /// This is the recommended method for fetching habits
-  Future<void> loadHabitsByFrequency(String frequency) async {
-    emit(state.copyWith(isLoading: true));
-    try {
-      final habits = await _repository.getHabitsByFrequencyAndDate(frequency);
-      
-      // Update state with frequency-specific habits
-      // Merge with existing habits from other frequencies
-      final updatedHabits = <Habit>[];
-      
-      // Keep habits from other frequencies
-      for (var habit in state.habits) {
-        if (habit.frequency != frequency) {
-          updatedHabits.add(habit);
-        }
-      }
-      
-      // Add newly fetched habits
-      updatedHabits.addAll(habits);
-      
-      emit(state.copyWith(habits: updatedHabits, isLoading: false));
-    } catch (e) {
-      emit(state.copyWith(isLoading: false, error: e.toString()));
-    }
-  }
-
-  /// Load all habits for all frequencies (Daily, Weekly, Monthly) with date filtering
-  Future<void> loadAllFilteredHabits() async {
-    emit(state.copyWith(isLoading: true));
-    try {
-      // Fetch all three frequencies in parallel for better performance
-      final results = await Future.wait([
-        _repository.getHabitsByFrequencyAndDate('Daily'),
-        _repository.getHabitsByFrequencyAndDate('Weekly'),
-        _repository.getHabitsByFrequencyAndDate('Monthly'),
-      ]);
-      
-      // Combine all habits
-      final allHabits = <Habit>[];
-      allHabits.addAll(results[0]); // Daily
-      allHabits.addAll(results[1]); // Weekly
-      allHabits.addAll(results[2]); // Monthly
-      
-      emit(state.copyWith(habits: allHabits, isLoading: false));
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
@@ -88,8 +38,8 @@ class HabitCubit extends Cubit<HabitState> {
       // Insert into database
       await _repository.insertHabit(habit);
       
-      // Reload habits for that specific frequency
-      await loadHabitsByFrequency(habit.frequency);
+      // Reload all habits
+      await loadHabits();
     } catch (e) {
       emit(state.copyWith(error: e.toString()));
     }
@@ -99,15 +49,7 @@ class HabitCubit extends Cubit<HabitState> {
   Future<void> completeHabit(String habitKey) async {
     try {
       await _repository.updateHabitStatus(habitKey, 'completed');
-      
-      // Find the habit to determine its frequency
-      final habit = state.habits.firstWhere(
-        (h) => h.habitKey == habitKey,
-        orElse: () => state.habits.first,
-      );
-      
-      // Reload habits for that frequency
-      await loadHabitsByFrequency(habit.frequency);
+      await loadHabits();
     } catch (e) {
       emit(state.copyWith(error: e.toString()));
     }
@@ -117,15 +59,7 @@ class HabitCubit extends Cubit<HabitState> {
   Future<void> skipHabit(String habitKey) async {
     try {
       await _repository.updateHabitStatus(habitKey, 'skipped');
-      
-      // Find the habit to determine its frequency
-      final habit = state.habits.firstWhere(
-        (h) => h.habitKey == habitKey,
-        orElse: () => state.habits.first,
-      );
-      
-      // Reload habits for that frequency
-      await loadHabitsByFrequency(habit.frequency);
+      await loadHabits();
     } catch (e) {
       emit(state.copyWith(error: e.toString()));
     }
@@ -135,15 +69,7 @@ class HabitCubit extends Cubit<HabitState> {
   Future<void> resetHabit(String habitKey) async {
     try {
       await _repository.updateHabitStatus(habitKey, 'active');
-      
-      // Find the habit to determine its frequency
-      final habit = state.habits.firstWhere(
-        (h) => h.habitKey == habitKey,
-        orElse: () => state.habits.first,
-      );
-      
-      // Reload habits for that frequency
-      await loadHabitsByFrequency(habit.frequency);
+      await loadHabits();
     } catch (e) {
       emit(state.copyWith(error: e.toString()));
     }
@@ -152,16 +78,8 @@ class HabitCubit extends Cubit<HabitState> {
   /// Delete a habit - uses habitKey
   Future<void> deleteHabit(String habitKey) async {
     try {
-      // Find the habit to determine its frequency before deleting
-      final habit = state.habits.firstWhere(
-        (h) => h.habitKey == habitKey,
-        orElse: () => state.habits.first,
-      );
-      
       await _repository.deleteHabit(habitKey);
-      
-      // Reload habits for that frequency
-      await loadHabitsByFrequency(habit.frequency);
+      await loadHabits();
     } catch (e) {
       emit(state.copyWith(error: e.toString()));
     }
@@ -171,7 +89,7 @@ class HabitCubit extends Cubit<HabitState> {
   Future<void> resetDailyHabits() async {
     try {
       await _repository.resetDailyHabits();
-      await loadHabitsByFrequency('Daily');
+      await loadHabits();
     } catch (e) {
       emit(state.copyWith(error: e.toString()));
     }
@@ -182,14 +100,7 @@ class HabitCubit extends Cubit<HabitState> {
     try {
       final success = await _repository.restoreStreak(habitKey);
       if (success) {
-        // Find the habit to determine its frequency
-        final habit = state.habits.firstWhere(
-          (h) => h.habitKey == habitKey,
-          orElse: () => state.habits.first,
-        );
-        
-        // Reload habits for that frequency
-        await loadHabitsByFrequency(habit.frequency);
+        await loadHabits();
       }
       return success;
     } catch (e) {
@@ -206,13 +117,5 @@ class HabitCubit extends Cubit<HabitState> {
   /// Clear any error message
   void clearError() {
     emit(state.copyWith(error: null));
-  }
-
-  void clearHabits() {
-    emit(HabitState(
-      habits: [],
-      isLoading: false,
-      error: null,
-    ));
   }
 }

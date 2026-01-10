@@ -14,7 +14,6 @@ class Habit {
   final int streakCount;
   final int bestStreak;
   final bool isTask; // true if still a task, false if it became a habit
-  final int taskCompletionCount;
   final DateTime? lastCompletedDate;
 
   Habit({
@@ -31,7 +30,6 @@ class Habit {
     this.streakCount = 0,
     this.bestStreak = 0,
     this.isTask = true, // Start as task
-    this.taskCompletionCount = 0,
     this.lastCompletedDate,
   }) : habitKey = habitKey ?? title.toLowerCase().replaceAll(' ', '_');
 
@@ -55,7 +53,6 @@ class Habit {
     int? streakCount,
     int? bestStreak,
     bool? isTask,
-    int? taskCompletionCount,
     DateTime? lastCompletedDate,
   }) {
     return Habit(
@@ -72,7 +69,6 @@ class Habit {
       streakCount: streakCount ?? this.streakCount,
       bestStreak: bestStreak ?? this.bestStreak,
       isTask: isTask ?? this.isTask,
-      taskCompletionCount: taskCompletionCount ?? this.taskCompletionCount,
       lastCompletedDate: lastCompletedDate ?? this.lastCompletedDate,
     );
   }

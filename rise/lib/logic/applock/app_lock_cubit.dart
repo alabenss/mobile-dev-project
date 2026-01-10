@@ -2,17 +2,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../services/api_service.dart';
-import '../../config/api_config.dart';
-
 class AppLockState extends Equatable {
   final bool isLoading;
-  final String? lockType;
-  final String? lockValue;
+  final String? lockType;   // 'pin' | 'pattern' | 'password'
+  final String? lockValue;  // stored locally
   final bool saveSuccess;
   final bool removeSuccess;
   final bool isAuthenticated;
   final bool wrongAttempt;
+
+  // ✅ NEW: when true, do NOT force lock screen (used for AppLock settings page)
+  final bool bypassLock;
 
   const AppLockState({
     this.isLoading = false,
@@ -22,25 +22,31 @@ class AppLockState extends Equatable {
     this.removeSuccess = false,
     this.isAuthenticated = false,
     this.wrongAttempt = false,
+    this.bypassLock = false,
   });
+
+  // ✅ Sentinel to differentiate "not passed" from "passed null"
+  static const Object _unset = Object();
 
   AppLockState copyWith({
     bool? isLoading,
-    String? lockType,
-    String? lockValue,
+    Object? lockType = _unset,
+    Object? lockValue = _unset,
     bool? saveSuccess,
     bool? removeSuccess,
     bool? isAuthenticated,
     bool? wrongAttempt,
+    bool? bypassLock,
   }) {
     return AppLockState(
       isLoading: isLoading ?? this.isLoading,
-      lockType: lockType ?? this.lockType,
-      lockValue: lockValue ?? this.lockValue,
+      lockType: lockType == _unset ? this.lockType : lockType as String?,
+      lockValue: lockValue == _unset ? this.lockValue : lockValue as String?,
       saveSuccess: saveSuccess ?? this.saveSuccess,
       removeSuccess: removeSuccess ?? this.removeSuccess,
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
       wrongAttempt: wrongAttempt ?? this.wrongAttempt,
+      bypassLock: bypassLock ?? this.bypassLock,
     );
   }
 
@@ -53,73 +59,65 @@ class AppLockState extends Equatable {
         removeSuccess,
         isAuthenticated,
         wrongAttempt,
+        bypassLock,
       ];
 }
 
 class AppLockCubit extends Cubit<AppLockState> {
   AppLockCubit() : super(const AppLockState());
 
-  final ApiService _api = ApiService.instance;
+  static const String _kLockType = 'app_lock_type';
+  static const String _kLockValue = 'app_lock_value';
 
-  /// Get logged-in userId from SharedPreferences
-  Future<int?> _getCurrentUserId() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getInt('userId');
+  // ✅ NEW: allow AppLock settings page to open without asking code
+  void setBypassLock(bool value) {
+    emit(state.copyWith(bypassLock: value));
   }
 
-  /// Load app lock
+  /// Load lock locally
   Future<void> loadLock() async {
-    emit(state.copyWith(isLoading: true));
+    emit(state.copyWith(
+      isLoading: true,
+      saveSuccess: false,
+      removeSuccess: false,
+      wrongAttempt: false,
+    ));
 
     try {
-      final userId = await _getCurrentUserId();
-      if (userId == null) {
-        emit(state.copyWith(isLoading: false));
-        return;
-      }
+      final prefs = await SharedPreferences.getInstance();
+      final type = prefs.getString(_kLockType);
+      final value = prefs.getString(_kLockValue);
 
-      final response = await _api.get(
-        ApiConfig.APP_LOCK_GET,
-        params: {'userId': userId.toString()},
-      );
-
-      if (response['success'] == true && response['lock'] != null) {
-        emit(state.copyWith(
-          isLoading: false,
-          lockType: response['lock']['lockType'],
-          lockValue: response['lock']['lockValue'],
-          isAuthenticated: false,
-        ));
-      } else {
+      // If missing anything -> treat as no lock
+      if (type == null || value == null || type.isEmpty || value.isEmpty) {
         emit(state.copyWith(
           isLoading: false,
           lockType: null,
           lockValue: null,
-          isAuthenticated: false,
+          isAuthenticated: true, // no lock => allow access
         ));
-      }
-    } catch (e) {
-      print('AppLockCubit: Error loading lock: $e');
-      emit(state.copyWith(isLoading: false));
-    }
-  }
-
-  /// Save app lock
-  Future<void> saveLock(String lockType, String lockValue) async {
-    emit(state.copyWith(isLoading: true, saveSuccess: false));
-
-    try {
-      final userId = await _getCurrentUserId();
-      if (userId == null) {
-        emit(state.copyWith(isLoading: false));
         return;
       }
 
-      await _api.post(ApiConfig.APP_LOCK_SAVE, {
-        'userId': userId,
-        'lockType': lockType,
-        'lockValue': lockValue,
-      });
+      emit(state.copyWith(
+        isLoading: false,
+        lockType: type,
+        lockValue: value,
+        isAuthenticated: false, // lock exists => require verify
+      ));
+    } catch (e) {
+      emit(state.copyWith(isLoading: false, isAuthenticated: true));
+    }
+  }
+
+  /// Save lock locally
+  Future<void> saveLock(String lockType, String lockValue) async {
+    emit(state.copyWith(isLoading: true, saveSuccess: false, wrongAttempt: false));
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_kLockType, lockType);
+      await prefs.setString(_kLockValue, lockValue);
 
       emit(state.copyWith(
         isLoading: false,
@@ -129,27 +127,18 @@ class AppLockCubit extends Cubit<AppLockState> {
         isAuthenticated: true,
       ));
     } catch (e) {
-      print('AppLockCubit: Error saving lock: $e');
-      emit(state.copyWith(isLoading: false));
+      emit(state.copyWith(isLoading: false, saveSuccess: false));
     }
   }
 
-  /// Remove app lock
+  /// Remove lock locally
   Future<void> removeLock() async {
-    emit(state.copyWith(isLoading: true, removeSuccess: false));
+    emit(state.copyWith(isLoading: true, removeSuccess: false, wrongAttempt: false));
 
     try {
-      final userId = await _getCurrentUserId();
-      if (userId == null) {
-        emit(state.copyWith(isLoading: false));
-        return;
-      }
-
-      // FIXED: Pass userId as query parameter, not as data
-      await _api.delete(
-        ApiConfig.APP_LOCK_REMOVE,
-        params: {'userId': userId.toString()},
-      );
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_kLockType);
+      await prefs.remove(_kLockValue);
 
       emit(state.copyWith(
         isLoading: false,
@@ -159,7 +148,6 @@ class AppLockCubit extends Cubit<AppLockState> {
         isAuthenticated: true,
       ));
     } catch (e) {
-      print('AppLockCubit: Error removing lock: $e');
       emit(state.copyWith(isLoading: false));
     }
   }
@@ -172,13 +160,13 @@ class AppLockCubit extends Cubit<AppLockState> {
     }
 
     final isCorrect = input == state.lockValue;
+
     emit(state.copyWith(
       isAuthenticated: isCorrect,
       wrongAttempt: !isCorrect,
     ));
   }
 
-  /// Clear one-shot flags
   void clearTransientFlags() {
     emit(state.copyWith(
       saveSuccess: false,
@@ -187,7 +175,6 @@ class AppLockCubit extends Cubit<AppLockState> {
     ));
   }
 
-  /// Reset authentication (app background / logout)
   void resetAuthentication() {
     emit(state.copyWith(
       isAuthenticated: false,

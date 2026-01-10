@@ -563,7 +563,92 @@
   "passwordsDoNotMatch": "كلمات المرور غير متطابقة",
   "signUp": "إنشاء حساب",
   "alreadyHaveAccount": "هل لديك حساب بالفعل؟ ",
-  "login": "تسجيل الدخول"
+  "login": "تسجيل الدخول",
+
+  "addNewHabit": "إضافة عادة جديدة",
+"frequency": "التكرار",
+"selectHabit": "اختر عادة",
+"badHabit": "عادة سيئة",
+"points": "نقاط",
+"remindMe": "ذكرني",
+"selectTime": "اختر الوقت",
+"cancel": "إلغاء",
+"add": "إضافة",
+  "usernameTaken": "اسم المستخدم مأخوذ بالفعل",
+  "emailAlreadyExists": "البريد الإلكتروني موجود بالفعل",
+  "noInternetConnection": "لا يوجد اتصال بالإنترنت",
+  "sessionExpired": "انتهت صلاحية الجلسة",
+  "emailConfirmationRequired": "تأكيد البريد الإلكتروني مطلوب",
+  "signUpFailed": "فشل التسجيل",
+  "loginFailed": "فشل تسجيل الدخول",
+  "invalidCredentials": "بيانات الاعتماد غير صحيحة",
+
+
+
+
+
+  "errorMessageNoInternet": "يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.",
+  "errorMessageInvalidCredentials": "اسم المستخدم/البريد الإلكتروني أو كلمة المرور التي أدخلتها غير صحيحة.",
+  "errorMessageSessionExpired": "انتهت صلاحية جلستك. يرجى تسجيل الدخول مرة أخرى.",
+  "errorMessageLoginFailed": "تعذر تسجيل الدخول. يرجى المحاولة مرة أخرى لاحقاً.",
+  
+  "errorMessageUsernameTaken": "اسم المستخدم هذا مأخوذ بالفعل. يرجى اختيار اسم آخر.",
+  "errorMessageEmailExists": "هذا البريد الإلكتروني مسجل بالفعل. يرجى استخدام بريد إلكتروني آخر أو تسجيل الدخول.",
+  "errorMessageEmailConfirmation": "يرجى التحقق من بريدك الإلكتروني وتأكيد حسابك قبل تسجيل الدخول.",
+  "errorMessageSignUpFailed": "تعذر إنشاء الحساب. يرجى المحاولة مرة أخرى لاحقاً.",
+   "profileFirstNameLabel": "الاسم الأول",
+  "profileLastNameLabel": "اسم العائلة",
+  
+  "profileEditFirstNameTitle": "تعديل الاسم الأول",
+  "profileEditLastNameTitle": "تعديل اسم العائلة",
+  
+  "profileSuccessFirstName": "تم تحديث الاسم الأول بنجاح",
+  "profileSuccessLastName": "تم تحديث اسم العائلة بنجاح",
+  "profileSuccessUsername": "تم تحديث اسم المستخدم بنجاح",
+  "profileSuccessEmail": "تم تحديث البريد الإلكتروني بنجاح",
+  
+  "profileErrorUsernameTaken": "اسم المستخدم مأخوذ",
+  "profileErrorEmailTaken": "البريد الإلكتروني موجود بالفعل",
+  "profileErrorInvalidEmail": "بريد إلكتروني غير صالح",
+  "profileErrorInvalidUsername": "اسم مستخدم غير صالح",
+  "profileErrorUpdateFailed": "فشل التحديث",
+  
+  "profileErrorMessageUsernameTaken": "اسم المستخدم هذا مستخدم بالفعل. يرجى اختيار اسم مستخدم آخر.",
+  "profileErrorMessageEmailTaken": "عنوان البريد الإلكتروني هذا مسجل بالفعل. يرجى استخدام بريد إلكتروني آخر.",
+  "profileErrorMessageInvalidEmail": "يرجى إدخال عنوان بريد إلكتروني صالح.",
+  "profileErrorMessageInvalidUsername": "يجب أن يحتوي اسم المستخدم على 3 أحرف على الأقل ولا يمكن أن يحتوي على مسافات.",
+  "profileErrorMessageUpdateFailed": "فشل تحديث ملفك الشخصي. يرجى المحاولة مرة أخرى.",
+  
+  "enterEmail": "يرجى إدخال بريد إلكتروني",
+
+
+
+
+
+
+
+  
+  "profileSuccessFirstNameMessage": "تم تحديث اسمك الأول بنجاح.",
+  "profileSuccessLastNameMessage": "تم تحديث اسم عائلتك بنجاح.",
+  "profileSuccessUsernameMessage": "تم تحديث اسم المستخدم الخاص بك بنجاح.",
+  "profileSuccessEmailMessage": "تم تحديث بريدك الإلكتروني بنجاح.",
+
+
+
+
+
+
+
+
+  
+  "habitErrorAlreadyExists": "العادة موجودة بالفعل",
+  "habitErrorOperationFailed": "فشلت العملية",
+  "habitErrorGeneral": "خطأ",
+  
+  "habitErrorMessageAlreadyExists": "هذه العادة موجودة بالفعل بالتكرار المحدد. يرجى اختيار عادة أو تكرار مختلف.",
+  "habitErrorMessageOperationFailed": "فشل إكمال العملية. يرجى المحاولة مرة أخرى.",
+  "habitErrorMessageGeneral": "حدث خطأ. يرجى المحاولة مرة أخرى."
+
 
 
 

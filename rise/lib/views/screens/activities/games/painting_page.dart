@@ -1,13 +1,18 @@
+import 'dart:io';
+import 'dart:typed_data';
 import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gal/gal.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:the_project/l10n/app_localizations.dart';
 
 import '../../../../logic/activities/games/painting_cubit.dart';
 import '../../../../logic/activities/games/painting_state.dart';
-
-import '../../../widgets/activities/activity_shell.dart';
 import '../../../themes/style_simple/colors.dart';
+import '../../../widgets/activities/activity_shell.dart';
 
 class PaintingPage extends StatefulWidget {
   const PaintingPage({super.key});
@@ -22,24 +27,128 @@ class _PaintingPageState extends State<PaintingPage> {
   // Background color of the drawing card (must match cubit.canvasBg)
   static const Color _canvasBg = Color(0xFFF5EAE5);
 
-  Future<void> _saveMock() async {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar( // <-- removed const to use localization
-        content: Text(
-          AppLocalizations.of(context)!.paintingSaved,
+  Future<void> _saveToGallery() async {
+    final l10n = AppLocalizations.of(context)!;
+
+    try {
+      // Permissions (Android 13+ uses photos/media; older Android may need storage)
+      PermissionStatus status;
+      if (Platform.isIOS) {
+        status = await Permission.photosAddOnly.request();
+      } else {
+        status = await Permission.photos.request();
+        if (!status.isGranted) {
+          status = await Permission.storage.request();
+        }
+      }
+
+      if (!status.isGranted) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              (l10n as dynamic).paintingPermissionDenied ??
+                  'Permission denied. Please allow gallery access.',
+            ),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
+
+      // Capture the RepaintBoundary safely
+      final renderObject = _repaintKey.currentContext?.findRenderObject();
+      if (renderObject is! RenderRepaintBoundary) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              (l10n as dynamic).paintingSaveFailed ??
+                  'Failed to capture drawing.',
+            ),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
+
+      // 1) Capture the widget as an image
+      final ui.Image captured = await renderObject.toImage(pixelRatio: 3.0);
+
+      // 2) Flatten it onto a solid background (fixes black background in gallery viewers)
+      final recorder = ui.PictureRecorder();
+      final canvas = Canvas(recorder);
+
+      final bgPaint = Paint()..color = _canvasBg;
+      canvas.drawRect(
+        Rect.fromLTWH(
+          0,
+          0,
+          captured.width.toDouble(),
+          captured.height.toDouble(),
         ),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+        bgPaint,
+      );
+
+      canvas.drawImage(captured, Offset.zero, Paint());
+
+      final picture = recorder.endRecording();
+      final ui.Image finalImage = await picture.toImage(
+        captured.width,
+        captured.height,
+      );
+
+      final ByteData? byteData =
+          await finalImage.toByteData(format: ui.ImageByteFormat.png);
+
+      if (byteData == null) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              (l10n as dynamic).paintingSaveFailed ?? 'Failed to save image.',
+            ),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
+
+      final Uint8List pngBytes = byteData.buffer.asUint8List();
+
+      await Gal.putImageBytes(
+        pngBytes,
+        album: 'Rise',
+        name: "drawing_${DateTime.now().millisecondsSinceEpoch}.png",
+      );
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.paintingSaved),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            (AppLocalizations.of(context) as dynamic).paintingSaveFailed ??
+                'Failed to save image: $e',
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!; // <-- added
+    final l10n = AppLocalizations.of(context)!;
 
     return ActivityShell(
-      title: l10n.paintingTitle, // was: 'Draw'
+      title: l10n.paintingTitle,
       child: BlocBuilder<PaintingCubit, PaintingState>(
         builder: (context, state) {
           final cubit = context.read<PaintingCubit>();
@@ -50,17 +159,14 @@ class _PaintingPageState extends State<PaintingPage> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 18,
-                    vertical: 16,
-                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
                   decoration: BoxDecoration(
                     color: const Color(0xFFFFF3EB),
                     borderRadius: BorderRadius.circular(22),
                   ),
                   child: Text(
                     l10n.paintingPrompt,
-                    // was: 'Take a deep breath, pick your color, and let your creativity flow.'
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 18,
@@ -77,15 +183,9 @@ class _PaintingPageState extends State<PaintingPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _ToolButton(
-                      icon: Icons.undo_rounded,
-                      onTap: cubit.undo,
-                    ),
+                    _ToolButton(icon: Icons.undo_rounded, onTap: cubit.undo),
                     const SizedBox(width: 14),
-                    _ToolButton(
-                      icon: Icons.redo_rounded,
-                      onTap: cubit.redo,
-                    ),
+                    _ToolButton(icon: Icons.redo_rounded, onTap: cubit.redo),
                     const SizedBox(width: 14),
                     _ToolButton(
                       icon: Icons.cleaning_services_rounded,
@@ -94,7 +194,7 @@ class _PaintingPageState extends State<PaintingPage> {
                     const SizedBox(width: 14),
                     _ToolButton(
                       icon: Icons.download_rounded,
-                      onTap: _saveMock,
+                      onTap: _saveToGallery,
                     ),
                   ],
                 ),
@@ -136,7 +236,7 @@ class _PaintingPageState extends State<PaintingPage> {
               // Bottom tool dock (brushes + eraser + color dot)
               _ToolDock(
                 selectedWidth: state.width,
-                onWidth: (w) => cubit.setWidth(w),
+                onWidth: cubit.setWidth,
                 eraser: state.eraser,
                 onToggleEraser: cubit.toggleEraser,
                 color: state.color,
@@ -149,8 +249,7 @@ class _PaintingPageState extends State<PaintingPage> {
                       borderRadius:
                           BorderRadius.vertical(top: Radius.circular(22)),
                     ),
-                    builder: (_) =>
-                        _ColorPickerSheet(initial: state.color),
+                    builder: (_) => _ColorPickerSheet(initial: state.color),
                   );
                   if (picked != null) {
                     cubit.setColor(picked);
@@ -180,6 +279,7 @@ class _CanvasPainter extends CustomPainter {
           ..style = PaintingStyle.stroke
           ..strokeCap = StrokeCap.round
           ..strokeJoin = StrokeJoin.round;
+
         if (s.points.isNotEmpty) {
           canvas.drawPoints(
             ui.PointMode.points,
@@ -246,9 +346,9 @@ class _ToolButton extends StatelessWidget {
             )
           ],
         ),
-        child: const Icon(
-          Icons.brush_rounded,
-          color: Color(0xFFE9C7B6),
+        child: Icon(
+          icon,
+          color: const Color(0xFFE9C7B6),
         ),
       ),
     );
@@ -444,12 +544,11 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
     _a = widget.initial.opacity;
   }
 
-  Color get _current =>
-      HSVColor.fromAHSV(_a, _h, _s, _v).toColor();
+  Color get _current => HSVColor.fromAHSV(_a, _h, _s, _v).toColor();
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!; // <-- added
+    final l10n = AppLocalizations.of(context)!;
 
     return Padding(
       padding: EdgeInsets.only(
@@ -471,43 +570,17 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
           ),
           const SizedBox(height: 16),
           Text(
-            l10n.paintingColorsTitle, // was: 'Colors'
+            l10n.paintingColorsTitle,
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 14),
-
-          _sliderRow(
-            l10n.paintingHue, // was: 'Hue'
-            _h,
-            0,
-            360,
-            (v) => setState(() => _h = v),
-          ),
-          _sliderRow(
-            l10n.paintingSaturation, // was: 'Saturation'
-            _s,
-            0,
-            1,
-            (v) => setState(() => _s = v),
-          ),
-          _sliderRow(
-            l10n.paintingValue, // was: 'Value'
-            _v,
-            0,
-            1,
-            (v) => setState(() => _v = v),
-          ),
-          _sliderRow(
-            l10n.paintingOpacity, // was: 'Opacity'
-            _a,
-            0,
-            1,
-            (v) => setState(() => _a = v),
-          ),
-
+          _sliderRow(l10n.paintingHue, _h, 0, 360, (v) => setState(() => _h = v)),
+          _sliderRow(l10n.paintingSaturation, _s, 0, 1, (v) => setState(() => _s = v)),
+          _sliderRow(l10n.paintingValue, _v, 0, 1, (v) => setState(() => _v = v)),
+          _sliderRow(l10n.paintingOpacity, _a, 0, 1, (v) => setState(() => _a = v)),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -537,7 +610,7 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
               ),
               onPressed: () => Navigator.pop(context, _current),
               child: Text(
-                l10n.paintingUseColor, // was: 'Use Color'
+                l10n.paintingUseColor,
                 style: const TextStyle(fontWeight: FontWeight.w700),
               ),
             ),

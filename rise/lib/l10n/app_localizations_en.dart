@@ -310,7 +310,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addNewHabit => 'Add New Habit';
 
   @override
-  String get selectHabit => 'Select Habit';
+  String get selectHabit => 'Select a Habit';
 
   @override
   String get customHabitName => 'Custom Habit Name';
@@ -334,7 +334,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get time => 'Time';
 
   @override
-  String get selectTime => 'Select time';
+  String get selectTime => 'Select Time';
 
   @override
   String get setReminder => 'Set Reminder';
@@ -1248,4 +1248,148 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get alreadyHaveAccount => 'Already have an account? ';
+
+  @override
+  String get badHabit => 'Bad Habit';
+
+  @override
+  String get points => 'Points';
+
+  @override
+  String get remindMe => 'Remind Me';
+
+  @override
+  String get usernameTaken => 'Username Already Taken';
+
+  @override
+  String get emailAlreadyExists => 'Email Already Exists';
+
+  @override
+  String get noInternetConnection => 'No Internet Connection';
+
+  @override
+  String get sessionExpired => 'Session Expired';
+
+  @override
+  String get emailConfirmationRequired => 'Email Confirmation Required';
+
+  @override
+  String get signUpFailed => 'Sign Up Failed';
+
+  @override
+  String get loginFailed => 'Login Failed';
+
+  @override
+  String get invalidCredentials => 'Invalid Credentials';
+
+  @override
+  String get errorMessageNoInternet => 'Please check your internet connection and try again.';
+
+  @override
+  String get errorMessageInvalidCredentials => 'The username/email or password you entered is incorrect.';
+
+  @override
+  String get errorMessageSessionExpired => 'Your session has expired. Please login again.';
+
+  @override
+  String get errorMessageLoginFailed => 'Unable to login. Please try again later.';
+
+  @override
+  String get errorMessageUsernameTaken => 'This username is already taken. Please choose another one.';
+
+  @override
+  String get errorMessageEmailExists => 'This email is already registered. Please use another email or login.';
+
+  @override
+  String get errorMessageEmailConfirmation => 'Please check your email and confirm your account before logging in.';
+
+  @override
+  String get errorMessageSignUpFailed => 'Unable to create account. Please try again later.';
+
+  @override
+  String get profileFirstNameLabel => 'First Name';
+
+  @override
+  String get profileLastNameLabel => 'Last Name';
+
+  @override
+  String get profileEditFirstNameTitle => 'Edit First Name';
+
+  @override
+  String get profileEditLastNameTitle => 'Edit Last Name';
+
+  @override
+  String get profileSuccessFirstName => 'First name updated successfully';
+
+  @override
+  String get profileSuccessLastName => 'Last name updated successfully';
+
+  @override
+  String get profileSuccessUsername => 'Username updated successfully';
+
+  @override
+  String get profileSuccessEmail => 'Email updated successfully';
+
+  @override
+  String get profileErrorUsernameTaken => 'Username Taken';
+
+  @override
+  String get profileErrorEmailTaken => 'Email Already Exists';
+
+  @override
+  String get profileErrorInvalidEmail => 'Invalid Email';
+
+  @override
+  String get profileErrorInvalidUsername => 'Invalid Username';
+
+  @override
+  String get profileErrorUpdateFailed => 'Update Failed';
+
+  @override
+  String get profileErrorMessageUsernameTaken => 'This username is already in use. Please choose a different username.';
+
+  @override
+  String get profileErrorMessageEmailTaken => 'This email address is already registered. Please use a different email.';
+
+  @override
+  String get profileErrorMessageInvalidEmail => 'Please enter a valid email address.';
+
+  @override
+  String get profileErrorMessageInvalidUsername => 'Username must be at least 3 characters and cannot contain spaces.';
+
+  @override
+  String get profileErrorMessageUpdateFailed => 'Failed to update your profile. Please try again.';
+
+  @override
+  String get enterEmail => 'Please enter an email';
+
+  @override
+  String get profileSuccessFirstNameMessage => 'Your first name has been updated successfully.';
+
+  @override
+  String get profileSuccessLastNameMessage => 'Your last name has been updated successfully.';
+
+  @override
+  String get profileSuccessUsernameMessage => 'Your username has been updated successfully.';
+
+  @override
+  String get profileSuccessEmailMessage => 'Your email has been updated successfully.';
+
+  @override
+  String get habitErrorAlreadyExists => 'Habit Already Exists';
+
+  @override
+  String get habitErrorOperationFailed => 'Operation Failed';
+
+  @override
+  String get habitErrorGeneral => 'Error';
+
+  @override
+  String get habitErrorMessageAlreadyExists => 'This habit already exists with the selected frequency. Please choose a different habit or frequency.';
+
+  @override
+  String get habitErrorMessageOperationFailed => 'Failed to complete the operation. Please try again.';
+
+  @override
+  String get habitErrorMessageGeneral => 'An error occurred. Please try again.';
 }

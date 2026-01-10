@@ -4,7 +4,7 @@ import '../../../logic/auth/auth_cubit.dart';
 import '../../../logic/auth/auth_state.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../themes/style_simple/colors.dart';
-import '../../screens/welcome_screens/welcome_provider.dart';
+import '../../widgets/error_dialog.dart';
 
 bool isValidEmail(String email) {
   final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
@@ -40,20 +40,116 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
+  void _showErrorDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AppErrorDialog(
+        title: title,
+        message: message,
+      ),
+    );
+  }
+
+  String _getErrorTitle(String error) {
+    final l10n = AppLocalizations.of(context)!;
+    
+    if (error.toLowerCase().contains('username') && 
+        (error.toLowerCase().contains('taken') || 
+         error.toLowerCase().contains('exists') ||
+         error.toLowerCase().contains('already'))) {
+      return l10n.usernameTaken;
+    }
+    
+    if (error.toLowerCase().contains('email') && 
+        (error.toLowerCase().contains('taken') || 
+         error.toLowerCase().contains('exists') ||
+         error.toLowerCase().contains('already') ||
+         error.toLowerCase().contains('registered'))) {
+      return l10n.emailAlreadyExists;
+    }
+    
+    if (error.toLowerCase().contains('network') || 
+        error.toLowerCase().contains('connection') ||
+        error.toLowerCase().contains('internet') ||
+        error.toLowerCase().contains('socket') ||
+        error.toLowerCase().contains('host lookup')) {
+      return l10n.noInternetConnection;
+    }
+    
+    if (error.toLowerCase().contains('session') || 
+        error.toLowerCase().contains('expired')) {
+      return l10n.sessionExpired;
+    }
+    
+    if (error.toLowerCase().contains('confirm') && 
+        error.toLowerCase().contains('email')) {
+      return l10n.emailConfirmationRequired;
+    }
+    
+    return l10n.signUpFailed;
+  }
+
+  String _getErrorMessage(String error) {
+    final l10n = AppLocalizations.of(context)!;
+    
+    if (error.toLowerCase().contains('username') && 
+        (error.toLowerCase().contains('taken') || 
+         error.toLowerCase().contains('exists') ||
+         error.toLowerCase().contains('already'))) {
+      return l10n.errorMessageUsernameTaken;
+    }
+    
+    if (error.toLowerCase().contains('email') && 
+        (error.toLowerCase().contains('taken') || 
+         error.toLowerCase().contains('exists') ||
+         error.toLowerCase().contains('already') ||
+         error.toLowerCase().contains('registered'))) {
+      return l10n.errorMessageEmailExists;
+    }
+    
+    if (error.toLowerCase().contains('network') || 
+        error.toLowerCase().contains('connection') ||
+        error.toLowerCase().contains('internet') ||
+        error.toLowerCase().contains('socket') ||
+        error.toLowerCase().contains('host lookup')) {
+      return l10n.errorMessageNoInternet;
+    }
+    
+    if (error.toLowerCase().contains('session') || 
+        error.toLowerCase().contains('expired')) {
+      return l10n.errorMessageSessionExpired;
+    }
+    
+    if (error.toLowerCase().contains('confirm') && 
+        error.toLowerCase().contains('email')) {
+      return l10n.errorMessageEmailConfirmation;
+    }
+    
+    return l10n.errorMessageSignUpFailed;
+  }
+
   Future<void> _signUp() async {
     if (_formKey.currentState!.validate()) {
-      final success = await context.read<AuthCubit>().signUp(
-            _firstNameController.text.trim(),
-            _lastNameController.text.trim(),
-            _usernameController.text.trim(),
-            _emailController.text.trim(),
-            _passwordController.text,
-          );
+      try {
+        final success = await context.read<AuthCubit>().signUp(
+              _firstNameController.text.trim(),
+              _lastNameController.text.trim(),
+              _usernameController.text.trim(),
+              _emailController.text.trim(),
+              _passwordController.text,
+            );
 
-      if (success && mounted) {
-        // ✅ Mark user as logged in so welcome screens don't show again
-        await WelcomeProvider.markUserLoggedIn();
-        Navigator.of(context).pushReplacementNamed('/home');
+        if (success && mounted) {
+          // Navigation is handled by BlocListener in main.dart
+          // No need to manually navigate or call markUserLoggedIn
+        }
+      } catch (e) {
+        if (mounted) {
+          _showErrorDialog(
+            _getErrorTitle(e.toString()),
+            e.toString(),
+          );
+        }
       }
     }
   }
@@ -75,11 +171,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
           child: BlocConsumer<AuthCubit, AuthState>(
             listener: (context, state) {
               if (state.error != null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(state.error!),
-                    backgroundColor: Colors.redAccent,
-                  ),
+                _showErrorDialog(
+                  _getErrorTitle(state.error!),
+                  _getErrorMessage(state.error!),
                 );
                 context.read<AuthCubit>().clearError();
               }
@@ -112,7 +206,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         const SizedBox(height: 32),
 
-                        // First Name Field
                         _buildTextField(
                           controller: _firstNameController,
                           label: l10n.firstName,
@@ -121,7 +214,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Last Name Field
                         _buildTextField(
                           controller: _lastNameController,
                           label: l10n.lastName,
@@ -130,7 +222,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Username Field
                         _buildTextField(
                           controller: _usernameController,
                           label: l10n.username,
@@ -144,7 +235,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Email Field
                         _buildTextField(
                           controller: _emailController,
                           label: l10n.email,
@@ -157,7 +247,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Password Field
                         _buildPasswordField(
                           controller: _passwordController,
                           label: l10n.password,
@@ -170,7 +259,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         const SizedBox(height: 16),
 
-                        // Confirm Password Field
                         _buildPasswordField(
                           controller: _confirmPasswordController,
                           label: l10n.confirmPassword,
@@ -186,7 +274,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         const SizedBox(height: 32),
 
-                        // Sign Up Button
                         SizedBox(
                           width: double.infinity,
                           height: 50,
@@ -212,7 +299,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         const SizedBox(height: 24),
 
-                        // Login Link
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [

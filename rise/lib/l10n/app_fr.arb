@@ -659,7 +659,87 @@
   "passwordsDoNotMatch": "Les mots de passe ne correspondent pas",
   "signUp": "S'inscrire",
   "alreadyHaveAccount": "Vous avez déjà un compte ? ",
-  "login": "Se connecter"
+  "login": "Se connecter",
+
+  "addNewHabit": "Ajouter une nouvelle habitude",
+"frequency": "Fréquence",
+"selectHabit": "Sélectionner une habitude",
+"badHabit": "Mauvaise habitude",
+"points": "Points",
+"remindMe": "Me rappeler",
+"selectTime": "Sélectionner l'heure",
+"cancel": "Annuler",
+"add": "Ajouter",
+ 
+  "usernameTaken": "Nom d'utilisateur déjà pris",
+  "emailAlreadyExists": "Email déjà existant",
+  "noInternetConnection": "Pas de connexion Internet",
+  "sessionExpired": "Session expirée",
+  "emailConfirmationRequired": "Confirmation d'email requise",
+  "signUpFailed": "Inscription échouée",
+  "loginFailed": "Connexion échouée",
+  "invalidCredentials": "Identifiants invalides",
+
+
+
+  
+  "errorMessageNoInternet": "Veuillez vérifier votre connexion Internet et réessayer.",
+  "errorMessageInvalidCredentials": "Le nom d'utilisateur/email ou le mot de passe que vous avez entré est incorrect.",
+  "errorMessageSessionExpired": "Votre session a expiré. Veuillez vous reconnecter.",
+  "errorMessageLoginFailed": "Impossible de se connecter. Veuillez réessayer plus tard.",
+  
+  "errorMessageUsernameTaken": "Ce nom d'utilisateur est déjà pris. Veuillez en choisir un autre.",
+  "errorMessageEmailExists": "Cet email est déjà enregistré. Veuillez utiliser un autre email ou vous connecter.",
+  "errorMessageEmailConfirmation": "Veuillez vérifier votre email et confirmer votre compte avant de vous connecter.",
+  "errorMessageSignUpFailed": "Impossible de créer un compte. Veuillez réessayer plus tard.",
+   "profileFirstNameLabel": "Prénom",
+  "profileLastNameLabel": "Nom",
+  
+  "profileEditFirstNameTitle": "Modifier le prénom",
+  "profileEditLastNameTitle": "Modifier le nom",
+  
+  "profileSuccessFirstName": "Prénom mis à jour avec succès",
+  "profileSuccessLastName": "Nom mis à jour avec succès",
+  "profileSuccessUsername": "Nom d'utilisateur mis à jour avec succès",
+  "profileSuccessEmail": "Email mis à jour avec succès",
+  
+  "profileErrorUsernameTaken": "Nom d'utilisateur pris",
+  "profileErrorEmailTaken": "Email déjà existant",
+  "profileErrorInvalidEmail": "Email invalide",
+  "profileErrorInvalidUsername": "Nom d'utilisateur invalide",
+  "profileErrorUpdateFailed": "Échec de la mise à jour",
+  
+  "profileErrorMessageUsernameTaken": "Ce nom d'utilisateur est déjà utilisé. Veuillez en choisir un autre.",
+  "profileErrorMessageEmailTaken": "Cette adresse email est déjà enregistrée. Veuillez utiliser une autre email.",
+  "profileErrorMessageInvalidEmail": "Veuillez entrer une adresse email valide.",
+  "profileErrorMessageInvalidUsername": "Le nom d'utilisateur doit contenir au moins 3 caractères et ne peut pas contenir d'espaces.",
+  "profileErrorMessageUpdateFailed": "Échec de la mise à jour de votre profil. Veuillez réessayer.",
+  
+  "enterEmail": "Veuillez entrer un email",
+
+
+
+
+
+
+  
+  "profileSuccessFirstNameMessage": "Votre prénom a été mis à jour avec succès.",
+  "profileSuccessLastNameMessage": "Votre nom a été mis à jour avec succès.",
+  "profileSuccessUsernameMessage": "Votre nom d'utilisateur a été mis à jour avec succès.",
+  "profileSuccessEmailMessage": "Votre email a été mis à jour avec succès.",
+
+
+
+
+
+  
+  "habitErrorAlreadyExists": "Habitude déjà existante",
+  "habitErrorOperationFailed": "Opération échouée",
+  "habitErrorGeneral": "Erreur",
+  
+  "habitErrorMessageAlreadyExists": "Cette habitude existe déjà avec la fréquence sélectionnée. Veuillez choisir une autre habitude ou fréquence.",
+  "habitErrorMessageOperationFailed": "Échec de l'opération. Veuillez réessayer.",
+  "habitErrorMessageGeneral": "Une erreur s'est produite. Veuillez réessayer."
 
 
 
