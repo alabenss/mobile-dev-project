@@ -236,12 +236,14 @@ def update_habit_status():
         current_streak = habit.get('streak_count', 0)
         best_streak = habit.get('best_streak', 0)
         habit_type = habit.get('habit_type', 'good')
+        is_task = habit.get('is_task', True)
         last_completed = habit.get('last_completed_date')
         
         # Calculate new streak based on status
         new_streak = current_streak
         new_best_streak = best_streak
         new_last_completed = last_completed
+        new_is_task = is_task
         
         if status == 'completed':
             # For good habits, increment streak
@@ -250,6 +252,10 @@ def update_habit_status():
                 if new_streak > best_streak:
                     new_best_streak = new_streak
                 new_last_completed = now.isoformat()
+                
+                # Check if task should become habit (10 consecutive completions)
+                if is_task and new_streak >= 10:
+                    new_is_task = False
             # For bad habits, 'completed' means they did the bad habit - break streak
             else:
                 new_streak = 0
@@ -262,6 +268,10 @@ def update_habit_status():
                 if new_streak > best_streak:
                     new_best_streak = new_streak
                 new_last_completed = now.isoformat()
+                
+                # Check if task should become habit (10 consecutive resistances)
+                if is_task and new_streak >= 10:
+                    new_is_task = False
             # For good habits, skipping breaks the streak
             else:
                 new_streak = 0
@@ -271,15 +281,11 @@ def update_habit_status():
             # Resetting - keep current streak and last_completed_date
             pass
         
-        new_task_completion = data.get('taskCompletionCount', habit.get('task_completion_count', 0))
-        new_is_task = data.get('isTask', habit.get('is_task', True))
-        
         update_data = {
             'status': status,
             'last_updated': now.isoformat(),
             'streak_count': new_streak,
             'best_streak': new_best_streak,
-            'task_completion_count': new_task_completion,
             'is_task': new_is_task,
             'last_completed_date': new_last_completed
         }
