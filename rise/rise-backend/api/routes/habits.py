@@ -21,9 +21,9 @@ def _is_same_month(date1, date2):
     """Check if two dates are in the same month"""
     return date1.year == date2.year and date1.month == date2.month
 
-def _check_habit_exists_in_period(user_id, frequency, now):
-    """Check if a habit with this frequency already exists in the current period"""
-    all_habits = select('habits', filters={'user_id': user_id, 'frequency': frequency})
+def _check_habit_exists_in_period(user_id, title, frequency, now):
+    """Check if this specific habit (by title) already exists in the current period"""
+    all_habits = select('habits', filters={'user_id': user_id, 'title': title, 'frequency': frequency})
     
     if not all_habits:
         return False
@@ -199,24 +199,25 @@ def get_habits():
 
 @habits_bp.route('/habits.add', methods=['POST'])
 def add_habit():
-    """Add a new habit - only one habit per frequency per period allowed"""
+    """Add a new habit - prevent adding the same habit in the same period"""
     try:
         data = request.get_json()
         now = datetime.now()
         user_id = data.get('userId')
+        title = data.get('title')
         frequency = data.get('frequency')
         
-        # Check if a habit with this frequency already exists in the current period
-        if _check_habit_exists_in_period(user_id, frequency, now):
+        # Check if THIS SPECIFIC HABIT already exists in the current period
+        if _check_habit_exists_in_period(user_id, title, frequency, now):
             period_name = 'day' if frequency.lower() == 'daily' else ('week' if frequency.lower() == 'weekly' else 'month')
             return jsonify({
                 'success': False,
-                'error': f'You can only add one {frequency} habit per {period_name}'
+                'error': f'This habit already exists for this {period_name}!'
             }), 400
         
         habit_data = {
             'user_id': user_id,
-            'title': data.get('title'),
+            'title': title,
             'description': data.get('description'),
             'frequency': frequency,
             'status': 'active',
@@ -491,16 +492,17 @@ def get_habit_by_title():
 
 @habits_bp.route('/habits.checkExists', methods=['GET'])
 def check_habit_exists():
-    """Check if habit exists in current period"""
+    """Check if a specific habit exists in the current period"""
     try:
         user_id = request.args.get('userId')
+        title = request.args.get('title')
         frequency = request.args.get('frequency')
         
-        if not user_id or not frequency:
-            return jsonify({'error': 'userId and frequency required'}), 400
+        if not all([user_id, title, frequency]):
+            return jsonify({'error': 'userId, title, and frequency required'}), 400
         
         now = datetime.now()
-        exists = _check_habit_exists_in_period(int(user_id), frequency, now)
+        exists = _check_habit_exists_in_period(int(user_id), title, frequency, now)
         
         return jsonify({
             'success': True,

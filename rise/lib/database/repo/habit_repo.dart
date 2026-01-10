@@ -509,9 +509,18 @@ class HabitRepository {
 
   /// Check if a habit with the given key and frequency already exists (deprecated)
   Future<bool> habitExistsWithFrequency(String habitKey, String frequency) async {
-    // Now we only check if any habit exists in the current period for this frequency
-    return await habitExistsInCurrentPeriod(frequency);
-  }
+    final userId = await _getCurrentUserId();
+  // Checks if THIS SPECIFIC habit exists in current period
+  final response = await _api.get(
+    ApiConfig.HABITS_CHECK_EXISTS,
+    params: {
+      'userId': userId.toString(),
+      'title': habitKey,
+      'frequency': frequency,
+    },
+  );
+  return response['exists'] as bool? ?? false;
+}
 
   /// Update habit reminder settings
   Future<void> updateHabitReminder(String habitKey, bool reminder, TimeOfDay? time) async {

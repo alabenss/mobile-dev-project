@@ -60,30 +60,22 @@ class HabitCubit extends Cubit<HabitState> {
 
   /// Add a new habit
   Future<void> addHabit(Habit habit) async {
-    try {
-      // Check if a habit already exists in the current period for this frequency
-      final exists = await _repository.habitExistsInCurrentPeriod(habit.frequency);
-      
-      if (exists) {
-        String periodName = 'day';
-        if (habit.frequency == 'Weekly') periodName = 'week';
-        if (habit.frequency == 'Monthly') periodName = 'month';
-        
-        emit(state.copyWith(
-          error: 'You can only add one ${habit.frequency} habit per $periodName!'
-        ));
-        return;
-      }
-
-      // Insert into database
-      await _repository.insertHabit(habit);
-      
-      // Reload all habits to ensure proper filtering
-      await loadHabits();
-    } catch (e) {
-      emit(state.copyWith(error: e.toString()));
-    }
+  // Check if THIS SPECIFIC HABIT already exists
+  final exists = await _repository.habitExistsWithFrequency(
+    habit.habitKey,  // Checks specific habit
+    habit.frequency
+  );
+  
+  if (exists) {
+    emit(state.copyWith(
+      error: 'This habit already exists with ${habit.frequency} frequency!'
+    ));
+    return;
   }
+  
+  await _repository.insertHabit(habit);
+  await loadHabits();
+}
 
   /// Mark a habit as completed (awards points) - uses habitKey
   Future<void> completeHabit(String habitKey) async {
