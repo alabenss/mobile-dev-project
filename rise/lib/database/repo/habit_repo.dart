@@ -131,7 +131,7 @@ class HabitRepository {
     }
   }
 
-  /// Retrieve all habits (deprecated - use getHabitsByFrequencyAndDate instead)
+  /// Retrieve all habits
   Future<List<Habit>> getAllHabits() async {
     try {
       final userId = await _getCurrentUserId();
@@ -155,7 +155,7 @@ class HabitRepository {
     }
   }
 
-  /// Get habits by frequency (Daily, Weekly, Monthly) - deprecated
+  /// Get habits by frequency (Daily, Weekly, Monthly)
   Future<List<Habit>> getHabitsByFrequency(String frequency) async {
     try {
       final userId = await _getCurrentUserId();
@@ -182,79 +182,6 @@ class HabitRepository {
     }
   }
 
-  /// Get habits by frequency with date filtering
-  /// For Daily: returns habits from today
-  /// For Weekly: returns habits from current week (Monday-Sunday)
-  /// For Monthly: returns habits from current month
-  Future<List<Habit>> getHabitsByFrequencyAndDate(String frequency) async {
-    try {
-      final userId = await _getCurrentUserId();
-      final now = DateTime.now();
-      
-      String? startDate;
-      String? endDate;
-      
-      switch (frequency) {
-        case 'Daily':
-          // Today only
-          startDate = DateTime(now.year, now.month, now.day).toIso8601String();
-          endDate = DateTime(now.year, now.month, now.day, 23, 59, 59).toIso8601String();
-          break;
-          
-        case 'Weekly':
-          // Current week (Monday to Sunday)
-          final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-          final endOfWeek = startOfWeek.add(const Duration(days: 6));
-          startDate = DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day).toIso8601String();
-          endDate = DateTime(endOfWeek.year, endOfWeek.month, endOfWeek.day, 23, 59, 59).toIso8601String();
-          break;
-          
-        case 'Monthly':
-          // Current month
-          startDate = DateTime(now.year, now.month, 1).toIso8601String();
-          endDate = DateTime(now.year, now.month + 1, 0, 23, 59, 59).toIso8601String();
-          break;
-      }
-      
-      print('HabitRepo: Getting habits for $frequency from $startDate to $endDate');
-
-      final response = await _api.get(
-        ApiConfig.HABITS_GET,
-        params: {
-          'userId': userId.toString(),
-          'frequency': frequency,
-          'startDate': startDate!,
-          'endDate': endDate!,
-        },
-      );
-
-      if (response['success'] == true && response['habits'] != null) {
-        final habitsList = response['habits'] as List;
-        return habitsList.map((json) => _habitFromJson(json)).toList();
-      }
-
-      return [];
-    } catch (e) {
-      print('HabitRepo: Error getting habits by frequency and date: $e');
-      return [];
-    }
-  }
-
-  /// Get today's habits (filtered by date)
-  Future<List<Habit>> getTodayHabits() async {
-    return await getHabitsByFrequencyAndDate('Daily');
-  }
-
-  /// Get this week's habits
-  Future<List<Habit>> getWeeklyHabits() async {
-    return await getHabitsByFrequencyAndDate('Weekly');
-  }
-
-  /// Get this month's habits
-  Future<List<Habit>> getMonthlyHabits() async {
-    return await getHabitsByFrequencyAndDate('Monthly');
-  }
-
   /// Update habit status with streak tracking and task-to-habit conversion
   Future<int> updateHabitStatus(String habitKeyOrTitle, String status) async {
     try {
@@ -272,32 +199,35 @@ class HabitRepository {
 
       // Handle completion
       if (status == 'completed') {
-        await _awardPoints(habit.points);
-        
-        // For good habits, completion increments streak
+        // For good habits, completion increments streak and awards points
         if (habit.habitType == 'good') {
+          await _awardPoints(habit.points);
           newStreak++;
           newTaskCompletion++;
           if (newStreak > newBestStreak) {
             newBestStreak = newStreak;
           }
+          
+          // Check if task should become habit (10 consecutive completions)
+          if (newIsTask && newTaskCompletion >= 10) {
+            newIsTask = false;
+            // Bonus points for establishing a habit!
+            await _awardPoints(50);
+          }
         }
-        
-        // Check if task should become habit (10 consecutive completions)
-        if (newIsTask && newTaskCompletion >= 10) {
-          newIsTask = false;
-          // Bonus points for establishing a habit!
-          await _awardPoints(50);
+        // For bad habits, 'completed' means they did the bad habit - break streak
+        else {
+          newStreak = 0;
         }
       }
       
       // Handle skipping
       else if (status == 'skipped') {
-        // For bad habits, skipping increments streak
+        // For bad habits, skipping (resisting) increments streak and awards points
         if (habit.habitType == 'bad') {
+          await _awardPoints(habit.points);
           newStreak++;
           newTaskCompletion++;
-          await _awardPoints(habit.points); // Award points for resisting
           if (newStreak > newBestStreak) {
             newBestStreak = newStreak;
           }
@@ -317,6 +247,8 @@ class HabitRepository {
       // Handle reset (undoing completion)
       else if (status == 'active') {
         await _awardPoints(-habit.points);
+        // Don't modify streak when resetting to active
+        // Keep existing streak
       }
 
       await _api.put(ApiConfig.HABITS_UPDATE_STATUS, {
@@ -454,7 +386,12 @@ class HabitRepository {
     }
   }
 
-  /// Check if a habit exists
+  /// Get today's habits
+  Future<List<Habit>> getTodayHabits() async {
+    return await getHabitsByFrequency('Daily');
+  }
+
+  /// Check if a habit exists (simple check - no frequency)
   Future<bool> habitExists(String habitKey) async {
     try {
       final userId = await _getCurrentUserId();
@@ -482,32 +419,6 @@ class HabitRepository {
   Future<bool> habitExistsWithFrequency(String habitKey, String frequency) async {
     try {
       final userId = await _getCurrentUserId();
-      final now = DateTime.now();
-      
-      String? startDate;
-      String? endDate;
-      
-      switch (frequency) {
-        case 'Daily':
-          // Today only
-          startDate = DateTime(now.year, now.month, now.day).toIso8601String();
-          endDate = DateTime(now.year, now.month, now.day, 23, 59, 59).toIso8601String();
-          break;
-          
-        case 'Weekly':
-          // Current week (Monday to Sunday)
-          final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-          final endOfWeek = startOfWeek.add(const Duration(days: 6));
-          startDate = DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day).toIso8601String();
-          endDate = DateTime(endOfWeek.year, endOfWeek.month, endOfWeek.day, 23, 59, 59).toIso8601String();
-          break;
-          
-        case 'Monthly':
-          // Current month
-          startDate = DateTime(now.year, now.month, 1).toIso8601String();
-          endDate = DateTime(now.year, now.month + 1, 0, 23, 59, 59).toIso8601String();
-          break;
-      }
       
       final response = await _api.get(
         ApiConfig.HABITS_CHECK_EXISTS,
@@ -515,8 +426,6 @@ class HabitRepository {
           'userId': userId.toString(),
           'title': habitKey,
           'frequency': frequency,
-          'startDate': startDate!,
-          'endDate': endDate!,
         },
       );
 
@@ -530,12 +439,6 @@ class HabitRepository {
       return false;
     }
   }
-
-
-
-
-
-
 
   /// Update habit reminder settings
   Future<void> updateHabitReminder(String habitKey, bool reminder, TimeOfDay? time) async {
@@ -616,7 +519,7 @@ class HabitRepository {
     }
   }
 
-  /// Check and reset old habits (backend should handle this)
+  /// Check and reset old habits (backend handles this automatically now)
   Future<void> checkAndResetOldHabits() async {
     try {
       final userId = await _getCurrentUserId();
