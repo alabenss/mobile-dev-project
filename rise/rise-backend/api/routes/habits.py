@@ -483,29 +483,58 @@ def get_habit_by_title():
 
 @habits_bp.route('/habits.checkExists', methods=['GET'])
 def check_habit_exists():
-    """Check if habit exists"""
+    """Check if habit exists in a given period"""
     try:
         user_id = request.args.get('userId')
         title = request.args.get('title')
         frequency = request.args.get('frequency')
-        
-        if not user_id or not title:
-            return jsonify({'error': 'userId and title required'}), 400
-        
-        filters = {'user_id': int(user_id), 'title': title}
-        if frequency:
-            filters['frequency'] = frequency
-        
-        result = select('habits', filters=filters, single=True)
-        
+        start_date = request.args.get('startDate')
+        end_date = request.args.get('endDate')
+
+        if not user_id or not title or not frequency:
+            return jsonify({'error': 'userId, title and frequency are required'}), 400
+
+        # Get habits with same user, title, frequency
+        filters = {
+            'user_id': int(user_id),
+            'title': title,
+            'frequency': frequency
+        }
+
+        habits = select('habits', filters=filters)
+
+        # If no period provided → simple existence check
+        if not start_date or not end_date:
+            return jsonify({
+                'success': True,
+                'exists': len(habits) > 0
+            }), 200
+
+        start = datetime.fromisoformat(start_date)
+        end = datetime.fromisoformat(end_date)
+
+        # Check if created_at is within the period
+        for habit in habits:
+            created_at = habit['created_at']
+
+            if start <= created_at <= end:
+                return jsonify({
+                    'success': True,
+                    'exists': True
+                }), 200
+
         return jsonify({
             'success': True,
-            'exists': result is not None
+            'exists': False
         }), 200
-        
+
     except Exception as e:
         print(f"Error in check_habit_exists: {e}")
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'Internal server error'}), 500
+
+
+
+
 
 @habits_bp.route('/habits.getCompleted', methods=['GET'])
 def get_completed_habits():

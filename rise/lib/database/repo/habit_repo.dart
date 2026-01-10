@@ -482,6 +482,32 @@ class HabitRepository {
   Future<bool> habitExistsWithFrequency(String habitKey, String frequency) async {
     try {
       final userId = await _getCurrentUserId();
+      final now = DateTime.now();
+      
+      String? startDate;
+      String? endDate;
+      
+      switch (frequency) {
+        case 'Daily':
+          // Today only
+          startDate = DateTime(now.year, now.month, now.day).toIso8601String();
+          endDate = DateTime(now.year, now.month, now.day, 23, 59, 59).toIso8601String();
+          break;
+          
+        case 'Weekly':
+          // Current week (Monday to Sunday)
+          final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+          final endOfWeek = startOfWeek.add(const Duration(days: 6));
+          startDate = DateTime(startOfWeek.year, startOfWeek.month, startOfWeek.day).toIso8601String();
+          endDate = DateTime(endOfWeek.year, endOfWeek.month, endOfWeek.day, 23, 59, 59).toIso8601String();
+          break;
+          
+        case 'Monthly':
+          // Current month
+          startDate = DateTime(now.year, now.month, 1).toIso8601String();
+          endDate = DateTime(now.year, now.month + 1, 0, 23, 59, 59).toIso8601String();
+          break;
+      }
       
       final response = await _api.get(
         ApiConfig.HABITS_CHECK_EXISTS,
@@ -489,6 +515,8 @@ class HabitRepository {
           'userId': userId.toString(),
           'title': habitKey,
           'frequency': frequency,
+          'startDate': startDate!,
+          'endDate': endDate!,
         },
       );
 
@@ -502,6 +530,12 @@ class HabitRepository {
       return false;
     }
   }
+
+
+
+
+
+
 
   /// Update habit reminder settings
   Future<void> updateHabitReminder(String habitKey, bool reminder, TimeOfDay? time) async {
