@@ -7,6 +7,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   audioplayers_windows
   file_selector_windows
   firebase_core
+  gal
   permission_handler_windows
   record_windows
   rive_common

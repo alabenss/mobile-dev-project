@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -15,6 +16,7 @@ import 'logic/auth/auth_state.dart' as app_auth;
 import 'logic/journal/journal_cubit.dart';
 import 'logic/journal/daily_mood_cubit.dart';
 import 'logic/locale/locale_cubit.dart';
+import 'logic/applock/app_lock_cubit.dart';
 
 import 'database/repo/home_repo.dart';
 import 'database/repo/activities_repo.dart';
@@ -36,6 +38,9 @@ import 'views/screens/welcome_screens/welcome_provider.dart';
 import 'services/notification_service.dart';
 import 'services/local_storage_service.dart';
 
+// Make sure this exists in your project (it seems you already have it)
+import 'views/widgets/common/bottom_nav_wrapper.dart' show bottomNavKey;
+
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 @pragma('vm:entry-point')
@@ -47,31 +52,39 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
-    /// 🔹 Supabase
+    // ✅ Supabase first
     await Supabase.initialize(
       url: 'https://ycwdtlehjnrpikenlpji.supabase.co',
-      anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inljd2R0bGVoam5ycGlrZW5scGppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2NDQxMTUsImV4cCI6MjA4MzIyMDExNX0.ada24MOrDI-g7OznNSfcTvQ3_ghUFl4rufcMMWmeXOU',
+      anonKey:
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inljd2R0bGVoam5ycGlrZW5scGppIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2NDQxMTUsImV4cCI6MjA4MzIyMDExNX0.ada24MOrDI-g7OznNSfcTvQ3_ghUFl4rufcMMWmeXOU',
       authOptions: const FlutterAuthClientOptions(
         authFlowType: AuthFlowType.pkce,
         autoRefreshToken: true,
       ),
-      
+      debug: true,
     );
 
-    /// 🔹 Firebase
+    // ✅ Firebase
     await Firebase.initializeApp();
-    FirebaseMessaging.onBackgroundMessage(
-      _firebaseMessagingBackgroundHandler,
-    );
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-    /// 🔹 Local storage
+    // ✅ Local storage
     await LocalStorageService.instance.initializeFolders();
 
-    /// 🔹 Notifications
+    // ✅ Notifications
     await NotificationService.instance.init(
       navigatorKey: navigatorKey,
       onTapAction: (screen) {
-        navigatorKey.currentState?.pushNamed('/home');
+        // Friend's behavior: go home then switch tabs
+        navigatorKey.currentState?.pushNamedAndRemoveUntil('/home', (r) => false);
+
+        if (screen == 'journal') {
+          bottomNavKey.currentState?.switchToTab(2);
+        } else if (screen == 'home') {
+          bottomNavKey.currentState?.switchToTab(0);
+        } else if (screen != null && screen.startsWith('habit_')) {
+          bottomNavKey.currentState?.switchToTab(1);
+        }
       },
     );
   } catch (e) {
@@ -91,20 +104,32 @@ class RootApp extends StatelessWidget {
     final habitRepo = HabitRepository();
     final articlesRepo = ArticlesRepo();
 
+    // This can be awaited in main, but keeping it here is okay if it's safe.
     habitRepo.rescheduleAllNotifications();
 
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => LocaleCubit()),
-        BlocProvider(create: (_) => AuthCubit()..checkAuthStatus()),
-        BlocProvider(create: (_) => HomeCubit(homeRepo, habitRepo, articlesRepo)),
-        BlocProvider(create: (_) => HabitCubit(habitRepo)),
-        BlocProvider(create: (_) => JournalCubit(JournalRepository())),
-        BlocProvider(create: (_) => DailyMoodCubit(DailyMoodRepository())),
-        BlocProvider(
-  create: (_) => ActivitiesCubit(activitiesRepo)..loadActivities(),
-),
+        // ✅ MUST be global
+        BlocProvider<AppLockCubit>(create: (_) => AppLockCubit()..loadLock()),
 
+        BlocProvider<LocaleCubit>(create: (_) => LocaleCubit()),
+        BlocProvider<AuthCubit>(create: (_) => AuthCubit()..checkAuthStatus()),
+
+        BlocProvider<HomeCubit>(
+          create: (_) => HomeCubit(homeRepo, habitRepo, articlesRepo),
+        ),
+        BlocProvider<ActivitiesCubit>(
+          create: (_) => ActivitiesCubit(activitiesRepo)..loadActivities(),
+        ),
+        BlocProvider<HabitCubit>(
+          create: (_) => HabitCubit(habitRepo)..loadHabits(),
+        ),
+        BlocProvider<JournalCubit>(
+          create: (_) => JournalCubit(JournalRepository()),
+        ),
+        BlocProvider<DailyMoodCubit>(
+          create: (_) => DailyMoodCubit(DailyMoodRepository()),
+        ),
       ],
       child: const MyApp(),
     );
@@ -114,10 +139,18 @@ class RootApp extends StatelessWidget {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  String _langFromLocale(Locale? locale) {
+    final code = locale?.languageCode ?? 'en';
+    if (code == 'ar' || code == 'fr' || code == 'en') return code;
+    return 'en';
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<LocaleCubit, LocaleState>(
       builder: (context, localeState) {
+        final lang = _langFromLocale(localeState.locale);
+
         return MaterialApp(
           navigatorKey: navigatorKey,
           debugShowCheckedModeBanner: false,
@@ -133,7 +166,33 @@ class MyApp extends StatelessWidget {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          home: const AppEntryPoint(),
+
+          // ✅ One global wrapper + one global auth redirect listener (prevents duplicated redirects)
+          builder: (context, child) {
+            return BlocListener<AuthCubit, app_auth.AuthState>(
+              listenWhen: (prev, curr) =>
+                  prev.isAuthenticated != curr.isAuthenticated,
+              listener: (context, state) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  final nav = navigatorKey.currentState;
+                  if (nav == null) return;
+
+                  if (!state.isAuthenticated) {
+                    nav.pushNamedAndRemoveUntil('/login', (route) => false);
+                  } else {
+                    nav.pushNamedAndRemoveUntil('/home', (route) => false);
+                  }
+                });
+              },
+              child: PhoneLockWrapper(
+                child: child ?? const SizedBox.shrink(),
+              ),
+            );
+          },
+
+          // ✅ Single entry point
+          home: AppEntryPoint(lang: lang),
+
           routes: {
             '/login': (_) => const LoginScreen(),
             '/signup': (_) => const SignUpScreen(),
@@ -149,7 +208,8 @@ class MyApp extends StatelessWidget {
 }
 
 class AppEntryPoint extends StatelessWidget {
-  const AppEntryPoint({super.key});
+  final String lang;
+  const AppEntryPoint({super.key, required this.lang});
 
   @override
   Widget build(BuildContext context) {
@@ -163,6 +223,7 @@ class AppEntryPoint extends StatelessWidget {
           return const LoginScreen();
         }
 
+        // Once authenticated:
         return FutureBuilder<bool>(
           future: WelcomeProvider.shouldShowWelcome(),
           builder: (context, snapshot) {
@@ -170,24 +231,31 @@ class AppEntryPoint extends StatelessWidget {
               return const SplashScreen();
             }
 
+            // ✅ Load initial data once (safe here because we’re authenticated)
+            if (state.user != null) {
+              context.read<HomeCubit>().loadInitial(
+                    userName: state.user!.fullName,
+                    lang: lang,
+                  );
+            }
+
             if (snapshot.data == true) {
               return WelcomeScreen(
-                onCompleted: () {
-                  Navigator.of(context).pushReplacementNamed('/home');
+                onCompleted: () async {
+                  await WelcomeProvider.markUserLoggedIn();
+                  navigatorKey.currentState
+                      ?.pushNamedAndRemoveUntil('/home', (r) => false);
                 },
               );
             }
 
-            return PhoneLockWrapper(
-              child: BottomNavWrapper(key: bottomNavKey),
-            );
+            return BottomNavWrapper(key: bottomNavKey);
           },
         );
       },
     );
   }
 }
-
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});

@@ -1,8 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:the_project/logic/applock/app_lock_cubit.dart';
 import 'package:the_project/views/screens/auth/verify_lock_screen.dart';
+import 'package:the_project/views/screens/auth/verify_lock_screen.dart';
+
 
 class PhoneLockWrapper extends StatefulWidget {
   final Widget child;
@@ -16,56 +17,78 @@ class PhoneLockWrapper extends StatefulWidget {
   State<PhoneLockWrapper> createState() => _PhoneLockWrapperState();
 }
 
-class _PhoneLockWrapperState extends State<PhoneLockWrapper> {
+class _PhoneLockWrapperState extends State<PhoneLockWrapper>
+    with WidgetsBindingObserver {
   late AppLockCubit _appLockCubit;
 
   @override
   void initState() {
     super.initState();
-    _appLockCubit = AppLockCubit();
+    WidgetsBinding.instance.addObserver(this);
+
+    _appLockCubit = context.read<AppLockCubit>();
+
+    // ✅ load once at startup
     _appLockCubit.loadLock();
   }
 
   @override
   void dispose() {
-    _appLockCubit.close();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _appLockCubit,
-      child: BlocBuilder<AppLockCubit, AppLockState>(
-        builder: (context, lockState) {
-          print('AppLock State: isLoading=${lockState.isLoading}, lockType=${lockState.lockType}, isAuthenticated=${lockState.isAuthenticated}');
-          
-          // Show loading while checking lock status
-          if (lockState.isLoading) {
-            return const Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
-              ),
-            );
-          }
+void didChangeAppLifecycleState(AppLifecycleState state) {
+  if (state == AppLifecycleState.paused ||
+      state == AppLifecycleState.inactive ||
+      state == AppLifecycleState.detached) {
 
-          // If no lock is set, show the app directly
-          if (lockState.lockType == null || lockState.lockValue == null) {
-            print('No app lock set, showing app directly');
-            return widget.child;
-          }
-
-          // If lock is set but user is authenticated, show the app
-          if (lockState.isAuthenticated) {
-            print('App lock set and user authenticated, showing app');
-            return widget.child;
-          }
-
-          // If lock is set but not authenticated, show verification screen
-          print('App lock set but user not authenticated, showing verify screen');
-          return VerifyLockScreen();
-        },
-      ),
-    );
+    _appLockCubit.setBypassLock(false);   // ✅ ADD THIS
+    _appLockCubit.resetAuthentication();
   }
+
+  if (state == AppLifecycleState.resumed) {
+    _appLockCubit.loadLock();
+  }
+}
+
+
+  @override
+Widget build(BuildContext context) {
+  return BlocBuilder<AppLockCubit, AppLockState>(
+    builder: (context, lockState) {
+      if (lockState.isLoading) {
+        return const Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        );
+      }
+
+      // bypass (AppLock settings page)
+      if (lockState.bypassLock) {
+        return widget.child;
+      }
+
+      // no lock => allow
+      if (lockState.lockType == null || lockState.lockValue == null) {
+        return widget.child;
+      }
+
+      // authenticated => allow
+      if (lockState.isAuthenticated) {
+        return widget.child;
+      }
+
+      // ✅ IMPORTANT: Provide a Navigator for VerifyLockScreen
+      return Navigator(
+        onGenerateRoute: (_) => MaterialPageRoute(
+          builder: (_) => const VerifyLockScreen(),
+        ),
+      );
+    },
+  );
+}
+
+
+
 }
