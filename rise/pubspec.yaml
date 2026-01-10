@@ -68,6 +68,7 @@ dev_dependencies:
     sdk: flutter
 
   flutter_native_splash: ^2.4.0
+  flutter_launcher_icons: ^0.13.1
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -147,3 +148,7 @@ flutter_native_splash:
   android_12:
     color: "#FFFFFF"
     image: assets/images/logo_rise.png
+flutter_icons:
+  android: true
+  ios: true
+  image_path: assets/images/logo_rise.png
