@@ -298,7 +298,7 @@ def update_habit_status():
 
 @habits_bp.route('/habits.restoreStreak', methods=['POST'])
 def restore_streak():
-    """Restore a broken streak using points"""
+    """Restore a broken streak using points - only available within grace period"""
     try:
         data = request.get_json()
         user_id = data.get('userId')
@@ -311,6 +311,33 @@ def restore_streak():
         habit = select('habits', filters={'user_id': user_id, 'title': habit_key}, single=True)
         if not habit:
             return jsonify({'error': 'Habit not found'}), 404
+        
+        # Check if within grace period
+        last_completed_date = habit.get('last_completed_date')
+        if not last_completed_date:
+            return jsonify({'error': 'No completion history'}), 400
+        
+        now = datetime.now()
+        last_completed = datetime.fromisoformat(last_completed_date)
+        frequency = habit['frequency'].lower()
+        
+        # Check grace period
+        within_grace_period = False
+        
+        if frequency == 'daily':
+            days_since = (now.date() - last_completed.date()).days
+            within_grace_period = days_since == 2  # Exactly 1 day missed
+        elif frequency == 'weekly':
+            def get_week_start(date):
+                return date - timedelta(days=date.weekday())
+            weeks_since = (get_week_start(now) - get_week_start(last_completed)).days // 7
+            within_grace_period = weeks_since == 2
+        elif frequency == 'monthly':
+            months_since = (now.year - last_completed.year) * 12 + now.month - last_completed.month
+            within_grace_period = months_since == 2
+        
+        if not within_grace_period:
+            return jsonify({'error': 'Grace period expired'}), 400
         
         # Get user's current points
         user = select('users', filters={'id': user_id}, single=True)
@@ -332,7 +359,9 @@ def restore_streak():
         update('habits',
                {
                    'streak_count': best_streak,
-                   'last_completed_date': datetime.now().isoformat()
+                   'last_completed_date': now.isoformat(),
+                   'status': 'completed',
+                   'last_updated': now.isoformat()
                },
                filters={'user_id': user_id, 'title': habit_key})
         

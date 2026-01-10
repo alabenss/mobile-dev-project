@@ -293,12 +293,8 @@ class _HabitListState extends State<HabitList> {
   }
 
   /// Check if restore option should be shown
+  /// Only show for 1-day grace period: if last completed was exactly 2 days ago (missed yesterday only)
   bool _shouldShowRestore(Habit habit) {
-    // Don't show if no streak to restore (need both: no current streak AND had a best streak)
-    if (habit.bestStreak == 0 || habit.streakCount > 0) {
-      return false;
-    }
-    
     // Don't show if never completed
     if (habit.lastCompletedDate == null) {
       return false;
@@ -308,66 +304,45 @@ class _HabitListState extends State<HabitList> {
     final lastCompleted = habit.lastCompletedDate!;
     
     if (habit.frequency.toLowerCase() == 'daily') {
-      // Show restore if last completed was NOT yesterday (missed a day)
-      final yesterday = now.subtract(const Duration(days: 1));
-      // If yesterday, don't show restore (streak is still valid)
-      if (_isSameDay(lastCompleted, yesterday)) {
-        return false;
-      }
-      // If today, don't show restore (just completed)
-      if (_isSameDay(lastCompleted, now)) {
-        return false;
-      }
-      // Otherwise, show restore (missed at least one day)
-      return true;
+      // Calculate days since last completion
+      final daysSince = _daysBetween(lastCompleted, now);
+      
+      // Show restore ONLY if missed exactly 1 day (last completed was 2 days ago)
+      // Day 0 = today (just completed)
+      // Day 1 = yesterday (streak still valid, no restore needed)
+      // Day 2 = day before yesterday (missed yesterday, can restore)
+      // Day 3+ = too late, can't restore
+      return daysSince == 2;
     } 
     else if (habit.frequency.toLowerCase() == 'weekly') {
-      // Show restore if last completed was NOT in the previous week
-      // Get start of last week (Monday)
-      final daysToSubtract = now.weekday + 7; // Go back to Monday of last week
-      final lastWeekMonday = DateTime(now.year, now.month, now.day)
-          .subtract(Duration(days: daysToSubtract));
-      final lastWeekSunday = lastWeekMonday.add(const Duration(days: 6));
-      
-      // If completed last week, don't show restore
-      if (lastCompleted.isAfter(lastWeekMonday.subtract(const Duration(days: 1))) &&
-          lastCompleted.isBefore(lastWeekSunday.add(const Duration(days: 1)))) {
-        return false;
-      }
-      
-      // If completed this week, don't show restore
-      final thisWeekMonday = DateTime(now.year, now.month, now.day)
-          .subtract(Duration(days: now.weekday - 1));
-      if (lastCompleted.isAfter(thisWeekMonday.subtract(const Duration(days: 1)))) {
-        return false;
-      }
-      
-      // Otherwise show restore
-      return true;
+      // For weekly: show restore if in the grace period of 1 week
+      final weeksSince = _weeksBetween(lastCompleted, now);
+      return weeksSince == 2; // Missed last week only
     } 
     else if (habit.frequency.toLowerCase() == 'monthly') {
-      // Show restore if last completed was NOT in the previous month
-      final lastMonth = DateTime(
-        now.month == 1 ? now.year - 1 : now.year,
-        now.month == 1 ? 12 : now.month - 1,
-      );
-      
-      // If completed last month, don't show restore
-      if (lastCompleted.year == lastMonth.year && 
-          lastCompleted.month == lastMonth.month) {
-        return false;
-      }
-      
-      // If completed this month, don't show restore
-      if (lastCompleted.year == now.year && lastCompleted.month == now.month) {
-        return false;
-      }
-      
-      // Otherwise show restore
-      return true;
+      // For monthly: show restore if in the grace period of 1 month
+      final monthsSince = _monthsBetween(lastCompleted, now);
+      return monthsSince == 2; // Missed last month only
     }
     
     return false;
+  }
+
+  int _daysBetween(DateTime start, DateTime end) {
+    final startDate = DateTime(start.year, start.month, start.day);
+    final endDate = DateTime(end.year, end.month, end.day);
+    return endDate.difference(startDate).inDays;
+  }
+
+  int _weeksBetween(DateTime start, DateTime end) {
+    // Get Monday of each week
+    final startMonday = start.subtract(Duration(days: start.weekday - 1));
+    final endMonday = end.subtract(Duration(days: end.weekday - 1));
+    return _daysBetween(startMonday, endMonday) ~/ 7;
+  }
+
+  int _monthsBetween(DateTime start, DateTime end) {
+    return (end.year - start.year) * 12 + end.month - start.month;
   }
 
   bool _isSameDay(DateTime date1, DateTime date2) {
