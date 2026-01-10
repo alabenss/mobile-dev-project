@@ -72,14 +72,13 @@ class _VerifyLockScreenState extends State<VerifyLockScreen> {
     final newState = cubit.state;
 
     if (newState.isAuthenticated) {
-      if (!mounted) return;
-
-      if (Navigator.of(context, rootNavigator: true).canPop()) {
-        Navigator.of(context, rootNavigator: true).pop(true);
-      }
+      // ✅ Don't manually navigate
+      // PhoneLockWrapper will automatically hide the lock screen
+      // when isAuthenticated becomes true
       return;
     }
 
+    // Wrong input - show error
     setState(() => _showError = true);
     _clearInput();
     _clearPattern();

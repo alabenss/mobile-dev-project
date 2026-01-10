@@ -232,8 +232,15 @@ class AppEntryPoint extends StatelessWidget {
               );
             }
 
-            // Go directly to home (data will be loaded by HomeScreen itself)
-            return BottomNavWrapper(key: bottomNavKey);
+            // FIXED: Don't create another instance with the same key
+            // Instead, navigate to the /home route
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              navigatorKey.currentState
+                  ?.pushNamedAndRemoveUntil('/home', (r) => false);
+            });
+            
+            // Show splash while navigating
+            return const SplashScreen();
           },
         );
       },
