@@ -142,12 +142,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(
-                          Icons.self_improvement,
-                          size: 80,
-                          color: AppColors.icon,
-                        ),
-                        const SizedBox(height: 16),
+                        Image.asset(
+  'assets/images/logo_rise.png',
+  height: 250,
+  width: 250,
+  fit: BoxFit.contain,
+),
+
+                        const SizedBox(height: 5),
                         Text(
                           l10n.welcomeBack,
                           style: const TextStyle(
