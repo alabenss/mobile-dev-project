@@ -241,7 +241,7 @@ class HabitCard extends StatelessWidget {
   }
 
   Widget _buildTaskProgress(Habit habit) {
-    final progress = habit.taskCompletionCount / 10;
+    final progress = habit.streakCount / 10;
     return Row(
       children: [
         Expanded(
@@ -257,7 +257,7 @@ class HabitCard extends StatelessWidget {
         ),
         const SizedBox(width: 8),
         Text(
-          '${habit.taskCompletionCount}/10',
+          '${habit.streakCount}/10',
           style: TextStyle(
             color: Colors.orange,
             fontSize: 11,

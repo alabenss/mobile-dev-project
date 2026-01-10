@@ -194,7 +194,6 @@ class HabitRepository {
 
       int newStreak = habit.streakCount;
       int newBestStreak = habit.bestStreak;
-      int newTaskCompletion = habit.taskCompletionCount;
       bool newIsTask = habit.isTask;
 
       // Handle completion
@@ -203,13 +202,12 @@ class HabitRepository {
         if (habit.habitType == 'good') {
           await _awardPoints(habit.points);
           newStreak++;
-          newTaskCompletion++;
           if (newStreak > newBestStreak) {
             newBestStreak = newStreak;
           }
           
           // Check if task should become habit (10 consecutive completions)
-          if (newIsTask && newTaskCompletion >= 10) {
+          if (newIsTask && newStreak >= 10) {
             newIsTask = false;
             // Bonus points for establishing a habit!
             await _awardPoints(50);
@@ -227,13 +225,12 @@ class HabitRepository {
         if (habit.habitType == 'bad') {
           await _awardPoints(habit.points);
           newStreak++;
-          newTaskCompletion++;
           if (newStreak > newBestStreak) {
             newBestStreak = newStreak;
           }
           
-          // Check if task should become habit
-          if (newIsTask && newTaskCompletion >= 10) {
+          // Check if task should become habit (10 consecutive resistances)
+          if (newIsTask && newStreak >= 10) {
             newIsTask = false;
             await _awardPoints(50);
           }
@@ -257,7 +254,6 @@ class HabitRepository {
         'status': status,
         'streakCount': newStreak,
         'bestStreak': newBestStreak,
-        'taskCompletionCount': newTaskCompletion,
         'isTask': newIsTask,
         'lastCompletedDate': (status == 'completed' || status == 'skipped')
             ? DateTime.now().toIso8601String()

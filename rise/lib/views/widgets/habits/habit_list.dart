@@ -130,7 +130,7 @@ class _HabitListState extends State<HabitList> {
                       String message = l10n.habitCompleted(habit.title);
                       
                       // Special message if task became habit
-                      if (habit.isTask && habit.taskCompletionCount == 9) {
+                      if (habit.isTask && habit.streakCount == 9) {
                         message = '🎉 ${habit.title} is now a Habit! +50 bonus points!';
                       }
                       
@@ -213,7 +213,7 @@ class _HabitListState extends State<HabitList> {
                     if (mounted) {
                       String message = 'Great! You resisted ${habit.title}! 💪';
                       
-                      if (habit.isTask && habit.taskCompletionCount == 9) {
+                      if (habit.isTask && habit.streakCount == 9) {
                         message = '🎉 Resisting ${habit.title} is now a Habit! +50 bonus!';
                       }
                       
