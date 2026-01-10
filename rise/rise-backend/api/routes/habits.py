@@ -111,7 +111,7 @@ def get_habits():
             return jsonify({'success': True, 'habits': []}), 200
         
         # Check if habits need reset based on period
-        now = datetime.now()
+        now = datetime.now() + timedelta(days=1)
         updated_habits = []
         
         for habit in result:
