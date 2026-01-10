@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:the_project/utils/notification_timezone.dart';
 
 import 'l10n/app_localizations.dart';
 
@@ -38,12 +39,16 @@ import 'views/widgets/common/bottom_nav_wrapper.dart';
 
 import 'services/notification_service.dart';
 import 'services/local_storage_service.dart';
+import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart'; 
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
 }
 
 Future<void> main() async {
@@ -87,6 +92,7 @@ Future<void> main() async {
   } catch (e) {
     debugPrint('Startup error: $e');
   }
+  await NotificationTimezone.init();
 
   runApp(const RootApp());
 }

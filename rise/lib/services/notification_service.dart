@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
-import 'package:timezone/data/latest.dart' as tz;
 import '../models/habit_model.dart';
 
 class NotificationService {
@@ -34,11 +33,7 @@ class NotificationService {
     _onTapAction = onTapAction;
 
     // Initialize timezone data and set local location
-    tz.initializeTimeZones();
-    // Set to local timezone - this is crucial for correct notification timing
-    final locationName = tz.local.name;
-    debugPrint('Timezone local: $locationName');
-
+    
     const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
     const iosInit = DarwinInitializationSettings(
       requestAlertPermission: true,
@@ -76,7 +71,7 @@ class NotificationService {
       _handleFirebaseNotificationTap(message);
     });
 
-    // ✅ getInitialMessage can fail sometimes — keep safe
+    // Safe getInitialMessage
     try {
       final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
       if (initialMessage != null) {
@@ -99,7 +94,7 @@ class NotificationService {
       );
     });
 
-    // ✅ CRITICAL FIX: getToken can throw SERVICE_NOT_AVAILABLE (emulator) -> don't crash app
+    // Safe FCM token retrieval
     try {
       final token = await FirebaseMessaging.instance.getToken();
       debugPrint('FCM token: $token');
@@ -109,7 +104,7 @@ class NotificationService {
       debugPrint('FCM getToken error: $e');
     }
 
-    // ✅ Also safe
+    // Safe topic subscription
     try {
       await FirebaseMessaging.instance.subscribeToTopic('demo');
     } catch (e) {
@@ -161,12 +156,19 @@ class NotificationService {
     );
   }
 
-  /// Schedule a habit reminder - FIXED to use local time correctly
+  /// Schedule a habit reminder - FIXED to use local timezone correctly
   Future<void> scheduleHabitReminder(Habit habit, int userId) async {
     if (!habit.reminder || habit.time == null) return;
 
     final notificationId = _generateNotificationId(habit, userId);
     final scheduledTime = _getNextScheduledTime(habit);
+
+    // Format time for logging (avoiding BuildContext issue)
+    final timeStr = '${habit.time!.hour.toString().padLeft(2, '0')}:${habit.time!.minute.toString().padLeft(2, '0')}';
+    debugPrint('📅 Scheduling notification for ${habit.title}:');
+    debugPrint('   User Time: $timeStr');
+    debugPrint('   Scheduled TZDateTime: $scheduledTime');
+    debugPrint('   Timezone: ${scheduledTime.location.name}');
 
     // Get notification title based on habit type
     String notificationTitle;
@@ -197,15 +199,23 @@ class NotificationService {
       matchDateTimeComponents: _getDateTimeComponents(habit.frequency),
       payload: habit.habitKey,
     );
+
+    debugPrint('✅ Notification scheduled successfully');
   }
 
   /// Get next scheduled time - FIXED to properly use local timezone
+  /// This ensures notifications appear at the correct local time
   tz.TZDateTime _getNextScheduledTime(Habit habit) {
-    // Get current time in local timezone
+    // Get current time in LOCAL timezone
     final now = tz.TZDateTime.now(tz.local);
     final time = habit.time!;
 
+    debugPrint('🕐 Calculating next scheduled time:');
+    debugPrint('   Current local time: $now');
+    debugPrint('   Habit time: ${time.hour}:${time.minute}');
+
     // Create scheduled time for today in LOCAL timezone
+    // This is the key fix - we use tz.local instead of UTC
     tz.TZDateTime scheduledDate = tz.TZDateTime(
       tz.local,
       now.year,
@@ -217,15 +227,21 @@ class NotificationService {
       0,
     );
 
+    debugPrint('   Initial scheduled time: $scheduledDate');
+
     // If the time has already passed today, schedule for the next occurrence
     if (scheduledDate.isBefore(now)) {
+      debugPrint('   Time already passed, moving to next occurrence...');
+      
       switch (habit.frequency.toLowerCase()) {
         case 'daily':
           scheduledDate = scheduledDate.add(const Duration(days: 1));
+          debugPrint('   Next daily occurrence: $scheduledDate');
           break;
 
         case 'weekly':
           scheduledDate = scheduledDate.add(const Duration(days: 7));
+          debugPrint('   Next weekly occurrence: $scheduledDate');
           break;
 
         case 'monthly':
@@ -252,6 +268,7 @@ class NotificationService {
             0,
             0,
           );
+          debugPrint('   Next monthly occurrence: $scheduledDate');
           break;
 
         default:
@@ -286,11 +303,13 @@ class NotificationService {
   Future<void> cancelHabitReminder(Habit habit, int userId) async {
     final notificationId = _generateNotificationId(habit, userId);
     await _local.cancel(notificationId);
+    debugPrint('🔕 Cancelled notification for ${habit.title}');
   }
 
   /// Cancel all notifications
   Future<void> cancelAllNotifications() async {
     await _local.cancelAll();
+    debugPrint('🔕 Cancelled all notifications');
   }
 
   /// Show test notification
@@ -325,7 +344,12 @@ class NotificationService {
 
   /// Get pending notifications (for debugging)
   Future<List<PendingNotificationRequest>> getPendingNotifications() async {
-    return await _local.pendingNotificationRequests();
+    final pending = await _local.pendingNotificationRequests();
+    debugPrint('📋 Pending notifications: ${pending.length}');
+    for (final notification in pending) {
+      debugPrint('   ID: ${notification.id}, Title: ${notification.title}');
+    }
+    return pending;
   }
 
   /// Subscribe to FCM topic
