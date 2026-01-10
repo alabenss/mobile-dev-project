@@ -2448,6 +2448,276 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remind Me'**
   String get remindMe;
+
+  /// Error title when username is already taken
+  ///
+  /// In en, this message translates to:
+  /// **'Username Already Taken'**
+  String get usernameTaken;
+
+  /// Error title when email already exists
+  ///
+  /// In en, this message translates to:
+  /// **'Email Already Exists'**
+  String get emailAlreadyExists;
+
+  /// Error title when there's no internet connection
+  ///
+  /// In en, this message translates to:
+  /// **'No Internet Connection'**
+  String get noInternetConnection;
+
+  /// Error title when session has expired
+  ///
+  /// In en, this message translates to:
+  /// **'Session Expired'**
+  String get sessionExpired;
+
+  /// Error title when email confirmation is required
+  ///
+  /// In en, this message translates to:
+  /// **'Email Confirmation Required'**
+  String get emailConfirmationRequired;
+
+  /// Error title when sign up fails
+  ///
+  /// In en, this message translates to:
+  /// **'Sign Up Failed'**
+  String get signUpFailed;
+
+  /// Error title when login fails
+  ///
+  /// In en, this message translates to:
+  /// **'Login Failed'**
+  String get loginFailed;
+
+  /// Error title when credentials are invalid
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid Credentials'**
+  String get invalidCredentials;
+
+  /// No description provided for @errorMessageNoInternet.
+  ///
+  /// In en, this message translates to:
+  /// **'Please check your internet connection and try again.'**
+  String get errorMessageNoInternet;
+
+  /// No description provided for @errorMessageInvalidCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'The username/email or password you entered is incorrect.'**
+  String get errorMessageInvalidCredentials;
+
+  /// No description provided for @errorMessageSessionExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session has expired. Please login again.'**
+  String get errorMessageSessionExpired;
+
+  /// No description provided for @errorMessageLoginFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to login. Please try again later.'**
+  String get errorMessageLoginFailed;
+
+  /// No description provided for @errorMessageUsernameTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'This username is already taken. Please choose another one.'**
+  String get errorMessageUsernameTaken;
+
+  /// No description provided for @errorMessageEmailExists.
+  ///
+  /// In en, this message translates to:
+  /// **'This email is already registered. Please use another email or login.'**
+  String get errorMessageEmailExists;
+
+  /// No description provided for @errorMessageEmailConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please check your email and confirm your account before logging in.'**
+  String get errorMessageEmailConfirmation;
+
+  /// No description provided for @errorMessageSignUpFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to create account. Please try again later.'**
+  String get errorMessageSignUpFailed;
+
+  /// No description provided for @profileFirstNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'First Name'**
+  String get profileFirstNameLabel;
+
+  /// No description provided for @profileLastNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Name'**
+  String get profileLastNameLabel;
+
+  /// No description provided for @profileEditFirstNameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit First Name'**
+  String get profileEditFirstNameTitle;
+
+  /// No description provided for @profileEditLastNameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Last Name'**
+  String get profileEditLastNameTitle;
+
+  /// No description provided for @profileSuccessFirstName.
+  ///
+  /// In en, this message translates to:
+  /// **'First name updated successfully'**
+  String get profileSuccessFirstName;
+
+  /// No description provided for @profileSuccessLastName.
+  ///
+  /// In en, this message translates to:
+  /// **'Last name updated successfully'**
+  String get profileSuccessLastName;
+
+  /// No description provided for @profileSuccessUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Username updated successfully'**
+  String get profileSuccessUsername;
+
+  /// No description provided for @profileSuccessEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email updated successfully'**
+  String get profileSuccessEmail;
+
+  /// No description provided for @profileErrorUsernameTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'Username Taken'**
+  String get profileErrorUsernameTaken;
+
+  /// No description provided for @profileErrorEmailTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'Email Already Exists'**
+  String get profileErrorEmailTaken;
+
+  /// No description provided for @profileErrorInvalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid Email'**
+  String get profileErrorInvalidEmail;
+
+  /// No description provided for @profileErrorInvalidUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid Username'**
+  String get profileErrorInvalidUsername;
+
+  /// No description provided for @profileErrorUpdateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Failed'**
+  String get profileErrorUpdateFailed;
+
+  /// No description provided for @profileErrorMessageUsernameTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'This username is already in use. Please choose a different username.'**
+  String get profileErrorMessageUsernameTaken;
+
+  /// No description provided for @profileErrorMessageEmailTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'This email address is already registered. Please use a different email.'**
+  String get profileErrorMessageEmailTaken;
+
+  /// No description provided for @profileErrorMessageInvalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email address.'**
+  String get profileErrorMessageInvalidEmail;
+
+  /// No description provided for @profileErrorMessageInvalidUsername.
+  ///
+  /// In en, this message translates to:
+  /// **'Username must be at least 3 characters and cannot contain spaces.'**
+  String get profileErrorMessageInvalidUsername;
+
+  /// No description provided for @profileErrorMessageUpdateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to update your profile. Please try again.'**
+  String get profileErrorMessageUpdateFailed;
+
+  /// No description provided for @enterEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter an email'**
+  String get enterEmail;
+
+  /// No description provided for @profileSuccessFirstNameMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your first name has been updated successfully.'**
+  String get profileSuccessFirstNameMessage;
+
+  /// No description provided for @profileSuccessLastNameMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your last name has been updated successfully.'**
+  String get profileSuccessLastNameMessage;
+
+  /// No description provided for @profileSuccessUsernameMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your username has been updated successfully.'**
+  String get profileSuccessUsernameMessage;
+
+  /// No description provided for @profileSuccessEmailMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your email has been updated successfully.'**
+  String get profileSuccessEmailMessage;
+
+  /// No description provided for @habitErrorAlreadyExists.
+  ///
+  /// In en, this message translates to:
+  /// **'Habit Already Exists'**
+  String get habitErrorAlreadyExists;
+
+  /// No description provided for @habitErrorOperationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Operation Failed'**
+  String get habitErrorOperationFailed;
+
+  /// No description provided for @habitErrorGeneral.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get habitErrorGeneral;
+
+  /// No description provided for @habitErrorMessageAlreadyExists.
+  ///
+  /// In en, this message translates to:
+  /// **'This habit already exists with the selected frequency. Please choose a different habit or frequency.'**
+  String get habitErrorMessageAlreadyExists;
+
+  /// No description provided for @habitErrorMessageOperationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to complete the operation. Please try again.'**
+  String get habitErrorMessageOperationFailed;
+
+  /// No description provided for @habitErrorMessageGeneral.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred. Please try again.'**
+  String get habitErrorMessageGeneral;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

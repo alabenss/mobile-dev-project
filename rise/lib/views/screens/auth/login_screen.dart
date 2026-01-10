@@ -5,6 +5,7 @@ import '../../../logic/auth/auth_state.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../themes/style_simple/colors.dart';
 import '../../screens/welcome_screens/welcome_provider.dart';
+import '../../widgets/error_dialog.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -26,16 +27,89 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  void _showErrorDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AppErrorDialog(
+        title: title,
+        message: message,
+      ),
+    );
+  }
+
+  String _getErrorTitle(String error) {
+    final l10n = AppLocalizations.of(context)!;
+    
+    if (error.toLowerCase().contains('network') || 
+        error.toLowerCase().contains('connection') ||
+        error.toLowerCase().contains('internet') ||
+        error.toLowerCase().contains('socket') ||
+        error.toLowerCase().contains('host lookup')) {
+      return l10n.noInternetConnection;
+    }
+    
+    if (error.toLowerCase().contains('invalid') || 
+        error.toLowerCase().contains('incorrect') ||
+        error.toLowerCase().contains('wrong')) {
+      return l10n.invalidCredentials;
+    }
+    
+    if (error.toLowerCase().contains('session') || 
+        error.toLowerCase().contains('expired')) {
+      return l10n.sessionExpired;
+    }
+    
+    return l10n.loginFailed;
+  }
+
+  String _getErrorMessage(String error) {
+    final l10n = AppLocalizations.of(context)!;
+    
+    // Network/Connection errors
+    if (error.toLowerCase().contains('network') || 
+        error.toLowerCase().contains('connection') ||
+        error.toLowerCase().contains('internet') ||
+        error.toLowerCase().contains('socket') ||
+        error.toLowerCase().contains('host lookup')) {
+      return l10n.errorMessageNoInternet;
+    }
+    
+    // Invalid credentials
+    if (error.toLowerCase().contains('invalid') || 
+        error.toLowerCase().contains('incorrect') ||
+        error.toLowerCase().contains('wrong')) {
+      return l10n.errorMessageInvalidCredentials;
+    }
+    
+    // Session expired
+    if (error.toLowerCase().contains('session') || 
+        error.toLowerCase().contains('expired')) {
+      return l10n.errorMessageSessionExpired;
+    }
+    
+    // Default friendly message
+    return l10n.errorMessageLoginFailed;
+  }
+
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
-      final success = await context.read<AuthCubit>().login(
-            _identifierController.text.trim(),
-            _passwordController.text,
-          );
+      try {
+        final success = await context.read<AuthCubit>().login(
+              _identifierController.text.trim(),
+              _passwordController.text,
+            );
 
-      if (success && mounted) {
-        await WelcomeProvider.markUserLoggedIn();
-        Navigator.of(context).pushReplacementNamed('/home');
+        if (success && mounted) {
+          await WelcomeProvider.markUserLoggedIn();
+          Navigator.of(context).pushReplacementNamed('/home');
+        }
+      } catch (e) {
+        if (mounted) {
+          _showErrorDialog(
+            _getErrorTitle(e.toString()),
+            e.toString(),
+          );
+        }
       }
     }
   }
@@ -57,11 +131,9 @@ class _LoginScreenState extends State<LoginScreen> {
           child: BlocConsumer<AuthCubit, AuthState>(
             listener: (context, state) {
               if (state.error != null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(state.error!),
-                    backgroundColor: Colors.redAccent,
-                  ),
+                _showErrorDialog(
+                  _getErrorTitle(state.error!),
+                  _getErrorMessage(state.error!),
                 );
                 context.read<AuthCubit>().clearError();
               }

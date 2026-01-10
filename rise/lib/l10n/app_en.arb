@@ -661,8 +661,105 @@
 "remindMe": "Remind Me",
 "selectTime": "Select Time",
 "cancel": "Cancel",
-"add": "Add"
+"add": "Add",
+ "usernameTaken": "Username Already Taken",
+  "@usernameTaken": {
+    "description": "Error title when username is already taken"
+  },
+  
+  "emailAlreadyExists": "Email Already Exists",
+  "@emailAlreadyExists": {
+    "description": "Error title when email already exists"
+  },
+  
+  "noInternetConnection": "No Internet Connection",
+  "@noInternetConnection": {
+    "description": "Error title when there's no internet connection"
+  },
+  
+  "sessionExpired": "Session Expired",
+  "@sessionExpired": {
+    "description": "Error title when session has expired"
+  },
+  
+  "emailConfirmationRequired": "Email Confirmation Required",
+  "@emailConfirmationRequired": {
+    "description": "Error title when email confirmation is required"
+  },
+  
+  "signUpFailed": "Sign Up Failed",
+  "@signUpFailed": {
+    "description": "Error title when sign up fails"
+  },
+  
+  "loginFailed": "Login Failed",
+  "@loginFailed": {
+    "description": "Error title when login fails"
+  },
+  
+  "invalidCredentials": "Invalid Credentials",
+  "@invalidCredentials": {
+    "description": "Error title when credentials are invalid"
+  },
 
+
+  
+  "errorMessageNoInternet": "Please check your internet connection and try again.",
+  "errorMessageInvalidCredentials": "The username/email or password you entered is incorrect.",
+  "errorMessageSessionExpired": "Your session has expired. Please login again.",
+  "errorMessageLoginFailed": "Unable to login. Please try again later.",
+  
+  "errorMessageUsernameTaken": "This username is already taken. Please choose another one.",
+  "errorMessageEmailExists": "This email is already registered. Please use another email or login.",
+  "errorMessageEmailConfirmation": "Please check your email and confirm your account before logging in.",
+  "errorMessageSignUpFailed": "Unable to create account. Please try again later.",
+   "profileFirstNameLabel": "First Name",
+  "profileLastNameLabel": "Last Name",
+  
+  "profileEditFirstNameTitle": "Edit First Name",
+  "profileEditLastNameTitle": "Edit Last Name",
+  
+  "profileSuccessFirstName": "First name updated successfully",
+  "profileSuccessLastName": "Last name updated successfully",
+  "profileSuccessUsername": "Username updated successfully",
+  "profileSuccessEmail": "Email updated successfully",
+  
+  "profileErrorUsernameTaken": "Username Taken",
+  "profileErrorEmailTaken": "Email Already Exists",
+  "profileErrorInvalidEmail": "Invalid Email",
+  "profileErrorInvalidUsername": "Invalid Username",
+  "profileErrorUpdateFailed": "Update Failed",
+  
+  "profileErrorMessageUsernameTaken": "This username is already in use. Please choose a different username.",
+  "profileErrorMessageEmailTaken": "This email address is already registered. Please use a different email.",
+  "profileErrorMessageInvalidEmail": "Please enter a valid email address.",
+  "profileErrorMessageInvalidUsername": "Username must be at least 3 characters and cannot contain spaces.",
+  "profileErrorMessageUpdateFailed": "Failed to update your profile. Please try again.",
+  
+  "enterEmail": "Please enter an email",
+
+
+
+
+  "profileSuccessFirstNameMessage": "Your first name has been updated successfully.",
+  "profileSuccessLastNameMessage": "Your last name has been updated successfully.",
+  "profileSuccessUsernameMessage": "Your username has been updated successfully.",
+  "profileSuccessEmailMessage": "Your email has been updated successfully.",
+
+
+
+
+
+
+
+  
+  "habitErrorAlreadyExists": "Habit Already Exists",
+  "habitErrorOperationFailed": "Operation Failed",
+  "habitErrorGeneral": "Error",
+  
+  "habitErrorMessageAlreadyExists": "This habit already exists with the selected frequency. Please choose a different habit or frequency.",
+  "habitErrorMessageOperationFailed": "Failed to complete the operation. Please try again.",
+  "habitErrorMessageGeneral": "An error occurred. Please try again."
 
 
 

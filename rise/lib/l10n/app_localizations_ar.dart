@@ -1257,4 +1257,139 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get remindMe => 'ذكرني';
+
+  @override
+  String get usernameTaken => 'اسم المستخدم مأخوذ بالفعل';
+
+  @override
+  String get emailAlreadyExists => 'البريد الإلكتروني موجود بالفعل';
+
+  @override
+  String get noInternetConnection => 'لا يوجد اتصال بالإنترنت';
+
+  @override
+  String get sessionExpired => 'انتهت صلاحية الجلسة';
+
+  @override
+  String get emailConfirmationRequired => 'تأكيد البريد الإلكتروني مطلوب';
+
+  @override
+  String get signUpFailed => 'فشل التسجيل';
+
+  @override
+  String get loginFailed => 'فشل تسجيل الدخول';
+
+  @override
+  String get invalidCredentials => 'بيانات الاعتماد غير صحيحة';
+
+  @override
+  String get errorMessageNoInternet => 'يرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.';
+
+  @override
+  String get errorMessageInvalidCredentials => 'اسم المستخدم/البريد الإلكتروني أو كلمة المرور التي أدخلتها غير صحيحة.';
+
+  @override
+  String get errorMessageSessionExpired => 'انتهت صلاحية جلستك. يرجى تسجيل الدخول مرة أخرى.';
+
+  @override
+  String get errorMessageLoginFailed => 'تعذر تسجيل الدخول. يرجى المحاولة مرة أخرى لاحقاً.';
+
+  @override
+  String get errorMessageUsernameTaken => 'اسم المستخدم هذا مأخوذ بالفعل. يرجى اختيار اسم آخر.';
+
+  @override
+  String get errorMessageEmailExists => 'هذا البريد الإلكتروني مسجل بالفعل. يرجى استخدام بريد إلكتروني آخر أو تسجيل الدخول.';
+
+  @override
+  String get errorMessageEmailConfirmation => 'يرجى التحقق من بريدك الإلكتروني وتأكيد حسابك قبل تسجيل الدخول.';
+
+  @override
+  String get errorMessageSignUpFailed => 'تعذر إنشاء الحساب. يرجى المحاولة مرة أخرى لاحقاً.';
+
+  @override
+  String get profileFirstNameLabel => 'الاسم الأول';
+
+  @override
+  String get profileLastNameLabel => 'اسم العائلة';
+
+  @override
+  String get profileEditFirstNameTitle => 'تعديل الاسم الأول';
+
+  @override
+  String get profileEditLastNameTitle => 'تعديل اسم العائلة';
+
+  @override
+  String get profileSuccessFirstName => 'تم تحديث الاسم الأول بنجاح';
+
+  @override
+  String get profileSuccessLastName => 'تم تحديث اسم العائلة بنجاح';
+
+  @override
+  String get profileSuccessUsername => 'تم تحديث اسم المستخدم بنجاح';
+
+  @override
+  String get profileSuccessEmail => 'تم تحديث البريد الإلكتروني بنجاح';
+
+  @override
+  String get profileErrorUsernameTaken => 'اسم المستخدم مأخوذ';
+
+  @override
+  String get profileErrorEmailTaken => 'البريد الإلكتروني موجود بالفعل';
+
+  @override
+  String get profileErrorInvalidEmail => 'بريد إلكتروني غير صالح';
+
+  @override
+  String get profileErrorInvalidUsername => 'اسم مستخدم غير صالح';
+
+  @override
+  String get profileErrorUpdateFailed => 'فشل التحديث';
+
+  @override
+  String get profileErrorMessageUsernameTaken => 'اسم المستخدم هذا مستخدم بالفعل. يرجى اختيار اسم مستخدم آخر.';
+
+  @override
+  String get profileErrorMessageEmailTaken => 'عنوان البريد الإلكتروني هذا مسجل بالفعل. يرجى استخدام بريد إلكتروني آخر.';
+
+  @override
+  String get profileErrorMessageInvalidEmail => 'يرجى إدخال عنوان بريد إلكتروني صالح.';
+
+  @override
+  String get profileErrorMessageInvalidUsername => 'يجب أن يحتوي اسم المستخدم على 3 أحرف على الأقل ولا يمكن أن يحتوي على مسافات.';
+
+  @override
+  String get profileErrorMessageUpdateFailed => 'فشل تحديث ملفك الشخصي. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get enterEmail => 'يرجى إدخال بريد إلكتروني';
+
+  @override
+  String get profileSuccessFirstNameMessage => 'تم تحديث اسمك الأول بنجاح.';
+
+  @override
+  String get profileSuccessLastNameMessage => 'تم تحديث اسم عائلتك بنجاح.';
+
+  @override
+  String get profileSuccessUsernameMessage => 'تم تحديث اسم المستخدم الخاص بك بنجاح.';
+
+  @override
+  String get profileSuccessEmailMessage => 'تم تحديث بريدك الإلكتروني بنجاح.';
+
+  @override
+  String get habitErrorAlreadyExists => 'العادة موجودة بالفعل';
+
+  @override
+  String get habitErrorOperationFailed => 'فشلت العملية';
+
+  @override
+  String get habitErrorGeneral => 'خطأ';
+
+  @override
+  String get habitErrorMessageAlreadyExists => 'هذه العادة موجودة بالفعل بالتكرار المحدد. يرجى اختيار عادة أو تكرار مختلف.';
+
+  @override
+  String get habitErrorMessageOperationFailed => 'فشل إكمال العملية. يرجى المحاولة مرة أخرى.';
+
+  @override
+  String get habitErrorMessageGeneral => 'حدث خطأ. يرجى المحاولة مرة أخرى.';
 }

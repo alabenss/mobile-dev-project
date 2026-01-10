@@ -6,6 +6,7 @@ import '../../themes/style_simple/colors.dart';
 import '../../../models/habit_model.dart';
 import '../../widgets/habits/habit_list.dart';
 import '../../widgets/habits/add_habit_dialog.dart';
+import '../../widgets/error_dialog.dart';
 
 import '../../../logic/habits/habit_cubit.dart';
 import '../../../logic/habits/habit_state.dart';
@@ -19,9 +20,9 @@ class HabitsScreen extends StatefulWidget {
 
 class _HabitsScreenState extends State<HabitsScreen>
     with SingleTickerProviderStateMixin {
-      Future<void> _onRefresh() async {
-  await context.read<HabitCubit>().loadHabits();
-}
+  Future<void> _onRefresh() async {
+    await context.read<HabitCubit>().loadHabits();
+  }
 
   late TabController _tabController;
 
@@ -42,6 +43,62 @@ class _HabitsScreenState extends State<HabitsScreen>
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  void _showErrorDialog(String title, String message) {
+    if (!mounted) return;
+    showDialog(
+      context: context,
+      builder: (context) => AppErrorDialog(
+        title: title,
+        message: message,
+      ),
+    );
+  }
+
+  String _getErrorTitle(String error) {
+    final l10n = AppLocalizations.of(context)!;
+    
+    if (error.toLowerCase().contains('already exists')) {
+      return l10n.habitErrorAlreadyExists;
+    }
+    
+    if (error.toLowerCase().contains('network') || 
+        error.toLowerCase().contains('connection') ||
+        error.toLowerCase().contains('internet')) {
+      return l10n.noInternetConnection;
+    }
+    
+    if (error.toLowerCase().contains('failed') || 
+        error.toLowerCase().contains('error')) {
+      return l10n.habitErrorOperationFailed;
+    }
+    
+    return l10n.habitErrorGeneral;
+  }
+
+  String _getErrorMessage(String error) {
+    final l10n = AppLocalizations.of(context)!;
+    
+    // Already exists
+    if (error.toLowerCase().contains('already exists')) {
+      return l10n.habitErrorMessageAlreadyExists;
+    }
+    
+    // Network errors
+    if (error.toLowerCase().contains('network') || 
+        error.toLowerCase().contains('connection') ||
+        error.toLowerCase().contains('internet')) {
+      return l10n.errorMessageNoInternet;
+    }
+    
+    // Generic operation failed
+    if (error.toLowerCase().contains('failed')) {
+      return l10n.habitErrorMessageOperationFailed;
+    }
+    
+    // Default
+    return l10n.habitErrorMessageGeneral;
   }
 
   @override
@@ -69,13 +126,11 @@ class _HabitsScreenState extends State<HabitsScreen>
               Expanded(
                 child: BlocConsumer<HabitCubit, HabitState>(
                   listener: (context, state) {
-                    // Show error if any
+                    // Show error dialog if any
                     if (state.error != null && mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(state.error!),
-                          backgroundColor: Colors.redAccent,
-                        ),
+                      _showErrorDialog(
+                        _getErrorTitle(state.error!),
+                        _getErrorMessage(state.error!),
                       );
                       context.read<HabitCubit>().clearError();
                     }
@@ -102,26 +157,25 @@ class _HabitsScreenState extends State<HabitsScreen>
                         .toList();
 
                     return TabBarView(
-  controller: _tabController,
-  children: [
-    _buildRefreshableTab(
-      daily,
-      l10n,
-      'Daily',
-    ),
-    _buildRefreshableTab(
-      weekly,
-      l10n,
-      'Weekly',
-    ),
-    _buildRefreshableTab(
-      monthly,
-      l10n,
-      'Monthly',
-    ),
-  ],
-);
-
+                      controller: _tabController,
+                      children: [
+                        _buildRefreshableTab(
+                          daily,
+                          l10n,
+                          'Daily',
+                        ),
+                        _buildRefreshableTab(
+                          weekly,
+                          l10n,
+                          'Weekly',
+                        ),
+                        _buildRefreshableTab(
+                          monthly,
+                          l10n,
+                          'Monthly',
+                        ),
+                      ],
+                    );
                   },
                 ),
               ),
@@ -247,26 +301,25 @@ class _HabitsScreenState extends State<HabitsScreen>
   }
 
   Widget _buildRefreshableTab(
-  List<Habit> habits,
-  AppLocalizations l10n,
-  String frequency,
-) {
-  return RefreshIndicator(
-    onRefresh: _onRefresh,
-    color: AppColors.icon,
-    child: habits.isEmpty
-        // Needed so RefreshIndicator works even when empty
-        ? ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            children: [
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.5,
-                child: _buildEmptyState(l10n, frequency),
-              ),
-            ],
-          )
-        : HabitList(habits: habits),
-  );
-}
-
+    List<Habit> habits,
+    AppLocalizations l10n,
+    String frequency,
+  ) {
+    return RefreshIndicator(
+      onRefresh: _onRefresh,
+      color: AppColors.icon,
+      child: habits.isEmpty
+          // Needed so RefreshIndicator works even when empty
+          ? ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              children: [
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.5,
+                  child: _buildEmptyState(l10n, frequency),
+                ),
+              ],
+            )
+          : HabitList(habits: habits),
+    );
+  }
 }

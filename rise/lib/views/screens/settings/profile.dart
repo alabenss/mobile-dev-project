@@ -9,6 +9,7 @@ import '../../../logic/auth/auth_cubit.dart';
 import '../../../logic/auth/auth_state.dart';
 import '../../../logic/locale/locale_cubit.dart';
 import '../../widgets/error_dialog.dart';
+import '../../widgets/success_dialog.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -60,26 +61,126 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  void _showSuccessSnackBar(String message) {
+  void _showSuccessDialog(String title, String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.accentGreen,
-        duration: const Duration(seconds: 2),
+    showDialog(
+      context: context,
+      builder: (context) => AppSuccessDialog(
+        title: title,
+        message: message,
       ),
     );
   }
 
-  void _showErrorSnackBar(String message) {
+  void _showErrorDialog(String title, String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: AppColors.error,
-        duration: const Duration(seconds: 3),
+    showDialog(
+      context: context,
+      builder: (context) => AppErrorDialog(
+        title: title,
+        message: message,
       ),
     );
+  }
+
+  String _getErrorTitle(String error) {
+    final l10n = AppLocalizations.of(context)!;
+    
+    // Username errors
+    if (error.toLowerCase().contains('username') && 
+        (error.toLowerCase().contains('taken') || 
+         error.toLowerCase().contains('exists') ||
+         error.toLowerCase().contains('already') ||
+         error.toLowerCase().contains('duplicate'))) {
+      return l10n.profileErrorUsernameTaken;
+    }
+    
+    // Email errors
+    if (error.toLowerCase().contains('email') && 
+        (error.toLowerCase().contains('taken') || 
+         error.toLowerCase().contains('exists') ||
+         error.toLowerCase().contains('already') ||
+         error.toLowerCase().contains('registered') ||
+         error.toLowerCase().contains('duplicate'))) {
+      return l10n.profileErrorEmailTaken;
+    }
+    
+    // Network errors
+    if (error.toLowerCase().contains('network') || 
+        error.toLowerCase().contains('connection') ||
+        error.toLowerCase().contains('internet') ||
+        error.toLowerCase().contains('socket') ||
+        error.toLowerCase().contains('host lookup')) {
+      return l10n.noInternetConnection;
+    }
+    
+    // Invalid format errors
+    if (error.toLowerCase().contains('invalid') && error.toLowerCase().contains('email')) {
+      return l10n.profileErrorInvalidEmail;
+    }
+    
+    if (error.toLowerCase().contains('invalid') && error.toLowerCase().contains('username')) {
+      return l10n.profileErrorInvalidUsername;
+    }
+    
+    // Session errors
+    if (error.toLowerCase().contains('session') || 
+        error.toLowerCase().contains('expired')) {
+      return l10n.sessionExpired;
+    }
+    
+    return l10n.profileErrorUpdateFailed;
+  }
+
+  String _getErrorMessage(String error) {
+    final l10n = AppLocalizations.of(context)!;
+    
+    // Username taken
+    if (error.toLowerCase().contains('username') && 
+        (error.toLowerCase().contains('taken') || 
+         error.toLowerCase().contains('exists') ||
+         error.toLowerCase().contains('already') ||
+         error.toLowerCase().contains('duplicate'))) {
+      return l10n.profileErrorMessageUsernameTaken;
+    }
+    
+    // Email exists
+    if (error.toLowerCase().contains('email') && 
+        (error.toLowerCase().contains('taken') || 
+         error.toLowerCase().contains('exists') ||
+         error.toLowerCase().contains('already') ||
+         error.toLowerCase().contains('registered') ||
+         error.toLowerCase().contains('duplicate'))) {
+      return l10n.profileErrorMessageEmailTaken;
+    }
+    
+    // Network errors
+    if (error.toLowerCase().contains('network') || 
+        error.toLowerCase().contains('connection') ||
+        error.toLowerCase().contains('internet') ||
+        error.toLowerCase().contains('socket') ||
+        error.toLowerCase().contains('host lookup')) {
+      return l10n.errorMessageNoInternet;
+    }
+    
+    // Invalid email format
+    if (error.toLowerCase().contains('invalid') && error.toLowerCase().contains('email')) {
+      return l10n.profileErrorMessageInvalidEmail;
+    }
+    
+    // Invalid username format
+    if (error.toLowerCase().contains('invalid') && error.toLowerCase().contains('username')) {
+      return l10n.profileErrorMessageInvalidUsername;
+    }
+    
+    // Session expired
+    if (error.toLowerCase().contains('session') || 
+        error.toLowerCase().contains('expired')) {
+      return l10n.errorMessageSessionExpired;
+    }
+    
+    // Default message
+    return l10n.profileErrorMessageUpdateFailed;
   }
 
   @override
@@ -113,15 +214,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               state.error != null &&
               state.error!.isNotEmpty) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (_) => AppErrorDialog(
-                  title: 'Profile Error',
-                  message: state.error!,
-                ),
+              _showErrorDialog(
+                _getErrorTitle(state.error!),
+                _getErrorMessage(state.error!),
               );
-
               context.read<AuthCubit>().clearError();
             });
           }
@@ -284,80 +380,98 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                       // Editable Info Fields
                       _ProfileField(
-                        label: 'First Name',
+                        label: l10n.profileFirstNameLabel,
                         value: user.firstName,
                         icon: Icons.person_outline,
                         editable: true,
                         onEdit: () {
                           _showEditDialog(
                             context,
-                            'Edit First Name',
+                            l10n.profileEditFirstNameTitle,
                             user.firstName,
                             (newValue) async {
                               try {
                                 await context
                                     .read<AuthCubit>()
                                     .updateUserFirstName(newValue);
-                                _showSuccessSnackBar('First name updated successfully');
+                                _showSuccessDialog(
+                                  l10n.profileSuccessFirstName,
+                                  l10n.profileSuccessFirstNameMessage,
+                                );
                               } catch (e) {
-                                _showErrorSnackBar('Failed to update first name: ${e.toString()}');
+                                _showErrorDialog(
+                                  _getErrorTitle(e.toString()),
+                                  _getErrorMessage(e.toString()),
+                                );
                               }
                             },
                           );
                         },
                       ),
                       _ProfileField(
-                        label: 'Last Name',
+                        label: l10n.profileLastNameLabel,
                         value: user.lastName,
                         icon: Icons.person_outline,
                         editable: true,
                         onEdit: () {
                           _showEditDialog(
                             context,
-                            'Edit Last Name',
+                            l10n.profileEditLastNameTitle,
                             user.lastName,
                             (newValue) async {
                               try {
                                 await context
                                     .read<AuthCubit>()
                                     .updateUserLastName(newValue);
-                                _showSuccessSnackBar('Last name updated successfully');
+                                _showSuccessDialog(
+                                  l10n.profileSuccessLastName,
+                                  l10n.profileSuccessLastNameMessage,
+                                );
                               } catch (e) {
-                                _showErrorSnackBar('Failed to update last name: ${e.toString()}');
+                                _showErrorDialog(
+                                  _getErrorTitle(e.toString()),
+                                  _getErrorMessage(e.toString()),
+                                );
                               }
                             },
                           );
                         },
                       ),
                       _ProfileField(
-                        label: 'Username',
+                        label: l10n.profileUsernameLabel,
                         value: user.username,
                         icon: Icons.alternate_email,
                         editable: true,
                         onEdit: () {
                           _showEditDialog(
                             context,
-                            'Edit Username',
+                            l10n.profileEditUsernameTitle,
                             user.username,
                             (newValue) async {
                               try {
                                 await context
                                     .read<AuthCubit>()
                                     .updateUsername(newValue);
-                                _showSuccessSnackBar('Username updated successfully');
+                                _showSuccessDialog(
+                                  l10n.profileSuccessUsername,
+                                  l10n.profileSuccessUsernameMessage,
+                                );
                               } catch (e) {
-                                _showErrorSnackBar('Failed to update username: ${e.toString()}');
+                                _showErrorDialog(
+                                  _getErrorTitle(e.toString()),
+                                  _getErrorMessage(e.toString()),
+                                );
                               }
                             },
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Username cannot be empty';
+                                return l10n.enterUsername;
                               }
                               if (value.length < 3) {
-                                return 'Username must be at least 3 characters';
+                                return l10n.usernameTooShort;
                               }
                               if (value.contains(' ')) {
-                                return 'Username cannot contain spaces';
+                                return l10n.usernameNoSpaces;
                               }
                               return null;
                             },
@@ -379,17 +493,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 await context
                                     .read<AuthCubit>()
                                     .updateUserEmail(newValue);
-                                _showSuccessSnackBar('Email updated successfully');
+                                _showSuccessDialog(
+                                  l10n.profileSuccessEmail,
+                                  l10n.profileSuccessEmailMessage,
+                                );
                               } catch (e) {
-                                _showErrorSnackBar('Failed to update email: ${e.toString()}');
+                                _showErrorDialog(
+                                  _getErrorTitle(e.toString()),
+                                  _getErrorMessage(e.toString()),
+                                );
                               }
                             },
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Email cannot be empty';
+                                return l10n.enterEmail;
                               }
                               if (!value.contains('@')) {
-                                return 'Please enter a valid email';
+                                return l10n.invalidEmail;
                               }
                               return null;
                             },

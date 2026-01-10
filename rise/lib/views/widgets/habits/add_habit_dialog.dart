@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../themes/style_simple/colors.dart';
 import '../../../models/habit_model.dart';
+import '../../widgets/error_dialog.dart';
 
 class AddHabitDialog extends StatefulWidget {
   final List<Habit> existingHabits;
@@ -62,6 +63,16 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
       default:
         return 10;
     }
+  }
+
+  void _showErrorDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AppErrorDialog(
+        title: title,
+        message: message,
+      ),
+    );
   }
 
   @override
@@ -391,13 +402,9 @@ class _AddHabitDialogState extends State<AddHabitDialog> {
                 habit.habitKey == habitKey && habit.frequency == _frequency);
 
             if (alreadyExists) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    l10n.habitAlreadyExists(_frequency),
-                  ),
-                  backgroundColor: Colors.redAccent,
-                ),
+              _showErrorDialog(
+                l10n.habitErrorAlreadyExists,
+                l10n.habitAlreadyExists(_frequency),
               );
               return;
             }

@@ -1257,4 +1257,139 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get remindMe => 'Me rappeler';
+
+  @override
+  String get usernameTaken => 'Nom d\'utilisateur déjà pris';
+
+  @override
+  String get emailAlreadyExists => 'Email déjà existant';
+
+  @override
+  String get noInternetConnection => 'Pas de connexion Internet';
+
+  @override
+  String get sessionExpired => 'Session expirée';
+
+  @override
+  String get emailConfirmationRequired => 'Confirmation d\'email requise';
+
+  @override
+  String get signUpFailed => 'Inscription échouée';
+
+  @override
+  String get loginFailed => 'Connexion échouée';
+
+  @override
+  String get invalidCredentials => 'Identifiants invalides';
+
+  @override
+  String get errorMessageNoInternet => 'Veuillez vérifier votre connexion Internet et réessayer.';
+
+  @override
+  String get errorMessageInvalidCredentials => 'Le nom d\'utilisateur/email ou le mot de passe que vous avez entré est incorrect.';
+
+  @override
+  String get errorMessageSessionExpired => 'Votre session a expiré. Veuillez vous reconnecter.';
+
+  @override
+  String get errorMessageLoginFailed => 'Impossible de se connecter. Veuillez réessayer plus tard.';
+
+  @override
+  String get errorMessageUsernameTaken => 'Ce nom d\'utilisateur est déjà pris. Veuillez en choisir un autre.';
+
+  @override
+  String get errorMessageEmailExists => 'Cet email est déjà enregistré. Veuillez utiliser un autre email ou vous connecter.';
+
+  @override
+  String get errorMessageEmailConfirmation => 'Veuillez vérifier votre email et confirmer votre compte avant de vous connecter.';
+
+  @override
+  String get errorMessageSignUpFailed => 'Impossible de créer un compte. Veuillez réessayer plus tard.';
+
+  @override
+  String get profileFirstNameLabel => 'Prénom';
+
+  @override
+  String get profileLastNameLabel => 'Nom';
+
+  @override
+  String get profileEditFirstNameTitle => 'Modifier le prénom';
+
+  @override
+  String get profileEditLastNameTitle => 'Modifier le nom';
+
+  @override
+  String get profileSuccessFirstName => 'Prénom mis à jour avec succès';
+
+  @override
+  String get profileSuccessLastName => 'Nom mis à jour avec succès';
+
+  @override
+  String get profileSuccessUsername => 'Nom d\'utilisateur mis à jour avec succès';
+
+  @override
+  String get profileSuccessEmail => 'Email mis à jour avec succès';
+
+  @override
+  String get profileErrorUsernameTaken => 'Nom d\'utilisateur pris';
+
+  @override
+  String get profileErrorEmailTaken => 'Email déjà existant';
+
+  @override
+  String get profileErrorInvalidEmail => 'Email invalide';
+
+  @override
+  String get profileErrorInvalidUsername => 'Nom d\'utilisateur invalide';
+
+  @override
+  String get profileErrorUpdateFailed => 'Échec de la mise à jour';
+
+  @override
+  String get profileErrorMessageUsernameTaken => 'Ce nom d\'utilisateur est déjà utilisé. Veuillez en choisir un autre.';
+
+  @override
+  String get profileErrorMessageEmailTaken => 'Cette adresse email est déjà enregistrée. Veuillez utiliser une autre email.';
+
+  @override
+  String get profileErrorMessageInvalidEmail => 'Veuillez entrer une adresse email valide.';
+
+  @override
+  String get profileErrorMessageInvalidUsername => 'Le nom d\'utilisateur doit contenir au moins 3 caractères et ne peut pas contenir d\'espaces.';
+
+  @override
+  String get profileErrorMessageUpdateFailed => 'Échec de la mise à jour de votre profil. Veuillez réessayer.';
+
+  @override
+  String get enterEmail => 'Veuillez entrer un email';
+
+  @override
+  String get profileSuccessFirstNameMessage => 'Votre prénom a été mis à jour avec succès.';
+
+  @override
+  String get profileSuccessLastNameMessage => 'Votre nom a été mis à jour avec succès.';
+
+  @override
+  String get profileSuccessUsernameMessage => 'Votre nom d\'utilisateur a été mis à jour avec succès.';
+
+  @override
+  String get profileSuccessEmailMessage => 'Votre email a été mis à jour avec succès.';
+
+  @override
+  String get habitErrorAlreadyExists => 'Habitude déjà existante';
+
+  @override
+  String get habitErrorOperationFailed => 'Opération échouée';
+
+  @override
+  String get habitErrorGeneral => 'Erreur';
+
+  @override
+  String get habitErrorMessageAlreadyExists => 'Cette habitude existe déjà avec la fréquence sélectionnée. Veuillez choisir une autre habitude ou fréquence.';
+
+  @override
+  String get habitErrorMessageOperationFailed => 'Échec de l\'opération. Veuillez réessayer.';
+
+  @override
+  String get habitErrorMessageGeneral => 'Une erreur s\'est produite. Veuillez réessayer.';
 }
