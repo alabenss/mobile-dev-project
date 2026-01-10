@@ -151,4 +151,4 @@ flutter_native_splash:
 flutter_icons:
   android: true
   ios: true
-  image_path: assets/images/logo_rise.png
+  image_path: assets/icons/logo_rise.png
