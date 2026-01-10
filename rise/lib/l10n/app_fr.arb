@@ -659,7 +659,17 @@
   "passwordsDoNotMatch": "Les mots de passe ne correspondent pas",
   "signUp": "S'inscrire",
   "alreadyHaveAccount": "Vous avez déjà un compte ? ",
-  "login": "Se connecter"
+  "login": "Se connecter",
+
+  "addNewHabit": "Ajouter une nouvelle habitude",
+"frequency": "Fréquence",
+"selectHabit": "Sélectionner une habitude",
+"badHabit": "Mauvaise habitude",
+"points": "Points",
+"remindMe": "Me rappeler",
+"selectTime": "Sélectionner l'heure",
+"cancel": "Annuler",
+"add": "Ajouter"
 
 
 

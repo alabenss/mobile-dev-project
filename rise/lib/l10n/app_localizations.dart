@@ -634,7 +634,7 @@ abstract class AppLocalizations {
   /// No description provided for @selectHabit.
   ///
   /// In en, this message translates to:
-  /// **'Select Habit'**
+  /// **'Select a Habit'**
   String get selectHabit;
 
   /// No description provided for @customHabitName.
@@ -682,7 +682,7 @@ abstract class AppLocalizations {
   /// No description provided for @selectTime.
   ///
   /// In en, this message translates to:
-  /// **'Select time'**
+  /// **'Select Time'**
   String get selectTime;
 
   /// No description provided for @setReminder.
@@ -2430,6 +2430,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Already have an account? '**
   String get alreadyHaveAccount;
+
+  /// No description provided for @badHabit.
+  ///
+  /// In en, this message translates to:
+  /// **'Bad Habit'**
+  String get badHabit;
+
+  /// No description provided for @points.
+  ///
+  /// In en, this message translates to:
+  /// **'Points'**
+  String get points;
+
+  /// No description provided for @remindMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind Me'**
+  String get remindMe;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

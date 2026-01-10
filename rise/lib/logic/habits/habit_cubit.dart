@@ -8,19 +8,31 @@ class HabitCubit extends Cubit<HabitState> {
 
   HabitCubit(this._repository) : super(const HabitState());
 
-  /// Load all habits (unfiltered) - use loadHabitsByFrequency instead for better performance
+  /// Load all habits for all frequencies (Daily, Weekly, Monthly) with date filtering
+  /// This is the recommended method - fetches all habits with proper date filtering
   Future<void> loadHabits() async {
     emit(state.copyWith(isLoading: true));
     try {
-      final habits = await _repository.getAllHabits();
-      emit(state.copyWith(habits: habits, isLoading: false));
+      // Fetch all three frequencies in parallel for better performance
+      final results = await Future.wait([
+        _repository.getHabitsByFrequencyAndDate('Daily'),
+        _repository.getHabitsByFrequencyAndDate('Weekly'),
+        _repository.getHabitsByFrequencyAndDate('Monthly'),
+      ]);
+      
+      // Combine all habits
+      final allHabits = <Habit>[];
+      allHabits.addAll(results[0]); // Daily
+      allHabits.addAll(results[1]); // Weekly
+      allHabits.addAll(results[2]); // Monthly
+      
+      emit(state.copyWith(habits: allHabits, isLoading: false));
     } catch (e) {
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
   }
 
-  /// Load habits filtered by frequency and date range
-  /// This is the recommended method for fetching habits
+  /// Load habits filtered by specific frequency and date range
   Future<void> loadHabitsByFrequency(String frequency) async {
     emit(state.copyWith(isLoading: true));
     try {
@@ -46,41 +58,19 @@ class HabitCubit extends Cubit<HabitState> {
     }
   }
 
-  /// Load all habits for all frequencies (Daily, Weekly, Monthly) with date filtering
-  Future<void> loadAllFilteredHabits() async {
-    emit(state.copyWith(isLoading: true));
-    try {
-      // Fetch all three frequencies in parallel for better performance
-      final results = await Future.wait([
-        _repository.getHabitsByFrequencyAndDate('Daily'),
-        _repository.getHabitsByFrequencyAndDate('Weekly'),
-        _repository.getHabitsByFrequencyAndDate('Monthly'),
-      ]);
-      
-      // Combine all habits
-      final allHabits = <Habit>[];
-      allHabits.addAll(results[0]); // Daily
-      allHabits.addAll(results[1]); // Weekly
-      allHabits.addAll(results[2]); // Monthly
-      
-      emit(state.copyWith(habits: allHabits, isLoading: false));
-    } catch (e) {
-      emit(state.copyWith(isLoading: false, error: e.toString()));
-    }
-  }
-
   /// Add a new habit
   Future<void> addHabit(Habit habit) async {
     try {
-      // Check if habit with same habitKey AND frequency already exists
-      final exists = await _repository.habitExistsWithFrequency(
-        habit.habitKey, 
-        habit.frequency
-      );
+      // Check if a habit already exists in the current period for this frequency
+      final exists = await _repository.habitExistsInCurrentPeriod(habit.frequency);
       
       if (exists) {
+        String periodName = 'day';
+        if (habit.frequency == 'Weekly') periodName = 'week';
+        if (habit.frequency == 'Monthly') periodName = 'month';
+        
         emit(state.copyWith(
-          error: 'This habit already exists with ${habit.frequency} frequency!'
+          error: 'You can only add one ${habit.frequency} habit per $periodName!'
         ));
         return;
       }
@@ -88,8 +78,8 @@ class HabitCubit extends Cubit<HabitState> {
       // Insert into database
       await _repository.insertHabit(habit);
       
-      // Reload habits for that specific frequency
-      await loadHabitsByFrequency(habit.frequency);
+      // Reload all habits to ensure proper filtering
+      await loadHabits();
     } catch (e) {
       emit(state.copyWith(error: e.toString()));
     }

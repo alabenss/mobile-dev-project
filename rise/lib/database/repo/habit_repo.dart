@@ -104,6 +104,30 @@ class HabitRepository {
         .join(' ');
   }
 
+  /// Check if a habit with this frequency already exists in the current period
+  Future<bool> habitExistsInCurrentPeriod(String frequency) async {
+    try {
+      final userId = await _getCurrentUserId();
+      
+      final response = await _api.get(
+        ApiConfig.HABITS_CHECK_EXISTS,
+        params: {
+          'userId': userId.toString(),
+          'frequency': frequency,
+        },
+      );
+
+      if (response['success'] == true) {
+        return response['exists'] as bool? ?? false;
+      }
+
+      return false;
+    } catch (e) {
+      print('HabitRepo: Error checking habit exists in period: $e');
+      return false;
+    }
+  }
+
   /// Insert a new habit
   Future<int> insertHabit(Habit habit) async {
     try {
@@ -115,6 +139,11 @@ class HabitRepository {
       habitData['userId'] = userId;
 
       final response = await _api.post(ApiConfig.HABITS_ADD, habitData);
+
+      // Check if the backend returned an error
+      if (response['success'] == false) {
+        throw Exception(response['error'] ?? 'Failed to add habit');
+      }
 
       final habitId = response['habitId'] as int? ?? 0;
 
@@ -454,7 +483,7 @@ class HabitRepository {
     }
   }
 
-  /// Check if a habit exists
+  /// Check if a habit exists (deprecated)
   Future<bool> habitExists(String habitKey) async {
     try {
       final userId = await _getCurrentUserId();
@@ -478,29 +507,10 @@ class HabitRepository {
     }
   }
 
-  /// Check if a habit with the given key and frequency already exists
+  /// Check if a habit with the given key and frequency already exists (deprecated)
   Future<bool> habitExistsWithFrequency(String habitKey, String frequency) async {
-    try {
-      final userId = await _getCurrentUserId();
-      
-      final response = await _api.get(
-        ApiConfig.HABITS_CHECK_EXISTS,
-        params: {
-          'userId': userId.toString(),
-          'title': habitKey,
-          'frequency': frequency,
-        },
-      );
-
-      if (response['success'] == true) {
-        return response['exists'] as bool? ?? false;
-      }
-
-      return false;
-    } catch (e) {
-      print('HabitRepo: Error checking habit exists with frequency: $e');
-      return false;
-    }
+    // Now we only check if any habit exists in the current period for this frequency
+    return await habitExistsInCurrentPeriod(frequency);
   }
 
   /// Update habit reminder settings

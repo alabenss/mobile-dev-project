@@ -1248,4 +1248,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get alreadyHaveAccount => 'Vous avez déjà un compte ? ';
+
+  @override
+  String get badHabit => 'Mauvaise habitude';
+
+  @override
+  String get points => 'Points';
+
+  @override
+  String get remindMe => 'Me rappeler';
 }

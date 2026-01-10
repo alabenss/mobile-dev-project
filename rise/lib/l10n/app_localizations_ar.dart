@@ -310,7 +310,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get addNewHabit => 'إضافة عادة جديدة';
 
   @override
-  String get selectHabit => 'اختر العادة';
+  String get selectHabit => 'اختر عادة';
 
   @override
   String get customHabitName => 'اسم العادة المخصص';
@@ -1248,4 +1248,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get alreadyHaveAccount => 'هل لديك حساب بالفعل؟ ';
+
+  @override
+  String get badHabit => 'عادة سيئة';
+
+  @override
+  String get points => 'نقاط';
+
+  @override
+  String get remindMe => 'ذكرني';
 }

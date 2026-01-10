@@ -310,7 +310,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addNewHabit => 'Add New Habit';
 
   @override
-  String get selectHabit => 'Select Habit';
+  String get selectHabit => 'Select a Habit';
 
   @override
   String get customHabitName => 'Custom Habit Name';
@@ -334,7 +334,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get time => 'Time';
 
   @override
-  String get selectTime => 'Select time';
+  String get selectTime => 'Select Time';
 
   @override
   String get setReminder => 'Set Reminder';
@@ -1248,4 +1248,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get alreadyHaveAccount => 'Already have an account? ';
+
+  @override
+  String get badHabit => 'Bad Habit';
+
+  @override
+  String get points => 'Points';
+
+  @override
+  String get remindMe => 'Remind Me';
 }

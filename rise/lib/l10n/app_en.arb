@@ -651,7 +651,17 @@
   "passwordsDoNotMatch": "Passwords do not match",
   "signUp": "Sign Up",
   "alreadyHaveAccount": "Already have an account? ",
-  "login": "Login"
+  "login": "Login",
+
+  "addNewHabit": "Add New Habit",
+"frequency": "Frequency",
+"selectHabit": "Select a Habit",
+"badHabit": "Bad Habit",
+"points": "Points",
+"remindMe": "Remind Me",
+"selectTime": "Select Time",
+"cancel": "Cancel",
+"add": "Add"
 
 
 
