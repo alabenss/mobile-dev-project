@@ -92,7 +92,7 @@ class _HabitListState extends State<HabitList> {
           ),
         ),
         ...habits.map((habit) => Dismissible(
-              key: ValueKey('${habit.habitKey}_${habit.frequency}_$title'),
+              key: ValueKey('${habit.habitKey}_${habit.frequency}_${habit.done}_${habit.skipped}_$title'),
               direction: title == "Today's Habits" || title == "Habits d'aujourd'hui"
                   ? DismissDirection.horizontal
                   : DismissDirection.none,
@@ -281,7 +281,7 @@ class _HabitListState extends State<HabitList> {
                   opacity: faded ? 0.6 : 1,
                   child: HabitCard(
                     habit: habit,
-                    onRestoreStreak: habit.needsStreakRestoration
+                    onRestoreStreak: _shouldShowRestore(habit)
                         ? () => _handleRestoreStreak(context, habit)
                         : null,
                   ),
@@ -290,6 +290,90 @@ class _HabitListState extends State<HabitList> {
             )),
       ],
     );
+  }
+
+  /// Check if restore option should be shown
+  bool _shouldShowRestore(Habit habit) {
+    // Don't show if no streak to restore (need both: no current streak AND had a best streak)
+    if (habit.bestStreak == 0 || habit.streakCount > 0) {
+      return false;
+    }
+    
+    // Don't show if never completed
+    if (habit.lastCompletedDate == null) {
+      return false;
+    }
+    
+    final now = DateTime.now();
+    final lastCompleted = habit.lastCompletedDate!;
+    
+    if (habit.frequency.toLowerCase() == 'daily') {
+      // Show restore if last completed was NOT yesterday (missed a day)
+      final yesterday = now.subtract(const Duration(days: 1));
+      // If yesterday, don't show restore (streak is still valid)
+      if (_isSameDay(lastCompleted, yesterday)) {
+        return false;
+      }
+      // If today, don't show restore (just completed)
+      if (_isSameDay(lastCompleted, now)) {
+        return false;
+      }
+      // Otherwise, show restore (missed at least one day)
+      return true;
+    } 
+    else if (habit.frequency.toLowerCase() == 'weekly') {
+      // Show restore if last completed was NOT in the previous week
+      // Get start of last week (Monday)
+      final daysToSubtract = now.weekday + 7; // Go back to Monday of last week
+      final lastWeekMonday = DateTime(now.year, now.month, now.day)
+          .subtract(Duration(days: daysToSubtract));
+      final lastWeekSunday = lastWeekMonday.add(const Duration(days: 6));
+      
+      // If completed last week, don't show restore
+      if (lastCompleted.isAfter(lastWeekMonday.subtract(const Duration(days: 1))) &&
+          lastCompleted.isBefore(lastWeekSunday.add(const Duration(days: 1)))) {
+        return false;
+      }
+      
+      // If completed this week, don't show restore
+      final thisWeekMonday = DateTime(now.year, now.month, now.day)
+          .subtract(Duration(days: now.weekday - 1));
+      if (lastCompleted.isAfter(thisWeekMonday.subtract(const Duration(days: 1)))) {
+        return false;
+      }
+      
+      // Otherwise show restore
+      return true;
+    } 
+    else if (habit.frequency.toLowerCase() == 'monthly') {
+      // Show restore if last completed was NOT in the previous month
+      final lastMonth = DateTime(
+        now.month == 1 ? now.year - 1 : now.year,
+        now.month == 1 ? 12 : now.month - 1,
+      );
+      
+      // If completed last month, don't show restore
+      if (lastCompleted.year == lastMonth.year && 
+          lastCompleted.month == lastMonth.month) {
+        return false;
+      }
+      
+      // If completed this month, don't show restore
+      if (lastCompleted.year == now.year && lastCompleted.month == now.month) {
+        return false;
+      }
+      
+      // Otherwise show restore
+      return true;
+    }
+    
+    return false;
+  }
+
+  bool _isSameDay(DateTime date1, DateTime date2) {
+    return date1.year == date2.year &&
+           date1.month == date2.month &&
+           date1.day == date2.day;
   }
 
   Future<void> _handleRestoreStreak(BuildContext context, Habit habit) async {
@@ -311,7 +395,7 @@ class _HabitListState extends State<HabitList> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Restore your ${habit.bestStreak}-day streak for ${habit.habitKey}?',
+              'Restore your ${habit.bestStreak}-day streak for ${habit.title}?',
               style: TextStyle(color: AppColors.textPrimary),
             ),
             const SizedBox(height: 12),

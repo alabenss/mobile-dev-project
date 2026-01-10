@@ -111,7 +111,7 @@ def get_habits():
             return jsonify({'success': True, 'habits': []}), 200
         
         # Check if habits need reset based on period
-        now = datetime.now() + timedelta(days=2)
+        now = datetime.now()
         updated_habits = []
         
         for habit in result:
@@ -241,6 +241,7 @@ def update_habit_status():
         # Calculate new streak based on status
         new_streak = current_streak
         new_best_streak = best_streak
+        new_last_completed = last_completed
         
         if status == 'completed':
             # For good habits, increment streak
@@ -248,9 +249,11 @@ def update_habit_status():
                 new_streak = current_streak + 1
                 if new_streak > best_streak:
                     new_best_streak = new_streak
+                new_last_completed = now.isoformat()
             # For bad habits, 'completed' means they did the bad habit - break streak
             else:
                 new_streak = 0
+                new_last_completed = now.isoformat()
         
         elif status == 'skipped':
             # For bad habits, 'skipped' means they resisted - increment streak
@@ -258,12 +261,14 @@ def update_habit_status():
                 new_streak = current_streak + 1
                 if new_streak > best_streak:
                     new_best_streak = new_streak
+                new_last_completed = now.isoformat()
             # For good habits, skipping breaks the streak
             else:
                 new_streak = 0
+                new_last_completed = now.isoformat()
         
         elif status == 'active':
-            # Resetting - keep current streak but don't increment
+            # Resetting - keep current streak and last_completed_date
             pass
         
         new_task_completion = data.get('taskCompletionCount', habit.get('task_completion_count', 0))
@@ -276,7 +281,7 @@ def update_habit_status():
             'best_streak': new_best_streak,
             'task_completion_count': new_task_completion,
             'is_task': new_is_task,
-            'last_completed_date': now.isoformat() if status in ['completed', 'skipped'] else last_completed
+            'last_completed_date': new_last_completed
         }
         
         result = update(
