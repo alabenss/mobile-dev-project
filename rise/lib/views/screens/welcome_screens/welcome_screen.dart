@@ -92,7 +92,11 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
   void _completeWelcome() async {
     await WelcomeProvider.markWelcomeSeen();
-    widget.onCompleted();
+    
+    // Navigate directly to signup screen instead of using callback
+    if (mounted) {
+      Navigator.of(context).pushReplacementNamed('/signup');
+    }
   }
 
   @override
