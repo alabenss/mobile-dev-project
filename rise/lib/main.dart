@@ -187,7 +187,6 @@ class MyApp extends StatelessWidget {
           routes: {
             '/login': (_) => const LoginScreen(),
             '/signup': (_) => const SignUpScreen(),
-            '/home': (_) => BottomNavWrapper(key: bottomNavKey),
             '/profile': (_) => const ProfileScreen(),
             '/app-lock': (_) => const AppLockScreen(),
             '/language': (_) => const LanguageSelectionScreen(),
