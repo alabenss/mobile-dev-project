@@ -92,7 +92,7 @@ class _HabitListState extends State<HabitList> {
           ),
         ),
         ...habits.map((habit) => Dismissible(
-              key: ValueKey('${habit.habitKey}_${habit.frequency}_$title'),
+              key: ValueKey('${habit.habitKey}_${habit.frequency}_${habit.done}_${habit.skipped}_$title'),
               direction: title == "Today's Habits" || title == "Habits d'aujourd'hui"
                   ? DismissDirection.horizontal
                   : DismissDirection.none,
@@ -281,7 +281,7 @@ class _HabitListState extends State<HabitList> {
                   opacity: faded ? 0.6 : 1,
                   child: HabitCard(
                     habit: habit,
-                    onRestoreStreak: habit.needsStreakRestoration
+                    onRestoreStreak: _shouldShowRestore(habit)
                         ? () => _handleRestoreStreak(context, habit)
                         : null,
                   ),
@@ -290,6 +290,65 @@ class _HabitListState extends State<HabitList> {
             )),
       ],
     );
+  }
+
+  /// Check if restore option should be shown
+  /// Only show for 1-day grace period: if last completed was exactly 2 days ago (missed yesterday only)
+  bool _shouldShowRestore(Habit habit) {
+    // Don't show if never completed
+    if (habit.lastCompletedDate == null) {
+      return false;
+    }
+    
+    final now = DateTime.now();
+    final lastCompleted = habit.lastCompletedDate!;
+    
+    if (habit.frequency.toLowerCase() == 'daily') {
+      // Calculate days since last completion
+      final daysSince = _daysBetween(lastCompleted, now);
+      
+      // Show restore ONLY if missed exactly 1 day (last completed was 2 days ago)
+      // Day 0 = today (just completed)
+      // Day 1 = yesterday (streak still valid, no restore needed)
+      // Day 2 = day before yesterday (missed yesterday, can restore)
+      // Day 3+ = too late, can't restore
+      return daysSince == 2;
+    } 
+    else if (habit.frequency.toLowerCase() == 'weekly') {
+      // For weekly: show restore if in the grace period of 1 week
+      final weeksSince = _weeksBetween(lastCompleted, now);
+      return weeksSince == 2; // Missed last week only
+    } 
+    else if (habit.frequency.toLowerCase() == 'monthly') {
+      // For monthly: show restore if in the grace period of 1 month
+      final monthsSince = _monthsBetween(lastCompleted, now);
+      return monthsSince == 2; // Missed last month only
+    }
+    
+    return false;
+  }
+
+  int _daysBetween(DateTime start, DateTime end) {
+    final startDate = DateTime(start.year, start.month, start.day);
+    final endDate = DateTime(end.year, end.month, end.day);
+    return endDate.difference(startDate).inDays;
+  }
+
+  int _weeksBetween(DateTime start, DateTime end) {
+    // Get Monday of each week
+    final startMonday = start.subtract(Duration(days: start.weekday - 1));
+    final endMonday = end.subtract(Duration(days: end.weekday - 1));
+    return _daysBetween(startMonday, endMonday) ~/ 7;
+  }
+
+  int _monthsBetween(DateTime start, DateTime end) {
+    return (end.year - start.year) * 12 + end.month - start.month;
+  }
+
+  bool _isSameDay(DateTime date1, DateTime date2) {
+    return date1.year == date2.year &&
+           date1.month == date2.month &&
+           date1.day == date2.day;
   }
 
   Future<void> _handleRestoreStreak(BuildContext context, Habit habit) async {
@@ -311,7 +370,7 @@ class _HabitListState extends State<HabitList> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Restore your ${habit.bestStreak}-day streak for ${habit.habitKey}?',
+              'Restore your ${habit.bestStreak}-day streak for ${habit.title}?',
               style: TextStyle(color: AppColors.textPrimary),
             ),
             const SizedBox(height: 12),

@@ -199,32 +199,35 @@ class HabitRepository {
 
       // Handle completion
       if (status == 'completed') {
-        await _awardPoints(habit.points);
-        
-        // For good habits, completion increments streak
+        // For good habits, completion increments streak and awards points
         if (habit.habitType == 'good') {
+          await _awardPoints(habit.points);
           newStreak++;
           newTaskCompletion++;
           if (newStreak > newBestStreak) {
             newBestStreak = newStreak;
           }
+          
+          // Check if task should become habit (10 consecutive completions)
+          if (newIsTask && newTaskCompletion >= 10) {
+            newIsTask = false;
+            // Bonus points for establishing a habit!
+            await _awardPoints(50);
+          }
         }
-        
-        // Check if task should become habit (10 consecutive completions)
-        if (newIsTask && newTaskCompletion >= 10) {
-          newIsTask = false;
-          // Bonus points for establishing a habit!
-          await _awardPoints(50);
+        // For bad habits, 'completed' means they did the bad habit - break streak
+        else {
+          newStreak = 0;
         }
       }
       
       // Handle skipping
       else if (status == 'skipped') {
-        // For bad habits, skipping increments streak
+        // For bad habits, skipping (resisting) increments streak and awards points
         if (habit.habitType == 'bad') {
+          await _awardPoints(habit.points);
           newStreak++;
           newTaskCompletion++;
-          await _awardPoints(habit.points); // Award points for resisting
           if (newStreak > newBestStreak) {
             newBestStreak = newStreak;
           }
@@ -244,6 +247,8 @@ class HabitRepository {
       // Handle reset (undoing completion)
       else if (status == 'active') {
         await _awardPoints(-habit.points);
+        // Don't modify streak when resetting to active
+        // Keep existing streak
       }
 
       await _api.put(ApiConfig.HABITS_UPDATE_STATUS, {
@@ -386,7 +391,7 @@ class HabitRepository {
     return await getHabitsByFrequency('Daily');
   }
 
-  /// Check if a habit exists
+  /// Check if a habit exists (simple check - no frequency)
   Future<bool> habitExists(String habitKey) async {
     try {
       final userId = await _getCurrentUserId();
@@ -514,7 +519,7 @@ class HabitRepository {
     }
   }
 
-  /// Check and reset old habits (backend should handle this)
+  /// Check and reset old habits (backend handles this automatically now)
   Future<void> checkAndResetOldHabits() async {
     try {
       final userId = await _getCurrentUserId();

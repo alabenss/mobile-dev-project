@@ -34,7 +34,6 @@ class _LoginScreenState extends State<LoginScreen> {
           );
 
       if (success && mounted) {
-        // ✅ Mark user as logged in so welcome screens don't show again
         await WelcomeProvider.markUserLoggedIn();
         Navigator.of(context).pushReplacementNamed('/home');
       }

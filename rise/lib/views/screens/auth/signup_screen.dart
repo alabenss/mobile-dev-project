@@ -93,12 +93,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(
-                          Icons.self_improvement,
-                          size: 80,
-                          color: AppColors.icon,
-                        ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 2),
                         Text(
                           l10n.createAccount,
                           style: const TextStyle(

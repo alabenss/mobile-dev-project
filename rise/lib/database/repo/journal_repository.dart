@@ -132,6 +132,7 @@ class JournalRepository {
           'text': entry.fullText,
           'title': entry.title,
           'mood': entry.moodImage,
+          'voicePath': processedVoicePath, // ✅ FIXED: Now included!
           'backgroundImage': entry.backgroundImage,
           'fontFamily': entry.fontFamily,
           'textColor': entry.textColor,

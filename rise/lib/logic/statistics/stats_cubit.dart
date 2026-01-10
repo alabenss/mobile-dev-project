@@ -16,11 +16,9 @@ class StatsCubit extends Cubit<StatsState> {
     return super.close();
   }
 
-  /// Initialize with default range and set up auto-refresh
   Future<void> init() async {
     await loadForRange(StatsRange.weekly);
     
-    // Set up periodic refresh every 30 seconds to catch external changes
     _refreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {
       if (state is StatsLoaded) {
         _silentRefresh();
@@ -28,7 +26,6 @@ class StatsCubit extends Cubit<StatsState> {
     });
   }
 
-  /// Silent refresh without showing loading state (for background updates)
   Future<void> _silentRefresh() async {
     if (state is! StatsLoaded) return;
     
@@ -44,26 +41,27 @@ class StatsCubit extends Cubit<StatsState> {
         journalCounts: data.journalCounts,
         screenTime: data.screenTime,
         labels: data.labels,
+        totalHabits: data.totalHabits,
+        completedHabits: data.completedHabits,
+        completionRate: data.completionRate,
+        currentStreak: data.currentStreak,
+        bestStreak: data.bestStreak,
+        habitCompletionData: data.habitCompletionData,
+        tasksConvertedToHabits: data.tasksConvertedToHabits,
       ));
     } catch (e) {
       print('Silent refresh failed: $e');
-      // Don't emit error state for silent refresh
     }
   }
 
-  /// Load data for a specific range
   Future<void> loadForRange(StatsRange range) async {
     try {
-      // Emit loading state
       emit(StatsLoading(range));
       
-      // Add small delay for smooth UI transition
       await Future.delayed(const Duration(milliseconds: 200));
       
-      // Load data from repository
       final data = await repo.loadForRange(range);
       
-      // Emit loaded state with data
       emit(StatsLoaded(
         range: range,
         waterData: data.waterData,
@@ -72,13 +70,19 @@ class StatsCubit extends Cubit<StatsState> {
         journalCounts: data.journalCounts,
         screenTime: data.screenTime,
         labels: data.labels,
+        totalHabits: data.totalHabits,
+        completedHabits: data.completedHabits,
+        completionRate: data.completionRate,
+        currentStreak: data.currentStreak,
+        bestStreak: data.bestStreak,
+        habitCompletionData: data.habitCompletionData,
+        tasksConvertedToHabits: data.tasksConvertedToHabits,
       ));
       
     } catch (e) {
       print('StatsCubit Error: $e');
       emit(StatsError(range, 'Failed to load statistics. Please try again.'));
       
-      // After error, try to load fallback data
       await Future.delayed(const Duration(seconds: 2));
       try {
         final fallbackData = await _loadFallbackData(range);
@@ -90,14 +94,19 @@ class StatsCubit extends Cubit<StatsState> {
           journalCounts: fallbackData.journalCounts,
           screenTime: fallbackData.screenTime,
           labels: fallbackData.labels,
+          totalHabits: fallbackData.totalHabits,
+          completedHabits: fallbackData.completedHabits,
+          completionRate: fallbackData.completionRate,
+          currentStreak: fallbackData.currentStreak,
+          bestStreak: fallbackData.bestStreak,
+          habitCompletionData: fallbackData.habitCompletionData,
+          tasksConvertedToHabits: fallbackData.tasksConvertedToHabits,
         ));
       } catch (_) {
-        // If fallback also fails, keep error state
       }
     }
   }
 
-  /// Load fallback demo data
   Future<StatsData> _loadFallbackData(StatsRange range) async {
     switch (range) {
       case StatsRange.today:
@@ -108,6 +117,13 @@ class StatsCubit extends Cubit<StatsState> {
           journalCounts: [1],
           screenTime: {'social': 1.0, 'entertainment': 2.0, 'productivity': 3.0},
           labels: ['Today'],
+          totalHabits: 5,
+          completedHabits: 3,
+          completionRate: 60.0,
+          currentStreak: 2,
+          bestStreak: 5,
+          habitCompletionData: [60.0],
+          tasksConvertedToHabits: 1,
         );
       case StatsRange.weekly:
         return StatsData(
@@ -117,6 +133,13 @@ class StatsCubit extends Cubit<StatsState> {
           journalCounts: [0, 1, 0, 1, 0, 0, 1],
           screenTime: {'social': 1.2, 'entertainment': 2.1, 'productivity': 3.0},
           labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          totalHabits: 8,
+          completedHabits: 5,
+          completionRate: 62.5,
+          currentStreak: 3,
+          bestStreak: 7,
+          habitCompletionData: [50.0, 60.0, 55.0, 70.0, 65.0, 60.0, 70.0],
+          tasksConvertedToHabits: 2,
         );
       case StatsRange.monthly:
         return StatsData(
@@ -126,6 +149,13 @@ class StatsCubit extends Cubit<StatsState> {
           journalCounts: [3, 4, 5, 3],
           screenTime: {'social': 1.5, 'entertainment': 2.5, 'productivity': 4.0},
           labels: ['W1', 'W2', 'W3', 'W4'],
+          totalHabits: 10,
+          completedHabits: 7,
+          completionRate: 70.0,
+          currentStreak: 4,
+          bestStreak: 10,
+          habitCompletionData: [65.0, 70.0, 72.0, 68.0],
+          tasksConvertedToHabits: 3,
         );
       case StatsRange.yearly:
         return StatsData(
@@ -135,11 +165,17 @@ class StatsCubit extends Cubit<StatsState> {
           journalCounts: [15, 14, 16, 15, 14, 16, 15, 14, 16, 15, 14, 16],
           screenTime: {'social': 1.5, 'entertainment': 2.5, 'productivity': 4.0},
           labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+          totalHabits: 12,
+          completedHabits: 9,
+          completionRate: 75.0,
+          currentStreak: 5,
+          bestStreak: 15,
+          habitCompletionData: [70.0, 72.0, 75.0, 73.0, 78.0, 80.0, 77.0, 75.0, 74.0, 76.0, 78.0, 75.0],
+          tasksConvertedToHabits: 5,
         );
     }
   }
 
-  /// Refresh current data (user-initiated)
   Future<void> refresh() async {
     if (state is StatsLoaded) {
       await loadForRange((state as StatsLoaded).range);

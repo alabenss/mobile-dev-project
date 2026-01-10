@@ -148,4 +148,23 @@ class HomeCubit extends Cubit<HomeState> {
     final dailyHabits = await _habitRepo.getHabitsByFrequency('Daily');
     emit(state.copyWith(dailyHabits: dailyHabits));
   }
+
+  // Add this method to your HomeCubit class
+
+/// ✅ Clear all home data when user logs out
+void clearData() {
+  emit(HomeState(
+    userName: '',
+    waterCount: 0,
+    waterGoal: 8,
+    detoxProgress: 0.0,
+    dailyHabits: [],
+    exploreArticles: [],
+    isPhoneLocked: false,
+    lockEndTime: null,
+    permissionDenied: false,
+    exploreLoading: false,
+    exploreError: null,
+  ));
+}
 }

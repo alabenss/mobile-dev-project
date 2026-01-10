@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:the_project/l10n/app_localizations.dart';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+
+import 'l10n/app_localizations.dart';
 
 import 'logic/home/home_cubit.dart';
 import 'logic/activities/activities_cubit.dart';
@@ -31,25 +35,24 @@ import 'views/screens/auth/signup_screen.dart';
 import 'views/screens/welcome_screens/welcome_screen.dart';
 import 'views/screens/welcome_screens/welcome_provider.dart';
 
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-
 import 'services/notification_service.dart';
-import '/services/local_storage_service.dart';
+import 'services/local_storage_service.dart';
+
+// Make sure this exists in your project (it seems you already have it)
+import 'views/widgets/common/bottom_nav_wrapper.dart' show bottomNavKey;
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  print('Handling background message: ${message.messageId}');
 }
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // ✅ Supabase first
   try {
+    // ✅ Supabase first
     await Supabase.initialize(
       url: 'https://ycwdtlehjnrpikenlpji.supabase.co',
       anonKey:
@@ -60,115 +63,75 @@ void main() async {
       ),
       debug: true,
     );
-    print('✅ Supabase initialized successfully');
+
+    // ✅ Firebase
+    await Firebase.initializeApp();
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+    // ✅ Local storage
+    await LocalStorageService.instance.initializeFolders();
+
+    // ✅ Notifications
+    await NotificationService.instance.init(
+      navigatorKey: navigatorKey,
+      onTapAction: (screen) {
+        // Friend's behavior: go home then switch tabs
+        navigatorKey.currentState?.pushNamedAndRemoveUntil('/home', (r) => false);
+
+        if (screen == 'journal') {
+          bottomNavKey.currentState?.switchToTab(2);
+        } else if (screen == 'home') {
+          bottomNavKey.currentState?.switchToTab(0);
+        } else if (screen != null && screen.startsWith('habit_')) {
+          bottomNavKey.currentState?.switchToTab(1);
+        }
+      },
+    );
   } catch (e) {
-    print('❌ Supabase initialization failed: $e');
+    debugPrint('Startup error: $e');
   }
 
-  // ✅ Firebase
-  await Firebase.initializeApp();
-  await LocalStorageService.instance.initializeFolders();
+  runApp(const RootApp());
+}
 
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+class RootApp extends StatelessWidget {
+  const RootApp({super.key});
 
-  await NotificationService.instance.init(
-    navigatorKey: navigatorKey,
-    onTapAction: (screen) {
-      if (screen == 'journal') {
-        navigatorKey.currentState?.pushNamed('/home');
-        bottomNavKey.currentState?.switchToTab(2);
-      } else if (screen == 'home') {
-        navigatorKey.currentState?.pushNamed('/home');
-        bottomNavKey.currentState?.switchToTab(0);
-      } else if (screen != null && screen.startsWith('habit_')) {
-        navigatorKey.currentState?.pushNamed('/home');
-        bottomNavKey.currentState?.switchToTab(1);
-      }
-    },
-  );
-
-  try {
+  @override
+  Widget build(BuildContext context) {
     final homeRepo = AbstractHomeRepo.getInstance();
     final activitiesRepo = AbstractActivitiesRepo.getInstance();
     final habitRepo = HabitRepository();
     final articlesRepo = ArticlesRepo();
 
-    await habitRepo.rescheduleAllNotifications();
-    print('Habit notifications rescheduled');
+    // This can be awaited in main, but keeping it here is okay if it's safe.
+    habitRepo.rescheduleAllNotifications();
 
-    runApp(
-      MultiBlocProvider(
-        providers: [
-          // ✅ AppLockCubit's provider must be GLOBAL
-          BlocProvider<AppLockCubit>(
-            create: (_) => AppLockCubit()..loadLock(),
-          ),
+    return MultiBlocProvider(
+      providers: [
+        // ✅ MUST be global
+        BlocProvider<AppLockCubit>(create: (_) => AppLockCubit()..loadLock()),
 
-          BlocProvider<LocaleCubit>(create: (_) => LocaleCubit()),
+        BlocProvider<LocaleCubit>(create: (_) => LocaleCubit()),
+        BlocProvider<AuthCubit>(create: (_) => AuthCubit()..checkAuthStatus()),
 
-          BlocProvider<AuthCubit>(
-            create: (_) => AuthCubit()..checkAuthStatus(),
-          ),
-
-          BlocProvider<HomeCubit>(
-            create: (_) => HomeCubit(homeRepo, habitRepo, articlesRepo),
-          ),
-
-          BlocProvider<ActivitiesCubit>(
-            create: (_) => ActivitiesCubit(activitiesRepo)..loadActivities(),
-          ),
-
-          BlocProvider<HabitCubit>(
-            create: (_) => HabitCubit(habitRepo)..loadHabits(),
-          ),
-
-          BlocProvider<JournalCubit>(
-            create: (_) => JournalCubit(JournalRepository()),
-          ),
-
-          BlocProvider<DailyMoodCubit>(
-            create: (_) => DailyMoodCubit(DailyMoodRepository()),
-          ),
-        ],
-        child: const MyApp(),
-      ),
-    );
-  } catch (e, stackTrace) {
-    print('Error initializing app: $e');
-    print('Stack trace: $stackTrace');
-
-    runApp(
-      MaterialApp(
-        home: Scaffold(
-          body: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'App initialization failed',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Error: $e',
-                    style: const TextStyle(fontSize: 12),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () async {},
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            ),
-          ),
+        BlocProvider<HomeCubit>(
+          create: (_) => HomeCubit(homeRepo, habitRepo, articlesRepo),
         ),
-      ),
+        BlocProvider<ActivitiesCubit>(
+          create: (_) => ActivitiesCubit(activitiesRepo)..loadActivities(),
+        ),
+        BlocProvider<HabitCubit>(
+          create: (_) => HabitCubit(habitRepo)..loadHabits(),
+        ),
+        BlocProvider<JournalCubit>(
+          create: (_) => JournalCubit(JournalRepository()),
+        ),
+        BlocProvider<DailyMoodCubit>(
+          create: (_) => DailyMoodCubit(DailyMoodRepository()),
+        ),
+      ],
+      child: const MyApp(),
     );
   }
 }
@@ -189,83 +152,54 @@ class MyApp extends StatelessWidget {
         final lang = _langFromLocale(localeState.locale);
 
         return MaterialApp(
-  navigatorKey: navigatorKey,
-  debugShowCheckedModeBanner: false,
-  locale: localeState.locale,
-
-  // ✅ GLOBAL auth redirect (THIS IS THE FIX)
-  builder: (context, child) {
-    return BlocListener<AuthCubit, app_auth.AuthState>(
-      listenWhen: (prev, curr) =>
-          prev.isAuthenticated != curr.isAuthenticated,
-      listener: (context, state) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          final nav = navigatorKey.currentState;
-          if (nav == null) return;
-
-          // 🔒 Logged out → ALWAYS go to login
-          if (!state.isAuthenticated) {
-            nav.pushNamedAndRemoveUntil('/login', (route) => false);
-          }
-
-          // 🔓 Logged in → go to home
-          if (state.isAuthenticated) {
-            nav.pushNamedAndRemoveUntil('/home', (route) => false);
-          }
-        });
-      },
-      child: PhoneLockWrapper(
-        child: child ?? const SizedBox.shrink(),
-      ),
-    );
-  },
-
-
+          navigatorKey: navigatorKey,
+          debugShowCheckedModeBanner: false,
+          locale: localeState.locale,
+          supportedLocales: const [
+            Locale('en'),
+            Locale('fr'),
+            Locale('ar'),
+          ],
           localizationsDelegates: const [
             AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          supportedLocales: const [
-            Locale('en'),
-            Locale('fr'),
-            Locale('ar'),
-          ],
-          home: FutureBuilder<bool>(
-            future: WelcomeProvider.shouldShowWelcome(),
-            builder: (context, welcomeSnapshot) {
-              if (welcomeSnapshot.connectionState == ConnectionState.waiting) {
-                return const Scaffold(
-                  body: Center(child: CircularProgressIndicator()),
-                );
-              }
 
-              if (welcomeSnapshot.hasData && welcomeSnapshot.data == true) {
-                return WelcomeScreen(
-                  onCompleted: () {
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) => const AppEntryPoint(),
-                      ),
-                    );
-                  },
-                );
-              }
+          // ✅ One global wrapper + one global auth redirect listener (prevents duplicated redirects)
+          builder: (context, child) {
+            return BlocListener<AuthCubit, app_auth.AuthState>(
+              listenWhen: (prev, curr) =>
+                  prev.isAuthenticated != curr.isAuthenticated,
+              listener: (context, state) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  final nav = navigatorKey.currentState;
+                  if (nav == null) return;
 
-              return const AppEntryPoint();
-            },
-          ),
+                  if (!state.isAuthenticated) {
+                    nav.pushNamedAndRemoveUntil('/login', (route) => false);
+                  } else {
+                    nav.pushNamedAndRemoveUntil('/home', (route) => false);
+                  }
+                });
+              },
+              child: PhoneLockWrapper(
+                child: child ?? const SizedBox.shrink(),
+              ),
+            );
+          },
+
+          // ✅ Single entry point
+          home: AppEntryPoint(lang: lang),
+
           routes: {
-            '/login': (context) => const LoginScreen(),
-            '/signup': (context) => const SignUpScreen(),
-
-            // ✅ NO wrapper here anymore
-            '/home': (context) => BottomNavWrapper(key: bottomNavKey),
-
-            '/profile': (context) => const ProfileScreen(),
-            '/app-lock': (context) => const AppLockScreen(),
-            '/language': (context) => const LanguageSelectionScreen(),
+            '/login': (_) => const LoginScreen(),
+            '/signup': (_) => const SignUpScreen(),
+            '/home': (_) => BottomNavWrapper(key: bottomNavKey),
+            '/profile': (_) => const ProfileScreen(),
+            '/app-lock': (_) => const AppLockScreen(),
+            '/language': (_) => const LanguageSelectionScreen(),
           },
         );
       },
@@ -274,41 +208,72 @@ class MyApp extends StatelessWidget {
 }
 
 class AppEntryPoint extends StatelessWidget {
-  const AppEntryPoint({super.key});
+  final String lang;
+  const AppEntryPoint({super.key, required this.lang});
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthCubit, app_auth.AuthState>(
-      listener: (context, state) {
-        final lang = 'en';
-
-        if (state.isAuthenticated && state.user != null) {
-          WelcomeProvider.markUserLoggedIn();
-
-          context.read<HomeCubit>().loadInitial(
-                userName: state.user!.fullName,
-                lang: lang,
-              );
-
-          context.read<HabitCubit>().loadHabits();
-          context.read<ActivitiesCubit>().loadActivities();
+    return BlocBuilder<AuthCubit, app_auth.AuthState>(
+      builder: (context, state) {
+        if (state.isLoading) {
+          return const SplashScreen();
         }
+
+        if (!state.isAuthenticated) {
+          return const LoginScreen();
+        }
+
+        // Once authenticated:
+        return FutureBuilder<bool>(
+          future: WelcomeProvider.shouldShowWelcome(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const SplashScreen();
+            }
+
+            // ✅ Load initial data once (safe here because we’re authenticated)
+            if (state.user != null) {
+              context.read<HomeCubit>().loadInitial(
+                    userName: state.user!.fullName,
+                    lang: lang,
+                  );
+            }
+
+            if (snapshot.data == true) {
+              return WelcomeScreen(
+                onCompleted: () async {
+                  await WelcomeProvider.markUserLoggedIn();
+                  navigatorKey.currentState
+                      ?.pushNamedAndRemoveUntil('/home', (r) => false);
+                },
+              );
+            }
+
+            return BottomNavWrapper(key: bottomNavKey);
+          },
+        );
       },
-      child: BlocBuilder<AuthCubit, app_auth.AuthState>(
-        builder: (context, state) {
-          if (state.isLoading) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
+    );
+  }
+}
 
-          if (!state.isAuthenticated) {
-            return const LoginScreen();
-          }
+class SplashScreen extends StatelessWidget {
+  const SplashScreen({super.key});
 
-          // ✅ NO wrapper here anymore
-          return BottomNavWrapper(key: bottomNavKey);
-        },
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFE8F5E9), Color(0xFFC8E6C9), Color(0xFFA5D6A7)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: const Center(
+          child: CircularProgressIndicator(color: Colors.white),
+        ),
       ),
     );
   }

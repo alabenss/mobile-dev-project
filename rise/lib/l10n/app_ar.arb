@@ -563,7 +563,17 @@
   "passwordsDoNotMatch": "كلمات المرور غير متطابقة",
   "signUp": "إنشاء حساب",
   "alreadyHaveAccount": "هل لديك حساب بالفعل؟ ",
-  "login": "تسجيل الدخول"
+  "login": "تسجيل الدخول",
+
+  "addNewHabit": "إضافة عادة جديدة",
+"frequency": "التكرار",
+"selectHabit": "اختر عادة",
+"badHabit": "عادة سيئة",
+"points": "نقاط",
+"remindMe": "ذكرني",
+"selectTime": "اختر الوقت",
+"cancel": "إلغاء",
+"add": "إضافة"
 
 
 

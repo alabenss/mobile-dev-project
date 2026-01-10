@@ -183,8 +183,8 @@ class HabitCard extends StatelessWidget {
             ),
           ),
           
-          // Streak Restoration Option
-          if (habit.needsStreakRestoration && onRestoreStreak != null)
+          // Streak Restoration Option (controlled by parent)
+          if (onRestoreStreak != null)
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               padding: const EdgeInsets.all(8),

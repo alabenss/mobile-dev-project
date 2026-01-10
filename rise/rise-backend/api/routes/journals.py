@@ -94,6 +94,7 @@ def update_journal():
             'text': data.get('text'),
             'title': data.get('title'),
             'mood': data.get('mood'),
+            'voice_path': data.get('voicePath'),  # ✅ FIXED: Now included!
             'background_image': data.get('backgroundImage'),
             'font_family': data.get('fontFamily'),
             'text_color': data.get('textColor'),
