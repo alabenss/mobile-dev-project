@@ -242,6 +242,12 @@ class HabitCard extends StatelessWidget {
 
   Widget _buildTaskProgress(Habit habit) {
     final progress = habit.streakCount / 10;
+    
+    // FIXED: For bad habits, show progress when they resist (skip)
+    // The streakCount represents successful resistances for bad habits
+    // So we show the progress bar normally - it fills up as they resist more
+    final progressColor = habit.habitType == 'bad' ? Colors.green : Colors.orange;
+    
     return Row(
       children: [
         Expanded(
@@ -250,7 +256,7 @@ class HabitCard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: progress,
               backgroundColor: Colors.grey.withOpacity(0.2),
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
+              valueColor: AlwaysStoppedAnimation<Color>(progressColor),
               minHeight: 6,
             ),
           ),
@@ -259,7 +265,7 @@ class HabitCard extends StatelessWidget {
         Text(
           '${habit.streakCount}/10',
           style: TextStyle(
-            color: Colors.orange,
+            color: progressColor,
             fontSize: 11,
             fontWeight: FontWeight.bold,
           ),

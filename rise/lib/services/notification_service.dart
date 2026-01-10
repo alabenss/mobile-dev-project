@@ -182,7 +182,7 @@ class NotificationService {
 
     // Add task/habit indicator
     if (habit.isTask) {
-      notificationBody += '\nTask Progress: ${habit.taskCompletionCount}/10';
+      notificationBody += '\nTask Progress: ${habit.streakCount}/10';
     } else {
       notificationBody += '\nStreak: ${habit.streakCount} 🔥';
     }

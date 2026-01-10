@@ -85,7 +85,6 @@ class HabitTemplates {
       streakCount: 0,
       bestStreak: 0,
       isTask: true,
-      taskCompletionCount: 0,
     );
   }
 }

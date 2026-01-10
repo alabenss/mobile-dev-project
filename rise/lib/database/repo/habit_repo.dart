@@ -4,6 +4,7 @@ import '../../models/habit_model.dart';
 import '../../services/notification_service.dart';
 import '../../services/api_service.dart';
 import '../../config/api_config.dart';
+import '../../utils/timezone_helper.dart';
 
 class HabitRepository {
   final ApiService _api = ApiService.instance;
@@ -30,8 +31,9 @@ class HabitRepository {
       'streakCount': habit.streakCount,
       'bestStreak': habit.bestStreak,
       'isTask': habit.isTask,
-      'taskCompletionCount': habit.taskCompletionCount,
-      'lastCompletedDate': habit.lastCompletedDate?.toIso8601String(),
+      'lastCompletedDate': habit.lastCompletedDate != null 
+          ? TimezoneHelper.formatDateTimeForApi(habit.lastCompletedDate!)
+          : null,
     };
   }
 
@@ -71,11 +73,10 @@ class HabitRepository {
     final streakCount = (json['streak_count'] as int?) ?? 0;
     final bestStreak = (json['best_streak'] as int?) ?? 0;
     final isTask = json['is_task'] == true || json['is_task'] == 1;
-    final taskCompletionCount = (json['task_completion_count'] as int?) ?? 0;
     
     DateTime? lastCompletedDate;
     if (json['last_completed_date'] != null) {
-      lastCompletedDate = DateTime.parse(json['last_completed_date'] as String);
+      lastCompletedDate = TimezoneHelper.parseTimestamp(json['last_completed_date'] as String);
     }
     
     return Habit(
@@ -92,7 +93,6 @@ class HabitRepository {
       streakCount: streakCount,
       bestStreak: bestStreak,
       isTask: isTask,
-      taskCompletionCount: taskCompletionCount,
       lastCompletedDate: lastCompletedDate,
     );
   }
@@ -256,8 +256,10 @@ class HabitRepository {
         'bestStreak': newBestStreak,
         'isTask': newIsTask,
         'lastCompletedDate': (status == 'completed' || status == 'skipped')
-            ? DateTime.now().toIso8601String()
-            : habit.lastCompletedDate?.toIso8601String(),
+            ? TimezoneHelper.getCurrentTimestamp()
+            : (habit.lastCompletedDate != null 
+                ? TimezoneHelper.formatDateTimeForApi(habit.lastCompletedDate!)
+                : null),
       });
 
       return 1;
