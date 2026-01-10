@@ -21,28 +21,6 @@ def _is_same_month(date1, date2):
     """Check if two dates are in the same month"""
     return date1.year == date2.year and date1.month == date2.month
 
-def _check_habit_exists_in_period(user_id, title, frequency, now):
-    """Check if this specific habit (by title) already exists in the current period"""
-    all_habits = select('habits', filters={'user_id': user_id, 'title': title, 'frequency': frequency})
-    
-    if not all_habits:
-        return False
-    
-    for habit in all_habits:
-        created_at = datetime.fromisoformat(habit.get('created_at'))
-        
-        if frequency.lower() == 'daily':
-            if _is_same_day(created_at, now):
-                return True
-        elif frequency.lower() == 'weekly':
-            if _is_same_week(created_at, now):
-                return True
-        elif frequency.lower() == 'monthly':
-            if _is_same_month(created_at, now):
-                return True
-    
-    return False
-
 def _handle_period_transition(habit, frequency, now):
     """Handle streak tracking when transitioning between periods"""
     last_updated = datetime.fromisoformat(habit['last_updated'])
@@ -55,27 +33,33 @@ def _handle_period_transition(habit, frequency, now):
     streak_broken = False
     
     if frequency.lower() == 'daily':
+        # Check if yesterday was completed
         yesterday = now - timedelta(days=1)
         
         if last_completed_date:
             last_completed = datetime.fromisoformat(last_completed_date)
             
+            # For good habits: streak breaks if yesterday wasn't completed
             if habit_type == 'good':
                 if not _is_same_day(last_completed, yesterday):
                     streak_broken = True
+            # For bad habits: streak continues if skipped yesterday
             else:
                 if not _is_same_day(last_completed, yesterday):
                     streak_broken = True
         else:
+            # No completion date and we have a streak = streak broken
             if current_streak > 0:
                 streak_broken = True
             
     elif frequency.lower() == 'weekly':
+        # Check if last week was completed
         last_week_start = now - timedelta(days=now.weekday() + 7)
         
         if last_completed_date:
             last_completed = datetime.fromisoformat(last_completed_date)
             
+            # Check if completion was in the previous week
             if habit_type == 'good':
                 if not _is_same_week(last_completed, last_week_start):
                     streak_broken = True
@@ -87,6 +71,7 @@ def _handle_period_transition(habit, frequency, now):
                 streak_broken = True
             
     elif frequency.lower() == 'monthly':
+        # Check if last month was completed
         if now.month == 1:
             last_month = datetime(now.year - 1, 12, 1)
         else:
@@ -126,15 +111,19 @@ def _filter_habits_by_date_range(habits, start_date, end_date, frequency):
             
         habit_created = datetime.fromisoformat(created_at)
         
+        # Check if habit was created within the appropriate time period
         if frequency.lower() == 'daily':
+            # Only show habits created today
             if _is_same_day(habit_created, start_date):
                 filtered.append(habit)
                 
         elif frequency.lower() == 'weekly':
+            # Show habits created anytime this week (Monday-Sunday)
             if _is_same_week(habit_created, start_date):
                 filtered.append(habit)
                 
         elif frequency.lower() == 'monthly':
+            # Show habits created anytime this month
             if _is_same_month(habit_created, start_date):
                 filtered.append(habit)
     
@@ -161,11 +150,13 @@ def get_habits():
         if not result:
             return jsonify({'success': True, 'habits': []}), 200
         
+        # Filter by date range if provided
         if start_date and end_date and frequency:
             start = datetime.fromisoformat(start_date)
             end = datetime.fromisoformat(end_date)
             result = _filter_habits_by_date_range(result, start, end, frequency)
         
+        # Check if habits need reset based on period
         now = datetime.now()
         updated_habits = []
         
@@ -182,6 +173,7 @@ def get_habits():
                 should_reset = not _is_same_month(last_updated, now)
             
             if should_reset and habit['status'] != 'active':
+                # Handle period transition and reset
                 reset_data = _handle_period_transition(habit, habit_frequency, now)
                 update('habits', reset_data, filters={'id': habit['id']})
                 habit.update(reset_data)
@@ -199,27 +191,16 @@ def get_habits():
 
 @habits_bp.route('/habits.add', methods=['POST'])
 def add_habit():
-    """Add a new habit - prevent adding the same habit in the same period"""
+    """Add a new habit"""
     try:
         data = request.get_json()
         now = datetime.now()
-        user_id = data.get('userId')
-        title = data.get('title')
-        frequency = data.get('frequency')
-        
-        # Check if THIS SPECIFIC HABIT already exists in the current period
-        if _check_habit_exists_in_period(user_id, title, frequency, now):
-            period_name = 'day' if frequency.lower() == 'daily' else ('week' if frequency.lower() == 'weekly' else 'month')
-            return jsonify({
-                'success': False,
-                'error': f'This habit already exists for this {period_name}!'
-            }), 400
         
         habit_data = {
-            'user_id': user_id,
-            'title': title,
+            'user_id': data.get('userId'),
+            'title': data.get('title'),
             'description': data.get('description'),
-            'frequency': frequency,
+            'frequency': data.get('frequency'),
             'status': 'active',
             'do_it_at': data.get('doItAt'),
             'points': data.get('points', 10),
@@ -260,6 +241,7 @@ def update_habit():
             'last_updated': datetime.now().isoformat(),
         }
         
+        # Add optional fields if provided
         if 'remindMe' in data:
             update_data['remind_me'] = data['remindMe']
         if 'doItAt' in data:
@@ -291,6 +273,7 @@ def update_habit_status():
         if not all([user_id, title, status]):
             return jsonify({'error': 'userId, title, and status required'}), 400
         
+        # Get current habit data
         habit = select('habits', filters={'user_id': user_id, 'title': title}, single=True)
         if not habit:
             return jsonify({'error': 'Habit not found'}), 404
@@ -301,24 +284,29 @@ def update_habit_status():
         habit_type = habit.get('habit_type', 'good')
         last_completed = habit.get('last_completed_date')
         
+        # Calculate new streak based on status
         new_streak = current_streak
         new_best_streak = best_streak
         
         if status == 'completed':
+            # For good habits, increment streak
             if habit_type == 'good':
                 new_streak = current_streak + 1
                 if new_streak > best_streak:
                     new_best_streak = new_streak
         
         elif status == 'skipped':
+            # For bad habits, increment streak (resisting the bad habit)
             if habit_type == 'bad':
                 new_streak = current_streak + 1
                 if new_streak > best_streak:
                     new_best_streak = new_streak
+            # For good habits, break the streak
             else:
                 new_streak = 0
         
         elif status == 'active':
+            # Resetting - keep current streak but don't increment
             pass
         
         new_task_completion = data.get('taskCompletionCount', habit.get('task_completion_count', 0))
@@ -357,21 +345,24 @@ def restore_streak():
         if not all([user_id, habit_key]):
             return jsonify({'error': 'userId and habitKey required'}), 400
         
+        # Get habit
         habit = select('habits', filters={'user_id': user_id, 'title': habit_key}, single=True)
         if not habit:
             return jsonify({'error': 'Habit not found'}), 404
         
+        # Get user's current points
         user = select('users', filters={'id': user_id}, single=True)
         if not user:
             return jsonify({'error': 'User not found'}), 404
         
         current_points = user.get('total_points', 0)
         best_streak = habit.get('best_streak', 0)
-        restoration_cost = best_streak * 10
+        restoration_cost = best_streak * 10  # 10 points per streak day
         
         if current_points < restoration_cost:
             return jsonify({'error': 'Insufficient points'}), 400
         
+        # Deduct points and restore streak
         update('users', 
                {'total_points': current_points - restoration_cost},
                filters={'id': user_id})
@@ -492,21 +483,24 @@ def get_habit_by_title():
 
 @habits_bp.route('/habits.checkExists', methods=['GET'])
 def check_habit_exists():
-    """Check if a specific habit exists in the current period"""
+    """Check if habit exists"""
     try:
         user_id = request.args.get('userId')
         title = request.args.get('title')
         frequency = request.args.get('frequency')
         
-        if not all([user_id, title, frequency]):
-            return jsonify({'error': 'userId, title, and frequency required'}), 400
+        if not user_id or not title:
+            return jsonify({'error': 'userId and title required'}), 400
         
-        now = datetime.now()
-        exists = _check_habit_exists_in_period(int(user_id), title, frequency, now)
+        filters = {'user_id': int(user_id), 'title': title}
+        if frequency:
+            filters['frequency'] = frequency
+        
+        result = select('habits', filters=filters, single=True)
         
         return jsonify({
             'success': True,
-            'exists': exists
+            'exists': result is not None
         }), 200
         
     except Exception as e:

@@ -60,22 +60,29 @@ class HabitCubit extends Cubit<HabitState> {
 
   /// Add a new habit
   Future<void> addHabit(Habit habit) async {
-  // Check if THIS SPECIFIC HABIT already exists
-  final exists = await _repository.habitExistsWithFrequency(
-    habit.habitKey,  // Checks specific habit
-    habit.frequency
-  );
-  
-  if (exists) {
-    emit(state.copyWith(
-      error: 'This habit already exists with ${habit.frequency} frequency!'
-    ));
-    return;
+    try {
+      // Check if habit with same habitKey AND frequency already exists
+      final exists = await _repository.habitExistsWithFrequency(
+        habit.habitKey, 
+        habit.frequency
+      );
+      
+      if (exists) {
+        emit(state.copyWith(
+          error: 'This habit already exists with ${habit.frequency} frequency!'
+        ));
+        return;
+      }
+
+      // Insert into database
+      await _repository.insertHabit(habit);
+      
+      // Reload all habits to ensure proper filtering
+      await loadHabits();
+    } catch (e) {
+      emit(state.copyWith(error: e.toString()));
+    }
   }
-  
-  await _repository.insertHabit(habit);
-  await loadHabits();
-}
 
   /// Mark a habit as completed (awards points) - uses habitKey
   Future<void> completeHabit(String habitKey) async {
